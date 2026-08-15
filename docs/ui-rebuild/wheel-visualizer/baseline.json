@@ -1,0 +1,32 @@
+{
+  "scope": "wheel-visualizer",
+  "captured_at": "2026-08-16",
+  "repository": "f-box-fitment-store",
+  "scanner": {
+    "status": "not_applicable",
+    "reason": "The required BoxClaw scanner expects a repository with frontend/ and backend/ directories. This project is an intentionally independent no-build static SPA with index.html, app.js, styles.css and assets/.",
+    "command": "python scan_boxclaw.py --root . --output docs/ui-rebuild/wheel-visualizer/baseline.json"
+  },
+  "observed_boundary": {
+    "frontend": ["index.html", "app.js", "styles.css", "assets/"],
+    "backend": "none in this repository; production generation is delegated to the BoxClaw server adapter",
+    "router": "hash routes: #home, #store, #cart, #product/:id",
+    "storage": ["fbox-cart", "fbox-wishlist", "fbox-vehicle", "fbox-locale", "fbox-mall-token", "fbox-cookie"],
+    "existing_api_calls": ["/api/home/content", "/api/sso/login", "/admin-api/swagger-ui.html"],
+    "new_documented_api_calls": ["POST /api/wheel-visualizer/jobs", "GET /api/wheel-visualizer/jobs/:job_id"]
+  },
+  "frozen_interactions": [
+    "Year -> Make -> Model -> Trim -> Drive vehicle selector",
+    "Product gallery, price, ratings, reviews and related products",
+    "Add to cart, buy now, checkout and existing modal state",
+    "Home, store, cart and product hash routes",
+    "Manual and IP-detected locale behavior"
+  ],
+  "new_flow": {
+    "entry": "wheel product detail page",
+    "states": ["upload", "crop", "generating", "results", "error"],
+    "outputs": 3,
+    "billing": "officially sponsored by F-Box; no customer credits, price, plan or charge fields are sent by the browser",
+    "local_mode": "deterministic layout preview only; explicitly labeled and never presented as generated AI output"
+  }
+}

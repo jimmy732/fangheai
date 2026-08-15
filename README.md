@@ -62,6 +62,17 @@ IP 自动判断使用 ipapi.co 的公开 JSON 接口读取访客国家代码；�
 
 ## Custom wheel homepage direction
 
+## Wheel-on-vehicle visual preview
+
+The wheel product detail page now includes an isolated F-Box Visual Studio flow:
+
+- upload or drag in one vehicle photo;
+- adjust zoom and framing without changing the existing fitment selector;
+- request three angles with a BoxClaw-compatible async adapter;
+- review results, retry, or close without touching cart, checkout, prices, reviews, or product state.
+
+On `localhost`, the UI uses an explicitly labeled local layout preview so the flow can be tested without provider credentials. In production, `app.js` calls `POST /api/wheel-visualizer/jobs` and polls `GET /api/wheel-visualizer/jobs/:job_id`. Provider keys, model routing, the fixed prompt and sponsored/no-charge policy belong to BoxClaw. The complete request/response contract and hardcoded prompt are in `docs/ui-rebuild/wheel-visualizer/`.
+
 Home 首页现在以定制轮毂为第一叙事，强调 four buyer jobs：street builds、show cars、track setups、dealers / brands。文案围绕 custom size、width、PCD、ET、center bore、brake clearance、finish、center cap、logo 和 production approval 展开；这些卖点来自本轮对定制锻造轮毂品牌与 Alibaba 供应商公开页面的研究。
 
 本轮只替换 Home 的内容层与布局层。现有成品商品、商品详情、车型选择器、匹配产品预览、Quick View、购物车、结算、刹车产品区和评价区均继续使用原有状态与路由。

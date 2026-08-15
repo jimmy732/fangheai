@@ -94,6 +94,13 @@ const company = {
   tel: '+8614726178447'
 };
 
+// The storefront stays usable without the mall services. In local development,
+// local-fbox-server.mjs proxies these relative paths to mall-portal and mall-admin.
+const mallConfig = {
+  portalBase: '/api',
+  adminBase: '/admin-api'
+};
+
 const localeOptions = [
   ['en', 'English'], ['zh-CN', '简体中文'], ['zh-TW', '繁體中文'], ['ja', '日本語'], ['ko', '한국어'],
   ['de', 'Deutsch'], ['fr', 'Français'], ['es', 'Español'], ['it', 'Italiano'], ['pt-BR', 'Português (Brasil)'],
@@ -180,7 +187,10 @@ const state = {
   checkoutStep: 1,
   locale: initialLocale(),
   localeMode: localStorage.getItem('fbox-locale') ? 'manual' : 'auto',
-  localeCountry: ''
+  localeCountry: '',
+  mallToken: localStorage.getItem('fbox-mall-token') || '',
+  backend: { portal: 'testing', admin: 'testing', checked: false, checking: false },
+  wheelVisualizer: null
 };
 
 function getRoute() {
@@ -200,6 +210,253 @@ function go(hash) { state.modal = null; location.hash = hash; }
 function cartCount() { return state.cart.reduce((sum, item) => sum + item.qty, 0); }
 function cartTotal() { return state.cart.reduce((sum, item) => sum + item.qty * product(item.id).price, 0); }
 function currentVehicleLabel() { return state.vehicle ? [state.vehicle.year, state.vehicle.make, state.vehicle.model, state.vehicle.trim].filter(Boolean).join(' ') : 'Select your vehicle'; }
+
+const wheelVisualizerDefaults = () => ({
+  open: false,
+  productId: '',
+  phase: 'upload',
+  vehicleFile: null,
+  vehicleUrl: '',
+  vehicleName: '',
+  crop: { zoom: 1, x: 50, y: 50 },
+  jobId: '',
+  results: [],
+  error: '',
+  mode: 'local-preview'
+});
+state.wheelVisualizer = wheelVisualizerDefaults();
+
+function wheelVisualizerState(productId = '') {
+  return { ...wheelVisualizerDefaults(), open: true, productId };
+}
+function wheelVisualizerItem() {
+  return product(state.wheelVisualizer?.productId || state.route.id);
+}
+function wheelVisualizerLocalHost() {
+  return ['localhost', '127.0.0.1', '::1'].includes(location.hostname);
+}
+function wheelVisualizerAngleLabel(angle) {
+  return ({
+    front_left: 'Front three-quarter',
+    front_right: 'Front three-quarter',
+    side_profile: 'Side profile'
+  })[angle] || angle || 'Generated view';
+}
+function wheelVisualizerFormatBytes(bytes = 0) {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+function wheelVisualizerCropStyle(crop = state.wheelVisualizer?.crop || {}) {
+  const zoom = Number(crop.zoom || 1);
+  const x = Number(crop.x ?? 50);
+  const y = Number(crop.y ?? 50);
+  return `transform:scale(${zoom});transform-origin:${x}% ${y}%;`;
+}
+function wheelVisualizerClose() {
+  const current = state.wheelVisualizer;
+  if (current?.vehicleUrl?.startsWith('blob:')) URL.revokeObjectURL(current.vehicleUrl);
+  state.wheelVisualizer = wheelVisualizerDefaults();
+  render();
+}
+function wheelVisualizerReset(nextPhase = 'upload') {
+  const current = state.wheelVisualizer || wheelVisualizerDefaults();
+  if (current.vehicleUrl?.startsWith('blob:')) URL.revokeObjectURL(current.vehicleUrl);
+  state.wheelVisualizer = { ...wheelVisualizerDefaults(), open: true, productId: current.productId, phase: nextPhase };
+  render();
+}
+function wheelVisualizerHandleFile(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    state.wheelVisualizer.error = 'Please choose a JPG, PNG, WEBP or HEIC image.';
+    state.wheelVisualizer.phase = 'error';
+    render();
+    return;
+  }
+  if (file.size > 12 * 1024 * 1024) {
+    state.wheelVisualizer.error = 'This image is larger than 12 MB. Please choose a smaller photo.';
+    state.wheelVisualizer.phase = 'error';
+    render();
+    return;
+  }
+  const current = state.wheelVisualizer;
+  if (current.vehicleUrl?.startsWith('blob:')) URL.revokeObjectURL(current.vehicleUrl);
+  current.vehicleFile = file;
+  current.vehicleUrl = URL.createObjectURL(file);
+  current.vehicleName = file.name;
+  current.crop = { zoom: 1, x: 50, y: 50 };
+  current.phase = 'crop';
+  current.error = '';
+  render();
+}
+function wheelVisualizerLocalJob(request) {
+  return new Promise(resolve => {
+    window.setTimeout(() => {
+      const productRef = request.product;
+      resolve({
+        jobId: `local-wheel-${Date.now()}`,
+        status: 'succeeded',
+        mode: 'local-preview',
+        results: [
+          { id: 'front-left', angle: 'front_left', imageUrl: request.vehicleUrl, wheelImage: ASSET + productRef.image },
+          { id: 'front-right', angle: 'front_right', imageUrl: request.vehicleUrl, wheelImage: ASSET + productRef.image },
+          { id: 'side-profile', angle: 'side_profile', imageUrl: request.vehicleUrl, wheelImage: ASSET + productRef.image }
+        ]
+      });
+    }, 1650);
+  });
+}
+async function wheelVisualizerRemoteJob(request) {
+  const body = new FormData();
+  body.append('vehicle_image', request.file, request.file.name);
+  body.append('product_id', request.product.id);
+  body.append('product_name', request.product.name);
+  body.append('product_finish', request.product.finish);
+  body.append('product_fitment', request.product.meta);
+  body.append('product_image', `${location.origin}${ASSET}${request.product.image}`);
+  body.append('crop', JSON.stringify(request.crop));
+  body.append('angles', '3');
+  const response = await fetch('/api/wheel-visualizer/jobs', { method: 'POST', body, headers: { Accept: 'application/json' } });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) { const error = new Error(payload.message || 'The visual preview service is unavailable.'); error.status = response.status; throw error; }
+  return payload.data || payload;
+}
+async function createWheelVisualizerJob() {
+  const current = state.wheelVisualizer;
+  const item = wheelVisualizerItem();
+  const request = { file: current.vehicleFile, vehicleUrl: current.vehicleUrl, crop: current.crop, product: item };
+  if (window.FBOX_WHEEL_VISUALIZER_API?.create) return window.FBOX_WHEEL_VISUALIZER_API.create(request);
+  if (wheelVisualizerLocalHost()) {
+    try { return await wheelVisualizerRemoteJob(request); }
+    catch (error) {
+      if (error?.status === 404 || error?.status === 405 || error?.name === 'TypeError') return wheelVisualizerLocalJob(request);
+      throw error;
+    }
+  }
+  return wheelVisualizerRemoteJob(request);
+}
+async function wheelVisualizerStart() {
+  const current = state.wheelVisualizer;
+  if (!current?.vehicleFile) return;
+  current.phase = 'generating';
+  current.error = '';
+  current.jobId = '';
+  render();
+  try {
+    const result = await createWheelVisualizerJob();
+    if (result?.status === 'queued' || result?.status === 'running') {
+      current.jobId = result.jobId || result.job_id || '';
+      current.phase = 'generating';
+      render();
+      await wheelVisualizerPoll(current.jobId);
+      return;
+    }
+    current.jobId = result?.jobId || result?.job_id || '';
+    current.results = (result?.results || []).slice(0, 3);
+    current.mode = result?.mode || 'boxclaw';
+    if (current.results.length !== 3) throw new Error('The preview service returned fewer than 3 angles.');
+    current.phase = 'results';
+    render();
+  } catch (error) {
+    current.phase = 'error';
+    current.error = error?.message || 'We could not generate the visual preview.';
+    render();
+  }
+}
+async function wheelVisualizerPoll(jobId) {
+  if (!jobId) throw new Error('The preview job did not return an id.');
+  for (let attempt = 0; attempt < 45; attempt += 1) {
+    await new Promise(resolve => window.setTimeout(resolve, 1200));
+    const response = await fetch(`/api/wheel-visualizer/jobs/${encodeURIComponent(jobId)}`, { headers: { Accept: 'application/json' } });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.message || 'The preview job could not be checked.');
+    const result = payload.data || payload;
+    if (result.status === 'failed') throw new Error(result.message || 'The preview job failed.');
+    if (result.status === 'canceled') throw new Error('The preview job was canceled.');
+    if (result.status === 'succeeded' || result.status === 'completed') {
+      const current = state.wheelVisualizer;
+      current.results = (result.results || []).slice(0, 3);
+      current.mode = result.mode || 'boxclaw';
+      if (current.results.length !== 3) throw new Error('The preview service returned fewer than 3 angles.');
+      current.phase = 'results';
+      render();
+      return;
+    }
+  }
+  throw new Error('The preview is taking longer than expected. Please try again.');
+}
+
+async function mallRequest(base, endpoint, options = {}) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), options.timeout || 5000);
+  const headers = { Accept: 'application/json', ...(options.headers || {}) };
+  if (state.mallToken) headers.Authorization = `Bearer ${state.mallToken}`;
+  try {
+    const response = await fetch(`${base}${endpoint}`, { ...options, headers, signal: controller.signal });
+    const text = await response.text();
+    let payload = null;
+    try { payload = text ? JSON.parse(text) : null; } catch { payload = text; }
+    if (!response.ok) throw new Error(`mall request failed: ${response.status}`);
+    if (payload && typeof payload === 'object' && payload.code !== undefined && payload.code !== 200) {
+      throw new Error(payload.message || 'mall request failed');
+    }
+    return payload?.data ?? payload;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+function mallStatusLabel(status) {
+  if (status === 'connected') return 'Connected';
+  if (status === 'checking') return 'Checking';
+  return 'Testing';
+}
+function mallStatusChip(kind = 'portal') {
+  const status = state.backend[kind] || 'testing';
+  return `<span class="integration-chip ${status === 'connected' ? 'is-live' : 'is-testing'}"><i></i>Mall ${kind === 'portal' ? 'portal' : 'admin'} · ${mallStatusLabel(status)}</span>`;
+}
+async function checkMallBackend() {
+  if (state.backend.checking) return;
+  state.backend.checking = true;
+  state.backend.portal = 'checking';
+  state.backend.admin = 'checking';
+  render();
+  const [portal, admin] = await Promise.allSettled([
+    mallRequest(mallConfig.portalBase, '/home/content'),
+    fetch(`${mallConfig.adminBase}/swagger-ui.html`, { method: 'GET', signal: AbortSignal.timeout(5000) })
+  ]);
+  state.backend.portal = portal.status === 'fulfilled' ? 'connected' : 'testing';
+  state.backend.admin = admin.status === 'fulfilled' && admin.value.ok ? 'connected' : 'testing';
+  state.backend.checked = true;
+  state.backend.checking = false;
+  render();
+}
+async function mallLogin(username, password) {
+  const body = new URLSearchParams({ username, password });
+  return mallRequest(mallConfig.portalBase, '/sso/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body
+  });
+}
+
+function decorateIntegrationState() {
+  const headerActions = document.querySelector(".header-actions");
+  if (headerActions && !headerActions.querySelector(".mall-status")) {
+    headerActions.insertAdjacentHTML("afterbegin", `<div class="mall-status" title="Local macrozheng/mall integration">${mallStatusChip("portal")}</div>`);
+  }
+  const storeHero = document.querySelector(".store-hero .container");
+  if (storeHero && !storeHero.querySelector(".integration-strip")) {
+    storeHero.insertAdjacentHTML("beforeend", `<div class="integration-strip"><div><strong>F-Box catalog stays active</strong><span>Existing wheels and brake-part interactions are preserved.</span></div><div class="integration-chips">${mallStatusChip("portal")}${mallStatusChip("admin")}<span class="integration-chip is-testing"><i></i>Real checkout · Testing</span></div></div>`);
+  }
+  const accountForm = document.querySelector("[data-form=account]");
+  if (accountForm && !accountForm.previousElementSibling?.classList.contains("integration-note")) {
+    accountForm.insertAdjacentHTML("beforebegin", `<div class="integration-note">${mallStatusChip("portal")}<span>Account login uses mall-portal when the local service is available. New account registration remains Testing.</span></div>`);
+  }
+  const checkoutForm = document.querySelector("[data-form=checkout]");
+  if (checkoutForm && !checkoutForm.previousElementSibling?.classList.contains("integration-note")) {
+    checkoutForm.insertAdjacentHTML("beforebegin", `<div class="integration-note">${mallStatusChip("portal")}<span>Order generation and payment remain Testing until F-Box products, shipping rules and a payment provider are configured in mall.</span></div>`);
+  }
+}
 
 function selectOptions(values, selected = '', placeholder = 'Select') { return `<option value="">${placeholder}</option>${values.map(value => `<option value="${esc(value)}" ${String(value) === String(selected) ? 'selected' : ''}>${esc(value)}</option>`).join('')}`; }
 function vehicleSelector(prefix = 'vehicle') {
@@ -349,6 +606,16 @@ function storePage() {
 }
 
 function renderReview(review, index) { return `<article class="review-item" style="animation-delay:${index * 80}ms"><div class="review-head"><div><strong>${esc(review.title)}</strong><div>${stars(5)}</div></div><small>${review.date}</small></div><p>${esc(review.body)}</p><div class="review-meta"><span>✓ Verified purchase</span><span>${esc(review.vehicle)}</span><span>${review.helpful} found this helpful</span></div></article>`; }
+function wheelVisualizerTrigger(item) {
+  if (item.category !== 'Wheels') return '';
+  return `<section class="wheel-visualizer-entry" aria-labelledby="wheel-visualizer-title"><div class="wheel-visualizer-entry-copy"><div class="wheel-visualizer-eyebrow"><span>${icons.spark}</span> See it on your car</div><h2 id="wheel-visualizer-title">Preview this wheel<br><em>before you commit.</em></h2><p>Upload one clear photo of your car and F-Box will prepare three angles with this exact wheel, finish and fitment as the reference.</p><div class="wheel-visualizer-entry-proof"><span>3 angles</span><span>Fitment-led</span><span>Included with your build</span></div></div><button class="btn btn-primary wheel-visualizer-open" data-action="wheel-open" data-id="${item.id}"><span>Upload car photo</span><span aria-hidden="true">↗</span></button></section>`;
+}
+function wireWheelVisualizerEntry() {
+  if (state.route.name !== 'product') return;
+  const item = product(state.route.id);
+  const form = document.querySelector('.detail-form');
+  if (item.category === 'Wheels' && form && !form.querySelector('.wheel-visualizer-entry')) form.insertAdjacentHTML('beforeend', wheelVisualizerTrigger(item));
+}
 function productPage(item) {
   const image = state.productImage[item.id] || item.image;
   const related = products.filter(p => p.category === item.category && p.id !== item.id).slice(0, 4);
@@ -361,6 +628,31 @@ function cartPage() {
   return `<section class="cart-page"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>Shopping cart</span></div><div class="section-heading"><div><p class="eyebrow">Your saved build</p><h1 class="detail-title">Shopping cart</h1></div><a class="btn btn-outline" href="#store">Continue shopping</a></div>${state.cart.length ? `<div class="cart-layout"><div class="cart-list">${state.cart.map(item => { const p = product(item.id); return `<div class="cart-item"><img src="${ASSET + p.image}" alt="${esc(p.name)}"><div><h3>${p.name}</h3><p>${p.category} · ${p.meta}</p><button class="btn btn-outline btn-small" data-action="remove-cart" data-id="${p.id}" style="margin-top:10px">Remove</button></div><div class="qty-control"><button data-action="qty" data-id="${p.id}" data-delta="-1">−</button><span>${item.qty}</span><button data-action="qty" data-id="${p.id}" data-delta="1">+</button></div><div class="cart-price">${money(p.price * item.qty)}</div></div>`; }).join('')}</div><aside class="summary-card"><h2>Order summary</h2><div class="summary-row"><span>Parts subtotal</span><strong>${money(total)}</strong></div><div class="summary-row"><span>Estimated delivery</span><strong>Calculated at checkout</strong></div><div class="summary-row"><span>Fitment review</span><strong style="color:var(--success)">Included</strong></div><div class="coupon"><input class="text-input" placeholder="Promo code"><button class="btn btn-outline btn-small" data-action="apply-coupon">Apply</button></div><div class="summary-row total"><span>Total</span><strong>${money(total)}</strong></div><button class="btn btn-primary" data-action="checkout" style="width:100%;margin-top:12px">Continue to checkout</button><p class="filter-help">This demo checkout does not collect real payment. Connect your preferred provider before launch.</p></aside></div>` : `<div class="empty-cart"><h2>Your cart is ready for a build.</h2><p class="muted">Add wheels, calipers, rotors or pads and we will keep the fitment context attached.</p><a class="btn btn-primary" href="#store">Start shopping</a></div>`}</div></section>`;
 }
 
+function wheelVisualizerResultCard(result, index, item, mode) {
+  const angle = wheelVisualizerAngleLabel(result.angle);
+  const imageUrl = result.imageUrl || result.image_url || result.url || '';
+  if (mode === 'local-preview') {
+    const position = ['left', 'right', 'center'][index] || 'center';
+    return `<article class="wheel-result-card"><div class="wheel-result-media wheel-result-local"><img class="wheel-result-car" src="${esc(imageUrl)}" alt="Uploaded vehicle preview — ${esc(angle)}" style="${wheelVisualizerCropStyle(state.wheelVisualizer.crop)}"><div class="wheel-result-overlay wheel-result-overlay-${position}"><img src="${esc(result.wheelImage || ASSET + item.image)}" alt="${esc(item.name)} wheel reference"></div><span class="wheel-result-mode">Local layout preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>Reference placement for ${esc(item.name)}</span></div></article>`;
+  }
+  return `<article class="wheel-result-card"><div class="wheel-result-media"><img class="wheel-result-output" src="${esc(imageUrl)}" alt="${esc(item.name)} on your vehicle — ${esc(angle)}" loading="lazy"><span class="wheel-result-mode">BoxClaw visual preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>Wheel, finish and fitment held as reference</span></div></article>`;
+}
+function wheelVisualizerModal() {
+  const current = state.wheelVisualizer;
+  if (!current?.open) return '';
+  const item = wheelVisualizerItem();
+  const phase = current.phase;
+  const steps = [['upload', '01', 'Upload'], ['crop', '02', 'Frame'], ['generating', '03', 'Generate'], ['results', '04', 'Review']];
+  const stepIndex = phase === 'error' ? 2 : Math.max(0, steps.findIndex(([key]) => key === phase));
+  const stepRail = steps.map(([key, number, label], index) => `<div class="wheel-step ${index === stepIndex ? 'is-active' : ''} ${index < stepIndex ? 'is-done' : ''}"><span>${index < stepIndex ? '✓' : number}</span><strong>${label}</strong></div>`).join('');
+  let content = '';
+  if (phase === 'upload') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Start with one real photo</div><h3>Show us the car.<br><em>We will show you the stance.</em></h3><p class="wheel-content-lead">Use a clear exterior photo with at least one wheel visible. A front three-quarter or side view gives the best fitment reference.</p><label class="wheel-upload-zone" data-wheel-dropzone><input type="file" accept="image/jpeg,image/png,image/webp,image/heic" data-wheel-upload><span class="wheel-upload-icon">＋</span><strong>Drop your car photo here</strong><span>JPG, PNG, WEBP or HEIC · Up to 12 MB</span><span class="btn btn-dark btn-small">Choose a photo</span></label><div class="wheel-visualizer-privacy"><span>${icons.shield}</span><span>Your image is used only to create this preview. No payment or credits are required.</span></div></div>`;
+  if (phase === 'crop') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Frame the reference</div><h3>Keep the car visible.<br><em>Center the wheel area.</em></h3><p class="wheel-content-lead">Adjust the crop only if needed. We keep your selected ${esc(item.name)} and the vehicle details as separate references for the final render.</p><div class="wheel-crop-stage"><img data-wheel-crop-image src="${esc(current.vehicleUrl)}" alt="${esc(current.vehicleName || 'Uploaded vehicle photo')}" style="${wheelVisualizerCropStyle(current.crop)}"><div class="wheel-crop-guide"><span>Keep one wheel in this frame</span></div></div><div class="wheel-crop-controls"><label><span>Zoom</span><input type="range" min="1" max="1.6" step="0.01" value="${current.crop.zoom}" data-wheel-crop="zoom"><output data-wheel-crop-output="zoom">${Number(current.crop.zoom).toFixed(2)}×</output></label><label><span>Horizontal</span><input type="range" min="0" max="100" step="1" value="${current.crop.x}" data-wheel-crop="x"><output data-wheel-crop-output="x">${current.crop.x}%</output></label><label><span>Vertical</span><input type="range" min="0" max="100" step="1" value="${current.crop.y}" data-wheel-crop="y"><output data-wheel-crop-output="y">${current.crop.y}%</output></label></div><div class="wheel-crop-actions"><button class="btn btn-outline btn-small" data-action="wheel-crop-reset">Reset frame</button><button class="btn btn-primary" data-action="wheel-generate">Generate 3 angles <span aria-hidden="true">↗</span></button></div></div>`;
+  if (phase === 'generating') content = `<div class="wheel-visualizer-content wheel-generating-content" aria-live="polite"><div class="wheel-generating-orbit"><div class="wheel-generating-wheel"><img src="${ASSET + item.image}" alt="${esc(item.name)}"></div><span></span><span></span><span></span></div><div class="wheel-content-kicker">F-Box visual studio</div><h3>Matching wheel to vehicle<br><em>and checking the stance.</em></h3><p class="wheel-content-lead">We are holding the wheel design, finish, proportions and vehicle perspective together while preparing three views.</p><div class="wheel-progress"><span></span></div><div class="wheel-generating-meta"><span>Fitment reference locked</span><span>3 angles requested</span><span>Officially included</span></div></div>`;
+  if (phase === 'results') content = `<div class="wheel-visualizer-content wheel-results-content"><div class="wheel-results-head"><div><div class="wheel-content-kicker">Your preview set</div><h3>See the wheel<br><em>in its natural stance.</em></h3></div><div class="wheel-results-count"><strong>03</strong><span>angles</span></div></div><p class="wheel-content-lead">These views use ${esc(item.name)} in ${esc(item.finish)} as the wheel reference. Keep the final fitment check with the F-Box team before production.</p><div class="wheel-results-grid">${current.results.map((result, index) => wheelVisualizerResultCard(result, index, item, current.mode)).join('')}</div>${current.mode === 'local-preview' ? '<div class="wheel-local-note"><strong>Local preview mode</strong><span>The BoxClaw image endpoint is not connected on this local static server yet. The interaction and request payload are ready; connect the server adapter to replace these layout previews with generated images.</span></div>' : ''}<div class="wheel-results-actions"><button class="btn btn-outline" data-action="wheel-reset">Try another photo</button><button class="btn btn-primary" data-action="wheel-close">Keep this wheel <span aria-hidden="true">↗</span></button></div></div>`;
+  if (phase === 'error') content = `<div class="wheel-visualizer-content wheel-error-content" role="alert"><div class="wheel-error-mark">!</div><div class="wheel-content-kicker">Preview not ready</div><h3>We could not finish<br><em>this set of angles.</em></h3><p class="wheel-content-lead">${esc(current.error || 'Please check the image and try again.')}</p><div class="wheel-error-actions"><button class="btn btn-outline" data-action="wheel-reset">Choose another photo</button><button class="btn btn-primary" data-action="wheel-retry">Retry preview</button></div></div>`;
+  return `<div class="wheel-visualizer-overlay" data-action="wheel-close"><div class="wheel-visualizer-shell" data-wheel-modal role="dialog" aria-modal="true" aria-labelledby="wheel-visualizer-dialog-title"><header class="wheel-visualizer-header"><div><div class="wheel-visualizer-brand"><span class="wheel-brand-dot"></span> F-BOX VISUAL STUDIO</div><h2 id="wheel-visualizer-dialog-title">${esc(item.name)} <span>· ${esc(item.finish)}</span></h2></div><div class="wheel-visualizer-header-actions"><span class="wheel-included-badge">Included with your build</span><button class="icon-btn wheel-modal-close" data-action="wheel-close" aria-label="Close visual preview">${icons.close}</button></div></header><div class="wheel-visualizer-body"><aside class="wheel-step-rail"><div class="wheel-step-rail-title">Your build preview</div>${stepRail}<div class="wheel-step-rail-foot"><span>${icons.shield}</span><p>F-Box covers the preview cost. There is no customer charge.</p></div></aside><main class="wheel-visualizer-main">${content}</main></div></div></div>`;
+}
 function modal() {
   if (!state.modal) return '';
   if (state.modal.type === 'quick') { const item = product(state.modal.id); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Quick view</p><h2>${item.name}</h2><div class="quick-product"><img src="${ASSET + item.image}" alt="${esc(item.name)}"><div><div class="product-brand">${item.brand} · ${item.category}</div><div>${stars(item.rating)} <span class="muted">${item.reviews} reviews</span></div><p>${item.meta}<br>${item.deal}</p><strong style="font-size:22px">${money(item.price)} <small class="muted">/ each</small></strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">Add to cart</button></div></div></div></div>`; }
@@ -509,7 +801,9 @@ async function detectLocaleByIp() {
 function render() {
   state.route = getRoute();
   const page = state.route.name === 'home' ? customWheelHomePage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : productPage(product(state.route.id));
-  document.querySelector('#app').innerHTML = `${header()}${page}${footer()}${chat()}${state.cookie ? '<div class="cookie-banner"><span>By using F-Box, you agree to our cookie policy and fitment analytics.</span><button data-action="dismiss-cookie">Dismiss</button></div>' : ''}${modal()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
+  document.querySelector('#app').innerHTML = `${header()}${page}${footer()}${chat()}${state.cookie ? '<div class="cookie-banner"><span>By using F-Box, you agree to our cookie policy and fitment analytics.</span><button data-action="dismiss-cookie">Dismiss</button></div>' : ''}${modal()}${wheelVisualizerModal()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
+  wireWheelVisualizerEntry();
+  decorateIntegrationState();
   applyTranslations();
   translatePageFull();
   wireSpotlights();
@@ -559,6 +853,12 @@ document.addEventListener('click', event => {
   if (action === 'dismiss-cookie') { state.cookie = false; localStorage.setItem('fbox-cookie', 'dismissed'); render(); return; }
   if (action === 'chat') { state.chatOpen = !state.chatOpen; render(); return; }
   if (action === 'chat-reply') { setToast(`${target.dataset.message} — a fitment expert will follow up.`); state.chatOpen = false; return; }
+  if (action === 'wheel-open') { state.wheelVisualizer = wheelVisualizerState(target.dataset.id); render(); return; }
+  if (action === 'wheel-close') { if (event.target.closest('[data-wheel-modal]') && !target.classList.contains('wheel-modal-close')) return; wheelVisualizerClose(); return; }
+  if (action === 'wheel-generate') { wheelVisualizerStart(); return; }
+  if (action === 'wheel-reset') { wheelVisualizerReset('upload'); return; }
+  if (action === 'wheel-retry') { if (state.wheelVisualizer.vehicleFile) { state.wheelVisualizer.phase = 'generating'; wheelVisualizerStart(); } else wheelVisualizerReset('upload'); return; }
+  if (action === 'wheel-crop-reset') { state.wheelVisualizer.crop = { zoom: 1, x: 50, y: 50 }; render(); return; }
   if (action === 'quick-view') { state.modal = { type: 'quick', id: target.dataset.id }; render(); return; }
   if (action === 'close-modal') { if (event.target.closest('[data-modal-content]') && !target.classList.contains('modal-close')) return; state.modal = null; render(); return; }
   if (action === 'wishlist') { const id = target.dataset.id; state.wishlist = state.wishlist.includes(id) ? state.wishlist.filter(x => x !== id) : [...state.wishlist, id]; persist(); render(); return; }
@@ -581,6 +881,7 @@ document.addEventListener('click', event => {
 
 document.addEventListener('change', event => {
   const el = event.target;
+  if (el.matches('[data-wheel-upload]')) { wheelVisualizerHandleFile(el.files?.[0]); return; }
   if (el.matches('[data-locale]')) {
     if (el.value === 'auto') {
       localStorage.removeItem('fbox-locale');
@@ -606,14 +907,49 @@ document.addEventListener('change', event => {
     render();
   }
 });
-document.addEventListener('submit', event => {
+document.addEventListener('input', event => {
+  const el = event.target;
+  if (!el.matches('[data-wheel-crop]')) return;
+  const key = el.dataset.wheelCrop;
+  state.wheelVisualizer.crop[key] = Number(el.value);
+  const image = document.querySelector('[data-wheel-crop-image]');
+  if (image) image.setAttribute('style', wheelVisualizerCropStyle(state.wheelVisualizer.crop));
+  const output = document.querySelector(`[data-wheel-crop-output="${key}"]`);
+  if (output) output.textContent = key === 'zoom' ? `${Number(el.value).toFixed(2)}×` : `${el.value}%`;
+});
+document.addEventListener('dragover', event => {
+  if (event.target.closest('[data-wheel-dropzone]')) event.preventDefault();
+});
+document.addEventListener('drop', event => {
+  const zone = event.target.closest('[data-wheel-dropzone]');
+  if (!zone) return;
+  event.preventDefault();
+  wheelVisualizerHandleFile(event.dataTransfer?.files?.[0]);
+});
+document.addEventListener('submit', async event => {
   event.preventDefault();
   const form = event.target;
   if (form.dataset.form === 'search') { state.search = new FormData(form).get('query') || ''; go('#store'); }
-  if (form.dataset.form === 'account') { state.modal = null; setToast('Demo sign-in complete. Connect auth before launch.'); }
+  if (form.dataset.form === 'account') {
+    const values = new FormData(form);
+    try {
+      const result = await mallLogin(values.get('username'), values.get('password'));
+      state.mallToken = result?.token || '';
+      if (state.mallToken) localStorage.setItem('fbox-mall-token', state.mallToken);
+      state.modal = null;
+      setToast('Signed in through the local mall portal.');
+    } catch {
+      state.modal = null;
+      setToast('Demo sign-in complete. Mall account integration is Testing.');
+    }
+  }
   if (form.dataset.form === 'review') { state.modal = null; setToast('Thanks — your review is queued for moderation.'); }
   if (form.dataset.form === 'checkout') { if (state.checkoutStep < 3) state.checkoutStep += 1; else { state.checkoutStep = 4; state.cart = []; persist(); } render(); }
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && state.wheelVisualizer?.open) wheelVisualizerClose();
 });
 window.addEventListener('hashchange', () => { state.menuOpen = false; state.mobileNav = false; state.modal = null; state.reviewLimit = 3; render(); window.scrollTo({ top: 0, behavior: 'instant' }); });
 render();
 detectLocaleByIp();
+checkMallBackend();
