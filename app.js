@@ -616,6 +616,12 @@ function wireWheelVisualizerEntry() {
   const form = document.querySelector('.detail-form');
   if (item.category === 'Wheels' && form && !form.querySelector('.wheel-visualizer-entry')) form.insertAdjacentHTML('beforeend', wheelVisualizerTrigger(item));
 }
+function wireHomeVisualizerBanner() {
+  if (state.route.name !== 'home') return;
+  const stage = document.querySelector('.custom-wheel-stage');
+  if (!stage || stage.querySelector('.home-visualizer-teaser')) return;
+  stage.insertAdjacentHTML('beforeend', `<aside class="home-visualizer-teaser" aria-labelledby="home-visualizer-title"><div class="home-visualizer-teaser-top"><span class="home-visualizer-badge">New / visual fitment</span><span class="home-visualizer-count">03 angles</span></div><h2 id="home-visualizer-title">See it on <em>your car.</em></h2><p>Choose a wheel, upload one photo and compare the stance before you commit.</p><div class="home-visualizer-angles"><span><strong>01</strong> front 3/4</span><span><strong>02</strong> rear 3/4</span><span><strong>03</strong> side profile</span></div><a class="home-visualizer-link" href="#store" data-category-link="Wheels">Choose a wheel to preview <span aria-hidden="true">↗</span></a></aside>`);
+}
 function productPage(item) {
   const image = state.productImage[item.id] || item.image;
   const related = products.filter(p => p.category === item.category && p.id !== item.id).slice(0, 4);
@@ -803,6 +809,7 @@ function render() {
   const page = state.route.name === 'home' ? customWheelHomePage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : productPage(product(state.route.id));
   document.querySelector('#app').innerHTML = `${header()}${page}${footer()}${chat()}${state.cookie ? '<div class="cookie-banner"><span>By using F-Box, you agree to our cookie policy and fitment analytics.</span><button data-action="dismiss-cookie">Dismiss</button></div>' : ''}${modal()}${wheelVisualizerModal()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
   wireWheelVisualizerEntry();
+  wireHomeVisualizerBanner();
   decorateIntegrationState();
   applyTranslations();
   translatePageFull();
