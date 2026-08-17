@@ -10,6 +10,7 @@ WorkingDirectory=/opt/fbox/fangheai
 Environment=NODE_ENV=production
 Environment=FBOX_PORT=4174
 Environment=FBOX_RUNTIME_DIR=/var/lib/fbox/runtime
+EnvironmentFile=-/etc/fbox/fbox.env
 ExecStart=/usr/bin/node /opt/fbox/fangheai/server.mjs
 Restart=always
 RestartSec=5

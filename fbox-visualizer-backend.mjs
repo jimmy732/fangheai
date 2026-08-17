@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
@@ -24,6 +24,20 @@ const jobs = new Map();
 const jobTtlMs = 60 * 60 * 1000;
 const operationsPath = path.join(runtimeDir, 'fbox-operations.json');
 const seedOperationsPath = path.join(moduleDir, 'data', 'fbox-operations.seed.json');
+const storePath = path.join(runtimeDir, 'fbox-store.json');
+const seedStorePath = path.join(moduleDir, 'data', 'fbox-store.seed.json');
+const adminSessions = new Map();
+const adminSessionTtlMs = 12 * 60 * 60 * 1000;
+const customerSessions = new Map();
+const customerSessionTtlMs = 30 * 24 * 60 * 60 * 1000;
+
+function adminUsername() {
+  return String(process.env.FBOX_ADMIN_USERNAME || 'admin').trim();
+}
+
+function adminPassword() {
+  return String(process.env.FBOX_ADMIN_PASSWORD || '').trim();
+}
 
 const defaultOperations = {
   vehicles: [
@@ -42,6 +56,7 @@ const defaultOperations = {
 };
 let operationsCache = null;
 let frontendVehicleLibraryCache = null;
+let storeCache = null;
 
 function vehicleLibraryKey(vehicle = {}) {
   return [vehicle.year, vehicle.make, vehicle.model, vehicle.trim, vehicle.drive].map(value => String(value || '').trim().toLowerCase()).join('|');
@@ -152,6 +167,81 @@ async function saveOperations(data) {
   operationsCache = data;
   await fs.mkdir(runtimeDir, { recursive: true });
   await fs.writeFile(operationsPath, JSON.stringify(data, null, 2), 'utf8');
+}
+
+function copyDefaultStore() {
+  return { products: [], accounts: [], orders: [] };
+}
+
+async function loadStore() {
+  if (storeCache) return storeCache;
+  let raw;
+  try {
+    raw = JSON.parse(await fs.readFile(storePath, 'utf8'));
+  } catch {
+    try { raw = JSON.parse(await fs.readFile(seedStorePath, 'utf8')); } catch { raw = null; }
+  }
+  storeCache = {
+    ...copyDefaultStore(),
+    ...(raw || {}),
+    products: Array.isArray(raw?.products) ? raw.products : [],
+    accounts: Array.isArray(raw?.accounts) ? raw.accounts : [],
+    orders: Array.isArray(raw?.orders) ? raw.orders : []
+  };
+  if (!await fs.access(storePath).then(() => true).catch(() => false)) await saveStore(storeCache);
+  return storeCache;
+}
+
+async function saveStore(data) {
+  storeCache = data;
+  await fs.mkdir(runtimeDir, { recursive: true });
+  await fs.writeFile(storePath, JSON.stringify(data, null, 2), 'utf8');
+}
+
+function hashCustomerPassword(password) {
+  return createHash('sha256').update(String(password || '')).digest('hex');
+}
+
+function customerToken(req) {
+  const authorization = String(req.headers.authorization || '');
+  if (/^Bearer\s+/i.test(authorization)) return authorization.replace(/^Bearer\s+/i, '').trim();
+  return String(req.headers['x-fbox-customer-token'] || '').trim();
+}
+
+function currentCustomer(req) {
+  const token = customerToken(req);
+  const session = customerSessions.get(token);
+  if (!session) return null;
+  if (Date.now() - session.createdAt > customerSessionTtlMs) {
+    customerSessions.delete(token);
+    return null;
+  }
+  return session;
+}
+
+function publicCustomer(account) {
+  return { id: account.id, username: account.username, email: account.email || '', telephone: account.telephone || '', created_at: account.created_at };
+}
+
+function requireCustomer(req, res) {
+  const customer = currentCustomer(req);
+  if (!customer) {
+    json(res, 401, { detail: 'F-Box customer authentication is required.' });
+    return null;
+  }
+  return customer;
+}
+
+function storeProduct(data, productId) {
+  return data.products.find(item => String(item.id) === String(productId) && item.status !== 'archived');
+}
+
+function orderTotal(data, items = []) {
+  return items.reduce((sum, item) => {
+    const product = storeProduct(data, item.product_id);
+    const quantity = Math.max(1, Number(item.quantity || 1));
+    return sum + (product ? Number(product.price || 0) * quantity : 0);
+  }, 0);
 }
 
 function operationId(prefix) {
@@ -617,8 +707,14 @@ async function capturePayPalOrder(config, orderId) {
 
 async function isAdminRequest(req) {
   const authorization = String(req.headers.authorization || '').trim();
-  if (!authorization) return false;
-  const verifyUrl = String(process.env.FBOX_ADMIN_AUTH_URL || 'http://127.0.0.1:8080/admin/info');
+  const token = authorization.replace(/^Bearer\s+/i, '').trim() || String(req.headers['x-fbox-admin-token'] || '').trim();
+  if (token) {
+    const session = adminSessions.get(token);
+    if (session && session.expires_at > Date.now()) return true;
+    if (session) adminSessions.delete(token);
+  }
+  const verifyUrl = String(process.env.FBOX_ADMIN_AUTH_URL || '').trim();
+  if (!verifyUrl || !authorization) return false;
   try {
     const response = await fetch(verifyUrl, { headers: { Authorization: authorization, Accept: 'application/json' }, signal: AbortSignal.timeout(8_000) });
     const payload = await response.json().catch(() => ({}));
@@ -626,6 +722,171 @@ async function isAdminRequest(req) {
   } catch {
     return false;
   }
+}
+
+function publicAdminUser() {
+  return {
+    username: adminUsername(),
+    icon: '',
+    roles: ['super-admin'],
+    menus: []
+  };
+}
+
+export async function handleFBoxStoreApi(req, res, url) {
+  if (req.method === 'OPTIONS') return json(res, 204, {});
+  const pathName = url.pathname.replace(/\/$/, '');
+  const data = await loadStore();
+
+  if (req.method === 'GET' && pathName === '/api/fbox-store/products') {
+    const query = textValue(url.searchParams.get('q'), 120).toLowerCase();
+    const category = textValue(url.searchParams.get('category'), 80);
+    const products = data.products.filter(item => item.status !== 'archived' && (!category || item.category === category) && (!query || [item.name, item.brand, item.part, item.meta].some(value => String(value || '').toLowerCase().includes(query))));
+    return json(res, 200, { code: 200, data: products, meta: { total: products.length } });
+  }
+
+  if (req.method === 'POST' && pathName === '/api/fbox-store/auth/register') {
+    try {
+      const payload = await readJson(req, 64 * 1024);
+      const username = textValue(payload.username, 80);
+      const password = String(payload.password || '');
+      const email = textValue(payload.email, 160).toLowerCase();
+      const telephone = textValue(payload.telephone || payload.phone, 60);
+      if (!username || password.length < 6) return json(res, 422, { detail: 'Username and a password of at least 6 characters are required.' });
+      if (data.accounts.some(account => account.username.toLowerCase() === username.toLowerCase() || (email && account.email?.toLowerCase() === email))) return json(res, 409, { detail: 'This F-Box account already exists.' });
+      const account = { id: operationId('customer'), username, email, telephone, password_hash: hashCustomerPassword(password), wishlist: [], cart: [], created_at: new Date().toISOString() };
+      data.accounts.push(account);
+      await saveStore(data);
+      return json(res, 200, { code: 200, data: { member: publicCustomer(account) } });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || 'F-Box account registration failed.' }); }
+  }
+
+  if (req.method === 'POST' && pathName === '/api/fbox-store/auth/login') {
+    try {
+      const payload = await readJson(req, 64 * 1024);
+      const identity = textValue(payload.username || payload.email, 160).toLowerCase();
+      const account = data.accounts.find(item => item.username.toLowerCase() === identity || (item.email && item.email.toLowerCase() === identity));
+      if (!account || account.password_hash !== hashCustomerPassword(payload.password)) return json(res, 401, { detail: 'Invalid F-Box account or password.' });
+      const token = `fbox_customer_${randomUUID()}`;
+      customerSessions.set(token, { accountId: account.id, createdAt: Date.now() });
+      return json(res, 200, { code: 200, data: { tokenHead: 'Bearer ', token, member: publicCustomer(account) } });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || 'F-Box account login failed.' }); }
+  }
+
+  if (req.method === 'GET' && pathName === '/api/fbox-store/auth/info') {
+    const session = currentCustomer(req);
+    if (!session) return json(res, 401, { detail: 'F-Box customer authentication is required.' });
+    const account = data.accounts.find(item => item.id === session.accountId);
+    return account ? json(res, 200, { code: 200, data: { member: publicCustomer(account) } }) : json(res, 401, { detail: 'F-Box account was not found.' });
+  }
+
+  const customer = currentCustomer(req);
+  if (pathName === '/api/fbox-store/wishlist' && req.method === 'GET') {
+    if (!customer) return json(res, 401, { detail: 'F-Box customer authentication is required.' });
+    const account = data.accounts.find(item => item.id === customer.accountId);
+    return json(res, 200, { code: 200, data: (account?.wishlist || []).map(product_id => ({ product_id })) });
+  }
+  if (pathName === '/api/fbox-store/wishlist' && req.method === 'POST') {
+    if (!customer) return json(res, 401, { detail: 'F-Box customer authentication is required.' });
+    const payload = await readJson(req, 64 * 1024);
+    if (!storeProduct(data, payload.product_id)) return json(res, 404, { detail: 'Product not found.' });
+    const account = data.accounts.find(item => item.id === customer.accountId);
+    account.wishlist ||= [];
+    if (!account.wishlist.includes(String(payload.product_id))) account.wishlist.push(String(payload.product_id));
+    await saveStore(data);
+    return json(res, 200, { code: 200, data: { saved: true } });
+  }
+  const wishlistMatch = pathName.match(/^\/api\/fbox-store\/wishlist\/([^/]+)$/);
+  if (wishlistMatch && req.method === 'DELETE') {
+    if (!customer) return json(res, 401, { detail: 'F-Box customer authentication is required.' });
+    const account = data.accounts.find(item => item.id === customer.accountId);
+    account.wishlist = (account.wishlist || []).filter(product_id => product_id !== decodeURIComponent(wishlistMatch[1]));
+    await saveStore(data);
+    return json(res, 200, { code: 200, data: { saved: false } });
+  }
+
+  if (pathName === '/api/fbox-store/cart' && req.method === 'GET') {
+    if (!customer) return json(res, 401, { detail: 'F-Box customer authentication is required.' });
+    const account = data.accounts.find(item => item.id === customer.accountId);
+    return json(res, 200, { code: 200, data: { items: account?.cart || [] } });
+  }
+  if (pathName === '/api/fbox-store/cart/items' && req.method === 'POST') {
+    if (!customer) return json(res, 401, { detail: 'F-Box customer authentication is required.' });
+    const payload = await readJson(req, 64 * 1024);
+    const product_id = textValue(payload.product_id, 100);
+    if (!storeProduct(data, product_id)) return json(res, 404, { detail: 'Product not found.' });
+    const account = data.accounts.find(item => item.id === customer.accountId);
+    account.cart ||= [];
+    const existing = account.cart.find(item => item.product_id === product_id);
+    if (existing) existing.quantity = Math.max(1, Number(existing.quantity || 1) + Number(payload.quantity || 1));
+    else account.cart.push({ id: operationId('cart'), product_id, quantity: Math.max(1, Number(payload.quantity || 1)) });
+    await saveStore(data);
+    return json(res, 200, { code: 200, data: { items: account.cart } });
+  }
+  const cartItemMatch = pathName.match(/^\/api\/fbox-store\/cart\/items\/([^/]+)$/);
+  if (cartItemMatch && ['PUT', 'DELETE'].includes(req.method)) {
+    if (!customer) return json(res, 401, { detail: 'F-Box customer authentication is required.' });
+    const product_id = decodeURIComponent(cartItemMatch[1]);
+    const account = data.accounts.find(item => item.id === customer.accountId);
+    account.cart ||= [];
+    if (req.method === 'DELETE') account.cart = account.cart.filter(item => item.product_id !== product_id);
+    else {
+      const payload = await readJson(req, 64 * 1024);
+      const item = account.cart.find(row => row.product_id === product_id);
+      if (item) item.quantity = Math.max(1, Number(payload.quantity || 1));
+    }
+    await saveStore(data);
+    return json(res, 200, { code: 200, data: { items: account.cart } });
+  }
+
+  if (pathName === '/api/fbox-store/orders' && req.method === 'GET') {
+    if (!customer) return json(res, 401, { detail: 'F-Box customer authentication is required.' });
+    return json(res, 200, { code: 200, data: data.orders.filter(order => order.customer_id === customer.accountId).sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))) });
+  }
+  if (pathName === '/api/fbox-store/orders' && req.method === 'POST') {
+    if (!customer) return json(res, 401, { detail: 'F-Box customer authentication is required.' });
+    try {
+      const payload = await readJson(req, 128 * 1024);
+      const account = data.accounts.find(item => item.id === customer.accountId);
+      const items = Array.isArray(payload.items) && payload.items.length ? payload.items.map(item => ({ product_id: textValue(item.product_id, 100), quantity: Math.max(1, Number(item.quantity || 1)) })) : (account?.cart || []).map(item => ({ product_id: item.product_id, quantity: item.quantity }));
+      if (!items.length || items.some(item => !storeProduct(data, item.product_id))) return json(res, 422, { detail: 'The order has no valid F-Box products.' });
+      const total = orderTotal(data, items);
+      const order = { id: operationId('order'), orderSn: `FBOX${Date.now()}`, customer_id: customer.accountId, customer: payload.customer || {}, shipping: payload.shipping || {}, items, productName: items.length === 1 ? storeProduct(data, items[0].product_id).name : `${items.length} F-Box items`, totalAmount: total, payAmount: total, currency: 'USD', status: 0, status_label: 'pending_payment', payment_provider: 'paypal', created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+      data.orders.push(order);
+      account.cart = [];
+      await saveStore(data);
+      return json(res, 200, { code: 200, data: { order } });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || 'F-Box order creation failed.' }); }
+  }
+
+  return json(res, 404, { detail: 'F-Box store endpoint not found.' });
+}
+
+export async function handleFBoxAuthApi(req, res, url) {
+  if (req.method === 'OPTIONS') return json(res, 204, {});
+  const pathName = url.pathname.replace(/\/$/, '');
+  const isLogin = pathName === '/api/admin/login' || pathName === '/api/fbox-auth/login';
+  const isInfo = pathName === '/api/admin/info' || pathName === '/api/fbox-auth/info';
+  const isLogout = pathName === '/api/admin/logout' || pathName === '/api/fbox-auth/logout';
+  if (isLogin && req.method === 'POST') {
+    const payload = await readJson(req, 64 * 1024).catch(() => ({}));
+    if (!adminPassword() || String(payload.username || '').trim() !== adminUsername() || String(payload.password || '') !== adminPassword()) {
+      return json(res, 401, { code: 401, message: '管理员账号或密码错误。' });
+    }
+    const token = randomUUID();
+    adminSessions.set(token, { username: adminUsername(), expires_at: Date.now() + adminSessionTtlMs });
+    return json(res, 200, { code: 200, message: '登录成功', data: { tokenHead: 'Bearer ', token } });
+  }
+  if (isInfo && req.method === 'GET') {
+    if (!(await isAdminRequest(req))) return json(res, 401, { code: 401, message: '管理员登录已失效。' });
+    return json(res, 200, { code: 200, data: publicAdminUser() });
+  }
+  if (isLogout && req.method === 'POST') {
+    const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+    if (token) adminSessions.delete(token);
+    return json(res, 200, { code: 200, message: '已退出登录' });
+  }
+  return json(res, 404, { code: 404, message: 'F-Box authentication endpoint not found.' });
 }
 
 function legacyFixedPrompt(payload, angle) {
@@ -1075,6 +1336,59 @@ export async function handleFBoxOperationsApi(req, res, url) {
 
   if (!(await requireOperationsAdmin(req, res))) return;
   const data = await loadOperations();
+  const store = await loadStore();
+  if (req.method === 'GET' && pathName === '/api/fbox-ops/products') {
+    const q = textValue(url.searchParams.get('q'), 120).toLowerCase();
+    const category = textValue(url.searchParams.get('category'), 80);
+    const products = store.products.filter(item => (!category || item.category === category) && (!q || [item.id, item.name, item.brand, item.part].some(value => String(value || '').toLowerCase().includes(q))));
+    return json(res, 200, { data: products, meta: { total: products.length } });
+  }
+  if (req.method === 'POST' && pathName === '/api/fbox-ops/products') {
+    try {
+      const payload = await readJson(req, 128 * 1024);
+      const id = textValue(payload.id || operationId('product'), 100);
+      const product = { ...payload, id, price: Number(payload.price || 0), oldPrice: payload.oldPrice === null || payload.oldPrice === '' ? null : Number(payload.oldPrice || 0), stock: Math.max(0, Number(payload.stock || 0)), status: ['draft', 'published', 'archived'].includes(payload.status) ? payload.status : 'draft', updated_at: new Date().toISOString() };
+      if (!product.name || !product.category || !product.price) return json(res, 422, { detail: '商品名称、分类和美元售价不能为空。' });
+      const index = store.products.findIndex(item => item.id === id);
+      if (index >= 0) store.products[index] = { ...store.products[index], ...product };
+      else store.products.push({ ...product, created_at: new Date().toISOString() });
+      await saveStore(store);
+      return json(res, 200, { data: store.products.find(item => item.id === id) });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || '商品保存失败。' }); }
+  }
+  const storeProductMatch = pathName.match(/^\/api\/fbox-ops\/products\/([^/]+)$/);
+  if (storeProductMatch && req.method === 'PUT') {
+    try {
+      const index = store.products.findIndex(item => item.id === decodeURIComponent(storeProductMatch[1]));
+      if (index < 0) return json(res, 404, { detail: '商品不存在。' });
+      const payload = await readJson(req, 128 * 1024);
+      store.products[index] = { ...store.products[index], ...payload, id: store.products[index].id, updated_at: new Date().toISOString() };
+      await saveStore(store);
+      return json(res, 200, { data: store.products[index] });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || '商品更新失败。' }); }
+  }
+  if (req.method === 'GET' && pathName === '/api/fbox-ops/orders') {
+    const status = textValue(url.searchParams.get('status'), 40);
+    const orders = store.orders.filter(order => !status || String(order.status_label || order.status) === status).sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+    return json(res, 200, { data: orders, meta: { total: orders.length } });
+  }
+  const storeOrderMatch = pathName.match(/^\/api\/fbox-ops\/orders\/([^/]+)$/);
+  if (storeOrderMatch && req.method === 'PUT') {
+    try {
+      const index = store.orders.findIndex(item => item.id === decodeURIComponent(storeOrderMatch[1]));
+      if (index < 0) return json(res, 404, { detail: '订单不存在。' });
+      const payload = await readJson(req, 64 * 1024);
+      const allowedStatus = ['pending_payment', 'paid', 'processing', 'shipped', 'completed', 'closed'];
+      if (payload.status_label && !allowedStatus.includes(payload.status_label)) return json(res, 422, { detail: '订单状态不受支持。' });
+      store.orders[index] = { ...store.orders[index], ...payload, status_label: payload.status_label || store.orders[index].status_label, updated_at: new Date().toISOString() };
+      if (store.orders[index].status_label === 'paid') store.orders[index].status = 1;
+      if (store.orders[index].status_label === 'shipped') store.orders[index].status = 2;
+      if (store.orders[index].status_label === 'completed') store.orders[index].status = 3;
+      if (store.orders[index].status_label === 'closed') store.orders[index].status = 4;
+      await saveStore(store);
+      return json(res, 200, { data: store.orders[index] });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || '订单更新失败。' }); }
+  }
   if (req.method === 'GET' && pathName === '/api/fbox-ops/summary') {
     const config = await loadConfig();
     const library = await buildVehicleLibrary(data);
@@ -1089,6 +1403,9 @@ export async function handleFBoxOperationsApi(req, res, url) {
       cases_published: data.cases.filter(item => item.status === 'published').length,
       inquiries_open: data.inquiries.filter(item => ['open', 'in_progress'].includes(item.status)).length,
       inquiries_unread: data.inquiries.reduce((total, item) => total + inquiryUnreadCount(item), 0),
+      products_total: store.products.filter(item => item.status !== 'archived').length,
+      orders_total: store.orders.length,
+      orders_pending_payment: store.orders.filter(item => item.status_label === 'pending_payment').length,
       image_route_ready: Boolean(config.api_key),
       generated_at: new Date().toISOString()
     } });

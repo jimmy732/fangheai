@@ -90,11 +90,11 @@ const company = {
   tel: '+8614726178447'
 };
 
-// The storefront stays usable without the mall services. In local development,
-// local-fbox-server.mjs proxies these relative paths to mall-portal and mall-admin.
+// All storefront data and account actions go through the F-Box backend.
+// There is no dependency on macrozheng/mall or a third-party mall service.
 const mallConfig = {
-  portalBase: '/api',
-  adminBase: '/admin-api'
+  portalBase: '/api/fbox-store',
+  adminBase: '/api/fbox-ops'
 };
 
 const localeOptions = [
@@ -450,9 +450,9 @@ async function mallRequest(base, endpoint, options = {}) {
     const text = await response.text();
     let payload = null;
     try { payload = text ? JSON.parse(text) : null; } catch { payload = text; }
-    if (!response.ok) throw new Error(`mall request failed: ${response.status}`);
+    if (!response.ok) throw new Error(`F-Box request failed: ${response.status}`);
     if (payload && typeof payload === 'object' && payload.code !== undefined && payload.code !== 200) {
-      throw new Error(payload.message || 'mall request failed');
+      throw new Error(payload.message || 'F-Box request failed');
     }
     return payload?.data ?? payload;
   } finally {
@@ -467,7 +467,7 @@ function mallStatusLabel(status) {
 }
 function mallStatusChip(kind = 'portal') {
   const status = state.backend[kind] || 'testing';
-  return `<span class="integration-chip ${status === 'connected' ? 'is-live' : 'is-testing'}"><i></i>Mall ${kind === 'portal' ? 'portal' : 'admin'} · ${mallStatusLabel(status)}</span>`;
+  return `<span class="integration-chip ${status === 'connected' ? 'is-live' : 'is-testing'}"><i></i>F-Box ${kind === 'portal' ? 'store' : 'admin'} API · ${mallStatusLabel(status)}</span>`;
 }
 async function checkMallBackend() {
   if (state.backend.checking) return;
@@ -476,15 +476,14 @@ async function checkMallBackend() {
   state.backend.admin = 'checking';
   render();
   const [portal, admin] = await Promise.allSettled([
-    mallRequest(mallConfig.portalBase, '/product/search?pageNum=1&pageSize=1&sort=1'),
-    fetch(`${mallConfig.adminBase}/swagger-ui.html`, { method: 'GET', signal: AbortSignal.timeout(5000) })
+    fetch(`${mallConfig.portalBase}/products`, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) }),
+    fetch('/api/fbox-content/vehicles', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
   ]);
-  state.backend.portal = portal.status === 'fulfilled' ? 'connected' : 'testing';
+  state.backend.portal = portal.status === 'fulfilled' && portal.value.ok ? 'connected' : 'testing';
   state.backend.admin = admin.status === 'fulfilled' && admin.value.ok ? 'connected' : 'testing';
   state.backend.checked = true;
   state.backend.checking = false;
   render();
-  if (state.backend.portal === 'connected') loadMallCatalog();
 }
 
 async function loadFBoxContent() {
@@ -526,29 +525,24 @@ async function loadFBoxContent() {
   }
 }
 async function mallLogin(username, password) {
-  const body = new URLSearchParams({ username, password });
-  return mallRequest(mallConfig.portalBase, '/sso/login', {
+  return mallRequest(mallConfig.portalBase, '/auth/login', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
   });
 }
 
 async function mallRegister(values) {
-  const body = new URLSearchParams({
-    username: String(values.username || ''),
-    password: String(values.password || ''),
-    telephone: String(values.telephone || ''),
-    authCode: String(values.authCode || '')
-  });
-  return mallRequest(mallConfig.portalBase, '/sso/register', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
+  return mallRequest(mallConfig.portalBase, '/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+    username: String(values.username || ''), password: String(values.password || ''), telephone: String(values.telephone || ''), email: String(values.email || '')
+  }) });
 }
 
 async function syncMallWishlist() {
   if (!state.mallToken) return;
-  const remote = await mallRequest(mallConfig.portalBase, '/member/productCollection/list?pageNum=1&pageSize=100', { timeout: 7000 });
-  const list = Array.isArray(remote?.list) ? remote.list : Array.isArray(remote) ? remote : [];
-  state.wishlist = list.map(row => products.find(item => Number(item.backendId) === Number(row.productId))?.id).filter(Boolean);
+  const remote = await mallRequest(mallConfig.portalBase, '/wishlist', { timeout: 7000 });
+  const list = Array.isArray(remote?.data) ? remote.data : Array.isArray(remote) ? remote : [];
+  state.wishlist = list.map(row => products.find(item => String(item.id) === String(row.product_id || row.productId || row.id))?.id).filter(Boolean);
   persist();
 }
 
@@ -557,8 +551,8 @@ async function loadMemberOrders() {
   state.accountOrdersLoading = true;
   render();
   try {
-    const remote = await mallRequest(mallConfig.portalBase, '/order/list?status=-1&pageNum=1&pageSize=20', { timeout: 7000 });
-    state.accountOrders = Array.isArray(remote?.list) ? remote.list : Array.isArray(remote) ? remote : [];
+    const remote = await mallRequest(mallConfig.portalBase, '/orders', { timeout: 7000 });
+    state.accountOrders = Array.isArray(remote?.data) ? remote.data : Array.isArray(remote) ? remote : [];
   } catch (error) {
     state.accountOrders = [];
     setToast(error?.message || '订单查询失败，请重新登录后重试。');
@@ -597,15 +591,13 @@ function mallProductToFBox(raw) {
 
 async function loadMallCatalog() {
   try {
-    const page = await mallRequest(mallConfig.portalBase, '/product/search?pageNum=1&pageSize=100&sort=1', { timeout: 7000 });
-    const rawProducts = Array.isArray(page?.list) ? page.list : Array.isArray(page) ? page : [];
-    const mapped = rawProducts.map(mallProductToFBox).filter(Boolean);
+    const page = await mallRequest(mallConfig.portalBase, '/products', { timeout: 7000 });
+    const rawProducts = Array.isArray(page?.data) ? page.data : Array.isArray(page) ? page : [];
+    const mapped = rawProducts.map(raw => products.find(item => String(item.id) === String(raw.id)) ? { ...products.find(item => String(item.id) === String(raw.id)), ...raw } : null).filter(Boolean);
     if (!mapped.length) throw new Error('F-Box catalog is empty');
     const detailed = await Promise.all(mapped.map(async item => {
       try {
-        const detail = await mallRequest(mallConfig.portalBase, `/product/detail/${item.backendId}`, { timeout: 7000 });
-        const sku = Array.isArray(detail?.skuStockList) ? detail.skuStockList.find(stock => Number(stock.stock || 0) > 0) || detail.skuStockList[0] : null;
-        return { ...item, skuId: sku?.id ? Number(sku.id) : null };
+        return item;
       } catch {
         return item;
       }
@@ -623,10 +615,10 @@ async function loadMallCatalog() {
 
 async function loadMallCart() {
   if (!state.mallToken) return;
-  const remote = await mallRequest(mallConfig.portalBase, '/cart/list', { timeout: 7000 });
-  const next = (Array.isArray(remote) ? remote : []).map(row => {
-    const item = products.find(productItem => Number(productItem.backendId) === Number(row.productId));
-    return item ? { id: item.id, qty: Number(row.quantity || 1), backendCartId: Number(row.id) } : null;
+  const remote = await mallRequest(mallConfig.portalBase, '/cart', { timeout: 7000 });
+  const next = (Array.isArray(remote?.items) ? remote.items : Array.isArray(remote) ? remote : []).map(row => {
+    const item = products.find(productItem => String(productItem.id) === String(row.product_id || row.productId || row.id));
+    return item ? { id: item.id, qty: Number(row.quantity || row.qty || 1), backendCartId: row.id } : null;
   }).filter(Boolean);
   state.cart = next;
   persist();
@@ -636,11 +628,11 @@ async function syncMallCart() {
   if (!state.mallToken) throw new Error('请先登录 F-Box 账户');
   for (const row of state.cart) {
     const item = product(row.id);
-    if (!item?.backendId || !item?.skuId) throw new Error(`${item?.name || '商品'} 暂无可用规格库存`);
-    await mallRequest(mallConfig.portalBase, '/cart/add', {
+    if (!item) continue;
+    await mallRequest(mallConfig.portalBase, '/cart/items', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId: item.backendId, productSkuId: item.skuId, quantity: row.qty })
+      body: JSON.stringify({ product_id: item.id, quantity: row.qty })
     });
   }
   await loadMallCart();
@@ -648,30 +640,14 @@ async function syncMallCart() {
 
 async function createMallOrder(values) {
   await syncMallCart();
-  const remoteCart = await mallRequest(mallConfig.portalBase, '/cart/list', { timeout: 7000 });
-  const cartIds = (Array.isArray(remoteCart) ? remoteCart : []).map(row => Number(row.id)).filter(Boolean);
-  if (!cartIds.length) throw new Error('购物车为空，请先添加商品');
-  await mallRequest(mallConfig.portalBase, '/member/address/add', {
+  const result = await mallRequest(mallConfig.portalBase, '/orders', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      name: values.name,
-      phoneNumber: values.phone,
-      postCode: values.postCode,
-      province: values.province || values.city,
-      city: values.city,
-      region: values.region || '',
-      detailAddress: values.address,
-      defaultStatus: 1
+      customer: { name: values.name, phone: values.phone, email: values.email },
+      shipping: { address: values.address, city: values.city, province: values.province || '', region: values.region || '', postCode: values.postCode },
+      items: state.cart.map(row => ({ product_id: row.id, quantity: row.qty }))
     })
-  });
-  const addresses = await mallRequest(mallConfig.portalBase, '/member/address/list', { timeout: 7000 });
-  const address = (Array.isArray(addresses) ? addresses : []).slice().reverse().find(item => item.name === values.name && item.detailAddress === values.address) || (Array.isArray(addresses) ? addresses[addresses.length - 1] : null);
-  if (!address?.id) throw new Error('收货地址保存失败，请重新提交');
-  const result = await mallRequest(mallConfig.portalBase, '/order/generateOrder', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ memberReceiveAddressId: address.id, payType: 0, useIntegration: 0, cartIds })
   });
   return result?.order || result;
 }
@@ -679,19 +655,19 @@ async function createMallOrder(values) {
 function decorateIntegrationState() {
   const headerActions = document.querySelector(".header-actions");
   if (headerActions && !headerActions.querySelector(".mall-status")) {
-    headerActions.insertAdjacentHTML("afterbegin", `<div class="mall-status" title="Local macrozheng/mall integration">${mallStatusChip("portal")}</div>`);
+    headerActions.insertAdjacentHTML("afterbegin", `<div class="mall-status" title="F-Box store backend">${mallStatusChip("portal")}</div>`);
   }
   const storeHero = document.querySelector(".store-hero .container");
   if (storeHero && !storeHero.querySelector(".integration-strip")) {
-    storeHero.insertAdjacentHTML("beforeend", `<div class="integration-strip"><div><strong>Live F-Box catalog</strong><span>Products, prices and stock are served from the mall product module.</span></div><div class="integration-chips">${mallStatusChip("portal")}${mallStatusChip("admin")}<span class="integration-chip is-live"><i></i>Order API · Connected</span></div></div>`);
+    storeHero.insertAdjacentHTML("beforeend", `<div class="integration-strip"><div><strong>Live F-Box catalog</strong><span>Products, prices, stock and orders are served by the F-Box backend.</span></div><div class="integration-chips">${mallStatusChip("portal")}${mallStatusChip("admin")}<span class="integration-chip is-live"><i></i>Order API · Connected</span></div></div>`);
   }
   const accountForm = document.querySelector("[data-form=account]");
   if (accountForm && !accountForm.previousElementSibling?.classList.contains("integration-note")) {
-    accountForm.insertAdjacentHTML("beforebegin", `<div class="integration-note">${mallStatusChip("portal")}<span>登录使用 F-Box mall 会员服务；购物车、收货地址和订单都保存到后端。</span></div>`);
+    accountForm.insertAdjacentHTML("beforebegin", `<div class="integration-note">${mallStatusChip("portal")}<span>登录使用 F-Box 账户服务；购物车、收货地址和订单都保存到 F-Box 后端。</span></div>`);
   }
   const checkoutForm = document.querySelector("[data-form=checkout]");
   if (checkoutForm && !checkoutForm.previousElementSibling?.classList.contains("integration-note")) {
-    checkoutForm.insertAdjacentHTML("beforebegin", `<div class="integration-note">${mallStatusChip("portal")}<span>订单会写入 mall-admin 的订单列表并默认为待付款；支付渠道可在后续上线前配置。</span></div>`);
+    checkoutForm.insertAdjacentHTML("beforebegin", `<div class="integration-note">${mallStatusChip("portal")}<span>订单会写入 F-Box 后台并默认为待付款；支付渠道由 PayPal 配置决定。</span></div>`);
   }
 }
 
@@ -838,7 +814,7 @@ function renderProductCard(item) {
 function storePage() {
   const list = filterProducts();
   const fitmentBanner = state.vehicle?.trim ? `<div class="fitment-match-banner"><div><p class="eyebrow">Fitment context</p><strong>${esc(currentVehicleLabel())}</strong><span>Products below are shown with the selected vehicle context.</span></div><button class="btn btn-outline btn-small" data-action="change-vehicle">Change vehicle</button></div>` : '';
-  return `<section class="store-hero"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>${state.filters.category === 'All' ? 'Performance parts' : state.filters.category}</span></div><h1>${state.filters.category === 'All' ? 'All performance parts' : state.filters.category}</h1><p class="muted">Fitment-first shopping for wheels, calipers, rotors and pads. Prices, stock and product status are loaded from the F-Box mall catalog.</p></div></section>
+  return `<section class="store-hero"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>${state.filters.category === 'All' ? 'Performance parts' : state.filters.category}</span></div><h1>${state.filters.category === 'All' ? 'All performance parts' : state.filters.category}</h1><p class="muted">Fitment-first shopping for wheels, calipers, rotors and pads. Prices, stock and product status are managed by the F-Box catalog.</p></div></section>
   <main class="container store-layout"><aside class="filter-rail"><div class="filter-head"><strong>Filter with F-Box AI</strong><span>Describe the look or setup you want. We will narrow the catalog.</span></div><div class="filter-section"><input class="filter-input" data-filter="ai" placeholder="e.g. bronze wheels for 2020 Civic" value="${esc(state.search)}"><p class="filter-help">Try “track pads”, “19 inch black wheels”, or a car model.</p></div><div class="filter-section"><h3>Delivery estimate</h3><div class="filter-stack"><input class="filter-input" data-filter="zip" placeholder="Deliver to ZIP / postcode"><button class="btn btn-outline btn-small" data-action="save-zip">Save location</button></div></div><div class="filter-section"><h3>Search by vehicle</h3>${vehicleSelector('store')}<button class="btn btn-dark btn-small filter-apply" data-action="shop-vehicle">Apply vehicle</button></div><div class="filter-section"><h3>Product type</h3><select class="filter-select" data-filter="category">${selectOptions(['All', 'Wheels', 'Calipers', 'Rotors', 'Brake Pads'], state.filters.category, 'All parts')}</select></div><div class="filter-section"><h3>Fitment preferences</h3><label class="check-row"><input type="checkbox" data-filter="saleOnly" ${state.filters.saleOnly ? 'checked' : ''}> In-stock deals only</label><select class="filter-select" data-filter="finish">${selectOptions(['All', 'Satin Black', 'Bronze Machined', 'Gloss Black', 'Matte Bronze', 'Racing Red', 'Electric Blue', 'Black Hat', 'Ceramic'], state.filters.finish, 'All finishes')}</select></div><div class="filter-section"><h3>Wheel diameter <span>inches</span></h3><select class="filter-select" data-filter="diameter">${selectOptions(['All', '17', '18', '19', '20'], state.filters.diameter, 'Any diameter')}</select></div><div class="filter-section"><h3>Price range</h3><div class="filter-row"><input class="filter-input" data-filter="minPrice" placeholder="Min" value="${esc(state.filters.minPrice)}"><input class="filter-input" data-filter="maxPrice" placeholder="Max" value="${esc(state.filters.maxPrice)}"></div></div><div class="filter-section"><h3>Customer rating</h3><select class="filter-select" data-filter="minRating">${selectOptions(['0', '4', '4.5', '4.8'], state.filters.minRating, 'Any rating')}</select></div></aside><section class="store-main"><div class="ai-query"><span style="color:var(--lavender)">${icons.spark}</span><input data-filter="ai" placeholder="F-Box AI: Search by vehicle, product, finish or use case" value="${esc(state.search)}"><button class="btn btn-primary btn-small" data-action="ai-filter">Search</button></div>${fitmentBanner}<div class="store-toolbar"><div class="result-count">${list.length} results <span>${state.vehicle ? `· fits ${esc(currentVehicleLabel())}` : ''}</span></div><div class="toolbar-actions"><button class="btn btn-outline btn-small" data-action="clear-filters">Clear filters</button><select class="toolbar-select" data-filter="sort"><option value="popular" ${state.sort === 'popular' ? 'selected' : ''}>Sort by popular</option><option value="price-low" ${state.sort === 'price-low' ? 'selected' : ''}>Price: low to high</option><option value="price-high" ${state.sort === 'price-high' ? 'selected' : ''}>Price: high to low</option><option value="rating" ${state.sort === 'rating' ? 'selected' : ''}>Highest rated</option></select></div></div>${list.length ? `<div class="product-grid">${list.map(renderProductCard).join('')}</div>` : `<div class="empty-state"><h2>No exact matches yet.</h2><p>Try clearing one filter or tell F-Box what you want in the AI search.</p><button class="btn btn-primary" data-action="clear-filters">Reset catalog</button></div>`}</section></main>`;
 }
 
@@ -883,7 +859,7 @@ function productPage(item) {
 
 function cartPage() {
   const total = cartTotal();
-  return `<section class="cart-page"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>Shopping cart</span></div><div class="section-heading"><div><p class="eyebrow">Your saved build</p><h1 class="detail-title">Shopping cart</h1></div><a class="btn btn-outline" href="#store">Continue shopping</a></div>${state.cart.length ? `<div class="cart-layout"><div class="cart-list">${state.cart.map(item => { const p = product(item.id); return `<div class="cart-item"><img src="${ASSET + p.image}" alt="${esc(p.name)}"><div><h3>${p.name}</h3><p>${p.category} · ${p.meta}</p><button class="btn btn-outline btn-small" data-action="remove-cart" data-id="${p.id}" style="margin-top:10px">Remove</button></div><div class="qty-control"><button data-action="qty" data-id="${p.id}" data-delta="-1">−</button><span>${item.qty}</span><button data-action="qty" data-id="${p.id}" data-delta="1">+</button></div><div class="cart-price">${money(p.price * item.qty)}</div></div>`; }).join('')}</div><aside class="summary-card"><h2>Order summary</h2><div class="summary-row"><span>Parts subtotal</span><strong>${money(total)}</strong></div><div class="summary-row"><span>Estimated delivery</span><strong>Calculated at checkout</strong></div><div class="summary-row"><span>Fitment review</span><strong style="color:var(--success)">Included</strong></div><div class="coupon"><input class="text-input" placeholder="Promo code"><button class="btn btn-outline btn-small" data-action="apply-coupon">Apply</button></div><div class="summary-row total"><span>Total</span><strong>${money(total)}</strong></div><button class="btn btn-primary" data-action="checkout" style="width:100%;margin-top:12px">Continue to checkout</button><p class="filter-help">Orders are created in the F-Box mall backend. Payment remains a separate provider step.</p></aside></div>` : `<div class="empty-cart"><h2>Your cart is ready for a build.</h2><p class="muted">Add wheels, calipers, rotors or pads and we will keep the fitment context attached.</p><a class="btn btn-primary" href="#store">Start shopping</a></div>`}</div></section>`;
+  return `<section class="cart-page"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>Shopping cart</span></div><div class="section-heading"><div><p class="eyebrow">Your saved build</p><h1 class="detail-title">Shopping cart</h1></div><a class="btn btn-outline" href="#store">Continue shopping</a></div>${state.cart.length ? `<div class="cart-layout"><div class="cart-list">${state.cart.map(item => { const p = product(item.id); return `<div class="cart-item"><img src="${ASSET + p.image}" alt="${esc(p.name)}"><div><h3>${p.name}</h3><p>${p.category} · ${p.meta}</p><button class="btn btn-outline btn-small" data-action="remove-cart" data-id="${p.id}" style="margin-top:10px">Remove</button></div><div class="qty-control"><button data-action="qty" data-id="${p.id}" data-delta="-1">−</button><span>${item.qty}</span><button data-action="qty" data-id="${p.id}" data-delta="1">+</button></div><div class="cart-price">${money(p.price * item.qty)}</div></div>`; }).join('')}</div><aside class="summary-card"><h2>Order summary</h2><div class="summary-row"><span>Parts subtotal</span><strong>${money(total)}</strong></div><div class="summary-row"><span>Estimated delivery</span><strong>Calculated at checkout</strong></div><div class="summary-row"><span>Fitment review</span><strong style="color:var(--success)">Included</strong></div><div class="coupon"><input class="text-input" placeholder="Promo code"><button class="btn btn-outline btn-small" data-action="apply-coupon">Apply</button></div><div class="summary-row total"><span>Total</span><strong>${money(total)}</strong></div><button class="btn btn-primary" data-action="checkout" style="width:100%;margin-top:12px">Continue to checkout</button><p class="filter-help">Orders are created in the F-Box backend. Payment remains a separate PayPal step.</p></aside></div>` : `<div class="empty-cart"><h2>Your cart is ready for a build.</h2><p class="muted">Add wheels, calipers, rotors or pads and we will keep the fitment context attached.</p><a class="btn btn-primary" href="#store">Start shopping</a></div>`}</div></section>`;
 }
 
 function legacyWheelVisualizerResultCard(result, index, item, mode) {
@@ -1054,8 +1030,8 @@ function wheelVisualizerModal() {
 function modal() {
   if (!state.modal) return '';
   if (state.modal.type === 'quick') { const item = product(state.modal.id); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Quick view</p><h2>${item.name}</h2><div class="quick-product"><img src="${ASSET + item.image}" alt="${esc(item.name)}"><div><div class="product-brand">${item.brand} · ${item.category}</div><div>${stars(item.rating)} <span class="muted">${item.reviews} reviews</span></div><p>${item.meta}<br>${item.deal}</p><strong style="font-size:22px">${money(item.price)} <small class="muted">/ each</small></strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">Add to cart</button></div></div></div></div>`; }
-  if (state.modal.type === 'account') { const register = state.modal.mode === 'register'; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>${register ? 'Create your build account.' : 'Save your build.'}</h2><p>${register ? '注册后可以保存收藏、车辆、地址和订单。' : '登录后，购物车、收货地址、收藏和订单会进入 F-Box mall 后端。'}</p><form class="modal-form" data-form="account" data-mode="${register ? 'register' : 'login'}"><input class="text-input" name="username" placeholder="Username" required><input class="text-input" name="password" type="password" placeholder="Password" required>${register ? '<input class="text-input" name="telephone" placeholder="Phone number" required><input class="text-input" name="authCode" placeholder="Verification code" required>' : ''}<button class="btn btn-primary">${register ? 'Create account' : 'Sign in'}</button><button class="btn btn-outline" type="button" data-action="${register ? 'account-login' : 'account-register'}">${register ? 'I already have an account' : 'Create a new account'}</button></form></div></div>`; }
-  if (state.modal.type === 'orders') return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>Track my orders.</h2><p>订单状态来自 F-Box mall portal；发货后可在这里继续查看物流信息。</p>${state.accountOrdersLoading ? '<div class="loading-copy">正在读取订单…</div>' : state.accountOrders.length ? `<div class="account-order-list">${state.accountOrders.map(order => `<article class="account-order"><div><strong>${esc(order.orderSn || order.id || 'Order')}</strong><small>${esc(order.createTime || '')}</small></div><div><span>${esc(order.productName || order.receiverName || 'F-Box order')}</span><small>${esc(order.status === 0 ? '待付款' : order.status === 1 ? '待发货' : order.status === 2 ? '已发货' : order.status === 3 ? '已完成' : order.status === 4 ? '已关闭' : '处理中')}</small></div><strong>${money(order.payAmount || order.totalAmount || 0)}</strong></article>`).join('')}</div>` : '<div class="empty-state"><h3>暂无订单</h3><p>登录后创建的 F-Box 订单会出现在这里。</p></div>'}</div></div>`;
+  if (state.modal.type === 'account') { const register = state.modal.mode === 'register'; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>${register ? 'Create your build account.' : 'Save your build.'}</h2><p>${register ? '注册后可以保存收藏、车辆、地址和订单。' : '登录后，购物车、收货地址、收藏和订单会进入 F-Box 自有后端。'}</p><form class="modal-form" data-form="account" data-mode="${register ? 'register' : 'login'}"><input class="text-input" name="username" placeholder="Username" required><input class="text-input" name="password" type="password" placeholder="Password" required>${register ? '<input class="text-input" name="telephone" placeholder="Phone number" required><input class="text-input" name="authCode" placeholder="Verification code" required>' : ''}<button class="btn btn-primary">${register ? 'Create account' : 'Sign in'}</button><button class="btn btn-outline" type="button" data-action="${register ? 'account-login' : 'account-register'}">${register ? 'I already have an account' : 'Create a new account'}</button></form></div></div>`; }
+  if (state.modal.type === 'orders') return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>Track my orders.</h2><p>订单状态来自 F-Box 自有订单服务；发货后可在这里继续查看物流信息。</p>${state.accountOrdersLoading ? '<div class="loading-copy">正在读取订单…</div>' : state.accountOrders.length ? `<div class="account-order-list">${state.accountOrders.map(order => `<article class="account-order"><div><strong>${esc(order.orderSn || order.id || 'Order')}</strong><small>${esc(order.createTime || '')}</small></div><div><span>${esc(order.productName || order.receiverName || 'F-Box order')}</span><small>${esc(order.status === 0 ? '待付款' : order.status === 1 ? '待发货' : order.status === 2 ? '已发货' : order.status === 3 ? '已完成' : order.status === 4 ? '已关闭' : '处理中')}</small></div><strong>${money(order.payAmount || order.totalAmount || 0)}</strong></article>`).join('')}</div>` : '<div class="empty-state"><h3>暂无订单</h3><p>登录后创建的 F-Box 订单会出现在这里。</p></div>'}</div></div>`;
   if (state.modal.type === 'review') return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Your experience</p><h2>Write a review.</h2><form class="modal-form" data-form="review"><input class="text-input" name="title" placeholder="Review title" required><textarea class="text-input" name="body" rows="5" placeholder="What did you install? How does it fit?" required></textarea><input class="text-input" name="vehicle" placeholder="Your vehicle"><button class="btn btn-primary">Submit review</button></form></div></div>`;
   if (state.modal.type === 'checkout') { const f = state.checkoutForm || {}; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Secure checkout</p><h2>创建 F-Box 订单</h2><div class="checkout-steps">${['客户信息', '收货信息', '创建订单'].map((label, i) => `<div class="checkout-step ${state.checkoutStep === i + 1 || state.checkoutStep === 3 ? 'is-active' : ''}">${i + 1}. ${label}</div>`).join('')}</div>${state.checkoutStep === 4 ? `<div class="success-box"><h3>订单已创建。</h3><p>订单号：${esc(state.lastOrder?.orderSn || state.lastOrder?.id || '已提交')}。你可以在后台“订单 > 订单列表”继续处理。</p><button class="btn btn-dark" data-action="close-modal">返回商城</button></div>` : `<form class="modal-form" data-form="checkout"><input class="text-input" name="name" value="${esc(f.name || '')}" required placeholder="Full name"><input class="text-input" name="phone" value="${esc(f.phone || '')}" required placeholder="Phone number"><input class="text-input" name="email" value="${esc(f.email || '')}" type="email" required placeholder="Email address"><input class="text-input" name="address" value="${esc(f.address || '')}" required placeholder="Street address"><div class="filter-row"><input class="text-input" name="city" value="${esc(f.city || '')}" required placeholder="City"><input class="text-input" name="province" value="${esc(f.province || '')}" placeholder="State / Province"></div><div class="filter-row"><input class="text-input" name="region" value="${esc(f.region || '')}" placeholder="Region"><input class="text-input" name="postCode" value="${esc(f.postCode || '')}" required placeholder="Postcode"></div><p class="filter-help">订单会先创建为“待付款”，支付由后台配置的支付渠道处理。</p><button class="btn btn-primary" data-submit-order>${state.checkoutStep === 3 ? '提交并创建订单' : '继续填写并创建订单'}</button></form>`}</div></div>`; }
   return '';
@@ -1366,16 +1342,16 @@ async function addToCart(id) {
   if (existing) existing.qty += 1;
   else state.cart.push({ id, qty: 1 });
   persist();
-  if (state.mallToken && item?.backendId && item?.skuId) {
+  if (state.mallToken && item) {
     try {
-      await mallRequest(mallConfig.portalBase, '/cart/add', {
+      await mallRequest(mallConfig.portalBase, '/cart/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId: item.backendId, productSkuId: item.skuId, quantity: 1 })
+        body: JSON.stringify({ product_id: item.id, quantity: 1 })
       });
       await loadMallCart();
     } catch (error) {
-      setToast(error?.message || '商城购物车同步失败，当前商品已保存在本地。');
+      setToast(error?.message || 'F-Box 购物车同步失败，当前商品已保存在本地。');
       return;
     }
   }
@@ -1472,10 +1448,10 @@ document.addEventListener('click', async event => {
     const wasSaved = state.wishlist.includes(id);
     state.wishlist = wasSaved ? state.wishlist.filter(x => x !== id) : [...state.wishlist, id];
     persist();
-    if (state.mallToken && item?.backendId) {
+    if (state.mallToken && item) {
       try {
-        if (wasSaved) await mallRequest(mallConfig.portalBase, `/member/productCollection/delete?productId=${item.backendId}`, { method: 'POST' });
-        else await mallRequest(mallConfig.portalBase, '/member/productCollection/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ productId: item.backendId, productName: item.name, productPic: item.backendPic || item.image, productSubTitle: item.meta, productPrice: String(item.price) }) });
+        if (wasSaved) await mallRequest(mallConfig.portalBase, `/wishlist/${encodeURIComponent(item.id)}`, { method: 'DELETE' });
+        else await mallRequest(mallConfig.portalBase, '/wishlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product_id: item.id }) });
       } catch (error) { setToast(error?.message || '收藏同步失败，已保存在当前设备。'); }
     }
     render();
@@ -1490,9 +1466,9 @@ document.addEventListener('click', async event => {
   if (action === 'clear-filters') { clearFilters(); return; }
   if (action === 'ai-filter') { const input = document.querySelector('.ai-query input'); state.search = input?.value || ''; render(); return; }
   if (action === 'save-zip') { setToast('Delivery estimate saved for this session.'); return; }
-  if (action === 'remove-cart') { const item = state.cart.find(row => row.id === target.dataset.id); state.cart = state.cart.filter(row => row.id !== target.dataset.id); persist(); if (state.mallToken && item?.backendCartId) { await mallRequest(mallConfig.portalBase, `/cart/delete?ids=${item.backendCartId}`, { method: 'POST' }).catch(() => {}); } render(); return; }
-  if (action === 'qty') { const item = state.cart.find(x => x.id === target.dataset.id); if (item) item.qty = Math.max(0, item.qty + Number(target.dataset.delta)); state.cart = state.cart.filter(x => x.qty > 0); persist(); if (state.mallToken && item?.backendCartId && item.qty > 0) await mallRequest(mallConfig.portalBase, `/cart/update/quantity?id=${item.backendCartId}&quantity=${item.qty}`, { method: 'GET' }).catch(() => {}); render(); return; }
-  if (action === 'apply-coupon') { setToast(state.mallToken ? '优惠券会在商城结算规则中校验；当前订单先按商品美元售价创建。' : '请先登录 F-Box 账户，再从会员优惠券中选择可用优惠。'); return; }
+  if (action === 'remove-cart') { const item = state.cart.find(row => row.id === target.dataset.id); state.cart = state.cart.filter(row => row.id !== target.dataset.id); persist(); if (state.mallToken && item) { await mallRequest(mallConfig.portalBase, `/cart/items/${encodeURIComponent(item.id)}`, { method: 'DELETE' }).catch(() => {}); } render(); return; }
+  if (action === 'qty') { const item = state.cart.find(x => x.id === target.dataset.id); if (item) item.qty = Math.max(0, item.qty + Number(target.dataset.delta)); state.cart = state.cart.filter(x => x.qty > 0); persist(); if (state.mallToken && item && item.qty > 0) await mallRequest(mallConfig.portalBase, `/cart/items/${encodeURIComponent(item.id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quantity: item.qty }) }).catch(() => {}); render(); return; }
+  if (action === 'apply-coupon') { setToast(state.mallToken ? '优惠码将在 F-Box 结算规则中校验；当前订单按商品美元售价创建。' : '请先登录 F-Box 账户，再选择可用优惠。'); return; }
   if (action === 'checkout') { if (!state.cart.length) { setToast('Your cart is empty.'); return; } state.modal = state.mallToken ? { type: 'checkout' } : { type: 'account', afterLogin: 'checkout' }; state.checkoutStep = state.mallToken ? 3 : 1; render(); return; }
   if (action === 'load-reviews') { state.reviewLimit = reviews.length; render(); return; }
   if (action === 'write-review') { state.modal = { type: 'review', id: state.route.name === 'product' ? state.route.id : '' }; render(); return; }
@@ -1589,7 +1565,7 @@ document.addEventListener('submit', async event => {
       state.modal = next === 'checkout' ? { type: 'checkout' } : next === 'orders' ? { type: 'orders' } : null;
       state.checkoutStep = next === 'checkout' ? 3 : state.checkoutStep;
       if (next === 'orders') await loadMemberOrders();
-      setToast('Signed in through the F-Box mall portal.');
+      setToast('Signed in through the F-Box account service.');
     } catch (error) {
       setToast(error?.message || 'F-Box account sign-in failed.');
     }
