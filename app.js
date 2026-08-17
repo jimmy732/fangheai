@@ -614,7 +614,7 @@ function wireWheelVisualizerEntry() {
   if (state.route.name !== 'product') return;
   const item = product(state.route.id);
   const form = document.querySelector('.detail-form');
-  if (item.category === 'Wheels' && form && !form.querySelector('.wheel-visualizer-entry')) form.insertAdjacentHTML('beforeend', wheelVisualizerTrigger(item));
+  if (item.category === 'Wheels' && form && !document.querySelector('.wheel-visualizer-entry')) form.insertAdjacentHTML('beforebegin', wheelVisualizerTrigger(item));
 }
 function wireHomeVisualizerBanner() {
   if (state.route.name !== 'home') return;
