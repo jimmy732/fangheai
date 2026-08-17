@@ -15,7 +15,7 @@
 | F-001 | Dialog | `app.js` | Open/close button, overlay, Escape | Isolated from existing `state.modal` | Close revokes object URL and clears transient state |
 | F-002 | File chooser / drag and drop | browser + `app.js` | Image selection | File stays in memory until generate | Invalid type/size becomes error; reset clears it |
 | F-003 | Local object URL | browser | Accepted file | Used only for crop/result mock | `URL.revokeObjectURL` on reset and close |
-| F-004 | POST upload/job creation | BoxClaw adapter | Generate on non-localhost or injected adapter | Multipart image + product reference + crop metadata | Server controls auth, job ownership, routing and sponsored usage |
+| F-004 | POST upload/job creation | 4174 same-origin adapter → BoxClaw 8001 | Generate after the reference step | JSON data URLs + product reference + crop metadata; files are converted in memory | Server controls auth, job ownership, routing and sponsored usage |
 | F-004 | Polling | `wheelVisualizerPoll` | Server returns queued/running | Polls up to 45 attempts, then gives recoverable error | Retry or close stops further UI ownership; server job continues under server policy |
 | F-005 | Result rendering | `app.js` | Three successful outputs | Does not alter cart, fitment, product or checkout state | Close releases local asset URL |
 

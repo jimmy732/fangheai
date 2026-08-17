@@ -668,6 +668,15 @@ img { display: block; max-width: 100%; }
 .wheel-reference-option:disabled { cursor: not-allowed; opacity: .55; transform: none; }
 .wheel-reference-option img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
 .wheel-reference-option span { position: absolute; right: 4px; bottom: 3px; padding: 2px 4px; border-radius: 4px; background: rgba(8,10,14,.72); color: #fff; font-family: 'Space Grotesk', sans-serif; font-size: 8px; font-weight: 800; }
+.wheel-reference-content { max-width: 720px; }
+.wheel-reference-lockup { display: flex; align-items: center; gap: 16px; margin: 24px 0; padding: 13px; border: 1px solid #e0e5e8; border-radius: 14px; background: #f6f8f9; }
+.wheel-reference-large { display: grid; place-items: center; width: 118px; height: 118px; overflow: hidden; border-radius: 10px; background: #edf1f2; }
+.wheel-reference-large img { width: 100%; height: 100%; object-fit: contain; }
+.wheel-reference-lockup strong, .wheel-reference-lockup span, .wheel-reference-lockup small { display: block; }
+.wheel-reference-lockup strong { color: var(--ink); font-size: 15px; }
+.wheel-reference-lockup span { margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.wheel-reference-lockup small { margin-top: 12px; color: var(--success); font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.wheel-reference-actions { display: flex; justify-content: space-between; gap: 10px; }
 
 .wheel-visualizer-overlay { position: fixed; z-index: 55; inset: 0; display: grid; place-items: center; padding: 18px; background: rgba(8,10,14,.72); backdrop-filter: blur(12px); }
 .wheel-visualizer-shell { display: flex; flex-direction: column; width: min(1120px, 100%); max-height: min(860px, calc(100vh - 36px)); overflow: hidden; border: 1px solid rgba(255,255,255,.14); border-radius: 24px; background: #f6f8f9; box-shadow: 0 35px 100px rgba(0,0,0,.4); }
@@ -769,6 +778,10 @@ img { display: block; max-width: 100%; }
   .wheel-reference-switcher { align-items: flex-start; flex-direction: column; gap: 10px; padding: 12px 18px; }
   .wheel-reference-options { width: 100%; }
   .wheel-reference-option { width: 52px; height: 52px; }
+  .wheel-reference-lockup { align-items: flex-start; }
+  .wheel-reference-large { width: 88px; height: 88px; }
+  .wheel-reference-actions { flex-direction: column-reverse; }
+  .wheel-reference-actions .btn { width: 100%; }
   .wheel-visualizer-overlay { padding: 0; }
   .wheel-visualizer-shell { max-height: 100vh; min-height: 100vh; border-radius: 0; }
   .wheel-visualizer-header { align-items: flex-start; padding: 17px; }

@@ -4,14 +4,23 @@
 
 ## 运行
 
-这是一个无构建依赖的静态 SPA，直接在项目目录启动任意静态文件服务器即可：
+这是一个无构建依赖的静态 SPA。若只查看页面，可以启动静态服务器；若要测试轮毂效果图与本地 BoxClaw 的完整链路，请使用带代理的本地服务器：
+
+```powershell
+cd "D:\文档\ChatGPT\开源系统\local-mall-dev"
+node local-fbox-server.mjs
+```
+
+然后打开 <http://localhost:4174/>。当前服务器会保留商城原有 `/api`、`/admin-api` 代理，并新增 `/api/wheel-visualizer` → BoxClaw 8001 的同源代理。
+
+若只需要静态页面，也可以运行：
 
 ```powershell
 cd "D:\文档\ChatGPT\开源系统\f-box-fitment-store"
 python -m http.server 4174
 ```
 
-然后打开 <http://localhost:4174/>。
+但静态服务器没有 BoxClaw 代理，效果图流程会走本地布局预览。
 
 ## 已实现交互
 
@@ -68,10 +77,22 @@ The wheel product detail page now includes an isolated F-Box Visual Studio flow:
 
 - upload or drag in one vehicle photo;
 - adjust zoom and framing without changing the existing fitment selector;
+- select the exact gallery image to use as the wheel reference;
 - request three angles with a BoxClaw-compatible async adapter;
-- review results, retry, or close without touching cart, checkout, prices, reviews, or product state.
+- review results in the fifth step, retry, or close without touching cart, checkout, prices, reviews, or product state.
 
-On `localhost`, the UI uses an explicitly labeled local layout preview so the flow can be tested without provider credentials. In production, `app.js` calls `POST /api/wheel-visualizer/jobs` and polls `GET /api/wheel-visualizer/jobs/:job_id`. Provider keys, model routing, the fixed prompt and sponsored/no-charge policy belong to BoxClaw. The complete request/response contract and hardcoded prompt are in `docs/ui-rebuild/wheel-visualizer/`.
+On `localhost`, `app.js` calls `POST /api/wheel-visualizer/jobs`; the local proxy forwards to BoxClaw Admin Gateway `http://127.0.0.1:8001/api/v1/fbox/wheel-visualizer` and polls the matching status route. Configure the image route from the operator UI at <http://localhost:8081/admin>. The current local runtime is `AI_PROVIDER_MODE=mock` with no enabled image route, so the website returns an explicitly labeled local layout preview rather than claiming a real AI result. Provider keys, model routing, the fixed prompt and sponsored/no-charge policy belong to BoxClaw. The complete request/response contract, verification matrix and hardcoded prompt are in `docs/ui-rebuild/wheel-visualizer/`.
+
+## Local BoxClaw connection
+
+- Public storefront: <http://localhost:4174/>
+- BoxClaw operator UI: <http://localhost:8081/admin>
+- BoxClaw Admin Gateway API: `http://127.0.0.1:8001`
+- Storefront bridge: `POST /api/wheel-visualizer/jobs` and `GET /api/wheel-visualizer/jobs/:job_id`
+- Internal BoxClaw route: `POST /api/v1/fbox/wheel-visualizer/jobs` and `GET /api/v1/fbox/wheel-visualizer/jobs/:job_id`
+- Customer billing: none; this visualizer is sponsored by F-Box and sends no credits, price, plan or charge fields.
+
+To enable real images locally, configure and enable a compatible image route in `http://localhost:8081/admin`, set the admin-backend runtime to `AI_PROVIDER_MODE=live`, and restart the 8001 service. The fixed server prompt uses the selected wheel reference, the vehicle photo and fitment constraints, and requests three parallel `gpt-image-2` outputs. Development uses the shared safe token `fbox-wheel-local-dev`; non-development deployments must set the same `FBOX_VISUALIZER_INTEGRATION_TOKEN` in the 4174 proxy and BoxClaw admin-backend.
 
 Home 首页现在以定制轮毂为第一叙事，强调 four buyer jobs：street builds、show cars、track setups、dealers / brands。文案围绕 custom size、width、PCD、ET、center bore、brake clearance、finish、center cap、logo 和 production approval 展开；这些卖点来自本轮对定制锻造轮毂品牌与 Alibaba 供应商公开页面的研究。
 

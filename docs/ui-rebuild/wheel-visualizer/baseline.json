@@ -9,11 +9,11 @@
   },
   "observed_boundary": {
     "frontend": ["index.html", "app.js", "styles.css", "assets/"],
-    "backend": "none in this repository; production generation is delegated to the BoxClaw server adapter",
+    "backend": "local BoxClaw adapter lives outside this repository; storefront proxy forwards to admin-backend 8001",
     "router": "hash routes: #home, #store, #cart, #product/:id",
     "storage": ["fbox-cart", "fbox-wishlist", "fbox-vehicle", "fbox-locale", "fbox-mall-token", "fbox-cookie"],
     "existing_api_calls": ["/api/home/content", "/api/sso/login", "/admin-api/swagger-ui.html"],
-    "new_documented_api_calls": ["POST /api/wheel-visualizer/jobs", "GET /api/wheel-visualizer/jobs/:job_id"]
+    "new_documented_api_calls": ["POST /api/wheel-visualizer/jobs", "GET /api/wheel-visualizer/jobs/:job_id", "POST /api/v1/fbox/wheel-visualizer/jobs", "GET /api/v1/fbox/wheel-visualizer/jobs/:job_id"]
   },
   "frozen_interactions": [
     "Year -> Make -> Model -> Trim -> Drive vehicle selector",
@@ -24,9 +24,9 @@
   ],
   "new_flow": {
     "entry": "wheel product detail page",
-    "states": ["upload", "crop", "generating", "results", "error"],
+    "states": ["upload", "crop", "reference", "generating", "results", "error"],
     "outputs": 3,
     "billing": "officially sponsored by F-Box; no customer credits, price, plan or charge fields are sent by the browser",
-    "local_mode": "deterministic layout preview only; explicitly labeled and never presented as generated AI output"
+    "local_mode": "the 4174 adapter calls BoxClaw first; when 8001 is mock or has no enabled image route, it falls back to a deterministic layout preview explicitly labeled as local"
   }
 }
