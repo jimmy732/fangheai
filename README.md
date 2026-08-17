@@ -4,14 +4,14 @@
 
 ## 运行
 
-这是一个无构建依赖的静态 SPA。若只查看页面，可以启动静态服务器；若要测试轮毂效果图与本地 BoxClaw 的完整链路，请使用带代理的本地服务器：
+这是一个无构建依赖的静态 SPA。若只查看页面，可以启动静态服务器；若要测试轮毂效果图与 F-Box 独立后端的完整链路，请使用本地服务器：
 
 ```powershell
 cd "D:\文档\ChatGPT\开源系统\local-mall-dev"
 node local-fbox-server.mjs
 ```
 
-然后打开 <http://localhost:4174/>。当前服务器会保留商城原有 `/api`、`/admin-api` 代理，并新增 `/api/wheel-visualizer` → BoxClaw 8001 的同源代理。
+然后打开 <http://localhost:4174/>，管理页是 <http://localhost:4174/admin>。当前服务器会保留商城原有 `/api`、`/admin-api` 代理，并由 F-Box 自己处理 `/api/fbox-admin/*` 与 `/api/wheel-visualizer/*`；不会调用或修改 BoxClaw 后端。
 
 若只需要静态页面，也可以运行：
 
@@ -20,7 +20,7 @@ cd "D:\文档\ChatGPT\开源系统\f-box-fitment-store"
 python -m http.server 4174
 ```
 
-但静态服务器没有 BoxClaw 代理，效果图流程会走本地布局预览。
+但静态服务器没有 F-Box API，效果图流程无法调用模型；请使用上面的 `local-fbox-server.mjs`。
 
 ## 已实现交互
 
@@ -78,21 +78,21 @@ The wheel product detail page now includes an isolated F-Box Visual Studio flow:
 - upload or drag in one vehicle photo;
 - adjust zoom and framing without changing the existing fitment selector;
 - select the exact gallery image to use as the wheel reference;
-- request three angles with a BoxClaw-compatible async adapter;
+- request three angles through the F-Box independent async backend;
 - review results in the fifth step, retry, or close without touching cart, checkout, prices, reviews, or product state.
 
-On `localhost`, `app.js` calls `POST /api/wheel-visualizer/jobs`; the local proxy forwards to BoxClaw Admin Gateway `http://127.0.0.1:8001/api/v1/fbox/wheel-visualizer` and polls the matching status route. Configure the image route from the operator UI at <http://localhost:8081/admin>. The current local runtime is `AI_PROVIDER_MODE=mock` with no enabled image route, so the website returns an explicitly labeled local layout preview rather than claiming a real AI result. Provider keys, model routing, the fixed prompt and sponsored/no-charge policy belong to BoxClaw. The complete request/response contract, verification matrix and hardcoded prompt are in `docs/ui-rebuild/wheel-visualizer/`.
+On `localhost`, `app.js` calls `POST /api/wheel-visualizer/jobs`; the F-Box backend creates three asynchronous LingkeAI `gpt-image-2` media tasks and polls `/v1/media/status` until each result is final. Configure the provider connection from <http://localhost:4174/admin>. The route is intentionally real-only: before an API key is saved, the website returns a clear configuration error and never fabricates a pasted-wheel result. Provider keys, model routing, the fixed prompt and sponsored/no-charge policy belong to the F-Box backend. The complete request/response contract, verification matrix and hardcoded prompt are in `docs/ui-rebuild/wheel-visualizer/`.
 
-## Local BoxClaw connection
+## Local F-Box backend connection
 
 - Public storefront: <http://localhost:4174/>
-- BoxClaw operator UI: <http://localhost:8081/admin>
-- BoxClaw Admin Gateway API: `http://127.0.0.1:8001`
+- F-Box independent admin: <http://localhost:4174/admin>
+- LingkeAI base URL: `https://api.lk888.ai/v1`
 - Storefront bridge: `POST /api/wheel-visualizer/jobs` and `GET /api/wheel-visualizer/jobs/:job_id`
-- Internal BoxClaw route: `POST /api/v1/fbox/wheel-visualizer/jobs` and `GET /api/v1/fbox/wheel-visualizer/jobs/:job_id`
+- Admin status/config: `GET /api/fbox-admin/status` and `PUT /api/fbox-admin/config`
 - Customer billing: none; this visualizer is sponsored by F-Box and sends no credits, price, plan or charge fields.
 
-To enable real images locally, configure and enable a compatible image route in `http://localhost:8081/admin`, set the admin-backend runtime to `AI_PROVIDER_MODE=live`, and restart the 8001 service. The fixed server prompt uses the selected wheel reference, the vehicle photo and fitment constraints, and requests three parallel `gpt-image-2` outputs. Development uses the shared safe token `fbox-wheel-local-dev`; non-development deployments must set the same `FBOX_VISUALIZER_INTEGRATION_TOKEN` in the 4174 proxy and BoxClaw admin-backend.
+To enable real images locally, open `http://localhost:4174/admin`, paste the LingkeAI API key from your provider account and save. The admin page verifies `/v1/models` without creating a billable image task, then stores the key in the local runtime file outside the public repository. The fixed server prompt uses the selected wheel reference, the vehicle photo and fitment constraints, and requests three parallel `gpt-image-2` outputs. The official F-Box backend sponsors the generation; the customer is never charged.
 
 Home 首页现在以定制轮毂为第一叙事，强调 four buyer jobs：street builds、show cars、track setups、dealers / brands。文案围绕 custom size、width、PCD、ET、center bore、brake clearance、finish、center cap、logo 和 production approval 展开；这些卖点来自本轮对定制锻造轮毂品牌与 Alibaba 供应商公开页面的研究。
 

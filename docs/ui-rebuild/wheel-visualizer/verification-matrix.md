@@ -1,6 +1,6 @@
 # Verification Matrix: F-Box wheel visualizer
 
-This matrix records the local wiring for the five-step sponsored visualizer. It does not claim that a real provider image was generated while the local BoxClaw runtime is in `mock` mode.
+This matrix records the local wiring for the five-step sponsored visualizer. It does not claim that a real provider image was generated until a valid LingkeAI API key is saved in the F-Box admin page.
 
 | Check | Expected | Local evidence | Result |
 | --- | --- | --- | --- |
@@ -10,16 +10,16 @@ This matrix records the local wiring for the five-step sponsored visualizer. It 
 | Framing | Zoom/x/y update the image above immediately | `data-wheel-crop` input and drag handlers update the crop image | Pass |
 | Wheel reference | Selecting another gallery thumbnail changes the selected reference before generation | `wheel-reference` updates `state.wheelVisualizer.referenceImage`; reference step displays the selected image | Pass |
 | Public request boundary | Browser sends JSON only to same-origin `/api/wheel-visualizer/jobs` | No provider key, prompt, model, credits or price fields in `wheelVisualizerRemoteJob` | Pass |
-| Local bridge | 4174 forwards to 8001 with the integration header | `local-fbox-server.mjs` route and `X-F-Box-Visualizer-Token` forwarding | Pass |
-| Admin configuration | Operator configures image route through `http://localhost:8081/admin` | Admin UI is separate from public storefront; API runtime is 8001 | Pass |
-| Mock runtime | No false AI success when BoxClaw is not live | 8001 returns 503 for mock/no image route; frontend renders labeled local layout preview | Pass |
-| Live runtime contract | Three parallel `gpt-image-2` calls use fixed server prompt and selected wheel reference | `admin-backend/app/api/v1/routes/fbox_visualizer.py` calls `ModelClick().image` with `input_fidelity="high"` | Ready; provider route not enabled locally |
+| Independent backend | 4174 handles the job and admin routes without BoxClaw | `local-fbox-server.mjs` imports `fbox-visualizer-backend.mjs` | Pass |
+| Admin configuration | Operator saves the provider connection through `http://localhost:4174/admin` | `/api/fbox-admin/config` verifies `/v1/models` and stores the key outside the repository | Pass |
+| Unconfigured runtime | No false AI success when the provider is not configured | 4174 returns 503 with a safe setup message; frontend renders an actionable error | Pass |
+| Live runtime contract | Three parallel `gpt-image-2` calls use fixed server prompt and selected wheel reference | `fbox-visualizer-backend.mjs` calls LingkeAI `media/generate` and polls `media/status` | Ready; provider key not entered locally |
 | Commerce isolation | Visualizer does not change fitment, product price, reviews, cart or checkout | Separate `state.wheelVisualizer`; existing handlers unchanged | Pass |
 | Recovery | Retry and choose another photo keep the flow recoverable | `wheel-reset`, `wheel-retry`, reference back/next handlers | Pass |
 
 ## To enable real output locally
 
-1. Open `http://localhost:8081/admin` and configure/enable a BoxClaw image route that supports the image model path.
-2. Set the admin-backend runtime to `AI_PROVIDER_MODE=live`, then restart the 8001 service so its settings are reloaded.
-3. Keep the same `FBOX_VISUALIZER_INTEGRATION_TOKEN` on the 8001 service and the 4174 proxy if running outside development defaults.
+1. Open `http://localhost:4174/admin` and paste the LingkeAI API key.
+2. Save and wait for `/v1/models` verification to succeed; this does not create an image task.
+3. Return to a wheel product, upload the car photo, choose the exact wheel reference and click Generate.
 4. Re-run the visualizer. The UI should move from `queued/running` to three result URLs; otherwise it will show a safe error rather than provider internals.

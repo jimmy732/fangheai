@@ -223,7 +223,7 @@ const wheelVisualizerDefaults = () => ({
   jobId: '',
   results: [],
   error: '',
-  mode: 'local-preview'
+  mode: 'fbox-lingkeai'
 });
 state.wheelVisualizer = wheelVisualizerDefaults();
 
@@ -233,9 +233,6 @@ function wheelVisualizerState(productId = '', referenceImage = '') {
 }
 function wheelVisualizerItem() {
   return product(state.wheelVisualizer?.productId || state.route.id);
-}
-function wheelVisualizerLocalHost() {
-  return ['localhost', '127.0.0.1', '::1'].includes(location.hostname);
 }
 function wheelVisualizerAngleLabel(angle) {
   return ({
@@ -304,24 +301,6 @@ function wheelVisualizerHandleFile(file) {
   current.error = '';
   render();
 }
-function wheelVisualizerLocalJob(request) {
-  return new Promise(resolve => {
-    window.setTimeout(() => {
-      const productRef = request.product;
-      const referenceImage = request.referenceImage || productRef.image;
-      resolve({
-        jobId: `local-wheel-${Date.now()}`,
-        status: 'succeeded',
-        mode: 'local-preview',
-        results: [
-          { id: 'front-left', angle: 'front_left', imageUrl: request.vehicleUrl, wheelImage: ASSET + referenceImage },
-          { id: 'front-right', angle: 'front_right', imageUrl: request.vehicleUrl, wheelImage: ASSET + referenceImage },
-          { id: 'side-profile', angle: 'side_profile', imageUrl: request.vehicleUrl, wheelImage: ASSET + referenceImage }
-        ]
-      });
-    }, 1650);
-  });
-}
 async function wheelVisualizerRemoteJob(request) {
   const toDataUrl = blob => new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -345,7 +324,7 @@ async function wheelVisualizerRemoteJob(request) {
   };
   const response = await fetch('/api/wheel-visualizer/jobs', { method: 'POST', body: JSON.stringify(body), headers: { Accept: 'application/json', 'Content-Type': 'application/json' } });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) { const error = new Error(payload.message || 'The visual preview service is unavailable.'); error.status = response.status; throw error; }
+  if (!response.ok) { const error = new Error(payload.message || payload.detail || payload.error?.message || 'The F-Box AI visualizer is unavailable.'); error.status = response.status; throw error; }
   return payload.data || payload;
 }
 async function createWheelVisualizerJob() {
@@ -353,15 +332,6 @@ async function createWheelVisualizerJob() {
   const item = wheelVisualizerItem();
   const request = { file: current.vehicleFile, vehicleUrl: current.vehicleUrl, crop: current.crop, referenceImage: current.referenceImage || item.image, product: item };
   if (window.FBOX_WHEEL_VISUALIZER_API?.create) return window.FBOX_WHEEL_VISUALIZER_API.create(request);
-  if (wheelVisualizerLocalHost()) {
-    try { return await wheelVisualizerRemoteJob(request); }
-    catch (error) {
-      const message = String(error?.message || '');
-      const localServiceUnavailable = /ECONNREFUSED|failed to fetch|network|service unavailable/i.test(message);
-      if (error?.status === 404 || error?.status === 405 || error?.status >= 500 || error?.name === 'TypeError' || localServiceUnavailable) return wheelVisualizerLocalJob(request);
-      throw error;
-    }
-  }
   return wheelVisualizerRemoteJob(request);
 }
 async function wheelVisualizerStart() {
@@ -382,7 +352,7 @@ async function wheelVisualizerStart() {
     }
     current.jobId = result?.jobId || result?.job_id || '';
     current.results = (result?.results || []).slice(0, 3);
-    current.mode = result?.mode || 'boxclaw';
+    current.mode = result?.mode || 'fbox-lingkeai';
     if (current.results.length !== 3) throw new Error('The preview service returned fewer than 3 angles.');
     current.phase = 'results';
     render();
@@ -398,14 +368,14 @@ async function wheelVisualizerPoll(jobId) {
     await new Promise(resolve => window.setTimeout(resolve, 1200));
     const response = await fetch(`/api/wheel-visualizer/jobs/${encodeURIComponent(jobId)}`, { headers: { Accept: 'application/json' } });
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(payload.message || 'The preview job could not be checked.');
+    if (!response.ok) throw new Error(payload.message || payload.detail || payload.error?.message || 'The preview job could not be checked.');
     const result = payload.data || payload;
     if (result.status === 'failed') throw new Error(result.message || 'The preview job failed.');
     if (result.status === 'canceled') throw new Error('The preview job was canceled.');
     if (result.status === 'succeeded' || result.status === 'completed') {
       const current = state.wheelVisualizer;
       current.results = (result.results || []).slice(0, 3);
-      current.mode = result.mode || 'boxclaw';
+      current.mode = result.mode || 'fbox-lingkeai';
       if (current.results.length !== 3) throw new Error('The preview service returned fewer than 3 angles.');
       current.phase = 'results';
       render();
@@ -668,11 +638,7 @@ function cartPage() {
 function wheelVisualizerResultCard(result, index, item, mode) {
   const angle = wheelVisualizerAngleLabel(result.angle);
   const imageUrl = result.imageUrl || result.image_url || result.url || '';
-  if (mode === 'local-preview') {
-    const position = ['left', 'right', 'center'][index] || 'center';
-    return `<article class="wheel-result-card"><div class="wheel-result-media wheel-result-local"><img class="wheel-result-car" src="${esc(imageUrl)}" alt="Uploaded vehicle preview — ${esc(angle)}" style="${wheelVisualizerCropStyle(state.wheelVisualizer.crop)}"><div class="wheel-result-overlay wheel-result-overlay-${position}"><img src="${esc(result.wheelImage || ASSET + item.image)}" alt="${esc(item.name)} wheel reference"></div><span class="wheel-result-mode">Local layout preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>Reference placement for ${esc(item.name)}</span></div></article>`;
-  }
-  return `<article class="wheel-result-card"><div class="wheel-result-media"><img class="wheel-result-output" src="${esc(imageUrl)}" alt="${esc(item.name)} on your vehicle — ${esc(angle)}" loading="lazy"><span class="wheel-result-mode">BoxClaw visual preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>Wheel, finish and fitment held as reference</span></div></article>`;
+  return `<article class="wheel-result-card"><div class="wheel-result-media"><img class="wheel-result-output" src="${esc(imageUrl)}" alt="${esc(item.name)} on your vehicle — ${esc(angle)}" loading="lazy"><span class="wheel-result-mode">F-Box AI visual preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>Wheel, finish and fitment held as reference</span></div></article>`;
 }
 function wheelVisualizerReferencePicker(item, current) {
   const images = [...new Set([item.image, 'a7dd472643daf9b4.jpg', 'ff2a26733252a2c8.jpg'])];
@@ -691,7 +657,7 @@ function wheelVisualizerModalLegacy() {
   if (phase === 'upload') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Start with one real photo</div><h3>Show us the car.<br><em>We will show you the stance.</em></h3><p class="wheel-content-lead">Use a clear exterior photo with at least one wheel visible. A front three-quarter or side view gives the best fitment reference.</p><label class="wheel-upload-zone" data-wheel-dropzone><input type="file" accept="image/jpeg,image/png,image/webp,image/heic" data-wheel-upload><span class="wheel-upload-icon">＋</span><strong>Drop your car photo here</strong><span>JPG, PNG, WEBP or HEIC · Up to 12 MB</span><span class="btn btn-dark btn-small">Choose a photo</span></label><div class="wheel-visualizer-privacy"><span>${icons.shield}</span><span>Your image is used only to create this preview. No payment or credits are required.</span></div></div>`;
   if (phase === 'crop') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Frame the reference</div><h3>Keep the whole car.<br><em>Adjust only if needed.</em></h3><p class="wheel-content-lead">Upload the photo as-is. The full image stays available, even when the car sits low in a portrait frame. Drag the image or use the controls below; a wheel only needs to be visible, not centered in a box.</p><div class="wheel-crop-stage" data-wheel-crop-stage><img data-wheel-crop-image src="${esc(current.vehicleUrl)}" alt="${esc(current.vehicleName || 'Uploaded vehicle photo')}" draggable="false" style="${wheelVisualizerCropStyle(current.crop)}"><div class="wheel-crop-guide"><span>Full photo retained · drag to frame</span></div></div><div class="wheel-crop-live-note"><strong>Live framing</strong><span>Changes update the image above.</span></div><div class="wheel-crop-controls"><label><span>Zoom</span><input type="range" min="1" max="1.6" step="0.01" value="${current.crop.zoom}" data-wheel-crop="zoom"><output data-wheel-crop-output="zoom">${Number(current.crop.zoom).toFixed(2)}×</output></label><label><span>Horizontal position</span><input type="range" min="0" max="100" step="1" value="${current.crop.x}" data-wheel-crop="x"><output data-wheel-crop-output="x">${current.crop.x}%</output></label><label><span>Vertical position</span><input type="range" min="0" max="100" step="1" value="${current.crop.y}" data-wheel-crop="y"><output data-wheel-crop-output="y">${current.crop.y}%</output></label></div><div class="wheel-crop-actions"><button class="btn btn-outline btn-small" data-action="wheel-crop-reset">Reset frame</button><button class="btn btn-primary" data-action="wheel-generate">Generate 3 angles <span aria-hidden="true">↗</span></button></div></div>`;
   if (phase === 'generating') content = `<div class="wheel-visualizer-content wheel-generating-content" aria-live="polite"><div class="wheel-generating-orbit"><div class="wheel-generating-wheel"><img src="${ASSET + (current.referenceImage || item.image)}" alt="${esc(item.name)}"></div><span></span><span></span><span></span></div><div class="wheel-content-kicker">F-Box visual studio</div><h3>Matching wheel to vehicle<br><em>and checking the stance.</em></h3><p class="wheel-content-lead">We are holding the wheel design, finish, proportions and vehicle perspective together while preparing three views.</p><div class="wheel-progress"><span></span></div><div class="wheel-generating-meta"><span>Fitment reference locked</span><span>3 angles requested</span><span>Officially included</span></div></div>`;
-  if (phase === 'results') content = `<div class="wheel-visualizer-content wheel-results-content"><div class="wheel-results-head"><div><div class="wheel-content-kicker">Your preview set</div><h3>See the wheel<br><em>in its natural stance.</em></h3></div><div class="wheel-results-count"><strong>03</strong><span>angles</span></div></div><p class="wheel-content-lead">These views use ${esc(item.name)} in ${esc(item.finish)} as the wheel reference. Keep the final fitment check with the F-Box team before production.</p><div class="wheel-results-grid">${current.results.map((result, index) => wheelVisualizerResultCard(result, index, item, current.mode)).join('')}</div>${current.mode === 'local-preview' ? '<div class="wheel-local-note"><strong>Local preview mode</strong><span>BoxClaw is connected through the local adapter, but live image routing is not enabled on this environment. Configure the image route in BoxClaw Admin to replace this layout preview with real generated images.</span></div>' : ''}<div class="wheel-results-actions"><button class="btn btn-outline" data-action="wheel-reset">Try another photo</button><button class="btn btn-primary" data-action="wheel-close">Keep this wheel <span aria-hidden="true">↗</span></button></div></div>`;
+  if (phase === 'results') content = `<div class="wheel-visualizer-content wheel-results-content"><div class="wheel-results-head"><div><div class="wheel-content-kicker">Your preview set</div><h3>See the wheel<br><em>in its natural stance.</em></h3></div><div class="wheel-results-count"><strong>03</strong><span>angles</span></div></div><p class="wheel-content-lead">These views use ${esc(item.name)} in ${esc(item.finish)} as the wheel reference. Keep the final fitment check with the F-Box team before production.</p><div class="wheel-results-grid">${current.results.map((result, index) => wheelVisualizerResultCard(result, index, item, current.mode)).join('')}</div><div class="wheel-results-actions"><button class="btn btn-outline" data-action="wheel-reset">Try another photo</button><button class="btn btn-primary" data-action="wheel-close">Keep this wheel <span aria-hidden="true">↗</span></button></div></div>`;
   if (phase === 'error') content = `<div class="wheel-visualizer-content wheel-error-content" role="alert"><div class="wheel-error-mark">!</div><div class="wheel-content-kicker">Preview not ready</div><h3>We could not finish<br><em>this set of angles.</em></h3><p class="wheel-content-lead">${esc(current.error || 'Please check the image and try again.')}</p><div class="wheel-error-actions"><button class="btn btn-outline" data-action="wheel-reset">Choose another photo</button><button class="btn btn-primary" data-action="wheel-retry">Retry preview</button></div></div>`;
   return `<div class="wheel-visualizer-overlay" data-action="wheel-close"><div class="wheel-visualizer-shell" data-wheel-modal role="dialog" aria-modal="true" aria-labelledby="wheel-visualizer-dialog-title"><header class="wheel-visualizer-header"><div><div class="wheel-visualizer-brand"><span class="wheel-brand-dot"></span> F-BOX VISUAL STUDIO</div><h2 id="wheel-visualizer-dialog-title">${esc(item.name)} <span>· ${esc(item.finish)}</span></h2></div><div class="wheel-visualizer-header-actions"><span class="wheel-included-badge">Included with your build</span><button class="icon-btn wheel-modal-close" data-action="wheel-close" aria-label="Close visual preview">${icons.close}</button></div></header><div class="wheel-visualizer-body"><aside class="wheel-step-rail"><div class="wheel-step-rail-title">Your build preview</div>${stepRail}<div class="wheel-step-rail-foot"><span>${icons.shield}</span><p>F-Box covers the preview cost. There is no customer charge.</p></div></aside><main class="wheel-visualizer-main">${wheelVisualizerReferencePicker(item, current)}${content}</main></div></div></div>`;
 }
@@ -918,7 +884,7 @@ document.addEventListener('click', event => {
     current.results = [];
     current.jobId = '';
     current.error = '';
-    current.mode = 'local-preview';
+    current.mode = 'fbox-lingkeai';
     if (current.phase === 'results' || current.phase === 'error') current.phase = current.vehicleFile ? 'reference' : 'upload';
     render();
     return;

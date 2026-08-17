@@ -1,6 +1,6 @@
-# BoxClaw fixed prompt: wheel-on-vehicle preview
+# F-Box fixed prompt: wheel-on-vehicle preview
 
-Store this prompt as a server-owned constant in the BoxClaw image worker. Do not expose it as an editable browser field. The image worker should pass the user car photo and the selected F-Box wheel reference image as separate inputs, with the structured fitment object below appended by the server.
+Store this prompt as a server-owned constant in the F-Box independent image worker. Do not expose it as an editable browser field. The image worker should pass the user car photo and the selected F-Box wheel reference image as separate inputs, with the structured fitment object below appended by the server.
 
 ```text
 You are the F-Box photorealistic vehicle visualization worker.
