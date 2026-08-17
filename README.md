@@ -92,7 +92,7 @@ On `localhost`, `app.js` calls `POST /api/wheel-visualizer/jobs`; the F-Box back
 - Admin status/config: `GET /api/fbox-admin/status` and `PUT /api/fbox-admin/config`
 - Customer billing: none; this visualizer is sponsored by F-Box and sends no credits, price, plan or charge fields.
 
-To enable real images locally, open `http://localhost:4174/admin`, paste the LingkeAI API key from your provider account and save. The admin page verifies `/v1/models` without creating a billable image task, then stores the key in the local runtime file outside the public repository. The fixed server prompt uses the selected wheel reference, the vehicle photo and fitment constraints, and requests three parallel `gpt-image-2` outputs. The official F-Box backend sponsors the generation; the customer is never charged.
+To enable real images locally, open `http://localhost:4174/admin`, paste the LingkeAI API key from your provider account and save. The admin page verifies `/v1/models` without creating a billable image task, then stores the key in the local runtime file outside the public repository. The fixed server prompt uses the selected product reference (wheel, caliper, rotor or brake pad), the vehicle photo and fitment constraints, and requests three parallel `gpt-image-2` outputs. The official F-Box backend sponsors the generation; the customer is never charged.
 
 Home 首页现在以定制轮毂为第一叙事，强调 four buyer jobs：street builds、show cars、track setups、dealers / brands。文案围绕 custom size、width、PCD、ET、center bore、brake clearance、finish、center cap、logo 和 production approval 展开；这些卖点来自本轮对定制锻造轮毂品牌与 Alibaba 供应商公开页面的研究。
 

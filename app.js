@@ -59,34 +59,30 @@ function driveOptions(make, model) {
   return defaultDrives;
 }
 
-const products = [
-  { id: 'fbox-axis-19', category: 'Wheels', brand: 'F-Box', name: 'Axis 19', meta: '19x9.5 +35 · 5x114.3', price: 270, oldPrice: 300, rating: 4.9, reviews: 48, finish: 'Satin Black', diameter: 19, image: '9025362311e9a376.jpg', badge: 'Hot', deal: 'Free delivery · Aug 19–21', material: 'Rotary Forged', color: 'Satin Black', part: 'FBX-AXI-1995-35', weight: '22.4 lb' },
-  { id: 'fbox-velocity-18', category: 'Wheels', brand: 'F-Box', name: 'Velocity 18', meta: '18x8.5 +35 · 5x114.3', price: 230, oldPrice: 250, rating: 4.8, reviews: 34, finish: 'Bronze Machined', diameter: 18, image: '71118c6795a2a3a8.jpg', badge: 'Sale', deal: 'Save up to $86 with tires', material: 'Cast Aluminum', color: 'Bronze Machined', part: 'FBX-VEL-1885-35', weight: '20.8 lb' },
-  { id: 'fbox-forge-20', category: 'Wheels', brand: 'F-Box', name: 'Forge 20', meta: '20x9 +35 · 5x114.3', price: 300, oldPrice: 340, rating: 4.7, reviews: 26, finish: 'Gloss Black', diameter: 20, image: 'a8d2e56e51bb2d69.jpg', badge: 'New', deal: 'In stock · Quick delivery', material: 'Rotary Forged', color: 'Gloss Black', part: 'FBX-FOR-2090-35', weight: '24.3 lb' },
-  { id: 'fbox-drift-18', category: 'Wheels', brand: 'F-Box', name: 'Drift 18', meta: '18x9.5 +35 · 5x114.3', price: 216, oldPrice: 240, rating: 4.9, reviews: 31, finish: 'Matte Bronze', diameter: 18, image: 'a5816dd04dfd6ee0.jpg', badge: 'Sale', deal: 'Free mounting with tire package', material: 'Cast Aluminum', color: 'Matte Bronze', part: 'FBX-DRI-1895-35', weight: '21.2 lb' },
-  { id: 'fbox-lumen-19', category: 'Wheels', brand: 'F-Box', name: 'Lumen 19', meta: '19x8.5 +35 · 5x112', price: 260, oldPrice: null, rating: 4.8, reviews: 19, finish: 'Machined Silver', diameter: 19, image: 'fb1db723061ad6df.jpg', badge: '', deal: 'Free delivery · Aug 19–21', material: 'Cast Aluminum', color: 'Machined Silver', part: 'FBX-LUM-1985-35', weight: '23.1 lb' },
-  { id: 'fbox-track-17', category: 'Wheels', brand: 'F-Box', name: 'Track 17', meta: '17x8 +35 · 5x114.3', price: 198, oldPrice: null, rating: 4.6, reviews: 13, finish: 'Hyper Silver', diameter: 17, image: '0dccdbef8e429925.jpg', badge: '', deal: 'In stock · Quick delivery', material: 'Cast Aluminum', color: 'Hyper Silver', part: 'FBX-TRA-1780-35', weight: '18.6 lb' },
-  { id: 'fbox-ceramic-pro', category: 'Calipers', brand: 'F-Box Braking', name: 'Ceramic Pro 6P', meta: '6 piston · front axle · 380 mm', price: 1240, oldPrice: 1390, rating: 4.9, reviews: 22, finish: 'Racing Red', diameter: 380, image: 'fe1a37ef746c28f0.jpg', badge: 'Sale', deal: 'Includes braided lines + hardware', material: 'Forged Aluminum', color: 'Racing Red', part: 'FBX-CP6-380-RD', weight: '11.8 lb' },
-  { id: 'fbox-street-4p', category: 'Calipers', brand: 'F-Box Braking', name: 'Street 4P', meta: '4 piston · front axle · 330 mm', price: 880, oldPrice: null, rating: 4.8, reviews: 16, finish: 'Electric Blue', diameter: 330, image: 'f5effff1812a14eb.jpg', badge: 'New', deal: 'Ready to ship in 48 hours', material: 'Forged Aluminum', color: 'Electric Blue', part: 'FBX-ST4-330-BL', weight: '9.4 lb' },
-  { id: 'fbox-slotted-380', category: 'Rotors', brand: 'F-Box Braking', name: 'Track Slotted 380', meta: '2-piece · slotted · 380 mm', price: 420, oldPrice: 480, rating: 4.7, reviews: 28, finish: 'Black Hat', diameter: 380, image: 'e78ac1cfdeae4727.jpg', badge: 'Sale', deal: 'Pair pricing available', material: 'Iron + Aluminum', color: 'Black Hat', part: 'FBX-TS380-2P', weight: '21.3 lb' },
-  { id: 'fbox-drilled-330', category: 'Rotors', brand: 'F-Box Braking', name: 'Street Drilled 330', meta: '1-piece · drilled & slotted · 330 mm', price: 278, oldPrice: null, rating: 4.6, reviews: 18, finish: 'Geomet Coat', diameter: 330, image: '07576b43c0712d61.jpg', badge: '', deal: 'Free delivery · Aug 19–21', material: 'High Carbon Iron', color: 'Geomet Coat', part: 'FBX-SD330-1P', weight: '17.9 lb' },
-  { id: 'fbox-race-pad', category: 'Brake Pads', brand: 'F-Box Braking', name: 'R-Compound Pads', meta: 'Low dust · high bite · front axle', price: 168, oldPrice: 190, rating: 4.9, reviews: 41, finish: 'Carbon Ceramic', diameter: 0, image: '746b0039a724a70a.jpg', badge: 'Sale', deal: 'Ships today · track-ready compound', material: 'Carbon Ceramic', color: 'Carbon Ceramic', part: 'FBX-RCP-FR', weight: '4.1 lb' },
-  { id: 'fbox-quiet-pad', category: 'Brake Pads', brand: 'F-Box Braking', name: 'Quiet Street Pads', meta: 'Low noise · low dust · front axle', price: 118, oldPrice: null, rating: 4.8, reviews: 37, finish: 'Ceramic', diameter: 0, image: '333cd3b0b1906049.jpg', badge: '', deal: 'Includes shim kit + grease', material: 'Ceramic', color: 'Ceramic', part: 'FBX-QSP-FR', weight: '3.7 lb' }
+let products = [
+  { id: 'fbox-axis-19', category: 'Wheels', brand: 'F-Box', name: 'Axis 19', meta: '19x9.5 +35 · 5x114.3', price: 270, oldPrice: 300, rating: 0, reviews: 0, finish: 'Satin Black', diameter: 19, image: '9025362311e9a376.jpg', badge: 'Hot', deal: 'Availability managed by F-Box', material: 'Rotary Forged', color: 'Satin Black', part: 'FBX-AXI-1995-35', weight: '22.4 lb' },
+  { id: 'fbox-velocity-18', category: 'Wheels', brand: 'F-Box', name: 'Velocity 18', meta: '18x8.5 +35 · 5x114.3', price: 230, oldPrice: 250, rating: 0, reviews: 0, finish: 'Bronze Machined', diameter: 18, image: '71118c6795a2a3a8.jpg', badge: 'Sale', deal: 'Availability managed by F-Box', material: 'Cast Aluminum', color: 'Bronze Machined', part: 'FBX-VEL-1885-35', weight: '20.8 lb' },
+  { id: 'fbox-forge-20', category: 'Wheels', brand: 'F-Box', name: 'Forge 20', meta: '20x9 +35 · 5x114.3', price: 300, oldPrice: 340, rating: 0, reviews: 0, finish: 'Gloss Black', diameter: 20, image: 'a8d2e56e51bb2d69.jpg', badge: 'New', deal: 'Availability managed by F-Box', material: 'Rotary Forged', color: 'Gloss Black', part: 'FBX-FOR-2090-35', weight: '24.3 lb' },
+  { id: 'fbox-drift-18', category: 'Wheels', brand: 'F-Box', name: 'Drift 18', meta: '18x9.5 +35 · 5x114.3', price: 216, oldPrice: 240, rating: 0, reviews: 0, finish: 'Matte Bronze', diameter: 18, image: 'a5816dd04dfd6ee0.jpg', badge: 'Sale', deal: 'Availability managed by F-Box', material: 'Cast Aluminum', color: 'Matte Bronze', part: 'FBX-DRI-1895-35', weight: '21.2 lb' },
+  { id: 'fbox-lumen-19', category: 'Wheels', brand: 'F-Box', name: 'Lumen 19', meta: '19x8.5 +35 · 5x112', price: 260, oldPrice: null, rating: 0, reviews: 0, finish: 'Machined Silver', diameter: 19, image: 'fb1db723061ad6df.jpg', badge: '', deal: 'Availability managed by F-Box', material: 'Cast Aluminum', color: 'Machined Silver', part: 'FBX-LUM-1985-35', weight: '23.1 lb' },
+  { id: 'fbox-track-17', category: 'Wheels', brand: 'F-Box', name: 'Track 17', meta: '17x8 +35 · 5x114.3', price: 198, oldPrice: null, rating: 0, reviews: 0, finish: 'Hyper Silver', diameter: 17, image: '0dccdbef8e429925.jpg', badge: '', deal: 'Availability managed by F-Box', material: 'Cast Aluminum', color: 'Hyper Silver', part: 'FBX-TRA-1780-35', weight: '18.6 lb' },
+  { id: 'fbox-ceramic-pro', category: 'Calipers', brand: 'F-Box Braking', name: 'Ceramic Pro 6P', meta: '6 piston · front axle · 380 mm', price: 1240, oldPrice: 1390, rating: 0, reviews: 0, finish: 'Ceramic White', diameter: 380, image: 'fbox-ceramic-white-reference-pending.svg', badge: 'Sale', deal: 'Availability managed by F-Box', material: 'Forged Aluminum', color: 'Ceramic White', part: 'FBX-CP6-380-WH', weight: '11.8 lb' },
+  { id: 'fbox-street-4p', category: 'Calipers', brand: 'F-Box Braking', name: 'Street 4P', meta: '4 piston · front axle · 330 mm', price: 880, oldPrice: null, rating: 0, reviews: 0, finish: 'Electric Blue', diameter: 330, image: 'f5effff1812a14eb.jpg', badge: 'New', deal: 'Availability managed by F-Box', material: 'Forged Aluminum', color: 'Electric Blue', part: 'FBX-ST4-330-BL', weight: '9.4 lb' },
+  { id: 'fbox-slotted-380', category: 'Rotors', brand: 'F-Box Braking', name: 'Track Slotted 380', meta: '2-piece · slotted · 380 mm', price: 420, oldPrice: 480, rating: 0, reviews: 0, finish: 'Black Hat', diameter: 380, image: 'e78ac1cfdeae4727.jpg', badge: 'Sale', deal: 'Availability managed by F-Box', material: 'Iron + Aluminum', color: 'Black Hat', part: 'FBX-TS380-2P', weight: '21.3 lb' },
+  { id: 'fbox-drilled-330', category: 'Rotors', brand: 'F-Box Braking', name: 'Street Drilled 330', meta: '1-piece · drilled & slotted · 330 mm', price: 278, oldPrice: null, rating: 0, reviews: 0, finish: 'Geomet Coat', diameter: 330, image: '07576b43c0712d61.jpg', badge: '', deal: 'Availability managed by F-Box', material: 'High Carbon Iron', color: 'Geomet Coat', part: 'FBX-SD330-1P', weight: '17.9 lb' },
+  { id: 'fbox-race-pad', category: 'Brake Pads', brand: 'F-Box Braking', name: 'R-Compound Pads', meta: 'Low dust · high bite · front axle', price: 168, oldPrice: 190, rating: 0, reviews: 0, finish: 'Carbon Ceramic', diameter: 0, image: '746b0039a724a70a.jpg', badge: 'Sale', deal: 'Availability managed by F-Box', material: 'Carbon Ceramic', color: 'Carbon Ceramic', part: 'FBX-RCP-FR', weight: '4.1 lb' },
+  { id: 'fbox-quiet-pad', category: 'Brake Pads', brand: 'F-Box Braking', name: 'Quiet Street Pads', meta: 'Low noise · low dust · front axle', price: 118, oldPrice: null, rating: 0, reviews: 0, finish: 'Ceramic', diameter: 0, image: '333cd3b0b1906049.jpg', badge: '', deal: 'Availability managed by F-Box', material: 'Ceramic', color: 'Ceramic', part: 'FBX-QSP-FR', weight: '3.7 lb' }
 ];
 
-const reviews = [
-  { title: 'Love them', vehicle: '2020 INFINITI Q50 Sport', author: 'Dillon', date: '06-11-2026', body: 'I finally pulled the trigger on getting some wheels and tires and happy I did! They look good and at a good price as well. Big thanks to the F-Box fitment team.', helpful: 18 },
-  { title: 'Awesome wheels', vehicle: '2024 Ford Mustang GT Premium', author: 'Don', date: '06-03-2026', body: 'The finish is exactly what I wanted and the fitment guide made ordering painless. They arrived packed well and the stance is perfect on stock suspension.', helpful: 12 },
-  { title: 'Love em', vehicle: '2014 Mercedes-Benz CLA45 AMG 4Matic', author: 'Parker', date: '03-02-2026', body: 'Clean design, quick shipping, and no rubbing after dialing in the recommended offset. Would buy another set for the next build.', helpful: 9 },
-  { title: 'Super easy to install', vehicle: '2018 Honda Accord Touring', author: 'E', date: '01-21-2026', body: 'Super easy to install and looks very nice! Customer service confirmed the brake clearance before I placed the order.', helpful: 7 }
-];
+// Customer reviews and build cases are intentionally empty until verified
+// orders are collected. The storefront must never present invented proof.
+let reviews = [];
+let fboxCases = [];
 
 const categories = [
   ['Wheels', 'The right spoke, width and offset.', 'spark'], ['Calipers', 'Big brake color and control.', 'bolt'], ['Rotors', 'Track-ready bite and cooling.', 'disc'], ['Brake Pads', 'Quiet street to race compounds.', 'shield'], ['Wheel & Tire Packages', 'Mount, balance and save.', 'truck'], ['Suspension', 'Drop it. Dial it. Drive it.', 'arrow']
 ];
-const guideCards = [
-  ['Honda Civic', '16–21 fitment guide', '99d02f206e944b98.png'], ['Subaru WRX', '15–21 fitment guide', 'f0cc2e2df3bbaaff.png'], ['Ford Mustang', '15–23 fitment guide', '36c013ea2f6eedb6.png'], ['Anovia fitment', 'Daily-driver offsets', 'a7dd472643daf9b4.jpg'], ['Track setups', 'Brake clearance basics', 'fe1a37ef746c28f0.jpg']
-];
+const guideCards = [];
 
 const company = {
   legalName: 'Fanghe Overseas Intelligent Technology Co., Ltd.',
@@ -173,6 +169,9 @@ const state = {
   menuOpen: false,
   mobileNav: false,
   chatOpen: false,
+  chatSessionId: localStorage.getItem('fbox-chat-session') || '',
+  chatMessages: [],
+  chatSending: false,
   cookie: localStorage.getItem('fbox-cookie') !== 'dismissed',
   modal: null,
   toast: '',
@@ -189,7 +188,14 @@ const state = {
   localeMode: localStorage.getItem('fbox-locale') ? 'manual' : 'auto',
   localeCountry: '',
   mallToken: localStorage.getItem('fbox-mall-token') || '',
+  catalogLoaded: false,
+  checkoutForm: JSON.parse(localStorage.getItem('fbox-checkout-form') || '{}'),
+  lastOrder: null,
   backend: { portal: 'testing', admin: 'testing', checked: false, checking: false },
+  fboxVehicleRecords: [],
+  fboxVehicleLibrary: { ready: false, source: 'local-fallback', total: 0, officialSpecs: 0 },
+  accountOrders: [],
+  accountOrdersLoading: false,
   wheelVisualizer: null
 };
 
@@ -202,7 +208,7 @@ function getRoute() {
 }
 function esc(value = '') { return String(value).replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
 function money(value) { return `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; }
-function stars(rating) { return `<span class="stars" aria-label="${rating} out of 5">★★★★★</span>`; }
+function stars(rating) { return Number(rating) > 0 ? `<span class="stars" aria-label="${rating} out of 5">★★★★★</span>` : '<span class="rating-empty">No verified reviews yet</span>'; }
 function product(id) { return products.find(item => item.id === id) || products[0]; }
 function persist() { localStorage.setItem('fbox-cart', JSON.stringify(state.cart)); localStorage.setItem('fbox-wishlist', JSON.stringify(state.wishlist)); if (state.vehicle) localStorage.setItem('fbox-vehicle', JSON.stringify(state.vehicle)); }
 function setToast(message) { state.toast = message; render(); window.clearTimeout(setToast.timer); setToast.timer = window.setTimeout(() => { state.toast = ''; render(); }, 2800); }
@@ -210,6 +216,15 @@ function go(hash) { state.modal = null; location.hash = hash; }
 function cartCount() { return state.cart.reduce((sum, item) => sum + item.qty, 0); }
 function cartTotal() { return state.cart.reduce((sum, item) => sum + item.qty * product(item.id).price, 0); }
 function currentVehicleLabel() { return state.vehicle ? [state.vehicle.year, state.vehicle.make, state.vehicle.model, state.vehicle.trim].filter(Boolean).join(' ') : 'Select your vehicle'; }
+function currentVehicleRecord() {
+  const selected = state.vehicle || {};
+  const matches = state.fboxVehicleRecords.filter(record => Number(record.year) === Number(selected.year) && record.make === selected.make && record.model === selected.model && record.trim === selected.trim);
+  return matches.find(record => !selected.drive || !record.drive || record.drive === selected.drive) || matches[0] || null;
+}
+function currentOfficialWheelSpecs() {
+  const record = currentVehicleRecord();
+  return record?.oem_wheel_specs || {};
+}
 
 const wheelVisualizerDefaults = () => ({
   open: false,
@@ -223,6 +238,9 @@ const wheelVisualizerDefaults = () => ({
   jobId: '',
   results: [],
   error: '',
+  errorCode: '',
+  resultViewer: null,
+  inquiry: null,
   mode: 'fbox-lingkeai'
 });
 state.wheelVisualizer = wheelVisualizerDefaults();
@@ -309,16 +327,22 @@ async function wheelVisualizerRemoteJob(request) {
     reader.readAsDataURL(blob);
   });
   const vehicleImage = await toDataUrl(request.file);
-  const productResponse = await fetch(`${ASSET}${request.referenceImage || request.product.image}`);
-  if (!productResponse.ok) throw new Error('The selected wheel reference could not be loaded.');
-  const productImage = await toDataUrl(await productResponse.blob());
+  let productImage = '';
+  if (request.referenceImage || request.product.image) {
+    const productResponse = await fetch(`${ASSET}${request.referenceImage || request.product.image}`);
+    if (!productResponse.ok) throw new Error('The selected product reference could not be loaded.');
+    productImage = await toDataUrl(await productResponse.blob());
+  }
   const body = {
     vehicle_image: vehicleImage,
     product_image: productImage,
     product_id: request.product.id,
     product_name: request.product.name,
+    product_category: request.product.category,
     product_finish: request.product.finish,
     product_fitment: request.product.meta,
+    vehicle_name: currentVehicleLabel(),
+    vehicle_file_name: request.file?.name || '',
     crop: request.crop,
     angles: 3
   };
@@ -339,6 +363,7 @@ async function wheelVisualizerStart() {
   if (!current?.vehicleFile) return;
   current.phase = 'generating';
   current.error = '';
+  current.errorCode = '';
   current.jobId = '';
   render();
   try {
@@ -358,20 +383,48 @@ async function wheelVisualizerStart() {
     render();
   } catch (error) {
     current.phase = 'error';
+    current.errorCode = error?.code || '';
     current.error = error?.message || 'We could not generate the visual preview.';
+    render();
+  }
+}
+async function wheelVisualizerResume() {
+  const current = state.wheelVisualizer;
+  if (!current?.vehicleFile || !current.jobId) return wheelVisualizerStart();
+  current.phase = 'generating';
+  current.error = '';
+  current.errorCode = '';
+  render();
+  try {
+    await wheelVisualizerPoll(current.jobId);
+  } catch (error) {
+    current.phase = 'error';
+    current.errorCode = error?.code || '';
+    current.error = error?.message || 'We could not resume the visual preview.';
     render();
   }
 }
 async function wheelVisualizerPoll(jobId) {
   if (!jobId) throw new Error('The preview job did not return an id.');
-  for (let attempt = 0; attempt < 45; attempt += 1) {
-    await new Promise(resolve => window.setTimeout(resolve, 1200));
+  const pollIntervalMs = 1500;
+  const maxWaitMs = 360000;
+  const maxAttempts = Math.ceil(maxWaitMs / pollIntervalMs);
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    await new Promise(resolve => window.setTimeout(resolve, pollIntervalMs));
     const response = await fetch(`/api/wheel-visualizer/jobs/${encodeURIComponent(jobId)}`, { headers: { Accept: 'application/json' } });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.message || payload.detail || payload.error?.message || 'The preview job could not be checked.');
     const result = payload.data || payload;
-    if (result.status === 'failed') throw new Error(result.message || 'The preview job failed.');
-    if (result.status === 'canceled') throw new Error('The preview job was canceled.');
+    if (result.status === 'failed') {
+      const error = new Error(result.message || 'The preview job failed.');
+      error.code = 'JOB_FAILED';
+      throw error;
+    }
+    if (result.status === 'canceled') {
+      const error = new Error('The preview job was canceled.');
+      error.code = 'JOB_CANCELED';
+      throw error;
+    }
     if (result.status === 'succeeded' || result.status === 'completed') {
       const current = state.wheelVisualizer;
       current.results = (result.results || []).slice(0, 3);
@@ -382,14 +435,16 @@ async function wheelVisualizerPoll(jobId) {
       return;
     }
   }
-  throw new Error('The preview is taking longer than expected. Please try again.');
+  const timeout = new Error('This preview is still processing. Continue waiting to reuse this request; a new image task will not be created.');
+  timeout.code = 'POLL_TIMEOUT';
+  throw timeout;
 }
 
 async function mallRequest(base, endpoint, options = {}) {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), options.timeout || 5000);
   const headers = { Accept: 'application/json', ...(options.headers || {}) };
-  if (state.mallToken) headers.Authorization = `Bearer ${state.mallToken}`;
+  if (state.mallToken) headers.Authorization = state.mallToken;
   try {
     const response = await fetch(`${base}${endpoint}`, { ...options, headers, signal: controller.signal });
     const text = await response.text();
@@ -408,7 +463,7 @@ async function mallRequest(base, endpoint, options = {}) {
 function mallStatusLabel(status) {
   if (status === 'connected') return 'Connected';
   if (status === 'checking') return 'Checking';
-  return 'Testing';
+  return 'Unavailable';
 }
 function mallStatusChip(kind = 'portal') {
   const status = state.backend[kind] || 'testing';
@@ -421,7 +476,7 @@ async function checkMallBackend() {
   state.backend.admin = 'checking';
   render();
   const [portal, admin] = await Promise.allSettled([
-    mallRequest(mallConfig.portalBase, '/home/content'),
+    mallRequest(mallConfig.portalBase, '/product/search?pageNum=1&pageSize=1&sort=1'),
     fetch(`${mallConfig.adminBase}/swagger-ui.html`, { method: 'GET', signal: AbortSignal.timeout(5000) })
   ]);
   state.backend.portal = portal.status === 'fulfilled' ? 'connected' : 'testing';
@@ -429,6 +484,46 @@ async function checkMallBackend() {
   state.backend.checked = true;
   state.backend.checking = false;
   render();
+  if (state.backend.portal === 'connected') loadMallCatalog();
+}
+
+async function loadFBoxContent() {
+  try {
+    const [vehicleResponse, reviewResponse, caseResponse] = await Promise.all([
+      fetch('/api/fbox-content/vehicles', { headers: { Accept: 'application/json' } }),
+      fetch('/api/fbox-content/reviews?status=approved', { headers: { Accept: 'application/json' } }),
+      fetch('/api/fbox-content/cases?status=published', { headers: { Accept: 'application/json' } })
+    ]);
+    const vehiclePayload = await vehicleResponse.json().catch(() => ({}));
+    const reviewPayload = await reviewResponse.json().catch(() => ({}));
+    const casePayload = await caseResponse.json().catch(() => ({}));
+    state.fboxVehicleRecords = Array.isArray(vehiclePayload.data) ? vehiclePayload.data.filter(record => record.status !== 'inactive') : [];
+    const remoteYears = state.fboxVehicleRecords.map(record => Number(record.year)).filter(Boolean);
+    years.splice(0, years.length, ...Array.from(new Set([...years, ...remoteYears])).sort((a, b) => Number(b) - Number(a)));
+    state.fboxVehicleLibrary = {
+      ready: vehicleResponse.ok,
+      source: vehicleResponse.ok ? 'F-Box vehicle library' : 'local-fallback',
+      total: Number(vehiclePayload.meta?.total || state.fboxVehicleRecords.length),
+      officialSpecs: Number(vehiclePayload.meta?.verified_specs || 0),
+    };
+    state.fboxVehicleRecords.forEach(record => {
+      vehicles[record.year] ||= {};
+      vehicles[record.year][record.make] ||= {};
+      vehicles[record.year][record.make][record.model] ||= [];
+      if (record.trim && !vehicles[record.year][record.make][record.model].includes(record.trim)) vehicles[record.year][record.make][record.model].push(record.trim);
+    });
+    reviews = Array.isArray(reviewPayload.data) ? reviewPayload.data : [];
+    fboxCases = Array.isArray(casePayload.data) ? casePayload.data : [];
+    products = products.map(item => {
+      const productReviews = reviews.filter(review => review.product_id === item.id);
+      if (!productReviews.length) return { ...item, rating: 0, reviews: 0 };
+      const rating = productReviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / productReviews.length;
+      return { ...item, rating: Number(rating.toFixed(1)), reviews: productReviews.length };
+    });
+    render();
+  } catch {
+    // The storefront keeps its local vehicle fallback when the content API is offline.
+  }
 }
 async function mallLogin(username, password) {
   const body = new URLSearchParams({ username, password });
@@ -439,6 +534,148 @@ async function mallLogin(username, password) {
   });
 }
 
+async function mallRegister(values) {
+  const body = new URLSearchParams({
+    username: String(values.username || ''),
+    password: String(values.password || ''),
+    telephone: String(values.telephone || ''),
+    authCode: String(values.authCode || '')
+  });
+  return mallRequest(mallConfig.portalBase, '/sso/register', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
+}
+
+async function syncMallWishlist() {
+  if (!state.mallToken) return;
+  const remote = await mallRequest(mallConfig.portalBase, '/member/productCollection/list?pageNum=1&pageSize=100', { timeout: 7000 });
+  const list = Array.isArray(remote?.list) ? remote.list : Array.isArray(remote) ? remote : [];
+  state.wishlist = list.map(row => products.find(item => Number(item.backendId) === Number(row.productId))?.id).filter(Boolean);
+  persist();
+}
+
+async function loadMemberOrders() {
+  if (!state.mallToken) return;
+  state.accountOrdersLoading = true;
+  render();
+  try {
+    const remote = await mallRequest(mallConfig.portalBase, '/order/list?status=-1&pageNum=1&pageSize=20', { timeout: 7000 });
+    state.accountOrders = Array.isArray(remote?.list) ? remote.list : Array.isArray(remote) ? remote : [];
+  } catch (error) {
+    state.accountOrders = [];
+    setToast(error?.message || '订单查询失败，请重新登录后重试。');
+  } finally {
+    state.accountOrdersLoading = false;
+    render();
+  }
+}
+
+function productRatingMarkup(item) {
+  return Number(item.rating) > 0 ? `${stars(item.rating)} <a href="#product/${item.id}">${item.rating} · ${item.reviews} reviews</a>` : stars(0);
+}
+
+function mallProductToFBox(raw) {
+  const base = products.find(item => item.part === raw.productSn);
+  if (!base) return null;
+  const price = Number(raw.price || base.price || 0);
+  const originalPrice = Number(raw.originalPrice || 0);
+  return {
+    ...base,
+    backendId: Number(raw.id),
+    name: raw.name || base.name,
+    brand: raw.brandName || base.brand,
+    category: raw.productCategoryName || base.category,
+    price,
+    oldPrice: originalPrice > price ? originalPrice : null,
+    image: base.image,
+    rating: 0,
+    reviews: 0,
+    deal: Number(raw.stock || 0) > 0 ? 'In stock · live inventory' : 'Contact F-Box for availability',
+    stock: Number(raw.stock || 0),
+    meta: base.meta,
+    backendPic: raw.pic || ''
+  };
+}
+
+async function loadMallCatalog() {
+  try {
+    const page = await mallRequest(mallConfig.portalBase, '/product/search?pageNum=1&pageSize=100&sort=1', { timeout: 7000 });
+    const rawProducts = Array.isArray(page?.list) ? page.list : Array.isArray(page) ? page : [];
+    const mapped = rawProducts.map(mallProductToFBox).filter(Boolean);
+    if (!mapped.length) throw new Error('F-Box catalog is empty');
+    const detailed = await Promise.all(mapped.map(async item => {
+      try {
+        const detail = await mallRequest(mallConfig.portalBase, `/product/detail/${item.backendId}`, { timeout: 7000 });
+        const sku = Array.isArray(detail?.skuStockList) ? detail.skuStockList.find(stock => Number(stock.stock || 0) > 0) || detail.skuStockList[0] : null;
+        return { ...item, skuId: sku?.id ? Number(sku.id) : null };
+      } catch {
+        return item;
+      }
+    }));
+    products = detailed;
+    state.catalogLoaded = true;
+    render();
+    if (state.mallToken) await loadMallCart();
+  } catch (error) {
+    state.catalogLoaded = false;
+    state.backend.portal = 'testing';
+    render();
+  }
+}
+
+async function loadMallCart() {
+  if (!state.mallToken) return;
+  const remote = await mallRequest(mallConfig.portalBase, '/cart/list', { timeout: 7000 });
+  const next = (Array.isArray(remote) ? remote : []).map(row => {
+    const item = products.find(productItem => Number(productItem.backendId) === Number(row.productId));
+    return item ? { id: item.id, qty: Number(row.quantity || 1), backendCartId: Number(row.id) } : null;
+  }).filter(Boolean);
+  state.cart = next;
+  persist();
+}
+
+async function syncMallCart() {
+  if (!state.mallToken) throw new Error('请先登录 F-Box 账户');
+  for (const row of state.cart) {
+    const item = product(row.id);
+    if (!item?.backendId || !item?.skuId) throw new Error(`${item?.name || '商品'} 暂无可用规格库存`);
+    await mallRequest(mallConfig.portalBase, '/cart/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId: item.backendId, productSkuId: item.skuId, quantity: row.qty })
+    });
+  }
+  await loadMallCart();
+}
+
+async function createMallOrder(values) {
+  await syncMallCart();
+  const remoteCart = await mallRequest(mallConfig.portalBase, '/cart/list', { timeout: 7000 });
+  const cartIds = (Array.isArray(remoteCart) ? remoteCart : []).map(row => Number(row.id)).filter(Boolean);
+  if (!cartIds.length) throw new Error('购物车为空，请先添加商品');
+  await mallRequest(mallConfig.portalBase, '/member/address/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: values.name,
+      phoneNumber: values.phone,
+      postCode: values.postCode,
+      province: values.province || values.city,
+      city: values.city,
+      region: values.region || '',
+      detailAddress: values.address,
+      defaultStatus: 1
+    })
+  });
+  const addresses = await mallRequest(mallConfig.portalBase, '/member/address/list', { timeout: 7000 });
+  const address = (Array.isArray(addresses) ? addresses : []).slice().reverse().find(item => item.name === values.name && item.detailAddress === values.address) || (Array.isArray(addresses) ? addresses[addresses.length - 1] : null);
+  if (!address?.id) throw new Error('收货地址保存失败，请重新提交');
+  const result = await mallRequest(mallConfig.portalBase, '/order/generateOrder', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ memberReceiveAddressId: address.id, payType: 0, useIntegration: 0, cartIds })
+  });
+  return result?.order || result;
+}
+
 function decorateIntegrationState() {
   const headerActions = document.querySelector(".header-actions");
   if (headerActions && !headerActions.querySelector(".mall-status")) {
@@ -446,15 +683,15 @@ function decorateIntegrationState() {
   }
   const storeHero = document.querySelector(".store-hero .container");
   if (storeHero && !storeHero.querySelector(".integration-strip")) {
-    storeHero.insertAdjacentHTML("beforeend", `<div class="integration-strip"><div><strong>F-Box catalog stays active</strong><span>Existing wheels and brake-part interactions are preserved.</span></div><div class="integration-chips">${mallStatusChip("portal")}${mallStatusChip("admin")}<span class="integration-chip is-testing"><i></i>Real checkout · Testing</span></div></div>`);
+    storeHero.insertAdjacentHTML("beforeend", `<div class="integration-strip"><div><strong>Live F-Box catalog</strong><span>Products, prices and stock are served from the mall product module.</span></div><div class="integration-chips">${mallStatusChip("portal")}${mallStatusChip("admin")}<span class="integration-chip is-live"><i></i>Order API · Connected</span></div></div>`);
   }
   const accountForm = document.querySelector("[data-form=account]");
   if (accountForm && !accountForm.previousElementSibling?.classList.contains("integration-note")) {
-    accountForm.insertAdjacentHTML("beforebegin", `<div class="integration-note">${mallStatusChip("portal")}<span>Account login uses mall-portal when the local service is available. New account registration remains Testing.</span></div>`);
+    accountForm.insertAdjacentHTML("beforebegin", `<div class="integration-note">${mallStatusChip("portal")}<span>登录使用 F-Box mall 会员服务；购物车、收货地址和订单都保存到后端。</span></div>`);
   }
   const checkoutForm = document.querySelector("[data-form=checkout]");
   if (checkoutForm && !checkoutForm.previousElementSibling?.classList.contains("integration-note")) {
-    checkoutForm.insertAdjacentHTML("beforebegin", `<div class="integration-note">${mallStatusChip("portal")}<span>Order generation and payment remain Testing until F-Box products, shipping rules and a payment provider are configured in mall.</span></div>`);
+    checkoutForm.insertAdjacentHTML("beforebegin", `<div class="integration-note">${mallStatusChip("portal")}<span>订单会写入 mall-admin 的订单列表并默认为待付款；支付渠道可在后续上线前配置。</span></div>`);
   }
 }
 
@@ -506,7 +743,7 @@ function header() {
 }
 function megaMenu() {
   const groups = [['Shop by product', ['Wheels', 'Calipers', 'Rotors', 'Brake Pads', 'Wheel & Tire Packages']], ['Fitment tools', ['Shop by vehicle', 'Fitment guide', 'Brake clearance', 'Search gallery', 'Wheel offset guide']], ['Build essentials', ['Suspension', 'Wheel accessories', 'Lug nuts', 'Spacers & adapters', 'Car care']], ['F-Box service', ['Today’s deals', 'Financing', 'Track my order', 'Wholesale program', 'Fitment support']]];
-  return `<div class="mega-menu"><div class="container mega-grid">${groups.map(([title, links]) => `<div class="mega-col"><h3>${title}</h3>${links.map(link => `<a href="#store" data-category-link="${esc(link.includes('Wheels') ? 'Wheels' : link.includes('Calipers') ? 'Calipers' : link.includes('Rotors') ? 'Rotors' : link.includes('Pads') ? 'Brake Pads' : 'All')}">${link}</a>`).join('')}</div>`).join('')}</div></div>`;
+  return `<div class="mega-menu"><div class="container mega-grid">${groups.map(([title, links]) => `<div class="mega-col"><h3>${title}</h3>${links.map(link => link === 'Track my order' ? `<a href="#home" data-action="orders">${link}</a>` : `<a href="#store" data-category-link="${esc(link.includes('Wheels') ? 'Wheels' : link.includes('Calipers') ? 'Calipers' : link.includes('Rotors') ? 'Rotors' : link.includes('Pads') ? 'Brake Pads' : 'All')}">${link}</a>`).join('')}</div>`).join('')}</div></div>`;
 }
 
 function fitmentProducts() {
@@ -519,7 +756,7 @@ function fitmentProducts() {
   return preferred;
 }
 function renderFitmentProduct(item) {
-  return `<button class="fitment-product spotlight-card" data-action="quick-view" data-id="${item.id}"><span class="fitment-product-image"><img src="${ASSET + item.image}" alt="${esc(item.name)}"></span><span class="fitment-product-copy"><small>${item.category}</small><strong>${item.name}</strong><span>${money(item.price)} <em>· ${item.reviews} reviews</em></span></span></button>`;
+  return `<button class="fitment-product spotlight-card" data-action="quick-view" data-id="${item.id}"><span class="fitment-product-image"><img src="${ASSET + item.image}" alt="${esc(item.name)}"></span><span class="fitment-product-copy"><small>${item.category}</small><strong>${item.name}</strong><span>${money(item.price)} <em>· ${item.reviews ? `${item.reviews} reviews` : 'No verified reviews yet'}</em></span></span></button>`;
 }
 function fitmentPreview() {
   if (!state.vehicle?.trim) return '';
@@ -567,10 +804,10 @@ function customWheelHomePage() {
   <section class="custom-audience section-tight"><div class="container"><div class="custom-section-heading compact"><div><p class="eyebrow">Built around the buyer</p><h2>One wheel studio.<br><span>Four ways to build.</span></h2></div><p>Lead with the use case instead of forcing every visitor through the same catalog path.</p></div><div class="custom-audience-grid">${buyerModes.map(([title, copy, meta], i) => `<article class="custom-audience-card reveal delay-${i % 4}"><span class="custom-audience-index">0${i + 1}</span><h3>${title}</h3><p>${copy}</p><small>${meta}</small></article>`).join('')}</div></div></section>
   <section class="custom-workshop section" id="workshop"><div class="container"><div class="custom-workshop-grid"><div class="custom-workshop-media spotlight-card"><img src="${ASSET}ff2a26733252a2c8.jpg" alt="Custom wheel engineering and finish reference" loading="lazy"><div class="custom-media-stamp"><strong>F-BOX / 001</strong><span>Engineering reference</span></div><div class="custom-media-note">Finished wheel study · finish and spoke direction</div></div><div class="custom-workshop-copy"><p class="eyebrow">From brief to build</p><h2>A custom wheel is a process, not a product card.</h2><p>Strong custom-wheel brands sell confidence: a clear brief, transparent fitment decisions, a finish that feels personal and a human who stays close when the build gets specific.</p><div class="custom-process-list">${customProcess.map(([title, copy], i) => `<div class="custom-process-row"><span>0${i + 1}</span><div><strong>${title}</strong><p>${copy}</p></div></div>`).join('')}</div><a class="btn btn-dark" href="#home#custom-build">Build my wheel brief</a></div></div></div></section>
   <section class="section custom-finish-section"><div class="container"><div class="custom-finish-grid"><div><p class="eyebrow">The details buyers remember</p><h2>Color is only the beginning.</h2><p class="muted">A custom wheel feels premium when the small decisions are easy to compare: satin or gloss, deep or flush, center cap or branded, street-safe or track-led.</p><div class="custom-finish-chips"><span>Gloss / satin / matte</span><span>Brushed / polished / milled</span><span>Custom center caps</span><span>Laser logo details</span><span>1-piece / 2-piece</span><span>Road / show / track</span></div></div><div class="custom-finish-collage"><div class="custom-finish-tile large"><img src="${ASSET}0938e8f8953be744.jpg" alt="Polished multi-spoke custom wheel" loading="lazy"><span>Polished / multi-spoke</span></div><div class="custom-finish-tile"><img src="${ASSET}038bd6e7abb31b4c.jpg" alt="Gloss black custom wheel" loading="lazy"><span>Gloss / deep dish</span></div><div class="custom-finish-tile"><img src="${ASSET}daff2c93eff5e0db.jpg" alt="Graphite custom wheel" loading="lazy"><span>Graphite / performance</span></div></div></div></div></section>
-  <section class="section" id="gallery"><div class="container"><div class="section-heading"><div><p class="eyebrow">Real builds, real context</p><h2>See the stance before you commit.</h2></div><p>Use the existing F-Box gallery and fitment guides to compare car, wheel and clearance direction. Every card still routes to the same catalog flow.</p></div><div class="guide-grid">${guideCards.map(([name, caption, image], i) => `<a class="guide-card spotlight-card reveal delay-${i % 4}" href="#store"><img src="${ASSET + image}" alt="${esc(name)} fitment guide" loading="lazy"><div class="guide-label"><small>${caption}</small><strong>${name}</strong></div></a>`).join('')}</div></div></section>
+  <section class="section" id="gallery"><div class="container"><div class="section-heading"><div><p class="eyebrow">Verified builds only</p><h2>Customer build gallery.</h2></div><p>Every customer photo is permissioned and reviewed by the F-Box team before it appears here.</p></div>${fboxCases.length ? `<div class="guide-grid">${fboxCases.map((item, i) => `<article class="guide-card spotlight-card reveal delay-${i % 4}"><img src="${esc(item.image_url)}" alt="${esc(item.title)}" loading="lazy"><div class="guide-label"><small>${esc(item.vehicle || item.product_name || 'F-Box build')}</small><strong>${esc(item.title)}</strong></div></article>`).join('')}</div>` : '<div class="case-empty"><strong>真实案例正在整理中</strong><span>下单并完成车型适配确认后，客户可授权展示自己的上车效果。</span></div>'}</div></section>
   <section class="section custom-ready-section" id="brands"><div class="container"><div class="custom-ready-head"><div><p class="eyebrow">For buyers who want it now</p><h2>Start with a proven design.<br><span>Make it yours.</span></h2></div><div><p>These ready-to-buy F-Box wheels stay in the catalog exactly as before. Use them as a starting point, or ask us to take the fitment and finish further.</p><a class="btn btn-dark" href="#store" data-category-link="Wheels">Browse finished wheels</a></div></div><div class="product-grid">${products.filter(p => p.category === 'Wheels').slice(0, 4).map(renderProductCard).join('')}</div></div></section>
   <section class="section-tight"><div class="container"><div class="brand-feature"><div><p class="eyebrow" style="color:var(--lime)">F-Box brake lab</p><h2>Make the <span>stop</span> part of the build.</h2><p>From quiet street pads to six-piston ceramic kits, every braking product is presented with clearance, heat and daily-use context.</p><a class="btn btn-primary" href="#store" data-category-link="Calipers">Explore braking</a></div><div class="brand-carousel">${[['a7dd472643daf9b4.jpg', 'Ceramic Pro'], ['fe1a37ef746c28f0.jpg', 'Street 4P'], ['e78ac1cfdeae4727.jpg', 'Track Slotted'], ['f5effff1812a14eb.jpg', 'Street Blue']].map(([image, label]) => `<div class="brand-item"><img src="${ASSET + image}" alt="${label}" loading="lazy"><span>${label}</span></div>`).join('')}</div></div></div></section>
-  <section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">Proof from the community</p><h2>Built by people who drive them.</h2></div><p>4.9/5 from F-Box customers across daily builds, weekend cars and track setups.</p></div><div class="reviews-layout"><div class="review-score"><strong>4.9</strong>${stars(4.9)}<p>from 16,494 verified reviews</p><div class="review-bars"><div class="review-bar"><span>5★</span><i class="bar-track"><i style="width:94%"></i></i><span>94%</span></div><div class="review-bar"><span>4★</span><i class="bar-track"><i style="width:5%"></i></i><span>5%</span></div><div class="review-bar"><span>3★</span><i class="bar-track"><i style="width:1%"></i></i><span>1%</span></div></div></div><div class="review-list">${reviews.slice(0, 2).map((review, i) => renderReview(review, i)).join('')}</div></div></div></section>`;
+  <section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">Verified customer feedback</p><h2>Reviews will live here.</h2></div><p>F-Box does not publish invented ratings. Reviews will appear after real orders are completed and verified.</p></div><div class="case-empty"><strong>暂无已验证评价</strong><span>商品评价会在真实订单完成后进入审核流程。</span></div></div></section>`;
 }
 
 function iconForCategory(type) {
@@ -595,27 +832,41 @@ function filterProducts() {
 }
 function renderProductCard(item) {
   const saved = state.wishlist.includes(item.id);
-  return `<article class="product-card spotlight-card reveal"><div class="product-media">${item.badge ? `<span class="product-badge ${item.badge === 'Sale' ? 'alt' : ''}">${item.badge}</span>` : ''}<div class="product-actions"><button class="icon-btn ${saved ? 'is-saved' : ''}" data-action="wishlist" data-id="${item.id}" aria-label="Save product">${icons.heart}</button><button class="icon-btn" data-action="quick-view" data-id="${item.id}" aria-label="Quick view">${icons.eye}</button></div><img src="${ASSET + item.image}" alt="${esc(item.name)} ${esc(item.finish)}" loading="lazy"></div><div class="product-body"><div class="product-brand">${item.brand}</div><h3 class="product-title">${item.name}</h3><div class="product-meta">${item.meta}</div><div class="rating-row">${stars(item.rating)} <a href="#product/${item.id}">${item.rating} · ${item.reviews} reviews</a></div><div class="product-deal">${item.deal}</div><div class="price-row"><div><span class="price">${money(item.price)} <small>/ ea</small></span>${item.oldPrice ? `<span class="was-price">${money(item.oldPrice)}</span>` : ''}</div><span class="muted" style="font-size:10px">${item.category}</span></div><div class="product-cta"><a class="btn btn-outline btn-small" href="#product/${item.id}">Details</a><button class="btn btn-primary btn-small" data-action="add" data-id="${item.id}">Add</button></div></div></article>`;
+  return `<article class="product-card spotlight-card reveal"><div class="product-media">${item.badge ? `<span class="product-badge ${item.badge === 'Sale' ? 'alt' : ''}">${item.badge}</span>` : ''}<div class="product-actions"><button class="icon-btn ${saved ? 'is-saved' : ''}" data-action="wishlist" data-id="${item.id}" aria-label="Save product">${icons.heart}</button><button class="icon-btn" data-action="quick-view" data-id="${item.id}" aria-label="Quick view">${icons.eye}</button></div><img src="${ASSET + item.image}" alt="${esc(item.name)} ${esc(item.finish)}" loading="lazy"></div><div class="product-body"><div class="product-brand">${item.brand}</div><h3 class="product-title">${item.name}</h3><div class="product-meta">${item.meta}</div><div class="rating-row">${productRatingMarkup(item)}</div><div class="product-deal">${item.deal || 'Availability managed by F-Box'}</div><div class="price-row"><div><span class="price">${money(item.price)} <small>/ ea</small></span>${item.oldPrice ? `<span class="was-price">${money(item.oldPrice)}</span>` : ''}</div><span class="muted" style="font-size:10px">${item.category}</span></div><div class="product-cta"><a class="btn btn-outline btn-small" href="#product/${item.id}">Details</a><button class="btn btn-primary btn-small" data-action="add" data-id="${item.id}">Add</button></div></div></article>`;
 }
 
 function storePage() {
   const list = filterProducts();
   const fitmentBanner = state.vehicle?.trim ? `<div class="fitment-match-banner"><div><p class="eyebrow">Fitment context</p><strong>${esc(currentVehicleLabel())}</strong><span>Products below are shown with the selected vehicle context.</span></div><button class="btn btn-outline btn-small" data-action="change-vehicle">Change vehicle</button></div>` : '';
-  return `<section class="store-hero"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>${state.filters.category === 'All' ? 'Performance parts' : state.filters.category}</span></div><h1>${state.filters.category === 'All' ? 'All performance parts' : state.filters.category}</h1><p class="muted">Fitment-first shopping for wheels, calipers, rotors and pads. Pick your car to see the parts that actually clear.</p></div></section>
+  return `<section class="store-hero"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>${state.filters.category === 'All' ? 'Performance parts' : state.filters.category}</span></div><h1>${state.filters.category === 'All' ? 'All performance parts' : state.filters.category}</h1><p class="muted">Fitment-first shopping for wheels, calipers, rotors and pads. Prices, stock and product status are loaded from the F-Box mall catalog.</p></div></section>
   <main class="container store-layout"><aside class="filter-rail"><div class="filter-head"><strong>Filter with F-Box AI</strong><span>Describe the look or setup you want. We will narrow the catalog.</span></div><div class="filter-section"><input class="filter-input" data-filter="ai" placeholder="e.g. bronze wheels for 2020 Civic" value="${esc(state.search)}"><p class="filter-help">Try “track pads”, “19 inch black wheels”, or a car model.</p></div><div class="filter-section"><h3>Delivery estimate</h3><div class="filter-stack"><input class="filter-input" data-filter="zip" placeholder="Deliver to ZIP / postcode"><button class="btn btn-outline btn-small" data-action="save-zip">Save location</button></div></div><div class="filter-section"><h3>Search by vehicle</h3>${vehicleSelector('store')}<button class="btn btn-dark btn-small filter-apply" data-action="shop-vehicle">Apply vehicle</button></div><div class="filter-section"><h3>Product type</h3><select class="filter-select" data-filter="category">${selectOptions(['All', 'Wheels', 'Calipers', 'Rotors', 'Brake Pads'], state.filters.category, 'All parts')}</select></div><div class="filter-section"><h3>Fitment preferences</h3><label class="check-row"><input type="checkbox" data-filter="saleOnly" ${state.filters.saleOnly ? 'checked' : ''}> In-stock deals only</label><select class="filter-select" data-filter="finish">${selectOptions(['All', 'Satin Black', 'Bronze Machined', 'Gloss Black', 'Matte Bronze', 'Racing Red', 'Electric Blue', 'Black Hat', 'Ceramic'], state.filters.finish, 'All finishes')}</select></div><div class="filter-section"><h3>Wheel diameter <span>inches</span></h3><select class="filter-select" data-filter="diameter">${selectOptions(['All', '17', '18', '19', '20'], state.filters.diameter, 'Any diameter')}</select></div><div class="filter-section"><h3>Price range</h3><div class="filter-row"><input class="filter-input" data-filter="minPrice" placeholder="Min" value="${esc(state.filters.minPrice)}"><input class="filter-input" data-filter="maxPrice" placeholder="Max" value="${esc(state.filters.maxPrice)}"></div></div><div class="filter-section"><h3>Customer rating</h3><select class="filter-select" data-filter="minRating">${selectOptions(['0', '4', '4.5', '4.8'], state.filters.minRating, 'Any rating')}</select></div></aside><section class="store-main"><div class="ai-query"><span style="color:var(--lavender)">${icons.spark}</span><input data-filter="ai" placeholder="F-Box AI: Search by vehicle, product, finish or use case" value="${esc(state.search)}"><button class="btn btn-primary btn-small" data-action="ai-filter">Search</button></div>${fitmentBanner}<div class="store-toolbar"><div class="result-count">${list.length} results <span>${state.vehicle ? `· fits ${esc(currentVehicleLabel())}` : ''}</span></div><div class="toolbar-actions"><button class="btn btn-outline btn-small" data-action="clear-filters">Clear filters</button><select class="toolbar-select" data-filter="sort"><option value="popular" ${state.sort === 'popular' ? 'selected' : ''}>Sort by popular</option><option value="price-low" ${state.sort === 'price-low' ? 'selected' : ''}>Price: low to high</option><option value="price-high" ${state.sort === 'price-high' ? 'selected' : ''}>Price: high to low</option><option value="rating" ${state.sort === 'rating' ? 'selected' : ''}>Highest rated</option></select></div></div>${list.length ? `<div class="product-grid">${list.map(renderProductCard).join('')}</div>` : `<div class="empty-state"><h2>No exact matches yet.</h2><p>Try clearing one filter or tell F-Box what you want in the AI search.</p><button class="btn btn-primary" data-action="clear-filters">Reset catalog</button></div>`}</section></main>`;
 }
 
 function renderReview(review, index) { return `<article class="review-item" style="animation-delay:${index * 80}ms"><div class="review-head"><div><strong>${esc(review.title)}</strong><div>${stars(5)}</div></div><small>${review.date}</small></div><p>${esc(review.body)}</p><div class="review-meta"><span>✓ Verified purchase</span><span>${esc(review.vehicle)}</span><span>${review.helpful} found this helpful</span></div></article>`; }
-function wheelVisualizerTrigger(item) {
+function visualizerReferenceImages(item) {
+  return item?.image ? [...new Set([item.image, 'a7dd472643daf9b4.jpg', 'ff2a26733252a2c8.jpg'])] : [];
+}
+function visualizerReferenceAsset(item, current) {
+  const image = current?.referenceImage || item?.image || '';
+  return image ? ASSET + image : '';
+}
+function legacyWheelVisualizerTrigger(item) {
   if (item.category !== 'Wheels') return '';
   const referenceImage = state.productImage[item.id] || item.image;
   return `<section class="wheel-visualizer-entry" aria-labelledby="wheel-visualizer-title"><div class="wheel-visualizer-entry-copy"><div class="wheel-visualizer-eyebrow"><span>${icons.spark}</span> See it on your car</div><h2 id="wheel-visualizer-title">Preview this wheel<br><em>before you commit.</em></h2><p>Upload one clear photo of your car and F-Box will prepare three angles with this exact wheel, finish and fitment as the reference.</p><div class="wheel-visualizer-entry-proof"><span>3 angles</span><span>Fitment-led</span><span>Selected gallery angle</span></div></div><button class="btn btn-primary wheel-visualizer-open" data-action="wheel-open" data-id="${item.id}" data-image="${esc(referenceImage)}"><span>Upload car photo</span><span aria-hidden="true">↗</span></button></section>`;
 }
+function wheelVisualizerTrigger(item) {
+  const referenceImages = visualizerReferenceImages(item);
+  const referenceImage = referenceImages.includes(state.productImage[item.id]) ? state.productImage[item.id] : item.image;
+  const context = visualizerProductContext(item);
+  return `<section class="wheel-visualizer-entry" data-product-category="${esc(item.category)}" aria-labelledby="wheel-visualizer-title"><div class="wheel-visualizer-entry-copy"><div class="wheel-visualizer-eyebrow"><span>${icons.spark}</span> See it on your car</div><h2 id="wheel-visualizer-title">${esc(context.heading)}<br><em>before you commit.</em></h2><p>Upload one clear photo of your car and F-Box will prepare three angles with this exact ${esc(context.subject)}, finish and fitment as the reference.</p><div class="wheel-visualizer-entry-proof"><span>3 angles</span><span>Fitment-led</span><span>Selected product image</span></div></div><button class="btn btn-primary wheel-visualizer-open" data-action="wheel-open" data-id="${item.id}" data-image="${esc(referenceImage)}"><span>Upload car photo</span><span aria-hidden="true">↗</span></button></section>`;
+}
 function wireWheelVisualizerEntry() {
   if (state.route.name !== 'product') return;
   const item = product(state.route.id);
+  if (item && item.category !== 'Wheels') document.querySelectorAll('.gallery .thumb:not(:first-child)').forEach(thumb => thumb.remove());
   const form = document.querySelector('.detail-form');
-  if (item.category === 'Wheels' && form && !document.querySelector('.wheel-visualizer-entry')) form.insertAdjacentHTML('beforebegin', wheelVisualizerTrigger(item));
+  if (item && form && !document.querySelector('.wheel-visualizer-entry')) form.insertAdjacentHTML('beforebegin', wheelVisualizerTrigger(item));
 }
 function wireHomeVisualizerBanner() {
   if (state.route.name !== 'home') return;
@@ -632,32 +883,157 @@ function productPage(item) {
 
 function cartPage() {
   const total = cartTotal();
-  return `<section class="cart-page"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>Shopping cart</span></div><div class="section-heading"><div><p class="eyebrow">Your saved build</p><h1 class="detail-title">Shopping cart</h1></div><a class="btn btn-outline" href="#store">Continue shopping</a></div>${state.cart.length ? `<div class="cart-layout"><div class="cart-list">${state.cart.map(item => { const p = product(item.id); return `<div class="cart-item"><img src="${ASSET + p.image}" alt="${esc(p.name)}"><div><h3>${p.name}</h3><p>${p.category} · ${p.meta}</p><button class="btn btn-outline btn-small" data-action="remove-cart" data-id="${p.id}" style="margin-top:10px">Remove</button></div><div class="qty-control"><button data-action="qty" data-id="${p.id}" data-delta="-1">−</button><span>${item.qty}</span><button data-action="qty" data-id="${p.id}" data-delta="1">+</button></div><div class="cart-price">${money(p.price * item.qty)}</div></div>`; }).join('')}</div><aside class="summary-card"><h2>Order summary</h2><div class="summary-row"><span>Parts subtotal</span><strong>${money(total)}</strong></div><div class="summary-row"><span>Estimated delivery</span><strong>Calculated at checkout</strong></div><div class="summary-row"><span>Fitment review</span><strong style="color:var(--success)">Included</strong></div><div class="coupon"><input class="text-input" placeholder="Promo code"><button class="btn btn-outline btn-small" data-action="apply-coupon">Apply</button></div><div class="summary-row total"><span>Total</span><strong>${money(total)}</strong></div><button class="btn btn-primary" data-action="checkout" style="width:100%;margin-top:12px">Continue to checkout</button><p class="filter-help">This demo checkout does not collect real payment. Connect your preferred provider before launch.</p></aside></div>` : `<div class="empty-cart"><h2>Your cart is ready for a build.</h2><p class="muted">Add wheels, calipers, rotors or pads and we will keep the fitment context attached.</p><a class="btn btn-primary" href="#store">Start shopping</a></div>`}</div></section>`;
+  return `<section class="cart-page"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>Shopping cart</span></div><div class="section-heading"><div><p class="eyebrow">Your saved build</p><h1 class="detail-title">Shopping cart</h1></div><a class="btn btn-outline" href="#store">Continue shopping</a></div>${state.cart.length ? `<div class="cart-layout"><div class="cart-list">${state.cart.map(item => { const p = product(item.id); return `<div class="cart-item"><img src="${ASSET + p.image}" alt="${esc(p.name)}"><div><h3>${p.name}</h3><p>${p.category} · ${p.meta}</p><button class="btn btn-outline btn-small" data-action="remove-cart" data-id="${p.id}" style="margin-top:10px">Remove</button></div><div class="qty-control"><button data-action="qty" data-id="${p.id}" data-delta="-1">−</button><span>${item.qty}</span><button data-action="qty" data-id="${p.id}" data-delta="1">+</button></div><div class="cart-price">${money(p.price * item.qty)}</div></div>`; }).join('')}</div><aside class="summary-card"><h2>Order summary</h2><div class="summary-row"><span>Parts subtotal</span><strong>${money(total)}</strong></div><div class="summary-row"><span>Estimated delivery</span><strong>Calculated at checkout</strong></div><div class="summary-row"><span>Fitment review</span><strong style="color:var(--success)">Included</strong></div><div class="coupon"><input class="text-input" placeholder="Promo code"><button class="btn btn-outline btn-small" data-action="apply-coupon">Apply</button></div><div class="summary-row total"><span>Total</span><strong>${money(total)}</strong></div><button class="btn btn-primary" data-action="checkout" style="width:100%;margin-top:12px">Continue to checkout</button><p class="filter-help">Orders are created in the F-Box mall backend. Payment remains a separate provider step.</p></aside></div>` : `<div class="empty-cart"><h2>Your cart is ready for a build.</h2><p class="muted">Add wheels, calipers, rotors or pads and we will keep the fitment context attached.</p><a class="btn btn-primary" href="#store">Start shopping</a></div>`}</div></section>`;
 }
 
-function wheelVisualizerResultCard(result, index, item, mode) {
+function legacyWheelVisualizerResultCard(result, index, item, mode) {
   const angle = wheelVisualizerAngleLabel(result.angle);
   const imageUrl = result.imageUrl || result.image_url || result.url || '';
   return `<article class="wheel-result-card"><div class="wheel-result-media"><img class="wheel-result-output" src="${esc(imageUrl)}" alt="${esc(item.name)} on your vehicle — ${esc(angle)}" loading="lazy"><span class="wheel-result-mode">F-Box AI visual preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>Wheel, finish and fitment held as reference</span></div></article>`;
 }
-function wheelVisualizerReferencePicker(item, current) {
+function visualizerProductContext(item) {
+  const contexts = {
+    Wheels: { subject: 'wheel', heading: 'Preview this wheel', resultNote: 'Image 2 wheel installed; vehicle and tire preserved' },
+    Calipers: { subject: 'wheel', heading: 'Preview this wheel', resultNote: 'Image 2 wheel installed; vehicle and tire preserved' },
+    Rotors: { subject: 'wheel', heading: 'Preview this wheel', resultNote: 'Image 2 wheel installed; vehicle and tire preserved' },
+    'Brake Pads': { subject: 'wheel', heading: 'Preview this wheel', resultNote: 'Image 2 wheel installed; vehicle and tire preserved' }
+  };
+  return contexts[item?.category] || { subject: 'performance part', heading: 'Preview this part', resultNote: 'Product identity, finish and fitment held as reference' };
+}
+function legacyWheelVisualizerReferencePicker(item, current) {
   const images = [...new Set([item.image, 'a7dd472643daf9b4.jpg', 'ff2a26733252a2c8.jpg'])];
   const selected = current.referenceImage || item.image;
   return `<section class="wheel-reference-switcher" aria-label="Wheel reference"><div class="wheel-reference-copy"><div class="wheel-content-kicker">Wheel reference</div><strong>Choose the gallery image to use.</strong><span>Replace the reference before generating or regenerate with another angle.</span></div><div class="wheel-reference-options">${images.map((image, index) => `<button class="wheel-reference-option ${selected === image ? 'is-active' : ''}" data-action="wheel-reference" data-image="${esc(image)}" aria-label="Use wheel gallery image ${index + 1}" ${current.phase === 'generating' ? 'disabled' : ''}><img src="${ASSET + image}" alt="${esc(item.name)} gallery reference ${index + 1}"><span>${String(index + 1).padStart(2, '0')}</span></button>`).join('')}</div></section>`;
+}
+function wheelVisualizerReferencePicker(item, current) {
+  const images = visualizerReferenceImages(item);
+  const selected = current.referenceImage || item.image;
+  const context = visualizerProductContext(item);
+  const options = images.length ? images.map((image, index) => `<button class="wheel-reference-option ${selected === image ? 'is-active' : ''}" data-action="wheel-reference" data-image="${esc(image)}" aria-label="Use ${esc(context.subject)} gallery image ${index + 1}" ${current.phase === 'generating' ? 'disabled' : ''}><img src="${ASSET + image}" alt="${esc(item.name)} gallery reference ${index + 1}"><span>${String(index + 1).padStart(2, '0')}</span></button>`).join('') : `<div class="wheel-reference-unavailable"><strong>Brake-part reference image pending</strong><span>This preview uses the selected product category and finish, while the original wheel remains locked.</span></div>`;
+  return `<section class="wheel-reference-switcher" aria-label="Image 2 wheel reference"><div class="wheel-reference-copy"><div class="wheel-content-kicker">Image 2 · wheel reference</div><strong>${images.length ? 'Choose the wheel image to place on the vehicle.' : 'Select a wheel reference image.'}</strong><span>${images.length ? 'Image 1 is your car. Image 2 is the wheel that replaces the original wheel.' : 'The model requires a second image showing the selected wheel.'}</span></div><div class="wheel-reference-options">${options}</div></section>`;
+}
+function wheelVisualizerInquiryDefaults(item) {
+  const meta = String(item?.meta || '');
+  const sizeMatch = meta.match(/(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)/);
+  const pcdMatches = meta.match(/\d+x\d+(?:\.\d+)?/g) || [];
+  const offsetMatch = meta.match(/([+-]\d+(?:\.\d+)?)/);
+  return {
+    diameter: sizeMatch?.[1] || String(item?.diameter || ''),
+    width: sizeMatch?.[2] || '',
+    pcd: pcdMatches[pcdMatches.length - 1] || '',
+    offset: offsetMatch?.[1] || '',
+    center_bore: '',
+    quantity: '4',
+    oem_diameter: '',
+    oem_width: '',
+    oem_pcd: '',
+    oem_center_bore: '',
+    oem_offset: '',
+    customer_name: '',
+    customer_email: '',
+    customer_phone: '',
+    customer_note: ''
+  };
+}
+function wheelInquirySelect(name, values, selected, label, required = true) {
+  return `<select class="text-input" name="${esc(name)}"${required ? ' required' : ''}><option value="">Select ${esc(label)}</option>${values.map(value => `<option value="${esc(value)}" ${String(value) === String(selected) ? 'selected' : ''}>${esc(value)}</option>`).join('')}</select>`;
+}
+function wheelInquiryOemFields(draft = {}) {
+  const diameters = ['15', '16', '17', '18', '19', '20', '21', '22'];
+  const widths = ['5.5', '6.0', '6.5', '7.0', '7.5', '8.0', '8.5', '9.0', '9.5', '10.0', '10.5', '11.0', '11.5', '12.0'];
+  const pcds = ['4x98', '4x100', '4x108', '5x100', '5x108', '5x112', '5x114.3', '5x115', '5x120', '5x127', '5x130', '5x135', '5x139.7', '5x150', '5x165.1', '6x114.3', '6x120', '6x135', '6x139.7'];
+  const offsets = ['-25', '-10', '0', '+10', '+15', '+20', '+25', '+30', '+35', '+40', '+45', '+50', '+55'];
+  return `<div class="wheel-oem-panel"><div class="wheel-oem-head"><strong>OEM wheel data</strong><span class="wheel-oem-badge">OEM</span></div><div class="wheel-inquiry-grid"><label><span>OEM diameter</span>${wheelInquirySelect('oem_diameter', diameters, draft.oem_diameter, 'OEM diameter', false)}</label><label><span>OEM width (J)</span>${wheelInquirySelect('oem_width', widths, draft.oem_width, 'OEM J', false)}</label><label><span>OEM PCD</span>${wheelInquirySelect('oem_pcd', pcds, draft.oem_pcd, 'OEM PCD', false)}</label><label><span>OEM center bore (CB)</span><input class="text-input" name="oem_center_bore" value="${esc(draft.oem_center_bore || '')}" inputmode="decimal" placeholder="e.g. 66.1 mm"></label><label><span>OEM offset (ET)</span>${wheelInquirySelect('oem_offset', offsets, draft.oem_offset, 'OEM ET', false)}</label></div></div>`;
+}
+function wireWheelInquiryDetails() {
+  const form = document.querySelector('form[data-form="wheel-inquiry"]');
+  if (!form || form.dataset.fitmentEnhanced === 'true') return;
+  const section = form.querySelector('.wheel-inquiry-section');
+  if (!section) return;
+  const draft = state.wheelVisualizer?.inquiry?.draft || wheelVisualizerInquiryDefaults(wheelVisualizerItem());
+  section.insertAdjacentHTML('beforeend', wheelInquiryOemFields(draft));
+  const labels = {
+    diameter: 'Diameter <b>*</b>',
+    width: 'Width (J) <b>*</b>',
+    pcd: 'PCD <b>*</b>',
+    offset: 'Offset (ET) <b>*</b>',
+    center_bore: 'Center bore (CB) <b>*</b>',
+    quantity: 'Quantity <b>*</b>'
+  };
+  Object.entries(labels).forEach(([name, html]) => {
+    const label = form.querySelector(`[name="${name}"]`)?.closest('label')?.querySelector(':scope > span');
+    if (label) label.innerHTML = html;
+  });
+  form.dataset.fitmentEnhanced = 'true';
+}
+function wheelVisualizerDownloadName(item, angle, index = 0) {
+  const slug = String(item?.id || item?.name || 'fbox-preview').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'fbox-preview';
+  const angleSlug = String(angle || `view-${index + 1}`).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || `view-${index + 1}`;
+  return `fbox-${slug}-${angleSlug}.jpg`;
+}
+async function wheelVisualizerDownload(imageUrl, fileName) {
+  if (!imageUrl) return;
+  try {
+    const response = await fetch(imageUrl, { mode: 'cors' });
+    if (!response.ok) throw new Error('Image download failed');
+    const blob = await response.blob();
+    if (!blob.size) throw new Error('Empty image');
+    const objectUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = objectUrl;
+    anchor.download = fileName || 'fbox-preview.jpg';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1200);
+    setToast('Image saved to your downloads.');
+  } catch {
+    window.open(imageUrl, '_blank', 'noopener,noreferrer');
+    setToast('The image opened in a new tab. Use Save image there.');
+  }
+}
+function wheelVisualizerResultCard(result, index, item, mode) {
+  const angle = wheelVisualizerAngleLabel(result.angle);
+  const imageUrl = result.imageUrl || result.image_url || result.url || '';
+  const context = visualizerProductContext(item);
+  const downloadName = wheelVisualizerDownloadName(item, angle, index);
+  const imageActions = imageUrl ? `<div class="wheel-result-actions"><button type="button" class="btn btn-outline btn-small" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(angle)}" data-product="${esc(item.name)}" data-download-name="${esc(downloadName)}">View larger <span aria-hidden="true">↗</span></button><button type="button" class="btn btn-outline btn-small" data-action="wheel-image-download" data-image-url="${esc(imageUrl)}" data-download-name="${esc(downloadName)}">Save image <span aria-hidden="true">↓</span></button></div>` : '';
+  return `<article class="wheel-result-card"><div class="wheel-result-media">${imageUrl ? `<button type="button" class="wheel-result-open" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(angle)}" data-product="${esc(item.name)}" data-download-name="${esc(downloadName)}" aria-label="View enlarged ${esc(angle)} preview"><img class="wheel-result-output" src="${esc(imageUrl)}" alt="${esc(item.name)} on your vehicle — ${esc(angle)}" loading="lazy"><span class="wheel-result-zoom-hint">Click to enlarge</span></button>` : '<div class="wheel-result-empty">Preview unavailable</div>'}<span class="wheel-result-mode">F-Box AI visual preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>${esc(context.resultNote)}</span>${imageActions}</div></article>`;
+}
+function wheelVisualizerImageViewer() {
+  const viewer = state.wheelVisualizer?.resultViewer;
+  if (!viewer?.open || !viewer.imageUrl) return '';
+  return `<div class="wheel-image-viewer-overlay" data-action="wheel-image-viewer-close"><div class="wheel-image-viewer" data-wheel-image-viewer role="dialog" aria-modal="true" aria-labelledby="wheel-image-viewer-title" tabindex="-1"><header class="wheel-image-viewer-head"><div><div class="wheel-content-kicker">F-Box preview</div><h3 id="wheel-image-viewer-title">${esc(viewer.angleLabel)}</h3><span>${esc(viewer.productName)} · click outside to close</span></div><button type="button" class="icon-btn wheel-modal-close" data-action="wheel-image-viewer-close" aria-label="Close enlarged preview">${icons.close}</button></header><div class="wheel-image-viewer-stage"><img src="${esc(viewer.imageUrl)}" alt="${esc(viewer.alt)}"></div><div class="wheel-image-viewer-actions"><button type="button" class="btn btn-primary" data-action="wheel-image-download" data-image-url="${esc(viewer.imageUrl)}" data-download-name="${esc(viewer.downloadName)}">Save image <span aria-hidden="true">↓</span></button><button type="button" class="btn btn-outline" data-action="wheel-image-viewer-close">Close</button></div></div></div>`;
+}
+function wheelVisualizerInquiryContent(item, current) {
+  const draft = { ...wheelVisualizerInquiryDefaults(item), ...(current.inquiry?.draft || {}) };
+  const vehicleLabel = state.vehicle ? currentVehicleLabel() : current.vehicleName || 'Uploaded vehicle photo';
+  const resultImages = current.results.map(result => result.imageUrl || result.image_url || result.url || '').filter(Boolean);
+  const error = current.inquiry?.error ? `<div class="wheel-inquiry-error" role="alert">${esc(current.inquiry.error)}</div>` : '';
+  if (current.inquiry?.status === 'success') {
+    return `<div class="wheel-visualizer-content wheel-inquiry-success"><div class="wheel-success-mark">✓</div><div class="wheel-content-kicker">Inquiry received</div><h3>We have your build brief.<br><em>F-Box will follow up.</em></h3><p class="wheel-content-lead">Your product, wheel specifications and three generated previews are now attached to inquiry <strong>${esc(current.inquiry.id || 'submitted')}</strong>. A fitment specialist will confirm clearance and final pricing with you.</p><div class="wheel-inquiry-success-meta"><span>${esc(item.name)}</span><span>${resultImages.length} preview images attached</span><span>${esc(vehicleLabel)}</span></div><div class="wheel-inquiry-actions"><button type="button" class="btn btn-outline" data-action="wheel-inquiry-results">Back to previews</button><button type="button" class="btn btn-primary" data-action="wheel-close">Close studio <span aria-hidden="true">↗</span></button></div></div>`;
+  }
+  const submitting = current.inquiry?.status === 'submitting';
+  return `<div class="wheel-visualizer-content wheel-inquiry-content"><div class="wheel-content-kicker">Start your fitment inquiry</div><h3>Tell us the spec.<br><em>We will confirm the build.</em></h3><p class="wheel-content-lead">Your selected product and all three generated previews will be attached. Choose the wheel data below so the F-Box team can check the exact vehicle fitment before quoting.</p>${error}<div class="wheel-inquiry-preview-strip">${resultImages.map((imageUrl, index) => `<button type="button" class="wheel-inquiry-preview" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(wheelVisualizerAngleLabel(current.results[index]?.angle))}" data-product="${esc(item.name)}" data-download-name="${esc(wheelVisualizerDownloadName(item, current.results[index]?.angle, index))}" aria-label="View preview ${index + 1}"><img src="${esc(imageUrl)}" alt="${esc(item.name)} preview ${index + 1}"></button>`).join('')}</div><form class="wheel-inquiry-form" data-form="wheel-inquiry"><section class="wheel-inquiry-section"><div><strong>Wheel data</strong><span>Required for fitment review</span></div><div class="wheel-inquiry-grid"><label><span>Diameter <b>*</b></span>${wheelInquirySelect('diameter', ['17', '18', '19', '20', '21', '22'], draft.diameter, 'diameter')}</label><label><span>Width <b>*</b></span>${wheelInquirySelect('width', ['7.0', '7.5', '8.0', '8.5', '9.0', '9.5', '10.0', '10.5', '11.0', '11.5', '12.0'], draft.width, 'width')}</label><label><span>PCD / bolt pattern <b>*</b></span>${wheelInquirySelect('pcd', ['4x100', '5x100', '5x108', '5x112', '5x114.3', '5x120', '5x127', '5x130', '5x135', '5x139.7', '5x150', '6x135', '6x139.7'], draft.pcd, 'PCD')}</label><label><span>Offset / ET <b>*</b></span>${wheelInquirySelect('offset', ['-10', '0', '+15', '+20', '+25', '+30', '+35', '+40', '+45', '+50'], draft.offset, 'offset')}</label><label><span>Center bore <b>*</b></span><input class="text-input" name="center_bore" value="${esc(draft.center_bore)}" required placeholder="e.g. 66.1 mm"></label><label><span>Quantity <b>*</b></span>${wheelInquirySelect('quantity', ['1', '2', '4'], draft.quantity, 'quantity')}</label></div></section><section class="wheel-inquiry-section"><div><strong>Contact details</strong><span>So a fitment specialist can reply</span></div><div class="wheel-inquiry-grid"><label><span>Name <b>*</b></span><input class="text-input" name="customer_name" value="${esc(draft.customer_name)}" required placeholder="Your name"></label><label><span>Email <b>*</b></span><input class="text-input" name="customer_email" type="email" value="${esc(draft.customer_email)}" required placeholder="you@example.com"></label><label><span>Phone / WhatsApp</span><input class="text-input" name="customer_phone" value="${esc(draft.customer_phone)}" placeholder="Optional"></label><label><span>Vehicle reference</span><input class="text-input" value="${esc(vehicleLabel)}" readonly></label><label class="wheel-inquiry-full"><span>Notes for F-Box</span><textarea class="text-input" name="customer_note" rows="3" placeholder="Tell us about staggered fitment, brake clearance, finish or delivery needs.">${esc(draft.customer_note)}</textarea></label></div></section><div class="wheel-inquiry-form-actions"><button type="button" class="btn btn-outline" data-action="wheel-inquiry-results" ${submitting ? 'disabled' : ''}>Back to previews</button><button type="submit" class="btn btn-primary" ${submitting ? 'disabled' : ''}>${submitting ? 'Sending inquiry…' : 'Send inquiry'} <span aria-hidden="true">↗</span></button></div></form></div>`;
 }
 function wheelVisualizerModalLegacy() {
   const current = state.wheelVisualizer;
   if (!current?.open) return '';
   const item = wheelVisualizerItem();
   const phase = current.phase;
-  const steps = [['upload', '01', 'Upload'], ['crop', '02', 'Frame'], ['reference', '03', 'Reference'], ['generating', '04', 'Generate'], ['results', '05', 'Results']];
+  const steps = [['upload', '01', 'Upload'], ['crop', '02', 'Frame'], ['reference', '03', 'Reference'], ['generating', '04', 'Generate'], ['results', '05', 'Results'], ['inquiry', '06', 'Inquiry']];
   const stepIndex = phase === 'error' ? 3 : Math.max(0, steps.findIndex(([key]) => key === phase));
   const stepRail = steps.map(([key, number, label], index) => `<div class="wheel-step ${index === stepIndex ? 'is-active' : ''} ${index < stepIndex ? 'is-done' : ''}"><span>${index < stepIndex ? '✓' : number}</span><strong>${label}</strong></div>`).join('');
   let content = '';
   if (phase === 'upload') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Start with one real photo</div><h3>Show us the car.<br><em>We will show you the stance.</em></h3><p class="wheel-content-lead">Use a clear exterior photo with at least one wheel visible. A front three-quarter or side view gives the best fitment reference.</p><label class="wheel-upload-zone" data-wheel-dropzone><input type="file" accept="image/jpeg,image/png,image/webp,image/heic" data-wheel-upload><span class="wheel-upload-icon">＋</span><strong>Drop your car photo here</strong><span>JPG, PNG, WEBP or HEIC · Up to 12 MB</span><span class="btn btn-dark btn-small">Choose a photo</span></label><div class="wheel-visualizer-privacy"><span>${icons.shield}</span><span>Your image is used only to create this preview. No payment or credits are required.</span></div></div>`;
   if (phase === 'crop') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Frame the reference</div><h3>Keep the whole car.<br><em>Adjust only if needed.</em></h3><p class="wheel-content-lead">Upload the photo as-is. The full image stays available, even when the car sits low in a portrait frame. Drag the image or use the controls below; a wheel only needs to be visible, not centered in a box.</p><div class="wheel-crop-stage" data-wheel-crop-stage><img data-wheel-crop-image src="${esc(current.vehicleUrl)}" alt="${esc(current.vehicleName || 'Uploaded vehicle photo')}" draggable="false" style="${wheelVisualizerCropStyle(current.crop)}"><div class="wheel-crop-guide"><span>Full photo retained · drag to frame</span></div></div><div class="wheel-crop-live-note"><strong>Live framing</strong><span>Changes update the image above.</span></div><div class="wheel-crop-controls"><label><span>Zoom</span><input type="range" min="1" max="1.6" step="0.01" value="${current.crop.zoom}" data-wheel-crop="zoom"><output data-wheel-crop-output="zoom">${Number(current.crop.zoom).toFixed(2)}×</output></label><label><span>Horizontal position</span><input type="range" min="0" max="100" step="1" value="${current.crop.x}" data-wheel-crop="x"><output data-wheel-crop-output="x">${current.crop.x}%</output></label><label><span>Vertical position</span><input type="range" min="0" max="100" step="1" value="${current.crop.y}" data-wheel-crop="y"><output data-wheel-crop-output="y">${current.crop.y}%</output></label></div><div class="wheel-crop-actions"><button class="btn btn-outline btn-small" data-action="wheel-crop-reset">Reset frame</button><button class="btn btn-primary" data-action="wheel-generate">Generate 3 angles <span aria-hidden="true">↗</span></button></div></div>`;
-  if (phase === 'generating') content = `<div class="wheel-visualizer-content wheel-generating-content" aria-live="polite"><div class="wheel-generating-orbit"><div class="wheel-generating-wheel"><img src="${ASSET + (current.referenceImage || item.image)}" alt="${esc(item.name)}"></div><span></span><span></span><span></span></div><div class="wheel-content-kicker">F-Box visual studio</div><h3>Matching wheel to vehicle<br><em>and checking the stance.</em></h3><p class="wheel-content-lead">We are holding the wheel design, finish, proportions and vehicle perspective together while preparing three views.</p><div class="wheel-progress"><span></span></div><div class="wheel-generating-meta"><span>Fitment reference locked</span><span>3 angles requested</span><span>Officially included</span></div></div>`;
-  if (phase === 'results') content = `<div class="wheel-visualizer-content wheel-results-content"><div class="wheel-results-head"><div><div class="wheel-content-kicker">Your preview set</div><h3>See the wheel<br><em>in its natural stance.</em></h3></div><div class="wheel-results-count"><strong>03</strong><span>angles</span></div></div><p class="wheel-content-lead">These views use ${esc(item.name)} in ${esc(item.finish)} as the wheel reference. Keep the final fitment check with the F-Box team before production.</p><div class="wheel-results-grid">${current.results.map((result, index) => wheelVisualizerResultCard(result, index, item, current.mode)).join('')}</div><div class="wheel-results-actions"><button class="btn btn-outline" data-action="wheel-reset">Try another photo</button><button class="btn btn-primary" data-action="wheel-close">Keep this wheel <span aria-hidden="true">↗</span></button></div></div>`;
+  if (phase === 'generating') { const referenceAsset = visualizerReferenceAsset(item, current); content = `<div class="wheel-visualizer-content wheel-generating-content" aria-live="polite"><div class="wheel-generating-orbit"><div class="wheel-generating-wheel">${referenceAsset ? `<img src="${referenceAsset}" alt="${esc(item.name)}">` : `<span class="wheel-generating-part">${esc(item.category)}</span>`}</div><span></span><span></span><span></span></div><div class="wheel-content-kicker">F-Box visual studio</div><h3>Matching ${esc(visualizerProductContext(item).subject)} to vehicle<br><em>and checking the stance.</em></h3><p class="wheel-content-lead">We are applying only the selected ${esc(item.category.toLowerCase())} while keeping the original wheel and vehicle geometry locked.</p><div class="wheel-progress"><span></span></div><div class="wheel-generating-meta"><span>Product mask locked</span><span>3 angles requested</span><span>Officially included</span></div></div>`; }
+  if (phase === 'results') content = `<div class="wheel-visualizer-content wheel-results-content"><div class="wheel-results-head"><div><div class="wheel-content-kicker">Your preview set</div><h3>See the wheel<br><em>in its natural stance.</em></h3></div><div class="wheel-results-count"><strong>03</strong><span>angles</span></div></div><p class="wheel-content-lead">These views use ${esc(item.name)} in ${esc(item.finish)} as the wheel reference. Keep the final fitment check with the F-Box team before production.</p><div class="wheel-results-grid">${current.results.map((result, index) => wheelVisualizerResultCard(result, index, item, current.mode)).join('')}</div><div class="wheel-results-actions"><button class="btn btn-outline" data-action="wheel-reset">Try another photo</button><button class="btn btn-primary" data-action="wheel-inquiry-open">Start an inquiry <span aria-hidden="true">↗</span></button></div></div>`;
+  if (phase === 'results' && item.category !== 'Wheels') {
+    const context = visualizerProductContext(item);
+    content = content.replace('See the wheel', `See the ${context.subject}`).replace('as the wheel reference', `as the ${context.subject} reference`);
+  }
+  if (phase === 'inquiry') content = wheelVisualizerInquiryContent(item, current);
   if (phase === 'error') content = `<div class="wheel-visualizer-content wheel-error-content" role="alert"><div class="wheel-error-mark">!</div><div class="wheel-content-kicker">Preview not ready</div><h3>We could not finish<br><em>this set of angles.</em></h3><p class="wheel-content-lead">${esc(current.error || 'Please check the image and try again.')}</p><div class="wheel-error-actions"><button class="btn btn-outline" data-action="wheel-reset">Choose another photo</button><button class="btn btn-primary" data-action="wheel-retry">Retry preview</button></div></div>`;
   return `<div class="wheel-visualizer-overlay" data-action="wheel-close"><div class="wheel-visualizer-shell" data-wheel-modal role="dialog" aria-modal="true" aria-labelledby="wheel-visualizer-dialog-title"><header class="wheel-visualizer-header"><div><div class="wheel-visualizer-brand"><span class="wheel-brand-dot"></span> F-BOX VISUAL STUDIO</div><h2 id="wheel-visualizer-dialog-title">${esc(item.name)} <span>· ${esc(item.finish)}</span></h2></div><div class="wheel-visualizer-header-actions"><span class="wheel-included-badge">Included with your build</span><button class="icon-btn wheel-modal-close" data-action="wheel-close" aria-label="Close visual preview">${icons.close}</button></div></header><div class="wheel-visualizer-body"><aside class="wheel-step-rail"><div class="wheel-step-rail-title">Your build preview</div>${stepRail}<div class="wheel-step-rail-foot"><span>${icons.shield}</span><p>F-Box covers the preview cost. There is no customer charge.</p></div></aside><main class="wheel-visualizer-main">${wheelVisualizerReferencePicker(item, current)}${content}</main></div></div></div>`;
 }
@@ -668,7 +1044,9 @@ function wheelVisualizerModal() {
   if (current.phase === 'crop') html = html.replace('data-action="wheel-generate">Generate 3 angles', 'data-action="wheel-reference-next">Continue to wheel reference');
   if (current.phase === 'reference') {
     const item = wheelVisualizerItem();
-    const content = `<div class="wheel-visualizer-content wheel-reference-content"><div class="wheel-content-kicker">Select the exact wheel reference</div><h3>Lock the wheel.<br><em>Then generate the match.</em></h3><p class="wheel-content-lead">The highlighted gallery image is sent as the authoritative wheel reference. Your vehicle photo stays unchanged; the selected wheel is applied to all three views.</p><div class="wheel-reference-lockup"><div class="wheel-reference-large"><img src="${ASSET + (current.referenceImage || item.image)}" alt="${esc(item.name)} selected wheel reference"></div><div><strong>${esc(item.name)}</strong><span>${esc(item.finish)} · ${esc(item.meta)}</span><small>Reference image locked for three angles</small></div></div><div class="wheel-reference-actions"><button class="btn btn-outline btn-small" data-action="wheel-reference-back">Back to framing</button><button class="btn btn-primary" data-action="wheel-generate">Generate 3 angles <span aria-hidden="true">↗</span></button></div></div>`;
+    const referenceAsset = visualizerReferenceAsset(item, current);
+    const referenceLabel = 'Image 2 is sent as the authoritative wheel reference. Image 1 remains the ground-truth vehicle photo.';
+    const content = `<div class="wheel-visualizer-content wheel-reference-content"><div class="wheel-content-kicker">Confirm image 2 · wheel reference</div><h3>Lock the wheel.<br><em>Then replace it on the car.</em></h3><p class="wheel-content-lead">${referenceLabel} The original wheel is replaced in its existing position while the vehicle identity, tire and camera perspective stay unchanged.</p><div class="wheel-reference-lockup"><div class="wheel-reference-large">${referenceAsset ? `<img src="${referenceAsset}" alt="${esc(item.name)} selected wheel reference">` : `<span class="wheel-reference-missing">Wheel<br>reference pending</span>`}</div><div><strong>${esc(item.name)}</strong><span>${esc(item.finish)} · ${esc(item.meta)}</span><small>Image 2 locked for all three angles</small></div></div><div class="wheel-reference-actions"><button class="btn btn-outline btn-small" data-action="wheel-reference-back">Back to framing</button><button class="btn btn-primary" data-action="wheel-generate">Generate 3 angles <span aria-hidden="true">↗</span></button></div></div>`;
     html = html.replace('</main></div></div></div>', `${content}</main></div></div></div>`);
   }
   return html;
@@ -676,13 +1054,98 @@ function wheelVisualizerModal() {
 function modal() {
   if (!state.modal) return '';
   if (state.modal.type === 'quick') { const item = product(state.modal.id); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Quick view</p><h2>${item.name}</h2><div class="quick-product"><img src="${ASSET + item.image}" alt="${esc(item.name)}"><div><div class="product-brand">${item.brand} · ${item.category}</div><div>${stars(item.rating)} <span class="muted">${item.reviews} reviews</span></div><p>${item.meta}<br>${item.deal}</p><strong style="font-size:22px">${money(item.price)} <small class="muted">/ each</small></strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">Add to cart</button></div></div></div></div>`; }
-  if (state.modal.type === 'account') return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>Save your build.</h2><p>Sign in to keep fitment notes, saved cars and order history together.</p><form class="modal-form" data-form="account"><input class="text-input" type="email" placeholder="Email address" required><input class="text-input" type="password" placeholder="Password" required><button class="btn btn-primary">Sign in</button><button class="btn btn-outline" type="button" data-action="close-modal">Create a new account</button></form></div></div>`;
+  if (state.modal.type === 'account') { const register = state.modal.mode === 'register'; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>${register ? 'Create your build account.' : 'Save your build.'}</h2><p>${register ? '注册后可以保存收藏、车辆、地址和订单。' : '登录后，购物车、收货地址、收藏和订单会进入 F-Box mall 后端。'}</p><form class="modal-form" data-form="account" data-mode="${register ? 'register' : 'login'}"><input class="text-input" name="username" placeholder="Username" required><input class="text-input" name="password" type="password" placeholder="Password" required>${register ? '<input class="text-input" name="telephone" placeholder="Phone number" required><input class="text-input" name="authCode" placeholder="Verification code" required>' : ''}<button class="btn btn-primary">${register ? 'Create account' : 'Sign in'}</button><button class="btn btn-outline" type="button" data-action="${register ? 'account-login' : 'account-register'}">${register ? 'I already have an account' : 'Create a new account'}</button></form></div></div>`; }
+  if (state.modal.type === 'orders') return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>Track my orders.</h2><p>订单状态来自 F-Box mall portal；发货后可在这里继续查看物流信息。</p>${state.accountOrdersLoading ? '<div class="loading-copy">正在读取订单…</div>' : state.accountOrders.length ? `<div class="account-order-list">${state.accountOrders.map(order => `<article class="account-order"><div><strong>${esc(order.orderSn || order.id || 'Order')}</strong><small>${esc(order.createTime || '')}</small></div><div><span>${esc(order.productName || order.receiverName || 'F-Box order')}</span><small>${esc(order.status === 0 ? '待付款' : order.status === 1 ? '待发货' : order.status === 2 ? '已发货' : order.status === 3 ? '已完成' : order.status === 4 ? '已关闭' : '处理中')}</small></div><strong>${money(order.payAmount || order.totalAmount || 0)}</strong></article>`).join('')}</div>` : '<div class="empty-state"><h3>暂无订单</h3><p>登录后创建的 F-Box 订单会出现在这里。</p></div>'}</div></div>`;
   if (state.modal.type === 'review') return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Your experience</p><h2>Write a review.</h2><form class="modal-form" data-form="review"><input class="text-input" name="title" placeholder="Review title" required><textarea class="text-input" name="body" rows="5" placeholder="What did you install? How does it fit?" required></textarea><input class="text-input" name="vehicle" placeholder="Your vehicle"><button class="btn btn-primary">Submit review</button></form></div></div>`;
-  if (state.modal.type === 'checkout') return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Secure checkout</p><h2>Finish your order.</h2><div class="checkout-steps">${['Customer', 'Shipping', 'Payment'].map((label, i) => `<div class="checkout-step ${state.checkoutStep === i + 1 ? 'is-active' : ''}">${i + 1}. ${label}</div>`).join('')}</div>${state.checkoutStep === 4 ? `<div class="success-box"><h3>Order request received.</h3><p>F-Box saved your build and will confirm final fitment and shipping by email.</p><button class="btn btn-dark" data-action="close-modal">Back to store</button></div>` : `<form class="modal-form" data-form="checkout"><input class="text-input" required placeholder="Full name"><input class="text-input" type="email" required placeholder="Email address">${state.checkoutStep >= 2 ? '<input class="text-input" required placeholder="Shipping address"><input class="text-input" required placeholder="City / State / Postcode">' : ''}${state.checkoutStep >= 3 ? '<input class="text-input" required placeholder="Card number (demo)"><div class="filter-row"><input class="text-input" required placeholder="MM / YY"><input class="text-input" required placeholder="CVC"></div>' : ''}<button class="btn btn-primary">${state.checkoutStep === 3 ? 'Place demo order' : 'Continue'}</button></form>`}</div></div>`;
+  if (state.modal.type === 'checkout') { const f = state.checkoutForm || {}; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Secure checkout</p><h2>创建 F-Box 订单</h2><div class="checkout-steps">${['客户信息', '收货信息', '创建订单'].map((label, i) => `<div class="checkout-step ${state.checkoutStep === i + 1 || state.checkoutStep === 3 ? 'is-active' : ''}">${i + 1}. ${label}</div>`).join('')}</div>${state.checkoutStep === 4 ? `<div class="success-box"><h3>订单已创建。</h3><p>订单号：${esc(state.lastOrder?.orderSn || state.lastOrder?.id || '已提交')}。你可以在后台“订单 > 订单列表”继续处理。</p><button class="btn btn-dark" data-action="close-modal">返回商城</button></div>` : `<form class="modal-form" data-form="checkout"><input class="text-input" name="name" value="${esc(f.name || '')}" required placeholder="Full name"><input class="text-input" name="phone" value="${esc(f.phone || '')}" required placeholder="Phone number"><input class="text-input" name="email" value="${esc(f.email || '')}" type="email" required placeholder="Email address"><input class="text-input" name="address" value="${esc(f.address || '')}" required placeholder="Street address"><div class="filter-row"><input class="text-input" name="city" value="${esc(f.city || '')}" required placeholder="City"><input class="text-input" name="province" value="${esc(f.province || '')}" placeholder="State / Province"></div><div class="filter-row"><input class="text-input" name="region" value="${esc(f.region || '')}" placeholder="Region"><input class="text-input" name="postCode" value="${esc(f.postCode || '')}" required placeholder="Postcode"></div><p class="filter-help">订单会先创建为“待付款”，支付由后台配置的支付渠道处理。</p><button class="btn btn-primary" data-submit-order>${state.checkoutStep === 3 ? '提交并创建订单' : '继续填写并创建订单'}</button></form>`}</div></div>`; }
   return '';
 }
-function chat() { return `<button class="chat-fab" data-action="chat" aria-label="Open chat">${icons.chat}</button>${state.chatOpen ? `<div class="chat-panel"><div class="chat-head"><div><strong>F-Box fitment help</strong><small>Usually replies in a few minutes</small></div><button class="icon-btn" data-action="chat">${icons.close}</button></div><div class="chat-body"><div class="chat-bubble">Hey — want help checking wheel clearance or choosing brake parts?</div><div class="chat-quick"><button data-action="chat-reply" data-message="Check my wheel fitment">Check wheel fitment</button><button data-action="chat-reply" data-message="Recommend brake pads">Recommend brake pads</button><button data-action="chat-reply" data-message="Where is my order?">Track my order</button></div></div></div>` : ''}`; }
-function footer() { return `<footer class="footer"><div class="container"><div class="footer-top"><div><a class="brand" href="#home"><i class="brand-mark"></i><span>F-BOX</span></a><p class="footer-slogan">A fitment-first destination for the parts that make your car feel like yours.</p><div class="company-meta"><strong>${company.legalName}</strong><a href="tel:${company.tel}">${company.phone}</a></div></div><div class="footer-grid"><div class="footer-col"><h3>Shop</h3><a href="#store">Wheels</a><a href="#store">Calipers</a><a href="#store">Rotors</a><a href="#store">Brake pads</a></div><div class="footer-col"><h3>Tools</h3><a href="#home#fitment">Shop by vehicle</a><a href="#home#gallery">Fitment guides</a><a href="#home#resources">Reviews</a><a href="#store">Financing</a></div><div class="footer-col"><h3>Help</h3><a href="#home#resources">FAQs & policies</a><a href="#home#resources">Shipping & returns</a><a href="#home#resources">Warranty</a><a href="tel:${company.tel}">Contact us · ${company.phone}</a></div><div class="footer-col"><h3>Company</h3><a href="#home">About F-Box</a><a href="#home">Wholesale</a><a href="#home">Careers</a><a href="#cart">Track order</a></div></div></div><div class="footer-bottom"><span>© 2026 ${company.legalName} · F-Box Performance Parts</span><span>Terms · Privacy · CCPA</span></div></div></footer>`; }
+function chat() {
+  const messages = state.chatMessages.length
+    ? state.chatMessages.map(message => message.kind === 'quote' && message.quote ? `<div class="chat-bubble is-agent">${esc(message.text)}${quoteCardMarkup(message.quote)}</div>` : `<div class="chat-bubble ${message.role === 'customer' ? 'is-customer' : 'is-agent'}">${esc(message.text)}</div>`).join('')
+    : '<div class="chat-bubble">Hey — tell us what you are building. A fitment specialist will follow up here.</div>';
+  return `<button class="chat-fab" data-action="chat" aria-label="Open chat">${icons.chat}${state.chatMessages.length ? `<span class="chat-fab-dot" aria-label="Chat active"></span>` : ''}</button>${state.chatOpen ? `<div class="chat-panel"><div class="chat-head"><div><strong>F-Box fitment help</strong><small>Usually replies in a few minutes</small></div><button class="icon-btn" data-action="chat">${icons.close}</button></div><div class="chat-body"><div class="chat-thread">${messages}</div><div class="chat-quick"><button data-action="chat-reply" data-message="I need help checking my wheel fitment.">Check my wheel fitment</button><button data-action="chat-reply" data-message="Can you recommend brake pads for my car?">Recommend brake pads</button><button data-action="chat-reply" data-message="I need help tracking my order.">Track my order</button></div><form class="chat-compose" data-form="site-chat"><input class="chat-input" name="message" placeholder="Type your message…" autocomplete="off" ${state.chatSending ? 'disabled' : ''}><button class="btn btn-primary chat-send" type="submit" ${state.chatSending ? 'disabled' : ''}>${state.chatSending ? 'Sending…' : 'Send'}</button></form></div></div>` : ''}`;
+}
+
+function quoteCardMarkup(quote) {
+  const spec = [quote.customer_wheel_specs?.diameter && `${quote.customer_wheel_specs.diameter} × ${quote.customer_wheel_specs.width || '—'}`, quote.customer_wheel_specs?.pcd, quote.customer_wheel_specs?.center_bore && `CB ${quote.customer_wheel_specs.center_bore}`, quote.customer_wheel_specs?.offset && `ET ${quote.customer_wheel_specs.offset}`].filter(Boolean).join(' · ');
+  const paid = quote.payment_status === 'paid';
+  return `<div class="chat-quote-card"><div class="chat-quote-head"><span>F-BOX QUOTATION</span><strong>${paid ? 'Paid' : 'Ready to review'}</strong></div><div class="chat-quote-product">${quote.product_image ? `<img src="${esc(quote.product_image)}" alt="${esc(quote.product_name || 'F-Box product')}">` : ''}<div><strong>${esc(quote.product_name || 'F-Box custom quote')}</strong><small>${esc(spec || 'Custom fitment specification')}</small></div></div><div class="chat-quote-grid"><span>Product × Qty<strong>${money(quote.unit_price)} × ${quote.quantity || 1}</strong></span><span>Shipping<strong>${money(quote.shipping_fee || 0)}</strong></span><span>Production<strong>${quote.production_time_days ? `${quote.production_time_days} days` : 'To confirm'}</strong></span><span>Transit estimate<strong>${quote.shipping_estimate_days ? `${quote.shipping_estimate_days} days` : 'To confirm'}</strong></span></div><div class="chat-quote-total"><span>Total</span><strong>${money(quote.total)}</strong></div>${quote.logistics_method ? `<p class="chat-quote-note">${esc(quote.logistics_method)}</p>` : ''}${quote.note ? `<p class="chat-quote-note">${esc(quote.note)}</p>` : ''}${paid ? '<div class="chat-quote-paid">Payment received — F-Box will continue with production and shipping.</div>' : quote.payment_ready && quote.checkout_token ? `<button class="btn btn-primary chat-quote-pay" data-action="pay-quote" data-quote-id="${esc(quote.id)}" data-payment-token="${esc(quote.checkout_token)}">Pay with PayPal ↗</button>` : '<div class="chat-quote-pending">Payment setup is being prepared. Please message us for assistance.</div>'}</div>`;
+}
+
+async function submitWebsiteChat(message) {
+  const text = String(message || '').trim();
+  if (!text || state.chatSending) return;
+  state.chatSending = true;
+  state.chatMessages = [...state.chatMessages, { role: 'customer', text }];
+  render();
+  try {
+    const response = await fetch('/api/fbox-content/chat', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        conversation_id: state.chatSessionId,
+        message: text,
+        locale: state.locale,
+        vehicle: currentVehicleLabel(),
+        vehicle_selection: state.vehicle || {},
+        official_wheel_specs: currentOfficialWheelSpecs(),
+        product_id: state.route.name === 'product' ? state.route.id : '',
+        product_name: state.route.name === 'product' ? product(state.route.id).name : '',
+        product_category: state.route.name === 'product' ? product(state.route.id).category : '',
+        product_finish: state.route.name === 'product' ? product(state.route.id).finish : '',
+        product_image: state.route.name === 'product' ? `${location.origin}/assets/${product(state.route.id).image}` : '',
+        product_display_price: state.route.name === 'product' ? product(state.route.id).price : 0
+      })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || 'Message could not be sent.');
+    state.chatSessionId = payload.data?.id || state.chatSessionId;
+    if (state.chatSessionId) localStorage.setItem('fbox-chat-session', state.chatSessionId);
+    state.chatMessages = payload.data?.messages || state.chatMessages;
+  } catch (error) {
+    state.chatMessages = state.chatMessages.slice(0, -1);
+    setToast(error?.message || '客服消息发送失败，请稍后再试。');
+  } finally {
+    state.chatSending = false;
+    render();
+  }
+}
+async function loadWebsiteChat() {
+  if (!state.chatSessionId) return;
+  try {
+    const response = await fetch(`/api/fbox-content/chat/${encodeURIComponent(state.chatSessionId)}`, { headers: { Accept: 'application/json' } });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) return;
+    state.chatMessages = payload.data?.messages || state.chatMessages;
+    render();
+  } catch { /* Chat remains usable when the customer is offline. */ }
+}
+async function payQuote(quoteId, paymentToken) {
+  try {
+    const response = await fetch(`/api/fbox-content/quotes/${encodeURIComponent(quoteId)}/paypal`, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ payment_token: paymentToken }) });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || 'PayPal checkout could not be started.');
+    if (!payload.data?.approval_url) throw new Error('PayPal did not return an approval link.');
+    window.location.href = payload.data.approval_url;
+  } catch (error) { setToast(error?.message || 'PayPal checkout could not be started.'); }
+}
+async function captureReturnedPayPalPayment() {
+  const query = new URLSearchParams(location.search);
+  const quoteId = query.get('paypal_quote');
+  const paymentToken = query.get('paypal_token');
+  const orderId = query.get('token');
+  if (!quoteId || !paymentToken || !orderId) return;
+  try {
+    const response = await fetch('/api/fbox-content/paypal/capture', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ quote_id: quoteId, payment_token: paymentToken, order_id: orderId }) });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || 'PayPal payment confirmation failed.');
+    if (payload.data?.inquiry?.messages) state.chatMessages = payload.data.inquiry.messages;
+    setToast(payload.data?.status === 'paid' ? 'PayPal payment received. F-Box will continue your order.' : 'PayPal payment is still processing.');
+  } catch (error) { setToast(error?.message || 'PayPal payment confirmation failed.'); }
+  history.replaceState({}, document.title, `${location.pathname}${location.hash || '#home'}`);
+}
+function footer() { return `<footer class="footer"><div class="container"><div class="footer-top"><div><a class="brand" href="#home"><i class="brand-mark"></i><span>F-BOX</span></a><p class="footer-slogan">A fitment-first destination for the parts that make your car feel like yours.</p><div class="company-meta"><strong>${company.legalName}</strong><a href="tel:${company.tel}">${company.phone}</a></div></div><div class="footer-grid"><div class="footer-col"><h3>Shop</h3><a href="#store">Wheels</a><a href="#store">Calipers</a><a href="#store">Rotors</a><a href="#store">Brake pads</a></div><div class="footer-col"><h3>Tools</h3><a href="#home#fitment">Shop by vehicle</a><a href="#home#gallery">Fitment guides</a><a href="#home#resources">Reviews</a><a href="#store">Financing</a></div><div class="footer-col"><h3>Help</h3><a href="#home#resources">FAQs & policies</a><a href="#home#resources">Shipping & returns</a><a href="#home#resources">Warranty</a><a href="tel:${company.tel}">Contact us · ${company.phone}</a></div><div class="footer-col"><h3>Company</h3><a href="#home">About F-Box</a><a href="#home">Wholesale</a><a href="#home">Careers</a><a href="#home" data-action="orders">Track order</a></div></div></div><div class="footer-bottom"><span>© 2026 ${company.legalName} · F-Box Performance Parts</span><span>Terms · Privacy · CCPA</span></div></div></footer>`; }
 
 function applyTranslations() {
   document.documentElement.lang = state.locale;
@@ -821,8 +1284,9 @@ async function detectLocaleByIp() {
 function render() {
   state.route = getRoute();
   const page = state.route.name === 'home' ? customWheelHomePage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : productPage(product(state.route.id));
-  document.querySelector('#app').innerHTML = `${header()}${page}${footer()}${chat()}${state.cookie ? '<div class="cookie-banner"><span>By using F-Box, you agree to our cookie policy and fitment analytics.</span><button data-action="dismiss-cookie">Dismiss</button></div>' : ''}${modal()}${wheelVisualizerModal()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
+  document.querySelector('#app').innerHTML = `${header()}${page}${footer()}${chat()}${state.cookie ? '<div class="cookie-banner"><span>By using F-Box, you agree to our cookie policy and fitment analytics.</span><button data-action="dismiss-cookie">Dismiss</button></div>' : ''}${modal()}${wheelVisualizerModal()}${wheelVisualizerImageViewer()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
   wireWheelVisualizerEntry();
+  wireWheelInquiryDetails();
   wireHomeVisualizerBanner();
   decorateIntegrationState();
   applyTranslations();
@@ -851,9 +1315,74 @@ function updateVehicle(field, value) {
   if (state.vehicle?.trim) window.setTimeout(() => document.querySelector('.fitment-preview')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
 }
 function clearFilters() { state.search = ''; state.filters = { category: 'All', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' }; state.sort = 'popular'; render(); }
-function addToCart(id) { const existing = state.cart.find(item => item.id === id); if (existing) existing.qty += 1; else state.cart.push({ id, qty: 1 }); persist(); setToast(`${product(id).name} added to your cart.`); }
+async function wheelVisualizerSubmitInquiry(values) {
+  const current = state.wheelVisualizer;
+  if (!current?.open || current.phase !== 'inquiry' || current.inquiry?.status === 'submitting') return;
+  const item = wheelVisualizerItem();
+  const resultImages = current.results.map(result => result.imageUrl || result.image_url || result.url || '').filter(Boolean).slice(0, 3);
+  const vehicleLabel = state.vehicle ? currentVehicleLabel() : current.vehicleName || 'Uploaded vehicle photo';
+  const wheelSpecs = { diameter: values.diameter, width: values.width, pcd: values.pcd, offset: values.offset, center_bore: values.center_bore, quantity: values.quantity, oem_diameter: values.oem_diameter, oem_width: values.oem_width, oem_pcd: values.oem_pcd, oem_center_bore: values.oem_center_bore, oem_offset: values.oem_offset };
+  const fitmentText = Object.entries(wheelSpecs).map(([key, value]) => `${key}: ${value}`).join(', ');
+  const message = `Visual fitment inquiry for ${item.name}. Wheel data — ${fitmentText}. Vehicle reference: ${vehicleLabel}. Generated preview images attached: ${resultImages.length}. Customer note: ${values.customer_note || 'None'}`;
+  current.inquiry = { status: 'submitting', draft: values, error: '' };
+  render();
+  try {
+    const response = await fetch('/api/fbox-content/inquiries', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        topic: 'visualizer-wheel-inquiry',
+        message,
+        customer_name: values.customer_name,
+        customer_email: values.customer_email,
+        customer_phone: values.customer_phone,
+        vehicle: vehicleLabel,
+        vehicle_selection: state.vehicle || {},
+        official_wheel_specs: currentOfficialWheelSpecs(),
+        vehicle_file_name: current.vehicleName,
+        product_id: item.id,
+        product_name: item.name,
+        product_category: item.category,
+        product_finish: item.finish,
+        product_image: visualizerReferenceAsset(item, current),
+        product_display_price: item.price,
+        preview_images: resultImages,
+        wheel_specs: wheelSpecs,
+        customer_note: values.customer_note
+      })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || 'The inquiry could not be submitted.');
+    current.inquiry = { status: 'success', id: payload.data?.id || 'submitted', draft: values, error: '' };
+    render();
+  } catch (error) {
+    current.inquiry = { status: 'error', draft: values, error: error?.message || 'The inquiry could not be submitted. Please try again.' };
+    render();
+  }
+}
+async function addToCart(id) {
+  const item = product(id);
+  const existing = state.cart.find(row => row.id === id);
+  if (existing) existing.qty += 1;
+  else state.cart.push({ id, qty: 1 });
+  persist();
+  if (state.mallToken && item?.backendId && item?.skuId) {
+    try {
+      await mallRequest(mallConfig.portalBase, '/cart/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: item.backendId, productSkuId: item.skuId, quantity: 1 })
+      });
+      await loadMallCart();
+    } catch (error) {
+      setToast(error?.message || '商城购物车同步失败，当前商品已保存在本地。');
+      return;
+    }
+  }
+  setToast(`${item.name} added to your cart.`);
+}
 
-document.addEventListener('click', event => {
+document.addEventListener('click', async event => {
   const anchor = event.target.closest('a[href^="#home#"]');
   if (anchor) {
     event.preventDefault();
@@ -870,10 +1399,18 @@ document.addEventListener('click', event => {
   if (action === 'mega') { state.menuOpen = !state.menuOpen; render(); return; }
   if (action === 'mobile-nav') { state.mobileNav = !state.mobileNav; render(); return; }
   if (action === 'cart') { go('#cart'); return; }
-  if (action === 'account') { state.modal = { type: 'account' }; render(); return; }
+  if (action === 'account') { state.modal = { type: 'account', mode: 'login' }; render(); return; }
+  if (action === 'account-register') { state.modal = { type: 'account', mode: 'register' }; render(); return; }
+  if (action === 'account-login') { state.modal = { type: 'account', mode: 'login' }; render(); return; }
+  if (action === 'orders') { if (!state.mallToken) { state.modal = { type: 'account', mode: 'login', afterLogin: 'orders' }; render(); } else { state.modal = { type: 'orders' }; loadMemberOrders(); } return; }
   if (action === 'dismiss-cookie') { state.cookie = false; localStorage.setItem('fbox-cookie', 'dismissed'); render(); return; }
-  if (action === 'chat') { state.chatOpen = !state.chatOpen; render(); return; }
-  if (action === 'chat-reply') { setToast(`${target.dataset.message} — a fitment expert will follow up.`); state.chatOpen = false; return; }
+  if (action === 'chat') { state.chatOpen = !state.chatOpen; render(); if (state.chatOpen) void loadWebsiteChat(); return; }
+  if (action === 'pay-quote') { void payQuote(target.dataset.quoteId, target.dataset.paymentToken); return; }
+  if (action === 'chat-reply') {
+    const message = target.dataset.message || 'I need fitment help.';
+    await submitWebsiteChat(message);
+    return;
+  }
   if (action === 'wheel-open') { state.wheelVisualizer = wheelVisualizerState(target.dataset.id, target.dataset.image); render(); return; }
   if (action === 'wheel-reference') {
     const current = state.wheelVisualizer;
@@ -884,6 +1421,7 @@ document.addEventListener('click', event => {
     current.results = [];
     current.jobId = '';
     current.error = '';
+    current.errorCode = '';
     current.mode = 'fbox-lingkeai';
     if (current.phase === 'results' || current.phase === 'error') current.phase = current.vehicleFile ? 'reference' : 'upload';
     render();
@@ -891,16 +1429,60 @@ document.addEventListener('click', event => {
   }
   if (action === 'wheel-reference-next') { if (state.wheelVisualizer.vehicleFile) { state.wheelVisualizer.phase = 'reference'; render(); } return; }
   if (action === 'wheel-reference-back') { if (state.wheelVisualizer.vehicleFile) { state.wheelVisualizer.phase = 'crop'; render(); } return; }
+  if (action === 'wheel-image-viewer') {
+    const imageUrl = target.dataset.imageUrl;
+    if (!state.wheelVisualizer?.open || !imageUrl) return;
+    state.wheelVisualizer.resultViewer = {
+      open: true,
+      imageUrl,
+      angleLabel: target.dataset.angle || 'Generated view',
+      productName: target.dataset.product || wheelVisualizerItem().name,
+      alt: `${target.dataset.product || wheelVisualizerItem().name} on your vehicle — ${target.dataset.angle || 'generated view'}`,
+      downloadName: target.dataset.downloadName || 'fbox-preview.jpg'
+    };
+    render();
+    return;
+  }
+  if (action === 'wheel-image-download') { void wheelVisualizerDownload(target.dataset.imageUrl, target.dataset.downloadName || 'fbox-preview.jpg'); return; }
+  if (action === 'wheel-image-viewer-close') {
+    if (target.classList.contains('wheel-image-viewer-overlay') && event.target !== target) return;
+    if (state.wheelVisualizer?.resultViewer) { state.wheelVisualizer.resultViewer = null; render(); }
+    return;
+  }
+  if (action === 'wheel-inquiry-open') {
+    if (state.wheelVisualizer?.phase === 'results' && state.wheelVisualizer.results.length) {
+      state.wheelVisualizer.phase = 'inquiry';
+      state.wheelVisualizer.resultViewer = null;
+      state.wheelVisualizer.inquiry = { status: 'idle', draft: wheelVisualizerInquiryDefaults(wheelVisualizerItem()), error: '' };
+      render();
+    }
+    return;
+  }
+  if (action === 'wheel-inquiry-results') { if (state.wheelVisualizer?.open && state.wheelVisualizer.results.length) { state.wheelVisualizer.phase = 'results'; state.wheelVisualizer.resultViewer = null; render(); } return; }
   if (action === 'wheel-close') { if (event.target.closest('[data-wheel-modal]') && !target.classList.contains('wheel-modal-close')) return; wheelVisualizerClose(); return; }
   if (action === 'wheel-generate') { if (state.wheelVisualizer.phase === 'reference') wheelVisualizerStart(); return; }
   if (action === 'wheel-reset') { wheelVisualizerReset('upload'); return; }
-  if (action === 'wheel-retry') { if (state.wheelVisualizer.vehicleFile) { state.wheelVisualizer.phase = 'generating'; wheelVisualizerStart(); } else wheelVisualizerReset('upload'); return; }
+  if (action === 'wheel-retry') { if (state.wheelVisualizer.vehicleFile) { if (state.wheelVisualizer.jobId && !['JOB_FAILED', 'JOB_CANCELED'].includes(state.wheelVisualizer.errorCode)) wheelVisualizerResume(); else wheelVisualizerStart(); } else wheelVisualizerReset('upload'); return; }
   if (action === 'wheel-crop-reset') { state.wheelVisualizer.crop = { zoom: 1, x: 50, y: 50 }; render(); return; }
   if (action === 'quick-view') { state.modal = { type: 'quick', id: target.dataset.id }; render(); return; }
   if (action === 'close-modal') { if (event.target.closest('[data-modal-content]') && !target.classList.contains('modal-close')) return; state.modal = null; render(); return; }
-  if (action === 'wishlist') { const id = target.dataset.id; state.wishlist = state.wishlist.includes(id) ? state.wishlist.filter(x => x !== id) : [...state.wishlist, id]; persist(); render(); return; }
+  if (action === 'wishlist') {
+    const id = target.dataset.id;
+    const item = product(id);
+    const wasSaved = state.wishlist.includes(id);
+    state.wishlist = wasSaved ? state.wishlist.filter(x => x !== id) : [...state.wishlist, id];
+    persist();
+    if (state.mallToken && item?.backendId) {
+      try {
+        if (wasSaved) await mallRequest(mallConfig.portalBase, `/member/productCollection/delete?productId=${item.backendId}`, { method: 'POST' });
+        else await mallRequest(mallConfig.portalBase, '/member/productCollection/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ productId: item.backendId, productName: item.name, productPic: item.backendPic || item.image, productSubTitle: item.meta, productPrice: String(item.price) }) });
+      } catch (error) { setToast(error?.message || '收藏同步失败，已保存在当前设备。'); }
+    }
+    render();
+    return;
+  }
   if (action === 'add') { addToCart(target.dataset.id); return; }
-  if (action === 'buy-now') { addToCart(target.dataset.id); state.modal = { type: 'checkout' }; state.checkoutStep = 1; render(); return; }
+  if (action === 'buy-now') { addToCart(target.dataset.id); state.modal = state.mallToken ? { type: 'checkout' } : { type: 'account', afterLogin: 'checkout' }; state.checkoutStep = state.mallToken ? 3 : 1; render(); return; }
   if (action === 'product-image') { state.productImage[target.dataset.id] = target.dataset.image; render(); return; }
   if (action === 'view-fitment-products') { state.search = ''; state.filters.category = 'All'; go('#store'); return; }
   if (action === 'change-vehicle') { state.vehicle = null; localStorage.removeItem('fbox-vehicle'); go('#home'); return; }
@@ -908,12 +1490,12 @@ document.addEventListener('click', event => {
   if (action === 'clear-filters') { clearFilters(); return; }
   if (action === 'ai-filter') { const input = document.querySelector('.ai-query input'); state.search = input?.value || ''; render(); return; }
   if (action === 'save-zip') { setToast('Delivery estimate saved for this session.'); return; }
-  if (action === 'remove-cart') { state.cart = state.cart.filter(item => item.id !== target.dataset.id); persist(); render(); return; }
-  if (action === 'qty') { const item = state.cart.find(x => x.id === target.dataset.id); if (item) item.qty = Math.max(0, item.qty + Number(target.dataset.delta)); state.cart = state.cart.filter(x => x.qty > 0); persist(); render(); return; }
-  if (action === 'apply-coupon') { setToast('Demo code accepted — connect your promotion engine before launch.'); return; }
-  if (action === 'checkout') { state.modal = { type: 'checkout' }; state.checkoutStep = 1; render(); return; }
+  if (action === 'remove-cart') { const item = state.cart.find(row => row.id === target.dataset.id); state.cart = state.cart.filter(row => row.id !== target.dataset.id); persist(); if (state.mallToken && item?.backendCartId) { await mallRequest(mallConfig.portalBase, `/cart/delete?ids=${item.backendCartId}`, { method: 'POST' }).catch(() => {}); } render(); return; }
+  if (action === 'qty') { const item = state.cart.find(x => x.id === target.dataset.id); if (item) item.qty = Math.max(0, item.qty + Number(target.dataset.delta)); state.cart = state.cart.filter(x => x.qty > 0); persist(); if (state.mallToken && item?.backendCartId && item.qty > 0) await mallRequest(mallConfig.portalBase, `/cart/update/quantity?id=${item.backendCartId}&quantity=${item.qty}`, { method: 'GET' }).catch(() => {}); render(); return; }
+  if (action === 'apply-coupon') { setToast(state.mallToken ? '优惠券会在商城结算规则中校验；当前订单先按商品美元售价创建。' : '请先登录 F-Box 账户，再从会员优惠券中选择可用优惠。'); return; }
+  if (action === 'checkout') { if (!state.cart.length) { setToast('Your cart is empty.'); return; } state.modal = state.mallToken ? { type: 'checkout' } : { type: 'account', afterLogin: 'checkout' }; state.checkoutStep = state.mallToken ? 3 : 1; render(); return; }
   if (action === 'load-reviews') { state.reviewLimit = reviews.length; render(); return; }
-  if (action === 'write-review') { state.modal = { type: 'review' }; render(); return; }
+  if (action === 'write-review') { state.modal = { type: 'review', id: state.route.name === 'product' ? state.route.id : '' }; render(); return; }
 });
 
 document.addEventListener('change', event => {
@@ -987,26 +1569,63 @@ document.addEventListener('submit', async event => {
   event.preventDefault();
   const form = event.target;
   if (form.dataset.form === 'search') { state.search = new FormData(form).get('query') || ''; go('#store'); }
+  if (form.dataset.form === 'site-chat') { await submitWebsiteChat(new FormData(form).get('message')); return; }
+  if (form.dataset.form === 'wheel-inquiry') { await wheelVisualizerSubmitInquiry(Object.fromEntries(new FormData(form).entries())); return; }
   if (form.dataset.form === 'account') {
     const values = new FormData(form);
     try {
+      if (form.dataset.mode === 'register') {
+        await mallRegister(Object.fromEntries(values.entries()));
+        state.modal = { type: 'account', mode: 'login' };
+        setToast('账户已创建，请登录 F-Box。');
+        return;
+      }
       const result = await mallLogin(values.get('username'), values.get('password'));
-      state.mallToken = result?.token || '';
+      state.mallToken = `${result?.tokenHead || 'Bearer '}${result?.token || ''}`.trim();
       if (state.mallToken) localStorage.setItem('fbox-mall-token', state.mallToken);
-      state.modal = null;
-      setToast('Signed in through the local mall portal.');
-    } catch {
-      state.modal = null;
-      setToast('Demo sign-in complete. Mall account integration is Testing.');
+      const next = state.modal?.afterLogin;
+      await syncMallCart();
+      await syncMallWishlist();
+      state.modal = next === 'checkout' ? { type: 'checkout' } : next === 'orders' ? { type: 'orders' } : null;
+      state.checkoutStep = next === 'checkout' ? 3 : state.checkoutStep;
+      if (next === 'orders') await loadMemberOrders();
+      setToast('Signed in through the F-Box mall portal.');
+    } catch (error) {
+      setToast(error?.message || 'F-Box account sign-in failed.');
     }
   }
-  if (form.dataset.form === 'review') { state.modal = null; setToast('Thanks — your review is queued for moderation.'); }
-  if (form.dataset.form === 'checkout') { if (state.checkoutStep < 3) state.checkoutStep += 1; else { state.checkoutStep = 4; state.cart = []; persist(); } render(); }
+  if (form.dataset.form === 'review') {
+    const values = new FormData(form);
+    try {
+      const reviewResponse = await fetch('/api/fbox-content/reviews', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ product_id: state.modal?.id || '', product_name: state.modal?.id ? product(state.modal.id).name : '', title: values.get('title'), body: values.get('body'), vehicle: values.get('vehicle'), rating: 5 }) });
+      const reviewPayload = await reviewResponse.json().catch(() => ({}));
+      if (!reviewResponse.ok) throw new Error(reviewPayload.detail || 'Review could not be submitted.');
+      state.modal = null;
+      setToast('Thanks — 评价已提交，等待 F-Box 审核后展示。');
+    } catch (error) { setToast(error?.message || '评价提交失败，请稍后再试。'); }
+  }
+  if (form.dataset.form === 'checkout') {
+    state.checkoutForm = Object.fromEntries(new FormData(form).entries());
+    localStorage.setItem('fbox-checkout-form', JSON.stringify(state.checkoutForm));
+    try {
+      state.lastOrder = await createMallOrder(state.checkoutForm);
+      state.checkoutStep = 4;
+      state.cart = [];
+      persist();
+      render();
+    } catch (error) {
+      setToast(error?.message || '订单创建失败，请检查登录状态、地址和库存。');
+    }
+  }
 });
 document.addEventListener('keydown', event => {
-  if (event.key === 'Escape' && state.wheelVisualizer?.open) wheelVisualizerClose();
+  if (event.key !== 'Escape') return;
+  if (state.wheelVisualizer?.resultViewer?.open) { state.wheelVisualizer.resultViewer = null; render(); return; }
+  if (state.wheelVisualizer?.open) wheelVisualizerClose();
 });
 window.addEventListener('hashchange', () => { state.menuOpen = false; state.mobileNav = false; state.modal = null; state.reviewLimit = 3; render(); window.scrollTo({ top: 0, behavior: 'instant' }); });
 render();
+void captureReturnedPayPalPayment();
 detectLocaleByIp();
 checkMallBackend();
+loadFBoxContent();

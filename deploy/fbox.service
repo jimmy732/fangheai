@@ -1,0 +1,22 @@
+[Unit]
+Description=F-Box storefront and independent admin backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=admin
+WorkingDirectory=/opt/fbox/fangheai
+Environment=NODE_ENV=production
+Environment=FBOX_PORT=4174
+Environment=FBOX_RUNTIME_DIR=/var/lib/fbox/runtime
+ExecStart=/usr/bin/node /opt/fbox/fangheai/server.mjs
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/lib/fbox/runtime
+
+[Install]
+WantedBy=multi-user.target
