@@ -250,7 +250,21 @@ function wheelVisualizerCropStyle(crop = state.wheelVisualizer?.crop || {}) {
   const zoom = Number(crop.zoom || 1);
   const x = Number(crop.x ?? 50);
   const y = Number(crop.y ?? 50);
-  return `transform:scale(${zoom});transform-origin:${x}% ${y}%;`;
+  const translateX = ((50 - x) * 0.75).toFixed(2);
+  const translateY = ((50 - y) * 0.75).toFixed(2);
+  return `transform:translate3d(${translateX}%,${translateY}%,0) scale(${zoom});transform-origin:center center;`;
+}
+function wheelVisualizerUpdateCropPreview() {
+  const crop = state.wheelVisualizer?.crop;
+  if (!crop) return;
+  const image = document.querySelector('[data-wheel-crop-image]');
+  if (image) image.setAttribute('style', wheelVisualizerCropStyle(crop));
+  Object.entries(crop).forEach(([key, value]) => {
+    const input = document.querySelector(`[data-wheel-crop="${key}"]`);
+    if (input) input.value = value;
+    const output = document.querySelector(`[data-wheel-crop-output="${key}"]`);
+    if (output) output.textContent = key === 'zoom' ? `${Number(value).toFixed(2)}×` : `${value}%`;
+  });
 }
 function wheelVisualizerClose() {
   const current = state.wheelVisualizer;
@@ -328,7 +342,9 @@ async function createWheelVisualizerJob() {
   if (wheelVisualizerLocalHost()) {
     try { return await wheelVisualizerRemoteJob(request); }
     catch (error) {
-      if (error?.status === 404 || error?.status === 405 || error?.name === 'TypeError') return wheelVisualizerLocalJob(request);
+      const message = String(error?.message || '');
+      const localServiceUnavailable = /ECONNREFUSED|failed to fetch|network|service unavailable/i.test(message);
+      if (error?.status === 404 || error?.status === 405 || error?.status >= 500 || error?.name === 'TypeError' || localServiceUnavailable) return wheelVisualizerLocalJob(request);
       throw error;
     }
   }
@@ -653,7 +669,7 @@ function wheelVisualizerModal() {
   const stepRail = steps.map(([key, number, label], index) => `<div class="wheel-step ${index === stepIndex ? 'is-active' : ''} ${index < stepIndex ? 'is-done' : ''}"><span>${index < stepIndex ? '✓' : number}</span><strong>${label}</strong></div>`).join('');
   let content = '';
   if (phase === 'upload') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Start with one real photo</div><h3>Show us the car.<br><em>We will show you the stance.</em></h3><p class="wheel-content-lead">Use a clear exterior photo with at least one wheel visible. A front three-quarter or side view gives the best fitment reference.</p><label class="wheel-upload-zone" data-wheel-dropzone><input type="file" accept="image/jpeg,image/png,image/webp,image/heic" data-wheel-upload><span class="wheel-upload-icon">＋</span><strong>Drop your car photo here</strong><span>JPG, PNG, WEBP or HEIC · Up to 12 MB</span><span class="btn btn-dark btn-small">Choose a photo</span></label><div class="wheel-visualizer-privacy"><span>${icons.shield}</span><span>Your image is used only to create this preview. No payment or credits are required.</span></div></div>`;
-  if (phase === 'crop') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Frame the reference</div><h3>Keep the car visible.<br><em>Center the wheel area.</em></h3><p class="wheel-content-lead">Adjust the crop only if needed. We keep your selected ${esc(item.name)} and the vehicle details as separate references for the final render.</p><div class="wheel-crop-stage"><img data-wheel-crop-image src="${esc(current.vehicleUrl)}" alt="${esc(current.vehicleName || 'Uploaded vehicle photo')}" style="${wheelVisualizerCropStyle(current.crop)}"><div class="wheel-crop-guide"><span>Keep one wheel in this frame</span></div></div><div class="wheel-crop-controls"><label><span>Zoom</span><input type="range" min="1" max="1.6" step="0.01" value="${current.crop.zoom}" data-wheel-crop="zoom"><output data-wheel-crop-output="zoom">${Number(current.crop.zoom).toFixed(2)}×</output></label><label><span>Horizontal</span><input type="range" min="0" max="100" step="1" value="${current.crop.x}" data-wheel-crop="x"><output data-wheel-crop-output="x">${current.crop.x}%</output></label><label><span>Vertical</span><input type="range" min="0" max="100" step="1" value="${current.crop.y}" data-wheel-crop="y"><output data-wheel-crop-output="y">${current.crop.y}%</output></label></div><div class="wheel-crop-actions"><button class="btn btn-outline btn-small" data-action="wheel-crop-reset">Reset frame</button><button class="btn btn-primary" data-action="wheel-generate">Generate 3 angles <span aria-hidden="true">↗</span></button></div></div>`;
+  if (phase === 'crop') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Frame the reference</div><h3>Keep the whole car.<br><em>Adjust only if needed.</em></h3><p class="wheel-content-lead">Upload the photo as-is. The full image stays available, even when the car sits low in a portrait frame. Drag the image or use the controls below; a wheel only needs to be visible, not centered in a box.</p><div class="wheel-crop-stage" data-wheel-crop-stage><img data-wheel-crop-image src="${esc(current.vehicleUrl)}" alt="${esc(current.vehicleName || 'Uploaded vehicle photo')}" draggable="false" style="${wheelVisualizerCropStyle(current.crop)}"><div class="wheel-crop-guide"><span>Full photo retained · drag to frame</span></div></div><div class="wheel-crop-live-note"><strong>Live framing</strong><span>Changes update the image above.</span></div><div class="wheel-crop-controls"><label><span>Zoom</span><input type="range" min="1" max="1.6" step="0.01" value="${current.crop.zoom}" data-wheel-crop="zoom"><output data-wheel-crop-output="zoom">${Number(current.crop.zoom).toFixed(2)}×</output></label><label><span>Horizontal position</span><input type="range" min="0" max="100" step="1" value="${current.crop.x}" data-wheel-crop="x"><output data-wheel-crop-output="x">${current.crop.x}%</output></label><label><span>Vertical position</span><input type="range" min="0" max="100" step="1" value="${current.crop.y}" data-wheel-crop="y"><output data-wheel-crop-output="y">${current.crop.y}%</output></label></div><div class="wheel-crop-actions"><button class="btn btn-outline btn-small" data-action="wheel-crop-reset">Reset frame</button><button class="btn btn-primary" data-action="wheel-generate">Generate 3 angles <span aria-hidden="true">↗</span></button></div></div>`;
   if (phase === 'generating') content = `<div class="wheel-visualizer-content wheel-generating-content" aria-live="polite"><div class="wheel-generating-orbit"><div class="wheel-generating-wheel"><img src="${ASSET + item.image}" alt="${esc(item.name)}"></div><span></span><span></span><span></span></div><div class="wheel-content-kicker">F-Box visual studio</div><h3>Matching wheel to vehicle<br><em>and checking the stance.</em></h3><p class="wheel-content-lead">We are holding the wheel design, finish, proportions and vehicle perspective together while preparing three views.</p><div class="wheel-progress"><span></span></div><div class="wheel-generating-meta"><span>Fitment reference locked</span><span>3 angles requested</span><span>Officially included</span></div></div>`;
   if (phase === 'results') content = `<div class="wheel-visualizer-content wheel-results-content"><div class="wheel-results-head"><div><div class="wheel-content-kicker">Your preview set</div><h3>See the wheel<br><em>in its natural stance.</em></h3></div><div class="wheel-results-count"><strong>03</strong><span>angles</span></div></div><p class="wheel-content-lead">These views use ${esc(item.name)} in ${esc(item.finish)} as the wheel reference. Keep the final fitment check with the F-Box team before production.</p><div class="wheel-results-grid">${current.results.map((result, index) => wheelVisualizerResultCard(result, index, item, current.mode)).join('')}</div>${current.mode === 'local-preview' ? '<div class="wheel-local-note"><strong>Local preview mode</strong><span>The BoxClaw image endpoint is not connected on this local static server yet. The interaction and request payload are ready; connect the server adapter to replace these layout previews with generated images.</span></div>' : ''}<div class="wheel-results-actions"><button class="btn btn-outline" data-action="wheel-reset">Try another photo</button><button class="btn btn-primary" data-action="wheel-close">Keep this wheel <span aria-hidden="true">↗</span></button></div></div>`;
   if (phase === 'error') content = `<div class="wheel-visualizer-content wheel-error-content" role="alert"><div class="wheel-error-mark">!</div><div class="wheel-content-kicker">Preview not ready</div><h3>We could not finish<br><em>this set of angles.</em></h3><p class="wheel-content-lead">${esc(current.error || 'Please check the image and try again.')}</p><div class="wheel-error-actions"><button class="btn btn-outline" data-action="wheel-reset">Choose another photo</button><button class="btn btn-primary" data-action="wheel-retry">Retry preview</button></div></div>`;
@@ -914,15 +930,35 @@ document.addEventListener('change', event => {
     render();
   }
 });
+let wheelCropDrag = null;
+document.addEventListener('pointerdown', event => {
+  const stage = event.target.closest('[data-wheel-crop-stage]');
+  if (!stage || !state.wheelVisualizer?.vehicleUrl) return;
+  wheelCropDrag = { stage, startX: event.clientX, startY: event.clientY, x: Number(state.wheelVisualizer.crop.x), y: Number(state.wheelVisualizer.crop.y) };
+  stage.classList.add('is-dragging');
+  stage.setPointerCapture?.(event.pointerId);
+});
+document.addEventListener('pointermove', event => {
+  if (!wheelCropDrag) return;
+  const rect = wheelCropDrag.stage.getBoundingClientRect();
+  const nextX = wheelCropDrag.x - ((event.clientX - wheelCropDrag.startX) / rect.width) * 100;
+  const nextY = wheelCropDrag.y - ((event.clientY - wheelCropDrag.startY) / rect.height) * 100;
+  state.wheelVisualizer.crop.x = Math.min(100, Math.max(0, Math.round(nextX)));
+  state.wheelVisualizer.crop.y = Math.min(100, Math.max(0, Math.round(nextY)));
+  wheelVisualizerUpdateCropPreview();
+});
+function endWheelCropDrag() {
+  wheelCropDrag?.stage.classList.remove('is-dragging');
+  wheelCropDrag = null;
+}
+document.addEventListener('pointerup', endWheelCropDrag);
+document.addEventListener('pointercancel', endWheelCropDrag);
 document.addEventListener('input', event => {
   const el = event.target;
   if (!el.matches('[data-wheel-crop]')) return;
   const key = el.dataset.wheelCrop;
   state.wheelVisualizer.crop[key] = Number(el.value);
-  const image = document.querySelector('[data-wheel-crop-image]');
-  if (image) image.setAttribute('style', wheelVisualizerCropStyle(state.wheelVisualizer.crop));
-  const output = document.querySelector(`[data-wheel-crop-output="${key}"]`);
-  if (output) output.textContent = key === 'zoom' ? `${Number(el.value).toFixed(2)}×` : `${el.value}%`;
+  wheelVisualizerUpdateCropPreview();
 });
 document.addEventListener('dragover', event => {
   if (event.target.closest('[data-wheel-dropzone]')) event.preventDefault();
