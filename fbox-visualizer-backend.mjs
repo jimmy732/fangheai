@@ -1008,7 +1008,7 @@ export async function handleFBoxStoreApi(req, res, url) {
   if (req.method === 'GET' && pathName === '/api/fbox-store/products') {
     const query = textValue(url.searchParams.get('q'), 120).toLowerCase();
     const category = textValue(url.searchParams.get('category'), 80);
-    const products = sortProductsForDisplay(data.products.filter(item => item.status === 'published' && (!category || item.category === category) && (!query || [item.name, item.brand, item.part, item.meta].some(value => String(value || '').toLowerCase().includes(query))))).map(publicProduct);
+    const products = sortProductsForDisplay(data.products.filter(item => item.status === 'published' && (!category || item.category === category) && (!query || [item.name, item.brand, item.part, item.meta].some(value => String(value || '').toLowerCase().includes(query)))));
     return json(res, 200, { code: 200, data: products, meta: { total: products.length } });
   }
 
