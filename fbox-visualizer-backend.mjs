@@ -347,6 +347,32 @@ function normalizeProductImages(value, legacyImage = '') {
   return images;
 }
 
+function publicProductImageUrl(value = '') {
+  const source = String(value || '').trim();
+  if (!source) return '';
+  if (/^(?:https?:|data:|\/)/i.test(source)) return source;
+  if (/^(?:\.\.\/)+api\//i.test(source)) return `/${source.replace(/^(?:\.\.\/)+/i, '')}`;
+  if (/^\.\/api\//i.test(source)) return `/${source.replace(/^\.\//i, '')}`;
+  if (/^\.?\/?assets\//i.test(source)) return `/${source.replace(/^\.\//i, '').replace(/^\/?/i, '')}`;
+  return `/assets/${source.replace(/^\/+/, '')}`;
+}
+
+function publicProduct(record = {}) {
+  const images = Array.isArray(record.images)
+    ? record.images.map(image => ({
+      ...image,
+      url: publicProductImageUrl(image?.url || image?.image),
+      original_url: publicProductImageUrl(image?.original_url || image?.originalUrl)
+    }))
+    : record.images;
+  return {
+    ...record,
+    image: publicProductImageUrl(record.image),
+    image_original: publicProductImageUrl(record.image_original),
+    ...(Array.isArray(record.images) ? { images } : {})
+  };
+}
+
 function normalizeProductPayload(payload = {}, existing = {}) {
   const legacyImage = textValue(hasOwn(payload, 'image') ? payload.image : existing.image, 800);
   const images = normalizeProductImages(hasOwn(payload, 'images') ? payload.images : existing.images, legacyImage);
@@ -982,7 +1008,7 @@ export async function handleFBoxStoreApi(req, res, url) {
   if (req.method === 'GET' && pathName === '/api/fbox-store/products') {
     const query = textValue(url.searchParams.get('q'), 120).toLowerCase();
     const category = textValue(url.searchParams.get('category'), 80);
-    const products = sortProductsForDisplay(data.products.filter(item => item.status === 'published' && (!category || item.category === category) && (!query || [item.name, item.brand, item.part, item.meta].some(value => String(value || '').toLowerCase().includes(query)))));
+    const products = sortProductsForDisplay(data.products.filter(item => item.status === 'published' && (!category || item.category === category) && (!query || [item.name, item.brand, item.part, item.meta].some(value => String(value || '').toLowerCase().includes(query))))).map(publicProduct);
     return json(res, 200, { code: 200, data: products, meta: { total: products.length } });
   }
 
@@ -1583,7 +1609,7 @@ export async function handleFBoxOperationsApi(req, res, url) {
   if (req.method === 'GET' && pathName === '/api/fbox-ops/products') {
     const q = textValue(url.searchParams.get('q'), 120).toLowerCase();
     const category = textValue(url.searchParams.get('category'), 80);
-    const products = sortProductsForDisplay(store.products.filter(item => (!category || item.category === category) && (!q || [item.id, item.name, item.brand, item.part].some(value => String(value || '').toLowerCase().includes(q)))));
+    const products = sortProductsForDisplay(store.products.filter(item => (!category || item.category === category) && (!q || [item.id, item.name, item.brand, item.part].some(value => String(value || '').toLowerCase().includes(q))))).map(publicProduct);
     return json(res, 200, { data: products, meta: { total: products.length } });
   }
   if (req.method === 'POST' && pathName === '/api/fbox-ops/products') {
@@ -1597,7 +1623,7 @@ export async function handleFBoxOperationsApi(req, res, url) {
       if (index >= 0) store.products[index] = { ...store.products[index], ...product };
       else store.products.push({ ...product, created_at: new Date().toISOString() });
       await saveStore(store);
-      return json(res, 200, { data: store.products.find(item => item.id === id) });
+      return json(res, 200, { data: publicProduct(store.products.find(item => item.id === id)) });
     } catch (error) { return json(res, error.status || 422, { detail: error.message || '商品保存失败。' }); }
   }
   const storeProductMatch = pathName.match(/^\/api\/fbox-ops\/products\/([^/]+)$/);
@@ -1608,7 +1634,7 @@ export async function handleFBoxOperationsApi(req, res, url) {
       const payload = await readJson(req, 128 * 1024);
       store.products[index] = { ...normalizeProductPayload(payload, store.products[index]), id: store.products[index].id };
       await saveStore(store);
-      return json(res, 200, { data: store.products[index] });
+      return json(res, 200, { data: publicProduct(store.products[index]) });
     } catch (error) { return json(res, error.status || 422, { detail: error.message || '商品更新失败。' }); }
   }
   if (req.method === 'GET' && pathName === '/api/fbox-ops/orders') {
