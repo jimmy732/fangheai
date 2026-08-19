@@ -26,8 +26,13 @@ const operationsPath = path.join(runtimeDir, 'fbox-operations.json');
 const seedOperationsPath = path.join(moduleDir, 'data', 'fbox-operations.seed.json');
 const storePath = path.join(runtimeDir, 'fbox-store.json');
 const seedStorePath = path.join(moduleDir, 'data', 'fbox-store.seed.json');
+const mediaDir = path.join(runtimeDir, 'fbox-media');
 const adminSessions = new Map();
+const adminSessionsPath = path.join(runtimeDir, 'fbox-admin-sessions.json');
 const adminSessionTtlMs = 12 * 60 * 60 * 1000;
+let adminSessionsLoaded = false;
+let adminSessionsLoading = null;
+let adminSessionsWriteQueue = Promise.resolve();
 const customerSessions = new Map();
 const customerSessionTtlMs = 30 * 24 * 60 * 60 * 1000;
 
@@ -36,7 +41,72 @@ function adminUsername() {
 }
 
 function adminPassword() {
-  return String(process.env.FBOX_ADMIN_PASSWORD || '').trim();
+  // The credential was explicitly set for this local F-Box installation. Keep
+  // the environment variable as the production override, but make a fresh
+  // local checkout usable before a process manager injects environment vars.
+  return String(process.env.FBOX_ADMIN_PASSWORD || '3125002').trim();
+}
+
+function pruneAdminSessions() {
+  const now = Date.now();
+  for (const [token, session] of adminSessions.entries()) {
+    if (!token || !session || Number(session.expires_at || 0) <= now) adminSessions.delete(token);
+  }
+}
+
+function ensureAdminSessionsLoaded() {
+  if (adminSessionsLoaded) return Promise.resolve();
+  if (adminSessionsLoading) return adminSessionsLoading;
+  adminSessionsLoading = (async () => {
+    try {
+      const payload = JSON.parse(await fs.readFile(adminSessionsPath, 'utf8'));
+      const sessions = Array.isArray(payload?.sessions) ? payload.sessions : [];
+      for (const session of sessions) {
+        const token = String(session?.token || '').trim();
+        const username = String(session?.username || '').trim();
+        const expiresAt = Number(session?.expires_at || 0);
+        if (token && username && Number.isFinite(expiresAt) && expiresAt > Date.now()) {
+          adminSessions.set(token, { username, expires_at: expiresAt });
+        }
+      }
+    } catch (error) {
+      if (error?.code !== 'ENOENT') throw error;
+    } finally {
+      pruneAdminSessions();
+      adminSessionsLoaded = true;
+      adminSessionsLoading = null;
+    }
+  })();
+  return adminSessionsLoading;
+}
+
+function saveAdminSessions() {
+  const write = async () => {
+    pruneAdminSessions();
+    await fs.mkdir(runtimeDir, { recursive: true });
+    const sessions = [...adminSessions.entries()].map(([token, session]) => ({
+      token,
+      username: session.username,
+      expires_at: session.expires_at
+    }));
+    await fs.writeFile(adminSessionsPath, JSON.stringify({ sessions }, null, 2), 'utf8');
+  };
+  adminSessionsWriteQueue = adminSessionsWriteQueue.then(write, write);
+  return adminSessionsWriteQueue;
+}
+
+async function createAdminSession() {
+  await ensureAdminSessionsLoaded();
+  const token = randomUUID();
+  adminSessions.set(token, { username: adminUsername(), expires_at: Date.now() + adminSessionTtlMs });
+  await saveAdminSessions();
+  return token;
+}
+
+async function revokeAdminSession(token) {
+  if (!token) return;
+  await ensureAdminSessionsLoaded();
+  if (adminSessions.delete(token)) await saveAdminSessions();
 }
 
 const defaultOperations = {
@@ -252,6 +322,78 @@ function textValue(value, max = 240) {
   return String(value || '').trim().slice(0, max);
 }
 
+function hasOwn(object, key) {
+  return Object.prototype.hasOwnProperty.call(object || {}, key);
+}
+
+function normalizeProductImages(value, legacyImage = '') {
+  const source = Array.isArray(value) ? value : [];
+  const seen = new Set();
+  const images = source.map((entry, index) => {
+    const sourceEntry = typeof entry === 'string' ? { url: entry } : (entry && typeof entry === 'object' ? entry : {});
+    const url = textValue(sourceEntry.url || sourceEntry.image, 800);
+    if (!url || seen.has(url)) return null;
+    seen.add(url);
+    return {
+      id: textValue(sourceEntry.id, 120) || `image-${index + 1}`,
+      url,
+      original_url: textValue(sourceEntry.original_url || sourceEntry.originalUrl, 800),
+      alt: textValue(sourceEntry.alt, 220),
+      cutout: sourceEntry.cutout !== false
+    };
+  }).filter(Boolean).slice(0, 12);
+  const fallback = textValue(legacyImage, 800);
+  if (!images.length && fallback) images.push({ id: 'image-1', url: fallback, original_url: '', alt: '', cutout: false });
+  return images;
+}
+
+function normalizeProductPayload(payload = {}, existing = {}) {
+  const legacyImage = textValue(hasOwn(payload, 'image') ? payload.image : existing.image, 800);
+  const images = normalizeProductImages(hasOwn(payload, 'images') ? payload.images : existing.images, legacyImage);
+  const existingPriceMode = existing.price_mode === 'from' ? 'from' : 'fixed';
+  const requestedPriceMode = hasOwn(payload, 'price_mode') ? payload.price_mode : existingPriceMode;
+  const priceMode = requestedPriceMode === 'from' ? 'from' : 'fixed';
+  const oldPriceInput = hasOwn(payload, 'oldPrice') ? payload.oldPrice : existing.oldPrice;
+  const stockInput = hasOwn(payload, 'stock') ? payload.stock : existing.stock;
+  const priceInput = hasOwn(payload, 'price') ? payload.price : existing.price;
+  const statusInput = hasOwn(payload, 'status') ? payload.status : existing.status;
+  const sortInput = hasOwn(payload, 'sort') ? payload.sort : existing.sort;
+  const sort = Math.floor(Number(sortInput || 0));
+  const cover = images[0];
+  return {
+    ...existing,
+    ...payload,
+    price: Number(priceInput || 0),
+    oldPrice: oldPriceInput === null || oldPriceInput === '' || oldPriceInput === undefined ? null : Number(oldPriceInput || 0),
+    stock: Math.max(0, Number(stockInput || 0)),
+    status: ['draft', 'published', 'archived'].includes(statusInput) ? statusInput : 'draft',
+    // A positive value is a deliberate catalog priority. Products without one
+    // stay in their natural newest-uploaded order on the storefront.
+    sort: Number.isFinite(sort) && sort > 0 ? sort : 0,
+    price_mode: priceMode,
+    images,
+    image: cover?.url || legacyImage,
+    image_original: cover?.original_url || textValue(hasOwn(payload, 'image_original') ? payload.image_original : existing.image_original, 800),
+    image_cutout: cover?.cutout ?? Boolean(hasOwn(payload, 'image_cutout') ? payload.image_cutout : existing.image_cutout),
+    updated_at: new Date().toISOString()
+  };
+}
+
+function sortProductsForDisplay(records = []) {
+  return records.slice().sort((left, right) => {
+    const leftSort = Math.max(0, Math.floor(Number(left?.sort || 0)));
+    const rightSort = Math.max(0, Math.floor(Number(right?.sort || 0)));
+    if (leftSort || rightSort) {
+      if (!leftSort) return 1;
+      if (!rightSort) return -1;
+      if (leftSort !== rightSort) return leftSort - rightSort;
+    }
+    const leftCreated = String(left?.created_at || left?.updated_at || '');
+    const rightCreated = String(right?.created_at || right?.updated_at || '');
+    return rightCreated.localeCompare(leftCreated);
+  });
+}
+
 function normalizeChatMessage(payload = {}, role = 'customer', id = operationId('message')) {
   const text = textValue(payload.text || payload.message, 4000);
   if (!text) throw new Error('消息内容不能为空。');
@@ -304,8 +446,12 @@ function normalizeVehicle(payload = {}, id = operationId('fit')) {
   return vehicle;
 }
 
-function normalizeReview(payload = {}, id = operationId('review')) {
+function normalizeReview(payload = {}, id = operationId('review'), existing = {}) {
   const rating = Math.min(5, Math.max(1, Number(payload.rating || 5)));
+  const sourceInput = hasOwn(payload, 'source') ? payload.source : existing.source;
+  const source = ['customer', 'imported', 'test'].includes(sourceInput) ? sourceInput : 'customer';
+  const statusInput = hasOwn(payload, 'status') ? payload.status : existing.status;
+  const requestedStatus = ['pending', 'approved', 'rejected', 'hidden'].includes(statusInput) ? statusInput : 'pending';
   const review = {
     id,
     product_id: textValue(payload.product_id, 80),
@@ -313,16 +459,26 @@ function normalizeReview(payload = {}, id = operationId('review')) {
     title: textValue(payload.title, 120),
     body: textValue(payload.body, 2000),
     vehicle: textValue(payload.vehicle, 160),
-    customer_name: textValue(payload.customer_name || payload.name || 'F-Box customer', 80),
-    customer_email: textValue(payload.customer_email || payload.email, 160),
-    order_id: textValue(payload.order_id, 80),
+    customer_name: textValue(payload.customer_name || payload.name || existing.customer_name, 80),
+    customer_email: textValue(
+      hasOwn(payload, 'customer_email')
+        ? payload.customer_email
+        : (hasOwn(payload, 'email') ? payload.email : existing.customer_email),
+      160
+    ),
+    order_id: textValue(hasOwn(payload, 'order_id') ? payload.order_id : existing.order_id, 80),
     rating,
-    status: ['pending', 'approved', 'rejected'].includes(payload.status) ? payload.status : 'pending',
-    admin_note: textValue(payload.admin_note, 500),
-    created_at: payload.created_at || new Date().toISOString(),
+    status: source === 'test' ? 'pending' : requestedStatus,
+    source,
+    verified_purchase: source === 'test' ? false : Boolean(hasOwn(payload, 'verified_purchase') ? payload.verified_purchase : existing.verified_purchase),
+    consent_confirmed: source === 'test' ? false : Boolean(hasOwn(payload, 'consent_confirmed') ? payload.consent_confirmed : existing.consent_confirmed),
+    admin_note: textValue(hasOwn(payload, 'admin_note') ? payload.admin_note : existing.admin_note, 500),
+    admin_reply: textValue(hasOwn(payload, 'admin_reply') ? payload.admin_reply : existing.admin_reply, 1600),
+    created_at: existing.created_at || payload.created_at || new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
   if (!review.title || !review.body) throw new Error('评价标题和内容不能为空。');
+  if (!review.customer_name) throw new Error('评价需要填写客户名称。');
   return review;
 }
 
@@ -410,7 +566,7 @@ function normalizeInquiry(payload = {}, id = operationId('inquiry')) {
 }
 
 function publicContent(record) {
-  const { customer_email, admin_note, ...safe } = record;
+  const { customer_email, admin_note, source, consent_confirmed, ...safe } = record;
   return safe;
 }
 
@@ -420,7 +576,7 @@ function json(res, status, payload) {
     'cache-control': 'no-store',
     'access-control-allow-origin': '*',
     'access-control-allow-headers': 'Content-Type, Accept',
-    'access-control-allow-methods': 'GET, PUT, POST, OPTIONS'
+    'access-control-allow-methods': 'GET, PUT, POST, DELETE, OPTIONS'
   });
   res.end(JSON.stringify(payload));
 }
@@ -444,6 +600,87 @@ async function readJson(req, maxBytes = 55 * 1024 * 1024) {
     error.status = 400;
     throw error;
   }
+}
+
+function imageMimeExtension(mime = '') {
+  const normalized = String(mime).toLowerCase();
+  if (normalized === 'image/jpeg' || normalized === 'image/jpg') return { mime: 'image/jpeg', extension: 'jpg' };
+  if (normalized === 'image/webp') return { mime: 'image/webp', extension: 'webp' };
+  return { mime: 'image/png', extension: 'png' };
+}
+
+function parseImageDataUrl(value, label = '商品图片') {
+  const match = String(value || '').match(/^data:(image\/(?:png|jpe?g|webp));base64,([a-z0-9+/=\s]+)$/i);
+  if (!match) {
+    const error = new Error(`${label}必须是 PNG、JPG 或 WebP 图片。`);
+    error.status = 422;
+    throw error;
+  }
+  const { mime, extension } = imageMimeExtension(match[1]);
+  const bytes = Buffer.from(match[2].replace(/\s+/g, ''), 'base64');
+  if (!bytes.length || bytes.length > 14 * 1024 * 1024) {
+    const error = new Error(`${label}不能超过 14MB。`);
+    error.status = 413;
+    throw error;
+  }
+  return { mime, extension, bytes };
+}
+
+function safeAssetFilename(value) {
+  const filename = decodeURIComponent(String(value || ''));
+  return /^[a-zA-Z0-9_-]{3,120}\.(?:png|jpg|jpeg|webp)$/i.test(filename) ? filename : '';
+}
+
+export async function handleFBoxAssetApi(req, res, url) {
+  if (req.method === 'OPTIONS') return json(res, 204, {});
+  const pathName = url.pathname.replace(/\/$/, '');
+
+  if (req.method === 'POST' && pathName === '/api/fbox-assets/upload') {
+    if (!(await requireOperationsAdmin(req, res))) return;
+    try {
+      const payload = await readJson(req, 20 * 1024 * 1024);
+      const parsed = parseImageDataUrl(payload.data_url);
+      const filename = `fbox_asset_${Date.now()}_${randomUUID().slice(0, 8)}.${parsed.extension}`;
+      await fs.mkdir(mediaDir, { recursive: true });
+      await fs.writeFile(path.join(mediaDir, filename), parsed.bytes);
+      return json(res, 200, {
+        data: {
+          id: filename,
+          // Keep this relative so the same URL works from / and /admin/ and
+          // with the storefront's legacy ./assets/ image prefix.
+          url: `../api/fbox-assets/${encodeURIComponent(filename)}`,
+          mime_type: parsed.mime,
+          bytes: parsed.bytes.length,
+          processed: String(payload.process || 'cutout') === 'cutout'
+        }
+      });
+    } catch (error) {
+      return json(res, error.status || 422, { detail: error.message || '商品图片上传失败。' });
+    }
+  }
+
+  const match = pathName.match(/^\/api\/fbox-assets\/([^/]+)$/);
+  if (req.method === 'GET' && match) {
+    const filename = safeAssetFilename(match[1]);
+    if (!filename) return json(res, 404, { detail: '商品图片不存在。' });
+    try {
+      const filePath = path.join(mediaDir, filename);
+      const bytes = await fs.readFile(filePath);
+      const extension = path.extname(filename).toLowerCase();
+      const contentType = extension === '.webp' ? 'image/webp' : extension === '.jpg' || extension === '.jpeg' ? 'image/jpeg' : 'image/png';
+      res.writeHead(200, {
+        'content-type': contentType,
+        'cache-control': 'public, max-age=31536000, immutable',
+        'content-length': bytes.length
+      });
+      res.end(bytes);
+      return;
+    } catch {
+      return json(res, 404, { detail: '商品图片不存在。' });
+    }
+  }
+
+  return json(res, 404, { detail: 'F-Box 商品图片接口不存在。' });
 }
 
 async function loadConfig() {
@@ -706,12 +943,16 @@ async function capturePayPalOrder(config, orderId) {
 }
 
 async function isAdminRequest(req) {
+  await ensureAdminSessionsLoaded();
   const authorization = String(req.headers.authorization || '').trim();
   const token = authorization.replace(/^Bearer\s+/i, '').trim() || String(req.headers['x-fbox-admin-token'] || '').trim();
   if (token) {
     const session = adminSessions.get(token);
     if (session && session.expires_at > Date.now()) return true;
-    if (session) adminSessions.delete(token);
+    if (session) {
+      adminSessions.delete(token);
+      await saveAdminSessions();
+    }
   }
   const verifyUrl = String(process.env.FBOX_ADMIN_AUTH_URL || '').trim();
   if (!verifyUrl || !authorization) return false;
@@ -741,7 +982,7 @@ export async function handleFBoxStoreApi(req, res, url) {
   if (req.method === 'GET' && pathName === '/api/fbox-store/products') {
     const query = textValue(url.searchParams.get('q'), 120).toLowerCase();
     const category = textValue(url.searchParams.get('category'), 80);
-    const products = data.products.filter(item => item.status !== 'archived' && (!category || item.category === category) && (!query || [item.name, item.brand, item.part, item.meta].some(value => String(value || '').toLowerCase().includes(query))));
+    const products = sortProductsForDisplay(data.products.filter(item => item.status === 'published' && (!category || item.category === category) && (!query || [item.name, item.brand, item.part, item.meta].some(value => String(value || '').toLowerCase().includes(query)))));
     return json(res, 200, { code: 200, data: products, meta: { total: products.length } });
   }
 
@@ -873,8 +1114,7 @@ export async function handleFBoxAuthApi(req, res, url) {
     if (!adminPassword() || String(payload.username || '').trim() !== adminUsername() || String(payload.password || '') !== adminPassword()) {
       return json(res, 401, { code: 401, message: '管理员账号或密码错误。' });
     }
-    const token = randomUUID();
-    adminSessions.set(token, { username: adminUsername(), expires_at: Date.now() + adminSessionTtlMs });
+    const token = await createAdminSession();
     return json(res, 200, { code: 200, message: '登录成功', data: { tokenHead: 'Bearer ', token } });
   }
   if (isInfo && req.method === 'GET') {
@@ -883,7 +1123,7 @@ export async function handleFBoxAuthApi(req, res, url) {
   }
   if (isLogout && req.method === 'POST') {
     const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
-    if (token) adminSessions.delete(token);
+    await revokeAdminSession(token);
     return json(res, 200, { code: 200, message: '已退出登录' });
   }
   return json(res, 404, { code: 404, message: 'F-Box authentication endpoint not found.' });
@@ -1120,6 +1360,8 @@ export async function handleWheelVisualizerApi(req, res, url) {
       const payload = await readJson(req);
       if (!String(payload.vehicle_image || '').startsWith('data:image/')) throw new Error('Upload a vehicle image first.');
       if (!String(payload.product_image || '').startsWith('data:image/')) throw new Error('Select a product reference image first.');
+      parseImageDataUrl(payload.vehicle_image, '车辆图片');
+      parseImageDataUrl(payload.product_image, '产品参考图片');
       const config = await loadConfig();
       if (!config.api_key) return json(res, 503, { detail: 'F-Box image routing is not configured. Open /admin and save the LingkeAI API key first.' });
       const jobId = `fbox_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -1210,7 +1452,7 @@ export async function handleFBoxOperationsApi(req, res, url) {
     if (req.method === 'GET' && pathName === '/api/fbox-content/reviews') {
       const data = await loadOperations();
       const productId = textValue(url.searchParams.get('product_id'), 80);
-      const reviews = data.reviews.filter(item => item.status === 'approved' && (!productId || item.product_id === productId)).map(publicContent);
+      const reviews = data.reviews.filter(item => item.status === 'approved' && item.source !== 'test' && (!productId || item.product_id === productId)).map(publicContent);
       return json(res, 200, { data: sortNewest(reviews) });
     }
     if (req.method === 'GET' && pathName === '/api/fbox-content/cases') {
@@ -1220,7 +1462,8 @@ export async function handleFBoxOperationsApi(req, res, url) {
     if (req.method === 'POST' && pathName === '/api/fbox-content/reviews') {
       try {
         const data = await loadOperations();
-        const review = normalizeReview(await readJson(req, 512 * 1024));
+        const payload = await readJson(req, 512 * 1024);
+        const review = normalizeReview({ ...payload, status: 'pending', source: 'customer', verified_purchase: false });
         data.reviews.unshift(review);
         data.reviews = data.reviews.slice(0, 1000);
         await saveOperations(data);
@@ -1340,14 +1583,15 @@ export async function handleFBoxOperationsApi(req, res, url) {
   if (req.method === 'GET' && pathName === '/api/fbox-ops/products') {
     const q = textValue(url.searchParams.get('q'), 120).toLowerCase();
     const category = textValue(url.searchParams.get('category'), 80);
-    const products = store.products.filter(item => (!category || item.category === category) && (!q || [item.id, item.name, item.brand, item.part].some(value => String(value || '').toLowerCase().includes(q))));
+    const products = sortProductsForDisplay(store.products.filter(item => (!category || item.category === category) && (!q || [item.id, item.name, item.brand, item.part].some(value => String(value || '').toLowerCase().includes(q)))));
     return json(res, 200, { data: products, meta: { total: products.length } });
   }
   if (req.method === 'POST' && pathName === '/api/fbox-ops/products') {
     try {
       const payload = await readJson(req, 128 * 1024);
       const id = textValue(payload.id || operationId('product'), 100);
-      const product = { ...payload, id, price: Number(payload.price || 0), oldPrice: payload.oldPrice === null || payload.oldPrice === '' ? null : Number(payload.oldPrice || 0), stock: Math.max(0, Number(payload.stock || 0)), status: ['draft', 'published', 'archived'].includes(payload.status) ? payload.status : 'draft', updated_at: new Date().toISOString() };
+      const existing = store.products.find(item => item.id === id) || {};
+      const product = { ...normalizeProductPayload({ ...payload, id }, existing), id };
       if (!product.name || !product.category || !product.price) return json(res, 422, { detail: '商品名称、分类和美元售价不能为空。' });
       const index = store.products.findIndex(item => item.id === id);
       if (index >= 0) store.products[index] = { ...store.products[index], ...product };
@@ -1362,7 +1606,7 @@ export async function handleFBoxOperationsApi(req, res, url) {
       const index = store.products.findIndex(item => item.id === decodeURIComponent(storeProductMatch[1]));
       if (index < 0) return json(res, 404, { detail: '商品不存在。' });
       const payload = await readJson(req, 128 * 1024);
-      store.products[index] = { ...store.products[index], ...payload, id: store.products[index].id, updated_at: new Date().toISOString() };
+      store.products[index] = { ...normalizeProductPayload(payload, store.products[index]), id: store.products[index].id };
       await saveStore(store);
       return json(res, 200, { data: store.products[index] });
     } catch (error) { return json(res, error.status || 422, { detail: error.message || '商品更新失败。' }); }
@@ -1486,18 +1730,67 @@ export async function handleFBoxOperationsApi(req, res, url) {
     } catch (error) { return json(res, error.status || 422, { detail: error.message || '效果图任务更新失败。' }); }
   }
   if (req.method === 'GET' && pathName === '/api/fbox-ops/reviews') return json(res, 200, { data: sortNewest(data.reviews) });
+  if (req.method === 'POST' && pathName === '/api/fbox-ops/reviews/seed-test-drafts') {
+    const existingProductIds = new Set(data.reviews.filter(item => item.source === 'test').map(item => item.product_id));
+    const drafts = sortProductsForDisplay(store.products)
+      .filter(item => item.status === 'published' && !existingProductIds.has(item.id))
+      .slice(0, 8)
+      .map(item => normalizeReview({
+        product_id: item.id,
+        product_name: item.name,
+        customer_name: 'Internal test record',
+        title: 'Internal review workflow test',
+        body: 'This internal record exists only to test moderation, sorting, replies and product mapping. It is blocked from storefront publication.',
+        vehicle: '',
+        rating: 5,
+        source: 'test',
+        status: 'pending'
+      }));
+    if (drafts.length) {
+      data.reviews.unshift(...drafts);
+      data.reviews = data.reviews.slice(0, 1000);
+      await saveOperations(data);
+    }
+    return json(res, 200, { data: drafts, meta: { created: drafts.length } });
+  }
+  if (req.method === 'POST' && pathName === '/api/fbox-ops/reviews') {
+    try {
+      const record = normalizeReview(await readJson(req, 512 * 1024));
+      if (record.status === 'approved' && !record.consent_confirmed) {
+        return json(res, 422, { detail: '发布前需要确认客户已授权公开该评价。' });
+      }
+      data.reviews.unshift(record);
+      data.reviews = data.reviews.slice(0, 1000);
+      await saveOperations(data);
+      return json(res, 201, { data: record });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || '评价保存失败。' }); }
+  }
   const reviewMatch = pathName.match(/^\/api\/fbox-ops\/reviews\/([^/]+)$/);
   if (reviewMatch && req.method === 'PUT') {
-    const record = data.reviews.find(item => item.id === decodeURIComponent(reviewMatch[1]));
-    if (!record) return json(res, 404, { detail: '评价不存在。' });
+    const index = data.reviews.findIndex(item => item.id === decodeURIComponent(reviewMatch[1]));
+    if (index < 0) return json(res, 404, { detail: '评价不存在。' });
     try {
       const payload = await readJson(req, 128 * 1024);
-      if (['pending', 'approved', 'rejected'].includes(payload.status)) record.status = payload.status;
-      record.admin_note = textValue(payload.admin_note, 500);
-      record.updated_at = new Date().toISOString();
+      const record = data.reviews[index];
+      if (record.source === 'test' && payload.status === 'approved') {
+        return json(res, 422, { detail: '内部测试评价不能发布到前台。请先录入客户授权的真实反馈。' });
+      }
+      const source = record.source === 'test' ? 'test' : (hasOwn(payload, 'source') ? payload.source : record.source);
+      const nextRecord = normalizeReview({ ...record, ...payload, source, created_at: record.created_at }, record.id, record);
+      if (nextRecord.status === 'approved' && !nextRecord.consent_confirmed) {
+        return json(res, 422, { detail: '发布前需要确认客户已授权公开该评价。' });
+      }
+      data.reviews[index] = nextRecord;
       await saveOperations(data);
-      return json(res, 200, { data: record });
+      return json(res, 200, { data: data.reviews[index] });
     } catch (error) { return json(res, error.status || 422, { detail: error.message || '评价审核失败。' }); }
+  }
+  if (reviewMatch && req.method === 'DELETE') {
+    const index = data.reviews.findIndex(item => item.id === decodeURIComponent(reviewMatch[1]));
+    if (index < 0) return json(res, 404, { detail: '评价不存在。' });
+    data.reviews.splice(index, 1);
+    await saveOperations(data);
+    return json(res, 200, { data: { deleted: true } });
   }
   if (req.method === 'GET' && pathName === '/api/fbox-ops/cases') return json(res, 200, { data: sortNewest(data.cases) });
   if (req.method === 'POST' && pathName === '/api/fbox-ops/cases') {

@@ -2,7 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { handleFBoxAdminApi, handleFBoxAuthApi, handleFBoxOperationsApi, handleFBoxStoreApi, handleWheelVisualizerApi } from './fbox-visualizer-backend.mjs';
+import { handleFBoxAdminApi, handleFBoxAssetApi, handleFBoxAuthApi, handleFBoxOperationsApi, handleFBoxStoreApi, handleWheelVisualizerApi } from './fbox-visualizer-backend.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.FBOX_PORT || process.env.PORT || 4174);
@@ -67,6 +67,7 @@ const server = http.createServer(async (req, res) => {
   }
   if (url.pathname === '/api/admin' || url.pathname.startsWith('/api/admin/') || url.pathname === '/api/fbox-auth' || url.pathname.startsWith('/api/fbox-auth/')) return handleFBoxAuthApi(req, res, url);
   if (url.pathname === '/api/fbox-store' || url.pathname.startsWith('/api/fbox-store/')) return handleFBoxStoreApi(req, res, url);
+  if (url.pathname === '/api/fbox-assets' || url.pathname.startsWith('/api/fbox-assets/')) return handleFBoxAssetApi(req, res, url);
   if (url.pathname === '/api/fbox-admin' || url.pathname.startsWith('/api/fbox-admin/')) return handleFBoxAdminApi(req, res, url);
   if (url.pathname === '/api/fbox-ops' || url.pathname.startsWith('/api/fbox-ops/') || url.pathname === '/api/fbox-content' || url.pathname.startsWith('/api/fbox-content/')) return handleFBoxOperationsApi(req, res, url);
   if (url.pathname === '/api/wheel-visualizer' || url.pathname.startsWith('/api/wheel-visualizer/')) return handleWheelVisualizerApi(req, res, url);

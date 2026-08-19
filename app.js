@@ -178,7 +178,7 @@ const state = {
   search: '',
   vehicle: JSON.parse(localStorage.getItem('fbox-vehicle') || 'null'),
   filters: { category: 'All', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' },
-  sort: 'popular',
+  sort: 'latest',
   wishlist: JSON.parse(localStorage.getItem('fbox-wishlist') || '[]'),
   cart: JSON.parse(localStorage.getItem('fbox-cart') || '[]'),
   productImage: {},
@@ -207,8 +207,19 @@ function getRoute() {
   return { name: 'home' };
 }
 function esc(value = '') { return String(value).replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
+function assetUrl(value = '') {
+  const source = String(value || '');
+  return /^(?:https?:|data:|\/|\.\.?\/)/i.test(source) ? source : `${ASSET}${source}`;
+}
 function money(value) { return `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; }
 function stars(rating) { return Number(rating) > 0 ? `<span class="stars" aria-label="${rating} out of 5">★★★★★</span>` : '<span class="rating-empty">No verified reviews yet</span>'; }
+function productGallery(item) {
+  const stored = Array.isArray(item?.images) ? item.images.map(image => typeof image === 'string' ? image : image?.url).filter(Boolean) : [];
+  const fallback = item?.image ? [item.image, 'a7dd472643daf9b4.jpg', 'ff2a26733252a2c8.jpg'] : [];
+  return [...new Set((stored.length ? stored : fallback).filter(Boolean))];
+}
+function hasStartingPrice(item) { return item?.price_mode === 'from'; }
+function productPriceText(item) { return hasStartingPrice(item) ? 'From US' + money(item.price) : money(item.price); }
 function product(id) { return products.find(item => item.id === id) || products[0]; }
 function persist() { localStorage.setItem('fbox-cart', JSON.stringify(state.cart)); localStorage.setItem('fbox-wishlist', JSON.stringify(state.wishlist)); if (state.vehicle) localStorage.setItem('fbox-vehicle', JSON.stringify(state.vehicle)); }
 function setToast(message) { state.toast = message; render(); window.clearTimeout(setToast.timer); setToast.timer = window.setTimeout(() => { state.toast = ''; render(); }, 2800); }
@@ -297,14 +308,17 @@ function wheelVisualizerReset(nextPhase = 'upload') {
 }
 function wheelVisualizerHandleFile(file) {
   if (!file) return;
-  if (!file.type.startsWith('image/')) {
+  const fileType = String(file.type || '').toLowerCase();
+  const fileName = String(file.name || '').toLowerCase();
+  const hasSupportedImageType = fileType.startsWith('image/') || /\.(?:jpe?g|png|webp|heic|heif)$/i.test(fileName);
+  if (!hasSupportedImageType) {
     state.wheelVisualizer.error = 'Please choose a JPG, PNG, WEBP or HEIC image.';
     state.wheelVisualizer.phase = 'error';
     render();
     return;
   }
-  if (file.size > 12 * 1024 * 1024) {
-    state.wheelVisualizer.error = 'This image is larger than 12 MB. Please choose a smaller photo.';
+  if (file.size > 20 * 1024 * 1024) {
+    state.wheelVisualizer.error = 'This image is larger than 20 MB. Please choose a smaller photo.';
     state.wheelVisualizer.phase = 'error';
     render();
     return;
@@ -319,19 +333,60 @@ function wheelVisualizerHandleFile(file) {
   current.error = '';
   render();
 }
-async function wheelVisualizerRemoteJob(request) {
-  const toDataUrl = blob => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ''));
-    reader.onerror = () => reject(new Error('The selected image could not be prepared.'));
-    reader.readAsDataURL(blob);
+function wheelVisualizerPrepareImage(blob) {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(blob);
+    const image = new Image();
+    image.onload = () => {
+      try {
+        const naturalWidth = image.naturalWidth || image.width;
+        const naturalHeight = image.naturalHeight || image.height;
+        if (!naturalWidth || !naturalHeight) throw new Error('The selected image has no readable dimensions.');
+        let width = Math.min(naturalWidth, 2200);
+        let height = Math.max(1, Math.round(naturalHeight * (width / naturalWidth)));
+        let output = '';
+        for (let attempt = 0; attempt < 6; attempt += 1) {
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(width));
+          canvas.height = Math.max(1, Math.round(height));
+          const context = canvas.getContext('2d', { alpha: false });
+          if (!context) throw new Error('This browser cannot prepare the selected image.');
+          context.fillStyle = '#ffffff';
+          context.fillRect(0, 0, canvas.width, canvas.height);
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          output = canvas.toDataURL('image/jpeg', Math.max(0.56, 0.84 - attempt * 0.05));
+          if (output.length <= 5 * 1024 * 1024 || attempt === 5) break;
+          width = Math.max(960, width * 0.82);
+          height = Math.max(1, Math.round(naturalHeight * (width / naturalWidth)));
+        }
+        if (!output) throw new Error('The selected image could not be prepared.');
+        resolve(output);
+      } catch (error) {
+        reject(error);
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      const name = String(blob?.name || '').toLowerCase();
+      const type = String(blob?.type || '').toLowerCase();
+      if (type.includes('heic') || type.includes('heif') || /\.(?:heic|heif)$/i.test(name)) {
+        reject(new Error('This phone photo is HEIC/HEIF and cannot be converted by this browser. Export it as JPG from your photo app, then try again.'));
+        return;
+      }
+      reject(new Error('The selected image could not be read. Please choose a JPG, PNG or WEBP photo.'));
+    };
+    image.src = objectUrl;
   });
-  const vehicleImage = await toDataUrl(request.file);
+}
+async function wheelVisualizerRemoteJob(request) {
+  const vehicleImage = await wheelVisualizerPrepareImage(request.file);
   let productImage = '';
   if (request.referenceImage || request.product.image) {
-    const productResponse = await fetch(`${ASSET}${request.referenceImage || request.product.image}`);
+    const productResponse = await fetch(assetUrl(request.referenceImage || request.product.image));
     if (!productResponse.ok) throw new Error('The selected product reference could not be loaded.');
-    productImage = await toDataUrl(await productResponse.blob());
+    productImage = await wheelVisualizerPrepareImage(await productResponse.blob());
   }
   const body = {
     vehicle_image: vehicleImage,
@@ -486,6 +541,15 @@ async function checkMallBackend() {
   render();
 }
 
+function applyProductReviewStats(catalog) {
+  return catalog.map(item => {
+    const productReviews = reviews.filter(review => review.product_id === item.id);
+    if (!productReviews.length) return { ...item, rating: 0, reviews: 0 };
+    const rating = productReviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / productReviews.length;
+    return { ...item, rating: Number(rating.toFixed(1)), reviews: productReviews.length };
+  });
+}
+
 async function loadFBoxContent() {
   try {
     const [vehicleResponse, reviewResponse, caseResponse] = await Promise.all([
@@ -513,12 +577,7 @@ async function loadFBoxContent() {
     });
     reviews = Array.isArray(reviewPayload.data) ? reviewPayload.data : [];
     fboxCases = Array.isArray(casePayload.data) ? casePayload.data : [];
-    products = products.map(item => {
-      const productReviews = reviews.filter(review => review.product_id === item.id);
-      if (!productReviews.length) return { ...item, rating: 0, reviews: 0 };
-      const rating = productReviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / productReviews.length;
-      return { ...item, rating: Number(rating.toFixed(1)), reviews: productReviews.length };
-    });
+    products = applyProductReviewStats(products);
     render();
   } catch {
     // The storefront keeps its local vehicle fallback when the content API is offline.
@@ -582,7 +641,7 @@ function mallProductToFBox(raw) {
     image: base.image,
     rating: 0,
     reviews: 0,
-    deal: Number(raw.stock || 0) > 0 ? 'In stock · live inventory' : 'Contact F-Box for availability',
+    deal: raw.deal || (Number(raw.stock || 0) > 0 ? 'In stock · live inventory' : 'Contact F-Box for availability'),
     stock: Number(raw.stock || 0),
     meta: base.meta,
     backendPic: raw.pic || ''
@@ -593,7 +652,33 @@ async function loadMallCatalog() {
   try {
     const page = await mallRequest(mallConfig.portalBase, '/products', { timeout: 7000 });
     const rawProducts = Array.isArray(page?.data) ? page.data : Array.isArray(page) ? page : [];
-    const mapped = rawProducts.map(raw => products.find(item => String(item.id) === String(raw.id)) ? { ...products.find(item => String(item.id) === String(raw.id)), ...raw } : null).filter(Boolean);
+    const mapped = rawProducts.map(raw => {
+      const base = products.find(item => String(item.id) === String(raw.id));
+      if (!base && !raw.id) return null;
+      const rawImages = Array.isArray(raw.images) ? raw.images.map(imageEntry => typeof imageEntry === 'string' ? imageEntry : imageEntry?.url).filter(Boolean) : [];
+      const images = rawImages.length ? rawImages : (Array.isArray(base?.images) ? base.images.map(imageEntry => typeof imageEntry === 'string' ? imageEntry : imageEntry?.url).filter(Boolean) : []);
+      const image = images[0] || raw.image || raw.pic || base?.image || '';
+      return {
+        ...(base || {}),
+        ...raw,
+        id: String(raw.id ?? base?.id ?? ''),
+        name: raw.name || base?.name || 'F-Box product',
+        brand: raw.brand || raw.brandName || base?.brand || 'F-Box',
+        category: raw.category || raw.productCategoryName || base?.category || 'Wheels',
+        meta: raw.meta || base?.meta || '',
+        price: Number(raw.price || base?.price || 0),
+        oldPrice: raw.oldPrice ?? (raw.originalPrice || base?.oldPrice || null),
+        image,
+        images: images.length ? images : undefined,
+        image_cutout: raw.image_cutout ?? base?.image_cutout ?? false,
+        price_mode: raw.price_mode || base?.price_mode || 'fixed',
+        finish: raw.finish || base?.finish || '',
+        color: raw.color || raw.finish || base?.color || '',
+        rating: Number(raw.rating || base?.rating || 0),
+        reviews: Number(raw.reviews || base?.reviews || 0),
+        stock: Number(raw.stock ?? base?.stock ?? 0)
+      };
+    }).filter(Boolean);
     if (!mapped.length) throw new Error('F-Box catalog is empty');
     const detailed = await Promise.all(mapped.map(async item => {
       try {
@@ -602,7 +687,7 @@ async function loadMallCatalog() {
         return item;
       }
     }));
-    products = detailed;
+    products = applyProductReviewStats(detailed);
     state.catalogLoaded = true;
     render();
     if (state.mallToken) await loadMallCart();
@@ -714,8 +799,8 @@ function header() {
         <div class="nav-meta"><span>Need help?</span><a href="tel:${company.tel}">${company.phone}</a></div>
       </div>
     </div>
-  </header>
-  ${state.menuOpen ? megaMenu() : ''}`;
+    ${state.menuOpen ? megaMenu() : ''}
+  </header>`;
 }
 function megaMenu() {
   const groups = [['Shop by product', ['Wheels', 'Calipers', 'Rotors', 'Brake Pads', 'Wheel & Tire Packages']], ['Fitment tools', ['Shop by vehicle', 'Fitment guide', 'Brake clearance', 'Search gallery', 'Wheel offset guide']], ['Build essentials', ['Suspension', 'Wheel accessories', 'Lug nuts', 'Spacers & adapters', 'Car care']], ['F-Box service', ['Today’s deals', 'Financing', 'Track my order', 'Wholesale program', 'Fitment support']]];
@@ -732,7 +817,7 @@ function fitmentProducts() {
   return preferred;
 }
 function renderFitmentProduct(item) {
-  return `<button class="fitment-product spotlight-card" data-action="quick-view" data-id="${item.id}"><span class="fitment-product-image"><img src="${ASSET + item.image}" alt="${esc(item.name)}"></span><span class="fitment-product-copy"><small>${item.category}</small><strong>${item.name}</strong><span>${money(item.price)} <em>· ${item.reviews ? `${item.reviews} reviews` : 'No verified reviews yet'}</em></span></span></button>`;
+  return `<button class="fitment-product spotlight-card" data-action="quick-view" data-id="${item.id}"><span class="fitment-product-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(item.name)}"></span><span class="fitment-product-copy"><small>${item.category}</small><strong>${item.name}</strong><span>${money(item.price)} <em>· ${item.reviews ? `${item.reviews} reviews` : 'No verified reviews yet'}</em></span></span></button>`;
 }
 function fitmentPreview() {
   if (!state.vehicle?.trim) return '';
@@ -801,6 +886,18 @@ function filterProducts() {
     const query = state.search.trim().toLowerCase();
     return (f.category === 'All' || item.category === f.category) && (!f.saleOnly || item.oldPrice) && (f.finish === 'All' || item.finish === f.finish) && (f.diameter === 'All' || String(item.diameter) === String(f.diameter)) && (!f.minPrice || item.price >= Number(f.minPrice)) && (!f.maxPrice || item.price <= Number(f.maxPrice)) && item.rating >= Number(f.minRating) && (!query || [item.name, item.brand, item.category, item.meta].join(' ').toLowerCase().includes(query));
   });
+  if (state.sort === 'latest') {
+    list.sort((left, right) => {
+      const leftSort = Math.max(0, Math.floor(Number(left.sort || 0)));
+      const rightSort = Math.max(0, Math.floor(Number(right.sort || 0)));
+      if (leftSort || rightSort) {
+        if (!leftSort) return 1;
+        if (!rightSort) return -1;
+        if (leftSort !== rightSort) return leftSort - rightSort;
+      }
+      return String(right.created_at || right.updated_at || '').localeCompare(String(left.created_at || left.updated_at || ''));
+    });
+  }
   if (state.sort === 'price-low') list.sort((a, b) => a.price - b.price);
   if (state.sort === 'price-high') list.sort((a, b) => b.price - a.price);
   if (state.sort === 'rating') list.sort((a, b) => b.rating - a.rating);
@@ -808,23 +905,90 @@ function filterProducts() {
 }
 function renderProductCard(item) {
   const saved = state.wishlist.includes(item.id);
-  return `<article class="product-card spotlight-card reveal"><div class="product-media">${item.badge ? `<span class="product-badge ${item.badge === 'Sale' ? 'alt' : ''}">${item.badge}</span>` : ''}<div class="product-actions"><button class="icon-btn ${saved ? 'is-saved' : ''}" data-action="wishlist" data-id="${item.id}" aria-label="Save product">${icons.heart}</button><button class="icon-btn" data-action="quick-view" data-id="${item.id}" aria-label="Quick view">${icons.eye}</button></div><img src="${ASSET + item.image}" alt="${esc(item.name)} ${esc(item.finish)}" loading="lazy"></div><div class="product-body"><div class="product-brand">${item.brand}</div><h3 class="product-title">${item.name}</h3><div class="product-meta">${item.meta}</div><div class="rating-row">${productRatingMarkup(item)}</div><div class="product-deal">${item.deal || 'Availability managed by F-Box'}</div><div class="price-row"><div><span class="price">${money(item.price)} <small>/ ea</small></span>${item.oldPrice ? `<span class="was-price">${money(item.oldPrice)}</span>` : ''}</div><span class="muted" style="font-size:10px">${item.category}</span></div><div class="product-cta"><a class="btn btn-outline btn-small" href="#product/${item.id}">Details</a><button class="btn btn-primary btn-small" data-action="add" data-id="${item.id}">Add</button></div></div></article>`;
+  return `<article class="product-card spotlight-card reveal"><div class="product-media">${item.badge ? `<span class="product-badge ${item.badge === 'Sale' ? 'alt' : ''}">${item.badge}</span>` : ''}<div class="product-actions"><button class="icon-btn ${saved ? 'is-saved' : ''}" data-action="wishlist" data-id="${item.id}" aria-label="Save product">${icons.heart}</button><button class="icon-btn" data-action="quick-view" data-id="${item.id}" aria-label="Quick view">${icons.eye}</button></div><img class="product-image ${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(item.name)} ${esc(item.finish)}" loading="lazy"></div><div class="product-body"><div class="product-brand">${item.brand}</div><h3 class="product-title">${item.name}</h3><div class="product-meta">${item.meta}</div><div class="rating-row">${productRatingMarkup(item)}</div><div class="product-deal">${item.deal || 'Availability managed by F-Box'}</div><div class="price-row"><div><span class="price">${money(item.price)} <small>/ ea</small></span>${item.oldPrice ? `<span class="was-price">${money(item.oldPrice)}</span>` : ''}</div><span class="muted" style="font-size:10px">${item.category}</span></div><div class="product-cta"><a class="btn btn-outline btn-small" href="#product/${item.id}">Details</a><button class="btn btn-primary btn-small" data-action="add" data-id="${item.id}">Add</button></div></div></article>`;
 }
 
 function storePage() {
   const list = filterProducts();
   const fitmentBanner = state.vehicle?.trim ? `<div class="fitment-match-banner"><div><p class="eyebrow">Fitment context</p><strong>${esc(currentVehicleLabel())}</strong><span>Products below are shown with the selected vehicle context.</span></div><button class="btn btn-outline btn-small" data-action="change-vehicle">Change vehicle</button></div>` : '';
   return `<section class="store-hero"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>${state.filters.category === 'All' ? 'Performance parts' : state.filters.category}</span></div><h1>${state.filters.category === 'All' ? 'All performance parts' : state.filters.category}</h1><p class="muted">Fitment-first shopping for wheels, calipers, rotors and pads. Prices, stock and product status are managed by the F-Box catalog.</p></div></section>
-  <main class="container store-layout"><aside class="filter-rail"><div class="filter-head"><strong>Filter with F-Box AI</strong><span>Describe the look or setup you want. We will narrow the catalog.</span></div><div class="filter-section"><input class="filter-input" data-filter="ai" placeholder="e.g. bronze wheels for 2020 Civic" value="${esc(state.search)}"><p class="filter-help">Try “track pads”, “19 inch black wheels”, or a car model.</p></div><div class="filter-section"><h3>Delivery estimate</h3><div class="filter-stack"><input class="filter-input" data-filter="zip" placeholder="Deliver to ZIP / postcode"><button class="btn btn-outline btn-small" data-action="save-zip">Save location</button></div></div><div class="filter-section"><h3>Search by vehicle</h3>${vehicleSelector('store')}<button class="btn btn-dark btn-small filter-apply" data-action="shop-vehicle">Apply vehicle</button></div><div class="filter-section"><h3>Product type</h3><select class="filter-select" data-filter="category">${selectOptions(['All', 'Wheels', 'Calipers', 'Rotors', 'Brake Pads'], state.filters.category, 'All parts')}</select></div><div class="filter-section"><h3>Fitment preferences</h3><label class="check-row"><input type="checkbox" data-filter="saleOnly" ${state.filters.saleOnly ? 'checked' : ''}> In-stock deals only</label><select class="filter-select" data-filter="finish">${selectOptions(['All', 'Satin Black', 'Bronze Machined', 'Gloss Black', 'Matte Bronze', 'Racing Red', 'Electric Blue', 'Black Hat', 'Ceramic'], state.filters.finish, 'All finishes')}</select></div><div class="filter-section"><h3>Wheel diameter <span>inches</span></h3><select class="filter-select" data-filter="diameter">${selectOptions(['All', '17', '18', '19', '20'], state.filters.diameter, 'Any diameter')}</select></div><div class="filter-section"><h3>Price range</h3><div class="filter-row"><input class="filter-input" data-filter="minPrice" placeholder="Min" value="${esc(state.filters.minPrice)}"><input class="filter-input" data-filter="maxPrice" placeholder="Max" value="${esc(state.filters.maxPrice)}"></div></div><div class="filter-section"><h3>Customer rating</h3><select class="filter-select" data-filter="minRating">${selectOptions(['0', '4', '4.5', '4.8'], state.filters.minRating, 'Any rating')}</select></div></aside><section class="store-main"><div class="ai-query"><span style="color:var(--lavender)">${icons.spark}</span><input data-filter="ai" placeholder="F-Box AI: Search by vehicle, product, finish or use case" value="${esc(state.search)}"><button class="btn btn-primary btn-small" data-action="ai-filter">Search</button></div>${fitmentBanner}<div class="store-toolbar"><div class="result-count">${list.length} results <span>${state.vehicle ? `· fits ${esc(currentVehicleLabel())}` : ''}</span></div><div class="toolbar-actions"><button class="btn btn-outline btn-small" data-action="clear-filters">Clear filters</button><select class="toolbar-select" data-filter="sort"><option value="popular" ${state.sort === 'popular' ? 'selected' : ''}>Sort by popular</option><option value="price-low" ${state.sort === 'price-low' ? 'selected' : ''}>Price: low to high</option><option value="price-high" ${state.sort === 'price-high' ? 'selected' : ''}>Price: high to low</option><option value="rating" ${state.sort === 'rating' ? 'selected' : ''}>Highest rated</option></select></div></div>${list.length ? `<div class="product-grid">${list.map(renderProductCard).join('')}</div>` : `<div class="empty-state"><h2>No exact matches yet.</h2><p>Try clearing one filter or tell F-Box what you want in the AI search.</p><button class="btn btn-primary" data-action="clear-filters">Reset catalog</button></div>`}</section></main>`;
+<main class="container store-layout"><aside class="filter-rail"><div class="filter-head"><strong>Filter with F-Box AI</strong><span>Describe the look or setup you want. We will narrow the catalog.</span></div><div class="filter-section"><input class="filter-input" data-filter="ai" placeholder="e.g. bronze wheels for 2020 Civic" value="${esc(state.search)}"><p class="filter-help">Try “track pads”, “19 inch black wheels”, or a car model.</p></div><div class="filter-section"><h3>Delivery estimate</h3><div class="filter-stack"><input class="filter-input" data-filter="zip" placeholder="Deliver to ZIP / postcode"><button class="btn btn-outline btn-small" data-action="save-zip">Save location</button></div></div><div class="filter-section"><h3>Search by vehicle</h3>${vehicleSelector('store')}<button class="btn btn-dark btn-small filter-apply" data-action="shop-vehicle">Apply vehicle</button></div><div class="filter-section"><h3>Product type</h3><select class="filter-select" data-filter="category">${selectOptions(['All', 'Wheels', 'Calipers', 'Rotors', 'Brake Pads'], state.filters.category, 'All parts')}</select></div><div class="filter-section"><h3>Fitment preferences</h3><label class="check-row"><input type="checkbox" data-filter="saleOnly" ${state.filters.saleOnly ? 'checked' : ''}> In-stock deals only</label><select class="filter-select" data-filter="finish">${selectOptions(['All', 'Satin Black', 'Bronze Machined', 'Gloss Black', 'Matte Bronze', 'Racing Red', 'Electric Blue', 'Black Hat', 'Ceramic'], state.filters.finish, 'All finishes')}</select></div><div class="filter-section"><h3>Wheel diameter <span>inches</span></h3><select class="filter-select" data-filter="diameter">${selectOptions(['All', '17', '18', '19', '20'], state.filters.diameter, 'Any diameter')}</select></div><div class="filter-section"><h3>Price range</h3><div class="filter-row"><input class="filter-input" data-filter="minPrice" placeholder="Min" value="${esc(state.filters.minPrice)}"><input class="filter-input" data-filter="maxPrice" placeholder="Max" value="${esc(state.filters.maxPrice)}"></div></div><div class="filter-section"><h3>Customer rating</h3><select class="filter-select" data-filter="minRating">${selectOptions(['0', '4', '4.5', '4.8'], state.filters.minRating, 'Any rating')}</select></div></aside><section class="store-main"><div class="ai-query"><span style="color:var(--lavender)">${icons.spark}</span><input data-filter="ai" placeholder="F-Box AI: Search by vehicle, product, finish or use case" value="${esc(state.search)}"><button class="btn btn-primary btn-small" data-action="ai-filter">Search</button></div>${fitmentBanner}<div class="store-toolbar"><div class="result-count">${list.length} results <span>${state.vehicle ? `· fits ${esc(currentVehicleLabel())}` : ''}</span></div><div class="toolbar-actions"><button class="btn btn-outline btn-small" data-action="clear-filters">Clear filters</button><select class="toolbar-select" data-filter="sort"><option value="latest" ${state.sort === 'latest' ? 'selected' : ''}>Newest arrivals</option><option value="price-low" ${state.sort === 'price-low' ? 'selected' : ''}>Price: low to high</option><option value="price-high" ${state.sort === 'price-high' ? 'selected' : ''}>Price: high to low</option><option value="rating" ${state.sort === 'rating' ? 'selected' : ''}>Highest rated</option></select></div></div>${list.length ? `<div class="product-grid">${list.map(renderProductCard).join('')}</div>` : `<div class="empty-state"><h2>No exact matches yet.</h2><p>Try clearing one filter or tell F-Box what you want in the AI search.</p><button class="btn btn-primary" data-action="clear-filters">Reset catalog</button></div>`}</section></main>`;
 }
 
-function renderReview(review, index) { return `<article class="review-item" style="animation-delay:${index * 80}ms"><div class="review-head"><div><strong>${esc(review.title)}</strong><div>${stars(5)}</div></div><small>${review.date}</small></div><p>${esc(review.body)}</p><div class="review-meta"><span>✓ Verified purchase</span><span>${esc(review.vehicle)}</span><span>${review.helpful} found this helpful</span></div></article>`; }
+function reviewDateLabel(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  try {
+    return new Intl.DateTimeFormat(state.locale || 'en', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
+  } catch {
+    return date.toLocaleDateString();
+  }
+}
+function reviewsForProduct(item) {
+  return reviews.filter(review => review.product_id === item.id);
+}
+function reviewStats(records) {
+  const total = records.length;
+  const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  const sum = records.reduce((value, review) => {
+    const rating = Math.max(1, Math.min(5, Math.round(Number(review.rating || 0))));
+    counts[rating] += 1;
+    return value + Number(review.rating || 0);
+  }, 0);
+  return { total, counts, rating: total ? Number((sum / total).toFixed(1)) : 0 };
+}
+function reviewBars(stats) {
+  return [5, 4, 3, 2, 1].map(rating => {
+    const count = stats.counts[rating] || 0;
+    const percent = stats.total ? Math.round((count / stats.total) * 100) : 0;
+    return '<div class="review-bar"><span>' + rating + '★</span><i class="bar-track"><i style="width:' + percent + '%"></i></i><span>' + percent + '%</span></div>';
+  }).join('');
+}
+function renderReview(review, index = 0) {
+  const meta = [
+    review.verified_purchase ? '<span class="review-verified">✓ Verified purchase</span>' : '',
+    review.customer_name ? '<span>' + esc(review.customer_name) + '</span>' : '',
+    review.vehicle ? '<span>' + esc(review.vehicle) + '</span>' : ''
+  ].filter(Boolean).join('');
+  const reply = review.admin_reply ? '<div class="review-reply"><strong>F-Box reply</strong><p>' + esc(review.admin_reply) + '</p></div>' : '';
+  return '<article class="review-item" style="animation-delay:' + String(index * 80) + 'ms"><div class="review-head"><div><strong>' + esc(review.title) + '</strong><div>' + stars(Number(review.rating || 0)) + '</div></div><small>' + esc(reviewDateLabel(review.created_at)) + '</small></div><p>' + esc(review.body) + '</p>' + reply + '<div class="review-meta">' + meta + '</div></article>';
+}
+function renderProductReviewSection(item) {
+  const productReviews = reviewsForProduct(item);
+  const stats = reviewStats(productReviews);
+  const summary = stats.total
+    ? '<p>' + stats.total + ' review' + (stats.total === 1 ? '' : 's') + ' for this product</p>'
+    : '<p>No customer reviews yet.</p>';
+  const list = productReviews.length
+    ? productReviews.slice(0, state.reviewLimit).map(renderReview).join('') + (state.reviewLimit < productReviews.length ? '<button class="btn btn-outline" data-action="load-reviews">Load more reviews</button>' : '')
+    : '<div class="review-empty"><strong>Be the first to share your fitment experience.</strong><span>Your review goes to the F-Box team for approval before it is published.</span></div>';
+  return '<section class="detail-section" id="reviews"><div class="section-heading"><div><p class="eyebrow">Customer feedback</p><h2>Product reviews</h2></div><button class="btn btn-outline" data-action="write-review">Write a review</button></div><div class="reviews-layout"><div class="review-score"><strong>' + (stats.total ? stats.rating.toFixed(1) : '—') + '</strong>' + stars(stats.rating) + summary + '<div class="review-bars">' + reviewBars(stats) + '</div></div><div class="review-list">' + list + '</div></div></section>';
+}
+function wireProductReviews() {
+  if (state.route.name !== 'product') return;
+  const item = product(state.route.id);
+  const section = document.getElementById('reviews');
+  if (!item || !section) return;
+  section.outerHTML = renderProductReviewSection(item);
+  const score = document.querySelector('.detail-rating');
+  if (score) {
+    const count = Number(item.reviews || 0);
+    score.innerHTML = stars(Number(item.rating || 0)) + ' <a href="#reviews">' + (count ? Number(item.rating || 0).toFixed(1) + ' · ' + count + ' ratings' : 'No reviews yet') + '</a>';
+  }
+}
+function wireReviewForm() {
+  const form = document.querySelector('form[data-form="review"]');
+  if (!form || form.querySelector('[name="customer_name"]')) return;
+  form.insertAdjacentHTML('afterbegin', '<div class="review-form-grid"><input class="text-input" name="customer_name" autocomplete="name" placeholder="Your name" required><input class="text-input" name="customer_email" type="email" autocomplete="email" placeholder="Email for review follow-up" required></div>');
+  form.insertAdjacentHTML('beforeend', '<label class="review-consent"><input type="checkbox" name="consent" required> I confirm this is my own experience and allow F-Box to review it for publication.</label>');
+}
 function visualizerReferenceImages(item) {
-  return item?.image ? [...new Set([item.image, 'a7dd472643daf9b4.jpg', 'ff2a26733252a2c8.jpg'])] : [];
+  return productGallery(item);
 }
 function visualizerReferenceAsset(item, current) {
   const image = current?.referenceImage || item?.image || '';
-  return image ? ASSET + image : '';
+  return image ? assetUrl(image) : '';
 }
 function legacyWheelVisualizerTrigger(item) {
   if (item.category !== 'Wheels') return '';
@@ -865,7 +1029,7 @@ function cartPage() {
 function legacyWheelVisualizerResultCard(result, index, item, mode) {
   const angle = wheelVisualizerAngleLabel(result.angle);
   const imageUrl = result.imageUrl || result.image_url || result.url || '';
-  return `<article class="wheel-result-card"><div class="wheel-result-media"><img class="wheel-result-output" src="${esc(imageUrl)}" alt="${esc(item.name)} on your vehicle — ${esc(angle)}" loading="lazy"><span class="wheel-result-mode">F-Box AI visual preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>Wheel, finish and fitment held as reference</span></div></article>`;
+  return `<article class="wheel-result-card"><div class="wheel-result-media"><img class="wheel-result-output is-ai-generated" src="${esc(imageUrl)}" alt="${esc(item.name)} on your vehicle — ${esc(angle)}" loading="lazy"><span class="wheel-result-mode">F-Box AI visual preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>Wheel, finish and fitment held as reference</span></div></article>`;
 }
 function visualizerProductContext(item) {
   const contexts = {
@@ -879,13 +1043,13 @@ function visualizerProductContext(item) {
 function legacyWheelVisualizerReferencePicker(item, current) {
   const images = [...new Set([item.image, 'a7dd472643daf9b4.jpg', 'ff2a26733252a2c8.jpg'])];
   const selected = current.referenceImage || item.image;
-  return `<section class="wheel-reference-switcher" aria-label="Wheel reference"><div class="wheel-reference-copy"><div class="wheel-content-kicker">Wheel reference</div><strong>Choose the gallery image to use.</strong><span>Replace the reference before generating or regenerate with another angle.</span></div><div class="wheel-reference-options">${images.map((image, index) => `<button class="wheel-reference-option ${selected === image ? 'is-active' : ''}" data-action="wheel-reference" data-image="${esc(image)}" aria-label="Use wheel gallery image ${index + 1}" ${current.phase === 'generating' ? 'disabled' : ''}><img src="${ASSET + image}" alt="${esc(item.name)} gallery reference ${index + 1}"><span>${String(index + 1).padStart(2, '0')}</span></button>`).join('')}</div></section>`;
+  return `<section class="wheel-reference-switcher" aria-label="Wheel reference"><div class="wheel-reference-copy"><div class="wheel-content-kicker">Wheel reference</div><strong>Choose the gallery image to use.</strong><span>Replace the reference before generating or regenerate with another angle.</span></div><div class="wheel-reference-options">${images.map((image, index) => `<button class="wheel-reference-option ${selected === image ? 'is-active' : ''}" data-action="wheel-reference" data-image="${esc(image)}" aria-label="Use wheel gallery image ${index + 1}" ${current.phase === 'generating' ? 'disabled' : ''}><img src="${assetUrl(image)}" alt="${esc(item.name)} gallery reference ${index + 1}"><span>${String(index + 1).padStart(2, '0')}</span></button>`).join('')}</div></section>`;
 }
 function wheelVisualizerReferencePicker(item, current) {
   const images = visualizerReferenceImages(item);
   const selected = current.referenceImage || item.image;
   const context = visualizerProductContext(item);
-  const options = images.length ? images.map((image, index) => `<button class="wheel-reference-option ${selected === image ? 'is-active' : ''}" data-action="wheel-reference" data-image="${esc(image)}" aria-label="Use ${esc(context.subject)} gallery image ${index + 1}" ${current.phase === 'generating' ? 'disabled' : ''}><img src="${ASSET + image}" alt="${esc(item.name)} gallery reference ${index + 1}"><span>${String(index + 1).padStart(2, '0')}</span></button>`).join('') : `<div class="wheel-reference-unavailable"><strong>Brake-part reference image pending</strong><span>This preview uses the selected product category and finish, while the original wheel remains locked.</span></div>`;
+  const options = images.length ? images.map((image, index) => `<button class="wheel-reference-option ${selected === image ? 'is-active' : ''}" data-action="wheel-reference" data-image="${esc(image)}" aria-label="Use ${esc(context.subject)} gallery image ${index + 1}" ${current.phase === 'generating' ? 'disabled' : ''}><img src="${assetUrl(image)}" alt="${esc(item.name)} gallery reference ${index + 1}"><span>${String(index + 1).padStart(2, '0')}</span></button>`).join('') : `<div class="wheel-reference-unavailable"><strong>Brake-part reference image pending</strong><span>This preview uses the selected product category and finish, while the original wheel remains locked.</span></div>`;
   return `<section class="wheel-reference-switcher" aria-label="Image 2 wheel reference"><div class="wheel-reference-copy"><div class="wheel-content-kicker">Image 2 · wheel reference</div><strong>${images.length ? 'Choose the wheel image to place on the vehicle.' : 'Select a wheel reference image.'}</strong><span>${images.length ? 'Image 1 is your car. Image 2 is the wheel that replaces the original wheel.' : 'The model requires a second image showing the selected wheel.'}</span></div><div class="wheel-reference-options">${options}</div></section>`;
 }
 function wheelVisualizerInquiryDefaults(item) {
@@ -974,7 +1138,7 @@ function wheelVisualizerResultCard(result, index, item, mode) {
   const context = visualizerProductContext(item);
   const downloadName = wheelVisualizerDownloadName(item, angle, index);
   const imageActions = imageUrl ? `<div class="wheel-result-actions"><button type="button" class="btn btn-outline btn-small" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(angle)}" data-product="${esc(item.name)}" data-download-name="${esc(downloadName)}">View larger <span aria-hidden="true">↗</span></button><button type="button" class="btn btn-outline btn-small" data-action="wheel-image-download" data-image-url="${esc(imageUrl)}" data-download-name="${esc(downloadName)}">Save image <span aria-hidden="true">↓</span></button></div>` : '';
-  return `<article class="wheel-result-card"><div class="wheel-result-media">${imageUrl ? `<button type="button" class="wheel-result-open" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(angle)}" data-product="${esc(item.name)}" data-download-name="${esc(downloadName)}" aria-label="View enlarged ${esc(angle)} preview"><img class="wheel-result-output" src="${esc(imageUrl)}" alt="${esc(item.name)} on your vehicle — ${esc(angle)}" loading="lazy"><span class="wheel-result-zoom-hint">Click to enlarge</span></button>` : '<div class="wheel-result-empty">Preview unavailable</div>'}<span class="wheel-result-mode">F-Box AI visual preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>${esc(context.resultNote)}</span>${imageActions}</div></article>`;
+  return `<article class="wheel-result-card"><div class="wheel-result-media">${imageUrl ? `<button type="button" class="wheel-result-open" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(angle)}" data-product="${esc(item.name)}" data-download-name="${esc(downloadName)}" aria-label="View enlarged ${esc(angle)} preview"><img class="wheel-result-output is-ai-generated" src="${esc(imageUrl)}" alt="${esc(item.name)} on your vehicle — ${esc(angle)}" loading="lazy"><span class="wheel-result-zoom-hint">Click to enlarge</span></button>` : '<div class="wheel-result-empty">Preview unavailable</div>'}<span class="wheel-result-mode">F-Box AI visual preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>${esc(context.resultNote)}</span>${imageActions}</div></article>`;
 }
 function wheelVisualizerImageViewer() {
   const viewer = state.wheelVisualizer?.resultViewer;
@@ -1001,7 +1165,7 @@ function wheelVisualizerModalLegacy() {
   const stepIndex = phase === 'error' ? 3 : Math.max(0, steps.findIndex(([key]) => key === phase));
   const stepRail = steps.map(([key, number, label], index) => `<div class="wheel-step ${index === stepIndex ? 'is-active' : ''} ${index < stepIndex ? 'is-done' : ''}"><span>${index < stepIndex ? '✓' : number}</span><strong>${label}</strong></div>`).join('');
   let content = '';
-  if (phase === 'upload') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Start with one real photo</div><h3>Show us the car.<br><em>We will show you the stance.</em></h3><p class="wheel-content-lead">Use a clear exterior photo with at least one wheel visible. A front three-quarter or side view gives the best fitment reference.</p><label class="wheel-upload-zone" data-wheel-dropzone><input type="file" accept="image/jpeg,image/png,image/webp,image/heic" data-wheel-upload><span class="wheel-upload-icon">＋</span><strong>Drop your car photo here</strong><span>JPG, PNG, WEBP or HEIC · Up to 12 MB</span><span class="btn btn-dark btn-small">Choose a photo</span></label><div class="wheel-visualizer-privacy"><span>${icons.shield}</span><span>Your image is used only to create this preview. No payment or credits are required.</span></div></div>`;
+  if (phase === 'upload') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Start with one real photo</div><h3>Show us the car.<br><em>We will show you the stance.</em></h3><p class="wheel-content-lead">Use a clear exterior photo with at least one wheel visible. A front three-quarter or side view gives the best fitment reference.</p><label class="wheel-upload-zone" data-wheel-dropzone><input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" data-wheel-upload><span class="wheel-upload-icon">＋</span><strong>Drop your car photo here</strong><span>JPG, PNG, WEBP or HEIC · Up to 20 MB · mobile photos are compressed securely</span><span class="btn btn-dark btn-small">Choose a photo</span></label><div class="wheel-visualizer-privacy"><span>${icons.shield}</span><span>Your image is used only to create this preview. No payment or credits are required.</span></div></div>`;
   if (phase === 'crop') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Frame the reference</div><h3>Keep the whole car.<br><em>Adjust only if needed.</em></h3><p class="wheel-content-lead">Upload the photo as-is. The full image stays available, even when the car sits low in a portrait frame. Drag the image or use the controls below; a wheel only needs to be visible, not centered in a box.</p><div class="wheel-crop-stage" data-wheel-crop-stage><img data-wheel-crop-image src="${esc(current.vehicleUrl)}" alt="${esc(current.vehicleName || 'Uploaded vehicle photo')}" draggable="false" style="${wheelVisualizerCropStyle(current.crop)}"><div class="wheel-crop-guide"><span>Full photo retained · drag to frame</span></div></div><div class="wheel-crop-live-note"><strong>Live framing</strong><span>Changes update the image above.</span></div><div class="wheel-crop-controls"><label><span>Zoom</span><input type="range" min="1" max="1.6" step="0.01" value="${current.crop.zoom}" data-wheel-crop="zoom"><output data-wheel-crop-output="zoom">${Number(current.crop.zoom).toFixed(2)}×</output></label><label><span>Horizontal position</span><input type="range" min="0" max="100" step="1" value="${current.crop.x}" data-wheel-crop="x"><output data-wheel-crop-output="x">${current.crop.x}%</output></label><label><span>Vertical position</span><input type="range" min="0" max="100" step="1" value="${current.crop.y}" data-wheel-crop="y"><output data-wheel-crop-output="y">${current.crop.y}%</output></label></div><div class="wheel-crop-actions"><button class="btn btn-outline btn-small" data-action="wheel-crop-reset">Reset frame</button><button class="btn btn-primary" data-action="wheel-generate">Generate 3 angles <span aria-hidden="true">↗</span></button></div></div>`;
   if (phase === 'generating') { const referenceAsset = visualizerReferenceAsset(item, current); content = `<div class="wheel-visualizer-content wheel-generating-content" aria-live="polite"><div class="wheel-generating-orbit"><div class="wheel-generating-wheel">${referenceAsset ? `<img src="${referenceAsset}" alt="${esc(item.name)}">` : `<span class="wheel-generating-part">${esc(item.category)}</span>`}</div><span></span><span></span><span></span></div><div class="wheel-content-kicker">F-Box visual studio</div><h3>Matching ${esc(visualizerProductContext(item).subject)} to vehicle<br><em>and checking the stance.</em></h3><p class="wheel-content-lead">We are applying only the selected ${esc(item.category.toLowerCase())} while keeping the original wheel and vehicle geometry locked.</p><div class="wheel-progress"><span></span></div><div class="wheel-generating-meta"><span>Product mask locked</span><span>3 angles requested</span><span>Officially included</span></div></div>`; }
   if (phase === 'results') content = `<div class="wheel-visualizer-content wheel-results-content"><div class="wheel-results-head"><div><div class="wheel-content-kicker">Your preview set</div><h3>See the wheel<br><em>in its natural stance.</em></h3></div><div class="wheel-results-count"><strong>03</strong><span>angles</span></div></div><p class="wheel-content-lead">These views use ${esc(item.name)} in ${esc(item.finish)} as the wheel reference. Keep the final fitment check with the F-Box team before production.</p><div class="wheel-results-grid">${current.results.map((result, index) => wheelVisualizerResultCard(result, index, item, current.mode)).join('')}</div><div class="wheel-results-actions"><button class="btn btn-outline" data-action="wheel-reset">Try another photo</button><button class="btn btn-primary" data-action="wheel-inquiry-open">Start an inquiry <span aria-hidden="true">↗</span></button></div></div>`;
@@ -1257,10 +1421,112 @@ async function detectLocaleByIp() {
   }
 }
 
+function productFromCard(card) {
+  const name = card.querySelector('.product-title')?.textContent?.trim() || '';
+  return products.find(item => item.name === name);
+}
+function quoteActionButton(label, className, productId, action = 'customize') {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = className;
+  button.dataset.action = action;
+  button.dataset.id = productId;
+  button.textContent = label;
+  return button;
+}
+function wireProductGallery() {
+  if (state.route.name !== 'product') return;
+  const item = product(state.route.id);
+  const images = productGallery(item);
+  if (!item || !images.length) return;
+  const active = images.includes(state.productImage[item.id]) ? state.productImage[item.id] : images[0];
+  state.productImage[item.id] = active;
+  const thumbs = document.querySelector('.gallery .thumbs');
+  if (thumbs) {
+    thumbs.replaceChildren();
+    images.forEach((image, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'thumb' + (image === active ? ' is-active' : '');
+      button.dataset.action = 'product-image';
+      button.dataset.id = item.id;
+      button.dataset.image = image;
+      button.setAttribute('aria-label', item.name + ' image ' + (index + 1));
+      const preview = document.createElement('img');
+      preview.src = assetUrl(image);
+      preview.alt = item.name + ' view ' + (index + 1);
+      button.append(preview);
+      thumbs.append(button);
+    });
+  }
+  const mainImage = document.querySelector('.gallery .main-image img');
+  if (mainImage) {
+    mainImage.src = assetUrl(active);
+    mainImage.alt = item.name + ' ' + (item.finish || '');
+  }
+}
+function wireStartingPrices() {
+  document.querySelectorAll('.product-card').forEach(card => {
+    const item = productFromCard(card);
+    if (!item || !hasStartingPrice(item)) return;
+    const price = card.querySelector('.price');
+    if (price) price.textContent = productPriceText(item);
+    const add = card.querySelector('[data-action="add"]');
+    if (add) {
+      const link = document.createElement('a');
+      link.className = add.className;
+      link.href = '#product/' + item.id;
+      link.textContent = 'Customize & quote';
+      add.replaceWith(link);
+    }
+  });
+  if (state.route.name === 'product') {
+    const item = product(state.route.id);
+    if (!item || !hasStartingPrice(item)) return;
+    const price = document.querySelector('.detail-price');
+    if (price) {
+      const note = document.createElement('small');
+      note.textContent = 'starting price / wheel';
+      price.replaceChildren(document.createTextNode(productPriceText(item) + ' '), note);
+    }
+    const set = document.querySelector('.detail-set');
+    if (set) set.textContent = 'Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.';
+    const financing = document.querySelector('.financing-note');
+    if (financing) financing.textContent = 'Made to order. Start the visual fitment preview or send an inquiry to receive your exact USD quote.';
+    const actions = document.querySelector('.detail-actions');
+    if (actions) {
+      actions.replaceChildren(
+        quoteActionButton('Upload car photo', 'btn btn-primary', item.id),
+        quoteActionButton('Ask F-Box', 'btn btn-dark', item.id, 'chat')
+      );
+    }
+  }
+  if (state.modal?.type === 'quick') {
+    const item = product(state.modal.id);
+    if (!item || !hasStartingPrice(item)) return;
+    const quick = document.querySelector('.quick-product');
+    const quickImage = quick?.querySelector('img');
+    if (quickImage) quickImage.src = assetUrl(productGallery(item)[0] || item.image);
+    const quickPrice = quick?.querySelector('strong');
+    if (quickPrice) quickPrice.textContent = productPriceText(item);
+    const add = quick?.querySelector('[data-action="add"]');
+    if (add) {
+      const link = document.createElement('a');
+      link.className = add.className;
+      link.href = '#product/' + item.id;
+      link.textContent = 'Customize & quote';
+      add.replaceWith(link);
+    }
+  }
+}
 function render() {
   state.route = getRoute();
   const page = state.route.name === 'home' ? customWheelHomePage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : productPage(product(state.route.id));
   document.querySelector('#app').innerHTML = `${header()}${page}${footer()}${chat()}${state.cookie ? '<div class="cookie-banner"><span>By using F-Box, you agree to our cookie policy and fitment analytics.</span><button data-action="dismiss-cookie">Dismiss</button></div>' : ''}${modal()}${wheelVisualizerModal()}${wheelVisualizerImageViewer()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
+  wireProductGallery();
+  wireStartingPrices();
+  wireProductReviews();
+  wireReviewForm();
   wireWheelVisualizerEntry();
   wireWheelInquiryDetails();
   wireHomeVisualizerBanner();
@@ -1290,7 +1556,7 @@ function updateVehicle(field, value) {
   persist(); render();
   if (state.vehicle?.trim) window.setTimeout(() => document.querySelector('.fitment-preview')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
 }
-function clearFilters() { state.search = ''; state.filters = { category: 'All', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' }; state.sort = 'popular'; render(); }
+function clearFilters() { state.search = ''; state.filters = { category: 'All', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' }; state.sort = 'latest'; render(); }
 async function wheelVisualizerSubmitInquiry(values) {
   const current = state.wheelVisualizer;
   if (!current?.open || current.phase !== 'inquiry' || current.inquiry?.status === 'submitting') return;
@@ -1338,6 +1604,11 @@ async function wheelVisualizerSubmitInquiry(values) {
 }
 async function addToCart(id) {
   const item = product(id);
+  if (item && hasStartingPrice(item)) {
+    setToast('This is a starting price. Confirm your vehicle and custom wheel data to receive the final quote.');
+    go('#product/' + item.id);
+    return;
+  }
   const existing = state.cart.find(row => row.id === id);
   if (existing) existing.qty += 1;
   else state.cart.push({ id, qty: 1 });
@@ -1457,6 +1728,13 @@ document.addEventListener('click', async event => {
     render();
     return;
   }
+  if (action === 'customize') {
+    const item = product(target.dataset.id);
+    if (item?.category === 'Wheels') state.wheelVisualizer = wheelVisualizerState(item.id, state.productImage[item.id] || productGallery(item)[0] || item.image);
+    else state.chatOpen = true;
+    render();
+    return;
+  }
   if (action === 'add') { addToCart(target.dataset.id); return; }
   if (action === 'buy-now') { addToCart(target.dataset.id); state.modal = state.mallToken ? { type: 'checkout' } : { type: 'account', afterLogin: 'checkout' }; state.checkoutStep = state.mallToken ? 3 : 1; render(); return; }
   if (action === 'product-image') { state.productImage[target.dataset.id] = target.dataset.image; render(); return; }
@@ -1572,8 +1850,12 @@ document.addEventListener('submit', async event => {
   }
   if (form.dataset.form === 'review') {
     const values = new FormData(form);
+    if (!values.get('consent')) {
+      setToast('Please confirm that this is your own experience before submitting.');
+      return;
+    }
     try {
-      const reviewResponse = await fetch('/api/fbox-content/reviews', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ product_id: state.modal?.id || '', product_name: state.modal?.id ? product(state.modal.id).name : '', title: values.get('title'), body: values.get('body'), vehicle: values.get('vehicle'), rating: 5 }) });
+      const reviewResponse = await fetch('/api/fbox-content/reviews', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ product_id: state.modal?.id || '', product_name: state.modal?.id ? product(state.modal.id).name : '', customer_name: values.get('customer_name'), customer_email: values.get('customer_email'), title: values.get('title'), body: values.get('body'), vehicle: values.get('vehicle'), rating: 5 }) });
       const reviewPayload = await reviewResponse.json().catch(() => ({}));
       if (!reviewResponse.ok) throw new Error(reviewPayload.detail || 'Review could not be submitted.');
       state.modal = null;
@@ -1604,4 +1886,5 @@ render();
 void captureReturnedPayPalPayment();
 detectLocaleByIp();
 checkMallBackend();
+loadMallCatalog();
 loadFBoxContent();
