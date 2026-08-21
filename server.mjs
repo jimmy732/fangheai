@@ -49,8 +49,18 @@ function serveStatic(req, res, pathname) {
   });
 }
 
+function serveIndependentConsole(res) {
+  const filePath = path.join(root, 'admin.html');
+  fs.stat(filePath, (error, stat) => {
+    if (error || !stat.isFile()) return json(res, 404, { message: 'Console not found' });
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
+    fs.createReadStream(filePath).pipe(res);
+  });
+}
+
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+  if (req.method === 'GET' && ['/fbox-console', '/fbox-console/'].includes(url.pathname)) return serveIndependentConsole(res);
   if (req.method === 'GET' && url.pathname === '/admin') {
     res.writeHead(301, { Location: '/admin/' });
     res.end();

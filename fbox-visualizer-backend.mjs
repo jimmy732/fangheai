@@ -4,6 +4,15 @@ import { createHash, randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
+let sharp = null;
+try {
+  const sharpModule = await import('sharp');
+  sharp = sharpModule.default || sharpModule;
+} catch {
+  // Image uploads remain available in environments without the optional image
+  // processor, but they are never reported as cut out in that case.
+}
+
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 const runtimeDir = path.resolve(process.env.FBOX_RUNTIME_DIR || path.join(moduleDir, '..', 'local-mall-dev', '.runtime'));
 const configPath = path.join(runtimeDir, 'fbox-visualizer-config.json');
@@ -14,6 +23,7 @@ const defaultPayPalMode = 'sandbox';
 const defaultStorefrontSettings = {
   company_name: 'Fanghe Overseas Intelligent Technology Co., Ltd.',
   phone: '+86 14726178447',
+  whatsapp_number: '8614726178447',
   domain: 'forcarbox.cn',
   support_email: '',
   default_locale: 'en',
@@ -25,8 +35,14 @@ const jobTtlMs = 60 * 60 * 1000;
 const operationsPath = path.join(runtimeDir, 'fbox-operations.json');
 const seedOperationsPath = path.join(moduleDir, 'data', 'fbox-operations.seed.json');
 const seedReviewsPath = path.join(moduleDir, 'data', 'fbox-reviews-imported.json');
+const seedPhotoReviewsPath = path.join(moduleDir, 'data', 'fbox-photo-reviews.seed.json');
 const storePath = path.join(runtimeDir, 'fbox-store.json');
 const seedStorePath = path.join(moduleDir, 'data', 'fbox-store.seed.json');
+const blogPath = path.join(runtimeDir, 'fbox-blog.json');
+const seedBlogPath = path.join(moduleDir, 'data', 'fbox-blog.seed.json');
+const fitmentPath = path.join(runtimeDir, 'fbox-fitment.json');
+const seedFitmentPath = path.join(moduleDir, 'data', 'fbox-fitment.seed.json');
+const catalogFitmentPath = path.join(moduleDir, 'data', 'fbox-fitment.catalog.json');
 const mediaDir = path.join(runtimeDir, 'fbox-media');
 const adminSessions = new Map();
 const adminSessionsPath = path.join(runtimeDir, 'fbox-admin-sessions.json');
@@ -383,12 +399,15 @@ const defaultOperations = {
   ],
   jobs: [],
   reviews: [],
+  photo_reviews: [],
   cases: [],
   inquiries: []
 };
 let operationsCache = null;
 let frontendVehicleLibraryCache = null;
 let storeCache = null;
+let blogCache = null;
+let fitmentCache = null;
 
 function vehicleLibraryKey(vehicle = {}) {
   return [vehicle.year, vehicle.make, vehicle.model, vehicle.trim, vehicle.drive].map(value => String(value || '').trim().toLowerCase()).join('|');
@@ -475,6 +494,7 @@ async function loadOperations() {
       // Imported review ids are reconciled with the deployable seed below;
       // customer-submitted and test records stay in the runtime file.
       reviews: Array.isArray(raw.reviews) ? raw.reviews : [],
+      photo_reviews: Array.isArray(raw.photo_reviews) ? raw.photo_reviews : [],
       cases: Array.isArray(raw.cases) ? raw.cases : [],
       inquiries: Array.isArray(raw.inquiries) ? raw.inquiries.map(item => ({
         customer_grade: 'C',
@@ -490,17 +510,23 @@ async function loadOperations() {
     // with the same fitment library. Runtime edits are still written outside
     // the repository and take precedence on the next request.
     const mergedReviews = await mergeImportedReviewSeed(operationsCache.reviews);
+    const mergedPhotoReviews = await mergePhotoReviewSeed(operationsCache.photo_reviews);
     const previousImported = operationsCache.reviews.filter(item => String(item?.id || '').startsWith('review-import-'));
     const currentImported = mergedReviews.filter(item => String(item?.id || '').startsWith('review-import-'));
     const importedReviewsChanged = JSON.stringify(previousImported) !== JSON.stringify(currentImported);
-    if (mergedReviews.length !== operationsCache.reviews.length || importedReviewsChanged) {
+    const previousPhotoReviews = operationsCache.photo_reviews.filter(item => String(item?.id || '').startsWith('photo-review-source-'));
+    const currentPhotoReviews = mergedPhotoReviews.filter(item => String(item?.id || '').startsWith('photo-review-source-'));
+    const photoReviewsChanged = JSON.stringify(previousPhotoReviews) !== JSON.stringify(currentPhotoReviews);
+    if (mergedReviews.length !== operationsCache.reviews.length || importedReviewsChanged || photoReviewsChanged) {
       operationsCache.reviews = mergedReviews;
+      operationsCache.photo_reviews = mergedPhotoReviews;
       await saveOperations(operationsCache);
     } else if (!await fs.access(operationsPath).then(() => true).catch(() => false)) await saveOperations(operationsCache);
   } else {
     operationsCache = copyDefaultOperations();
     operationsCache.vehicles = operationsCache.vehicles.map(item => ({ ...item, source_type: 'managed' }));
     operationsCache.reviews = await loadImportedReviewSeed();
+    operationsCache.photo_reviews = await loadPhotoReviewSeed();
     await saveOperations(operationsCache);
   }
   return operationsCache;
@@ -526,6 +552,23 @@ async function mergeImportedReviewSeed(reviews) {
   return [...seed, ...preservedRuntimeRecords];
 }
 
+async function loadPhotoReviewSeed() {
+  try {
+    const records = JSON.parse(await fs.readFile(seedPhotoReviewsPath, 'utf8'));
+    return Array.isArray(records) ? records : [];
+  } catch {
+    return [];
+  }
+}
+
+async function mergePhotoReviewSeed(records) {
+  const list = Array.isArray(records) ? records : [];
+  const seed = await loadPhotoReviewSeed();
+  if (!seed.length) return list;
+  const preservedRuntimeRecords = list.filter(item => !String(item?.id || '').startsWith('photo-review-source-'));
+  return [...seed, ...preservedRuntimeRecords];
+}
+
 async function saveOperations(data) {
   operationsCache = data;
   await fs.mkdir(runtimeDir, { recursive: true });
@@ -536,22 +579,103 @@ function copyDefaultStore() {
   return { products: [], accounts: [], orders: [] };
 }
 
+async function loadStoreSeed() {
+  try {
+    const raw = JSON.parse(await fs.readFile(seedStorePath, 'utf8'));
+    return {
+      ...copyDefaultStore(),
+      products: Array.isArray(raw?.products) ? raw.products : [],
+      accounts: Array.isArray(raw?.accounts) ? raw.accounts : [],
+      orders: Array.isArray(raw?.orders) ? raw.orders : []
+    };
+  } catch {
+    return copyDefaultStore();
+  }
+}
+
+function cloneStoreValue(value) {
+  return value === undefined ? value : JSON.parse(JSON.stringify(value));
+}
+
+function mergeStoreProductSeed(runtimeProducts = [], seedProducts = []) {
+  const seededFields = [
+    'custom_size', 'size_note', 'price_mode', 'currency', 'sort',
+    'image_original', 'image_cutout', 'visualizer_enabled',
+    'dynamic_wheel_effect', 'visualizer_mode', 'images'
+  ];
+  const seedById = new Map(seedProducts.filter(item => item?.id).map(item => [String(item.id), item]));
+  const runtimeIds = new Set(runtimeProducts.filter(item => item?.id).map(item => String(item.id)));
+  let changed = false;
+  const products = runtimeProducts.map(item => {
+    const seed = seedById.get(String(item?.id || ''));
+    if (!seed) return item;
+    const next = { ...item };
+    seededFields.forEach(field => {
+      const runtimeValue = next[field];
+      const hasRuntimeValue = runtimeValue !== undefined && runtimeValue !== null && runtimeValue !== ''
+        && !(Array.isArray(runtimeValue) && runtimeValue.length === 0);
+      if (!hasRuntimeValue && seed[field] !== undefined) next[field] = cloneStoreValue(seed[field]);
+    });
+    if (JSON.stringify(next) !== JSON.stringify(item)) changed = true;
+    return next;
+  });
+  seedProducts.forEach(seed => {
+    const id = String(seed?.id || '');
+    if (!id || runtimeIds.has(id)) return;
+    products.push(cloneStoreValue(seed));
+    runtimeIds.add(id);
+    changed = true;
+  });
+  return { products, changed };
+}
+
+function ensureStoreProductContract(product = {}) {
+  const next = { ...product };
+  let changed = false;
+  const category = String(next.category || '').toLowerCase();
+  const defaults = {
+    custom_size: true,
+    size_note: category === 'wheels'
+      ? 'All sizes supported - custom diameter, width and fitment'
+      : 'All sizes supported - custom fitment built to order',
+    price_mode: 'fixed',
+    currency: 'USD'
+  };
+  Object.entries(defaults).forEach(([key, value]) => {
+    if (next[key] === undefined || next[key] === null || next[key] === '') {
+      next[key] = value;
+      changed = true;
+    }
+  });
+  return { product: next, changed };
+}
+
 async function loadStore() {
   if (storeCache) return storeCache;
-  let raw;
+  let raw = null;
+  let runtimeExists = true;
   try {
     raw = JSON.parse(await fs.readFile(storePath, 'utf8'));
   } catch {
-    try { raw = JSON.parse(await fs.readFile(seedStorePath, 'utf8')); } catch { raw = null; }
+    runtimeExists = false;
   }
+  const seed = await loadStoreSeed();
+  const runtimeProducts = Array.isArray(raw?.products) ? raw.products : [];
+  const mergedProducts = mergeStoreProductSeed(runtimeProducts, seed.products);
+  let contractChanged = false;
+  const contractProducts = mergedProducts.products.map(item => {
+    const result = ensureStoreProductContract(item);
+    contractChanged ||= result.changed;
+    return result.product;
+  });
   storeCache = {
     ...copyDefaultStore(),
     ...(raw || {}),
-    products: Array.isArray(raw?.products) ? raw.products : [],
+    products: contractProducts.length ? contractProducts : seed.products.map(item => ensureStoreProductContract(item).product),
     accounts: Array.isArray(raw?.accounts) ? raw.accounts : [],
     orders: Array.isArray(raw?.orders) ? raw.orders : []
   };
-  if (!await fs.access(storePath).then(() => true).catch(() => false)) await saveStore(storeCache);
+  if (!runtimeExists || mergedProducts.changed || contractChanged) await saveStore(storeCache);
   return storeCache;
 }
 
@@ -677,7 +801,7 @@ function normalizeProductImages(value, legacyImage = '') {
     };
   }).filter(Boolean).slice(0, 12);
   const fallback = textValue(legacyImage, 800);
-  if (!images.length && fallback) images.push({ id: 'image-1', url: fallback, original_url: '', alt: '', cutout: false });
+  if (!images.length && fallback) images.push({ id: 'image-1', url: fallback, original_url: '', alt: '', cutout: true });
   return images;
 }
 
@@ -707,6 +831,858 @@ function publicProduct(record = {}) {
   };
 }
 
+function blogSlug(value = '') {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 160) || 'fbox-journal-post';
+}
+
+function blogText(value, max = 16000) {
+  return String(value ?? '').trim().slice(0, max);
+}
+
+function blogTags(value) {
+  const source = Array.isArray(value) ? value : String(value || '').split(',');
+  return [...new Set(source.map(item => textValue(item, 50)).filter(Boolean))].slice(0, 8);
+}
+
+function normalizeBlogPost(payload = {}, id = operationId('blog'), existing = {}) {
+  const title = blogText(hasOwn(payload, 'title') ? payload.title : existing.title, 180);
+  const requestedSlug = blogText(hasOwn(payload, 'slug') ? payload.slug : existing.slug, 180);
+  const body = blogText(hasOwn(payload, 'body') ? payload.body : existing.body, 16000);
+  const statusInput = hasOwn(payload, 'status') ? payload.status : existing.status;
+  const status = ['draft', 'published', 'archived'].includes(statusInput) ? statusInput : 'draft';
+  const featured = hasOwn(payload, 'featured') ? Boolean(payload.featured) : Boolean(existing.featured);
+  const publishedAt = blogText(hasOwn(payload, 'published_at') ? payload.published_at : existing.published_at, 60);
+  return {
+    ...existing,
+    ...payload,
+    id,
+    slug: blogSlug(requestedSlug || title),
+    title,
+    excerpt: blogText(hasOwn(payload, 'excerpt') ? payload.excerpt : existing.excerpt, 420),
+    category: textValue(hasOwn(payload, 'category') ? payload.category : existing.category, 80) || 'Guides',
+    cover_image: textValue(hasOwn(payload, 'cover_image') ? payload.cover_image : existing.cover_image, 1000),
+    author: textValue(hasOwn(payload, 'author') ? payload.author : existing.author, 120) || 'F-Box Editorial',
+    read_time: textValue(hasOwn(payload, 'read_time') ? payload.read_time : existing.read_time, 40) || '5 min read',
+    tags: blogTags(hasOwn(payload, 'tags') ? payload.tags : existing.tags),
+    status,
+    featured,
+    published_at: publishedAt || (status === 'published' ? new Date().toISOString() : ''),
+    body,
+    created_at: existing.created_at || payload.created_at || new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+}
+
+function publicBlogPost(record = {}) {
+  return {
+    ...record,
+    cover_image: publicProductImageUrl(record.cover_image)
+  };
+}
+
+function sortBlogPosts(records = []) {
+  return records.slice().sort((left, right) => {
+    if (Boolean(right.featured) !== Boolean(left.featured)) return left.featured ? -1 : 1;
+    return String(right.published_at || right.updated_at || right.created_at || '').localeCompare(String(left.published_at || left.updated_at || left.created_at || ''));
+  });
+}
+
+async function loadBlog() {
+  if (blogCache) return blogCache;
+  let runtime = [];
+  let seed = [];
+  try {
+    const raw = JSON.parse(await fs.readFile(blogPath, 'utf8'));
+    runtime = Array.isArray(raw) ? raw : (Array.isArray(raw?.posts) ? raw.posts : []);
+  } catch { /* A fresh runtime is populated from the deployable seed below. */ }
+  try {
+    const raw = JSON.parse(await fs.readFile(seedBlogPath, 'utf8'));
+    seed = Array.isArray(raw) ? raw : [];
+  } catch { /* The public API remains available with an empty journal. */ }
+  const runtimeRecords = runtime.map(item => normalizeBlogPost(item, item.id || operationId('blog'), item)).filter(item => item.title && item.body);
+  const runtimeKeys = new Set(runtimeRecords.map(item => item.id || item.slug));
+  const seedRecords = seed.map(item => normalizeBlogPost(item, item.id || operationId('blog'), item)).filter(item => item.title && item.body);
+  const merged = [...runtimeRecords, ...seedRecords.filter(item => !runtimeKeys.has(item.id) && !runtimeRecords.some(runtimeItem => runtimeItem.slug === item.slug))];
+  blogCache = { posts: merged };
+  if (!await fs.access(blogPath).then(() => true).catch(() => false) || merged.length !== runtimeRecords.length) await saveBlog(blogCache);
+  return blogCache;
+}
+
+async function saveBlog(data) {
+  blogCache = data;
+  await fs.mkdir(runtimeDir, { recursive: true });
+  await fs.writeFile(blogPath, JSON.stringify(data, null, 2), 'utf8');
+}
+
+function copyDefaultFitment() {
+  return { parts: [], cases: [] };
+}
+
+function fitmentNumber(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  const match = String(value ?? '').replace(',', '.').match(/-?\d+(?:\.\d+)?/);
+  return match ? Number(match[0]) : null;
+}
+
+function fitmentText(value, max = 240) {
+  return String(value ?? '').trim().slice(0, max);
+}
+
+function normalizeFitmentRules(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 80).map(rule => ({
+    year_from: fitmentNumber(rule?.year_from) || null,
+    year_to: fitmentNumber(rule?.year_to) || null,
+    make: fitmentText(rule?.make, 60),
+    model: fitmentText(rule?.model, 80),
+    trim: fitmentText(rule?.trim, 80),
+    drive: fitmentText(rule?.drive, 20),
+    note: fitmentText(rule?.note, 240)
+  })).filter(rule => rule.make || rule.model || rule.year_from || rule.year_to);
+}
+
+function fitmentSlug(value = '') {
+  return String(value || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'part';
+}
+
+function fitmentBoolean(value, fallback = false) {
+  if (typeof value === 'boolean') return value;
+  if (['true', '1', 'yes', 'on'].includes(String(value || '').toLowerCase())) return true;
+  if (['false', '0', 'no', 'off'].includes(String(value || '').toLowerCase())) return false;
+  return fallback;
+}
+
+function normalizeFitmentSourceRefs(value, fallback = {}) {
+  const refs = Array.isArray(value) ? value : [];
+  const normalized = refs.slice(0, 12).map(ref => ({
+    label: fitmentText(ref?.label || ref?.source_label, 180),
+    url: fitmentText(ref?.url || ref?.source_url, 800),
+    kind: fitmentText(ref?.kind || 'manufacturer-catalog', 60),
+    evidence: fitmentText(ref?.evidence, 500),
+    checked_at: fitmentText(ref?.checked_at || ref?.retrieved_at, 40)
+  })).filter(ref => ref.url || ref.label || ref.evidence);
+  if (!normalized.length && (fallback.url || fallback.label)) normalized.push({
+    label: fitmentText(fallback.label, 180),
+    url: fitmentText(fallback.url, 800),
+    kind: fitmentText(fallback.kind || 'manufacturer-catalog', 60),
+    evidence: fitmentText(fallback.evidence, 500),
+    checked_at: fitmentText(fallback.checked_at, 40)
+  });
+  return normalized;
+}
+
+function expandFitmentCatalog(catalog = {}) {
+  const groups = Array.isArray(catalog.groups) ? catalog.groups : [];
+  return groups.flatMap(group => {
+    const models = Array.isArray(group.models) ? group.models : [];
+    return models.map((model, index) => {
+      const modelName = fitmentText(model?.model || model?.name, 160);
+      const sourceRefs = [...(Array.isArray(group.source_refs) ? group.source_refs : []), ...(Array.isArray(model?.source_refs) ? model.source_refs : [])];
+      return {
+        id: model?.id || `catalog-${fitmentSlug(group.brand)}-${fitmentSlug(modelName)}-${index + 1}`,
+        type: model?.type || group.type || 'other',
+        brand: model?.brand || group.brand,
+        model: modelName,
+        part_number: model?.part_number || modelName,
+        axle: model?.axle || group.axle || 'universal',
+        fitment_rules: model?.fitment_rules || group.fitment_rules || [],
+        specs: { ...(group.base_specs || {}), ...(model?.specs || {}) },
+        source_label: model?.source_label || group.source_label,
+        source_url: model?.source_url || group.source_url,
+        source_refs: sourceRefs,
+        source_evidence: model?.source_evidence || group.source_evidence,
+        source_checked_at: model?.source_checked_at || group.source_checked_at || catalog.checked_at,
+        confidence: model?.confidence || group.confidence || 'catalog-extracted',
+        verification_status: model?.verification_status || group.verification_status || 'needs-review',
+        parameter_scope: model?.parameter_scope || group.parameter_scope || 'family',
+        clearance_template_required: model?.clearance_template_required ?? group.clearance_template_required ?? true,
+        auto_match_enabled: model?.auto_match_enabled ?? group.auto_match_enabled ?? false,
+        clearance_template_id: model?.clearance_template_id || group.clearance_template_id || '',
+        review_reasons: model?.review_reasons || group.review_reasons || [],
+        status: model?.status || group.status || 'active',
+        notes: model?.notes || group.notes || ''
+      };
+    });
+  });
+}
+
+function normalizeFitmentPart(payload = {}, id = operationId('fitment-part'), existing = {}) {
+  const sourceSpecs = payload.specs && typeof payload.specs === 'object' ? payload.specs : {};
+  const oldSpecs = existing.specs && typeof existing.specs === 'object' ? existing.specs : {};
+  const specs = { ...oldSpecs, ...sourceSpecs };
+  const numericSpecKeys = [
+    'caliper_pistons', 'rotor_diameter_mm', 'rotor_diameter_in', 'rotor_thickness_mm',
+    'min_disc_diameter_mm', 'max_disc_diameter_mm', 'min_disc_thickness_mm', 'max_disc_thickness_mm',
+    'min_wheel_diameter_in', 'min_spoke_clearance_mm', 'oe_hub_offset_in', 'hub_offset_mm',
+    'caliper_clearance_a_mm', 'caliper_clearance_b_mm', 'caliper_clearance_c_mm', 'mount_centres_mm',
+    'pad_thickness_mm', 'piston_area_cm2', 'weight_kg', 'drop_min_mm', 'drop_max_mm', 'damping_clicks',
+    'spring_rate_front_n_mm', 'spring_rate_rear_n_mm', 'ride_height_change_min_mm', 'ride_height_change_max_mm',
+    'rotor_width_mm', 'min_disc_diameter_in', 'max_disc_diameter_in', 'min_disc_thickness_in', 'max_disc_thickness_in',
+    'shock_body_diameter_mm', 'spring_rate_front_kg_mm', 'spring_rate_rear_kg_mm'
+  ];
+  numericSpecKeys.forEach(key => {
+    if (specs[key] !== undefined && specs[key] !== null && specs[key] !== '') {
+      const number = fitmentNumber(specs[key]);
+      if (number !== null) specs[key] = number;
+    }
+  });
+  const confidence = ['source-listed', 'operator-verified', 'customer-measured', 'catalog-extracted', 'marketplace-listed', 'needs-review'].includes(payload.confidence || existing.confidence) ? (payload.confidence || existing.confidence) : 'needs-review';
+  const verificationStatus = ['source_catalog', 'application_verified', 'template_verified', 'customer_measured', 'needs-review'].includes(payload.verification_status || existing.verification_status) ? (payload.verification_status || existing.verification_status) : 'needs-review';
+  const sourceRefs = normalizeFitmentSourceRefs(payload.source_refs ?? existing.source_refs, {
+    label: payload.source_label ?? existing.source_label,
+    url: payload.source_url ?? existing.source_url,
+    evidence: payload.source_evidence ?? existing.source_evidence,
+    checked_at: payload.source_checked_at ?? existing.source_checked_at
+  });
+  const sourceUrl = fitmentText(payload.source_url ?? existing.source_url ?? sourceRefs[0]?.url, 800);
+  const sourceLabel = fitmentText(payload.source_label ?? existing.source_label ?? sourceRefs[0]?.label, 180);
+  const reviewReasons = Array.isArray(payload.review_reasons ?? existing.review_reasons)
+    ? (payload.review_reasons ?? existing.review_reasons).map(value => fitmentText(value, 240)).filter(Boolean).slice(0, 12)
+    : [];
+  return {
+    ...existing,
+    ...payload,
+    id,
+    type: ['brake', 'caliper', 'rotor', 'pad', 'suspension', 'spacer', 'control-arm', 'top-mount', 'tire', 'other'].includes(payload.type || existing.type) ? (payload.type || existing.type) : 'other',
+    brand: fitmentText(payload.brand ?? existing.brand, 80),
+    model: fitmentText(payload.model ?? existing.model, 160),
+    part_number: fitmentText(payload.part_number ?? existing.part_number, 100),
+    axle: ['front', 'rear', 'both', 'universal'].includes(payload.axle || existing.axle) ? (payload.axle || existing.axle) : 'universal',
+    fitment_rules: normalizeFitmentRules(payload.fitment_rules ?? existing.fitment_rules),
+    specs,
+    source_label: sourceLabel,
+    source_url: sourceUrl,
+    source_refs: sourceRefs,
+    source_evidence: fitmentText(payload.source_evidence ?? existing.source_evidence, 600),
+    source_checked_at: fitmentText(payload.source_checked_at ?? existing.source_checked_at, 40),
+    confidence,
+    verification_status: verificationStatus,
+    parameter_scope: ['application', 'family', 'kit', 'unknown'].includes(payload.parameter_scope || existing.parameter_scope) ? (payload.parameter_scope || existing.parameter_scope) : 'unknown',
+    clearance_template_required: fitmentBoolean(payload.clearance_template_required ?? existing.clearance_template_required, true),
+    clearance_template_id: fitmentText(payload.clearance_template_id ?? existing.clearance_template_id, 160),
+    auto_match_enabled: verificationStatus === 'application_verified' && fitmentBoolean(payload.auto_match_enabled ?? existing.auto_match_enabled, false),
+    review_reasons: reviewReasons,
+    status: ['active', 'draft', 'archived'].includes(payload.status || existing.status) ? (payload.status || existing.status) : 'draft',
+    notes: fitmentText(payload.notes ?? existing.notes, 1200),
+    created_at: existing.created_at || payload.created_at || new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+}
+
+async function loadFitment() {
+  if (fitmentCache) return fitmentCache;
+  let runtime = null;
+  let seed = null;
+  let catalog = null;
+  try {
+    runtime = JSON.parse(await fs.readFile(fitmentPath, 'utf8'));
+  } catch { /* A fresh runtime is populated from the deployable seed below. */ }
+  try {
+    seed = JSON.parse(await fs.readFile(seedFitmentPath, 'utf8'));
+  } catch { /* The operator can still start with an empty library. */ }
+  try {
+    catalog = JSON.parse(await fs.readFile(catalogFitmentPath, 'utf8'));
+  } catch { /* The catalog is optional so manual operation still works. */ }
+  const runtimeParts = Array.isArray(runtime?.parts) ? runtime.parts : [];
+  const seedParts = Array.isArray(seed?.parts) ? seed.parts : Array.isArray(seed) ? seed : [];
+  const catalogParts = expandFitmentCatalog(catalog || {});
+  const partsById = new Map();
+  seedParts.forEach(item => partsById.set(item.id || operationId('fitment-part'), item));
+  catalogParts.forEach(item => partsById.set(item.id || operationId('fitment-part'), item));
+  runtimeParts.forEach(item => partsById.set(item.id || operationId('fitment-part'), item));
+  fitmentCache = {
+    ...copyDefaultFitment(),
+    parts: [...partsById.values()].map(item => normalizeFitmentPart(item, item.id || operationId('fitment-part'), item)),
+    cases: Array.isArray(runtime?.cases) ? runtime.cases : []
+  };
+  if (!await fs.access(fitmentPath).then(() => true).catch(() => false) || partsById.size !== runtimeParts.length) await saveFitment(fitmentCache);
+  return fitmentCache;
+}
+
+async function saveFitment(data) {
+  fitmentCache = data;
+  await fs.mkdir(runtimeDir, { recursive: true });
+  await fs.writeFile(fitmentPath, JSON.stringify(data, null, 2), 'utf8');
+}
+
+function publicFitmentPart(record = {}) {
+  return {
+    ...record,
+    specs: record.specs && typeof record.specs === 'object' ? { ...record.specs } : {},
+    fitment_rules: Array.isArray(record.fitment_rules) ? record.fitment_rules.map(rule => ({ ...rule })) : []
+  };
+}
+
+function normalizedFitmentToken(value = '') {
+  return String(value || '').trim().toLowerCase().replace(/[–—]/g, '-').replace(/\s+/g, ' ');
+}
+
+function fitmentVehicleRuleMatches(rule = {}, vehicle = {}) {
+  const year = Number(vehicle.year || 0);
+  if (rule.year_from && year && year < Number(rule.year_from)) return false;
+  if (rule.year_to && year && year > Number(rule.year_to)) return false;
+  if (rule.make && normalizedFitmentToken(rule.make) !== normalizedFitmentToken(vehicle.make)) return false;
+  if (rule.model && normalizedFitmentToken(rule.model) !== normalizedFitmentToken(vehicle.model)) return false;
+  if (rule.trim && normalizedFitmentToken(rule.trim) !== normalizedFitmentToken(vehicle.trim)) return false;
+  if (rule.drive && normalizedFitmentToken(rule.drive) !== normalizedFitmentToken(vehicle.drive)) return false;
+  return true;
+}
+
+function fitmentPartMatchesVehicle(part = {}, vehicle = {}) {
+  if (part.is_oem) return Boolean(vehicle.year && vehicle.make && vehicle.model && vehicle.trim);
+  const rules = Array.isArray(part.fitment_rules) ? part.fitment_rules : [];
+  return !rules.length || rules.some(rule => fitmentVehicleRuleMatches(rule, vehicle));
+}
+
+function fitmentPcdKey(value = '') {
+  const match = String(value || '').replace(/\s+/g, '').match(/(\d+)x(\d+(?:\.\d+)?)/i);
+  return match ? `${Number(match[1])}x${Number(match[2]).toFixed(1)}` : '';
+}
+
+function fitmentAxleValue(value, axle) {
+  const source = String(value ?? '').trim();
+  if (!source) return '';
+  const values = source.split('/').map(item => item.trim()).filter(Boolean);
+  if (values.length < 2) return values[0] || '';
+  return axle === 'rear' ? values[values.length - 1] : values[0];
+}
+
+function fitmentTireMetrics(value = '') {
+  const match = String(value || '').toUpperCase().replace(/\s+/g, '').match(/(?:P|LT)?(\d{3})\/(\d{2})(?:ZR?|R)(\d{2})/);
+  if (!match) return null;
+  const width = Number(match[1]);
+  const aspect = Number(match[2]);
+  const rim = Number(match[3]);
+  return { size: String(value).trim(), width, aspect, rim, diameter_mm: Number((rim * 25.4 + (width * aspect / 100) * 2).toFixed(1)) };
+}
+
+function fitmentAxleInput(payload = {}, axle) {
+  const wheels = payload.wheels || payload.wheel || {};
+  const input = wheels[axle] && typeof wheels[axle] === 'object' ? wheels[axle] : {};
+  const hub = payload.hub && typeof payload.hub === 'object' ? payload.hub : {};
+  const hubInput = hub[axle] && typeof hub[axle] === 'object' ? hub[axle] : hub;
+  return {
+    diameter: fitmentNumber(input.diameter),
+    width: fitmentNumber(input.width),
+    pcd: fitmentText(input.pcd, 30),
+    center_bore: fitmentNumber(input.center_bore),
+    offset: fitmentNumber(input.offset),
+    load_rating_kg: fitmentNumber(input.load_rating_kg),
+    inner_clearance_mm: fitmentNumber(input.inner_clearance_mm),
+    spoke_clearance_mm: fitmentNumber(input.spoke_clearance_mm),
+    fender_clearance_mm: fitmentNumber(input.fender_clearance_mm),
+    compression_clearance_mm: fitmentNumber(input.compression_clearance_mm),
+    camber_deg: fitmentNumber(input.camber_deg),
+    toe_deg: fitmentNumber(input.toe_deg),
+    tire_fitment_style: fitmentText(input.tire_fitment_style, 40).toLowerCase(),
+    spacer_mm: fitmentNumber(input.spacer_mm ?? hubInput.spacer_mm ?? payload.spacer_mm) || 0
+  };
+}
+
+function fitmentAxleParts(parts = [], axle, type) {
+  const types = Array.isArray(type) ? type : [type];
+  return parts.filter(part => types.includes(part.type) && (part.axle === axle || part.axle === 'both' || part.axle === 'universal'));
+}
+
+function oemFitmentPartFromId(id = '') {
+  const match = String(id).match(/^oem-(front|rear)-(brake|rotor|pad|suspension)$/);
+  if (!match) return null;
+  const [, axle, component] = match;
+  const labels = { brake: 'factory brake package / caliper', rotor: 'factory brake rotor', pad: 'factory brake pad', suspension: 'factory suspension' };
+  const label = labels[component] || 'factory component';
+  return {
+    id: String(id),
+    type: component === 'brake' ? 'brake' : component,
+    brand: 'Factory OEM',
+    model: label,
+    part_number: `OEM-${axle.toUpperCase()}-${component.toUpperCase()}`,
+    axle,
+    fitment_rules: [],
+    specs: {},
+    source_label: 'Exact vehicle factory baseline',
+    source_url: '',
+    source_refs: [],
+    source_evidence: 'Factory selection is only a baseline. Confirm the exact trim, option package, VIN or OE part number and the wheel/brake template before production.',
+    source_checked_at: '',
+    confidence: 'needs-review',
+    verification_status: 'needs-review',
+    parameter_scope: 'application',
+    clearance_template_required: true,
+    auto_match_enabled: false,
+    clearance_template_id: '',
+    review_reasons: ['Exact factory package and physical clearance still need confirmation.'],
+    status: 'active',
+    notes: 'Factory OEM baseline selected by the customer; do not treat this as a universal brake or suspension dimension profile.',
+    is_oem: true,
+    component_state: 'oem'
+  };
+}
+
+function traditionalizeFitmentText(value) {
+  return String(value || '')
+    .replaceAll('轮毂', '輪圈')
+    .replaceAll('刹车', '煞車')
+    .replaceAll('车辆', '車輛')
+    .replaceAll('车型', '車型')
+    .replaceAll('适配', '適配')
+    .replaceAll('改装', '改裝')
+    .replaceAll('前轴', '前軸')
+    .replaceAll('后轴', '後軸')
+    .replaceAll('轮胎', '輪胎')
+    .replaceAll('直径', '直徑')
+    .replaceAll('宽度', '寬度')
+    .replaceAll('垫片', '墊片')
+    .replaceAll('内侧', '內側')
+    .replaceAll('辐条', '輻條')
+    .replaceAll('间隙', '間隙')
+    .replaceAll('实测', '實測')
+    .replaceAll('待确认', '待確認')
+    .replaceAll('需要测量', '需要測量')
+    .replaceAll('发现冲突', '發現衝突')
+    .replaceAll('检查', '檢查')
+    .replaceAll('结果', '結果')
+    .replaceAll('参数', '參數')
+    .replaceAll('选择', '選擇')
+    .replaceAll('填写', '填寫')
+    .replaceAll('核对', '核對')
+    .replaceAll('最终', '最終')
+    .replaceAll('赛道', '賽道')
+    .replaceAll('驾驶', '駕駛')
+    .replaceAll('手动', '手動')
+    .replaceAll('输入', '輸入')
+    .replaceAll('卡钳', '卡鉗')
+    .replaceAll('刹车盘', '煞車碟')
+    .replaceAll('刹车片', '煞車片')
+    .replaceAll('避震', '避震')
+    .replaceAll('绞牙', '絞牙')
+    .replaceAll('底盘', '底盤')
+    .replaceAll('轮辋', '輪圈')
+    .replaceAll('实验室', '實驗室')
+    .replaceAll('轮廓', '輪廓')
+    .replaceAll('场景', '場景')
+    .replaceAll('画', '畫')
+    .replaceAll('已经', '已經')
+    .replaceAll('安装', '安裝')
+    .replaceAll('报价', '報價')
+    .replaceAll('还', '還')
+    .replaceAll('数据', '數據')
+    .replaceAll('规则', '規則')
+    .replaceAll('会', '會')
+    .replaceAll('规格', '規格')
+    .replaceAll('竞技', '競技')
+    .replaceAll('驱动', '驅動')
+    .replaceAll('标记', '標記')
+    .replaceAll('并', '並')
+    .replaceAll('够', '夠')
+    .replaceAll('确认', '確認');
+}
+
+function localizeFitmentText(value, locale = 'en') {
+  const source = String(value || '');
+  if (!String(locale).toLowerCase().startsWith('zh')) return value;
+  const exact = {
+    'Rule pass': '规则通过',
+    'Conflict found': '发现冲突',
+    'Needs measurement': '需要测量',
+    'Select an exact vehicle year, make, model and trim from the F-Box vehicle library.': '请从 F-Box 车型库选择准确的年份、品牌、车型和配置。',
+    'No catalogued brake, rotor, pad or suspension part was selected; the result will stay provisional.': '尚未选择库内的刹车、刹车盘、刹车片或避震部件，结果仍为初步判断。',
+    'Send the brake template, current ride height and inner/fender clearance to F-Box for final confirmation.': '请把刹车模板、当前车高以及内侧和翼子板间隙发给 F-Box 做最终确认。',
+    'Correct the conflicting hub, brake or tire input before asking F-Box to quote.': '请先修正轮毂孔距、刹车或轮胎参数冲突，再让 F-Box 报价。',
+    'The known rules pass. F-Box still verifies the final custom wheel drawing before production.': '已知规则通过。F-Box 仍会在生产前复核最终定制轮毂图纸。',
+    'Brake profile found; wheel template still required': '已找到刹车轮廓，仍需要轮毂模板确认',
+    'Enter current drop to check tire and suspension clearance': '请输入当前降低高度，以检查轮胎和避震间隙',
+    'Exact ET needs hub and clearance measurements.': '准确 ET 需要轮毂孔位和间隙实测值。',
+    'Initial ET estimate preserves the OEM inner edge for the selected width; confirm fender and suspension clearance before production.': '当前 ET 估算按所选宽度保留原厂内侧边缘；生产前请确认翼子板和避震间隙。',
+    'Factory OEM selections use the exact vehicle baseline, but the trim, option package and physical clearance still need confirmation.': '选择原厂部件后，仍需确认准确配置、选装包和实际间隙。',
+    'Factory brake and suspension package confirmation by exact trim, VIN or OE part number.': '需要通过准确配置、VIN 或原厂零件号确认原厂刹车和避震套件。',
+    'Measure the installed alignment before using stance to set wheel clearance': '使用低趴姿态计算间隙前，先实测车辆当前定位参数',
+    'Measure toe because lowered geometry can change tire position and wear': '降低车身后悬挂几何会改变轮胎位置和磨损，需要实测前束',
+    'Measure outer clearance at steering lock and full compression': '请在打满方向和悬挂完全压缩时实测外侧间隙',
+    'Measure tire shoulder to inner fender at steering lock': '请在前轮打满方向后，实测轮胎肩部到轮眉内缘的最小间隙',
+    'Measure tire shoulder to inner fender under load': '请在悬挂受载并经过工作行程时，实测轮胎肩部到轮眉内缘的最小间隙',
+    'Measure with the suspension loaded through its usable travel': '请在悬挂经过实际工作行程并受载时实测间隙',
+    'Record whether the tire is standard or stretched': '请记录轮胎是标准安装还是拉伸安装',
+    'Standard tire fitment selected': '已选择标准轮胎安装',
+    'Exact part number, vehicle application and wheel clearance template for every selected modified part.': '每个选中的改装件都需要准确零件号、车型适配信息和轮毂间隙模板。'
+  };
+  let translated = exact[source] || source;
+  let match = translated.match(/^Selected part data is not cleared for automatic approval \((.+)\); exact vehicle application and wheel\/brake template review are still required\.$/);
+  if (match) {
+    const labels = match[1]
+      .replaceAll('Factory OEM ', '')
+      .replaceAll('factory brake package / caliper', '原厂刹车套件 / 卡钳')
+      .replaceAll('factory brake rotor', '原厂刹车盘')
+      .replaceAll('factory brake pad', '原厂刹车片')
+      .replaceAll('factory suspension', '原厂避震')
+      .replaceAll('Factory OEM', '原厂');
+    translated = `所选部件数据尚未达到自动放行标准（${labels}）；仍需准确车型适配和轮毂 / 刹车模板复核。`;
+  }
+  match = translated.match(/^(front|rear) PCD (.+) does not match the vehicle hub (.+)\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} PCD ${match[2]} 与车辆轮毂孔距 ${match[3]} 不匹配。`;
+  match = translated.match(/^(front|rear) center bore (.+) is smaller than the hub (.+)\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 中心孔 ${match[2]} 小于轮毂轴头 ${match[3]}。`;
+  match = translated.match(/^(front|rear) wheel center bore is larger than the hub; a hub-centric ring or custom bore is required\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 轮毂中心孔大于轴头，需要中心定位环或定制中心孔。`;
+  match = translated.match(/^(front|rear) wheel diameter (.+) is below the (.+) brake\/OE minimum\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 轮毂直径 ${match[2]} 小于刹车 / 原厂最低要求 ${match[3]}。`;
+  match = translated.match(/^(front|rear) spoke clearance is below the selected brake requirement\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 辐条间隙小于所选刹车要求。`;
+  match = translated.match(/^(front|rear) inner suspension clearance is not measured\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 轮毂内桶到避震筒或弹簧座的最小间隙尚未实测。`;
+  match = translated.match(/^(front|rear) requested ride-height drop exceeds the selected suspension range\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 要求的降低高度超过所选避震范围。`;
+  match = translated.match(/^(front|rear) current camber after lowering or alignment\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 降低车身或重新定位后的当前倾角。`;
+  match = translated.match(/^(front|rear) current toe after lowering or alignment\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 降低车身或重新定位后的当前前束。`;
+  match = translated.match(/^(front|rear) fender-to-tire clearance at steering lock and full compression\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 打满方向时轮胎肩部到轮眉内缘的最小间隙。`;
+  match = translated.match(/^(front|rear) inner and outer clearance at full compression\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 悬挂完全压缩并受载时，轮胎、轮眉、避震和轮毂内桶的最小间隙。`;
+  match = translated.match(/^(front|rear) tire manufacturer fitment range and dynamic clearance for the selected stretch setup\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 所选拉伸轮胎的制造商安装范围和动态间隙。`;
+  match = translated.match(/^(front|rear) tire fitment style: standard or stretched\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 轮胎安装风格：标准还是拉伸。`;
+  match = translated.match(/^(front|rear) negative camber is ([-\d.]+)°; do not use static clearance alone, confirm tire load, wear and full compression clearance\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 负倾角为 ${match[2]}°；不能只看静态间隙，请确认轮胎负荷、磨损和完全压缩间隙。`;
+  match = translated.match(/^(front|rear) negative camber changes the tire-to-fender relationship; confirm dynamic clearance at steering lock and full compression\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 负倾角会改变轮胎与轮眉的关系，请确认打满方向和完全压缩时的动态间隙。`;
+  match = translated.match(/^(front|rear) measured fender clearance is below zero; the current setup already contacts the body\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 实测轮眉间隙小于 0，当前配置已经与车身干涉。`;
+  match = translated.match(/^(front|rear) measured tire-shoulder to inner-fender clearance is below zero; the current setup already contacts the body\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 实测轮胎肩部到轮眉内缘的间隙小于 0，当前配置已经与车身干涉。`;
+  match = translated.match(/^(front|rear) measured compression clearance is below zero; the setup cannot be approved as entered\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 实测压缩间隙小于 0，当前填写的配置不能通过。`;
+  match = translated.match(/^(front|rear) measured full-compression minimum clearance is below zero; the setup cannot be approved as entered\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 实测完全压缩最小间隙小于 0，当前填写的配置不能通过。`;
+  match = translated.match(/^(front|rear) (mild-stretch|aggressive-stretch) tire fitment needs the tire manufacturer range and dynamic bead\/fender clearance review\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} ${match[2] === 'mild-stretch' ? '轻度拉伸' : '激进拉伸'}轮胎需要复核轮胎制造商范围和动态胎唇/轮眉间隙。`;
+  match = translated.match(/^([-\d.]+)° negative; dynamic tire and fender clearance review required$/);
+  if (match) translated = `${match[1]}° 负倾角；需要复核轮胎和轮眉动态间隙`;
+  match = translated.match(/^([-\d.]+)° measured$/);
+  if (match) translated = `${match[1]}° 实测`;
+  if (translated === 'mild-stretch') translated = '轻度拉伸';
+  if (translated === 'aggressive-stretch') translated = '激进拉伸';
+  match = translated.match(/^(front|rear) tire rim diameter (.+) does not match the selected wheel (.+)\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 轮胎轮圈直径 ${match[2]} 与所选轮毂 ${match[3]} 不匹配。`;
+  match = translated.match(/^(front|rear) PCD is not available\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} PCD 尚未提供。`;
+  match = translated.match(/^(front|rear) target wheel diameter\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 目标轮毂直径。`;
+  match = translated.match(/^(front|rear) target wheel width\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 目标轮毂宽度。`;
+  match = translated.match(/^(front|rear) target wheel ET\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 目标轮毂 ET。`;
+  match = translated.match(/^(front|rear) spoke-to-caliper clearance or brake template\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 辐条背面到卡钳最高点的间隙，或刹车模板。`;
+  match = translated.match(/^(front|rear) inner wheel-to-suspension clearance\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 轮毂内桶到避震筒或弹簧座的最小间隙。`;
+  match = translated.match(/^(front|rear) spoke back to caliper highest point clearance or brake template\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 辐条背面到卡钳最高点的间隙，或刹车模板。`;
+  match = translated.match(/^(front|rear) wheel barrel to strut or spring perch minimum clearance\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 轮毂内桶到避震筒或弹簧座的最小间隙。`;
+  match = translated.match(/^(front|rear) tire shoulder to inner fender clearance at steering lock\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 打满方向时轮胎肩部到轮眉内缘的最小间隙。`;
+  match = translated.match(/^rear tire shoulder to inner fender clearance under load\.$/);
+  if (match) translated = '后轴悬挂受载并经过工作行程时轮胎肩部到轮眉内缘的最小间隙。';
+  match = translated.match(/^(front|rear) tire\/fender\/strut\/barrel minimum clearance at full compression\.$/);
+  if (match) translated = `${match[1] === 'front' ? '前轴' : '后轴'} 悬挂完全压缩并受载时，轮胎、轮眉、避震和轮毂内桶的最小间隙。`;
+  match = translated.match(/^(.+) mm minimum$/);
+  if (match) translated = `${match[1]} mm 最低值`;
+  match = translated.match(/^(.+) mm measured$/);
+  if (match) translated = `${match[1]} mm 实测`;
+  match = translated.match(/^(.+) in minimum$/);
+  if (match) translated = `${match[1]} 英寸最低`;
+  match = translated.match(/^(.+) mm requested · (.+) mm maximum listed$/);
+  if (match) translated = `要求 ${match[1]} mm · 已列出的最大值 ${match[2]} mm`;
+  match = translated.match(/^(.+) in < (.+) in minimum$/);
+  if (match) translated = `${match[1]} 英寸 < 最低值 ${match[2]} 英寸`;
+  match = translated.match(/^(.+) mm < (.+) mm hub$/);
+  if (match) translated = `${match[1]} mm < ${match[2]} mm 轮毂轴头`;
+  match = translated.match(/^(.+) mm with (.+) mm hub$/);
+  if (match) translated = `${match[1]} mm，轮毂轴头 ${match[2]} mm`;
+  match = translated.match(/^(.+) vs (.+)$/);
+  if (match) translated = `${match[1]} 对比 ${match[2]}`;
+  match = translated.match(/^(.+) · (.+) mm overall diameter$/);
+  if (match) translated = `${match[1]} · 总直径 ${match[2]} mm`;
+  match = translated.match(/^(.+) is not listed for this exact vehicle\.$/);
+  if (match) translated = `${match[1]} 未列入该精确车型。`;
+  match = translated.match(/^Front\/rear tire rolling diameter differs by (.+)% on a (.+) vehicle; confirm the manufacturer tolerance\.$/);
+  if (match) translated = `前后轮胎滚动直径相差 ${match[1]}%（${match[2]} 驱动），请确认制造商允许范围。`;
+  if (String(locale).toLowerCase() === 'zh-tw') return traditionalizeFitmentText(translated);
+  return translated;
+}
+
+function localizeFitmentResult(result, locale) {
+  if (!String(locale || '').toLowerCase().startsWith('zh')) return result;
+  const axles = Object.fromEntries(Object.entries(result.axles || {}).map(([axle, data]) => [axle, {
+    ...data,
+    checks: (data.checks || []).map(check => ({
+      ...check,
+      label: ({ 'Center bore': '中心孔', 'Brake diameter': '刹车直径', 'Spoke clearance': '辐条间隙', 'Ride height': '车高', 'Tire diameter': '轮胎直径', 'Tire size': '轮胎规格', Camber: '倾角', Toe: '前束', 'Fender clearance': '轮眉间隙', 'Compression clearance': '压缩间隙', 'Tire fitment': '轮胎安装' }[check.label] || check.label),
+      detail: localizeFitmentText(check.detail, locale)
+    }))
+  }]));
+  return {
+    ...result,
+    status_label: localizeFitmentText(result.status_label, locale),
+    next_step: localizeFitmentText(result.next_step, locale),
+    issues: (result.issues || []).map(item => localizeFitmentText(item, locale)),
+    warnings: (result.warnings || []).map(item => localizeFitmentText(item, locale)),
+    missing: (result.missing || []).map(item => localizeFitmentText(item, locale)),
+    axles
+  };
+}
+
+async function runFitmentCheck(payload = {}, operations) {
+  const fitment = await loadFitment();
+  const vehicle = payload.vehicle && typeof payload.vehicle === 'object' ? payload.vehicle : {};
+  const library = await buildVehicleLibrary(operations);
+  const vehicleRecord = library.find(record => Number(record.year) === Number(vehicle.year) && normalizedFitmentToken(record.make) === normalizedFitmentToken(vehicle.make) && normalizedFitmentToken(record.model) === normalizedFitmentToken(vehicle.model) && normalizedFitmentToken(record.trim) === normalizedFitmentToken(vehicle.trim) && (!vehicle.drive || !record.drive || normalizedFitmentToken(record.drive) === normalizedFitmentToken(vehicle.drive))) || null;
+  const componentId = (value, axle, component) => String(value || '') === 'oem' ? `oem-${axle}-${component}` : value;
+  const selectedIds = new Set([
+    ...(Array.isArray(payload.part_ids) ? payload.part_ids : []),
+    componentId(payload.front_brake_id, 'front', 'brake'), componentId(payload.rear_brake_id, 'rear', 'brake'), componentId(payload.front_caliper_id, 'front', 'brake'), componentId(payload.rear_caliper_id, 'rear', 'brake'),
+    componentId(payload.front_rotor_id, 'front', 'rotor'), componentId(payload.rear_rotor_id, 'rear', 'rotor'), componentId(payload.front_pad_id, 'front', 'pad'), componentId(payload.rear_pad_id, 'rear', 'pad'),
+    ...(String(payload.suspension_id || '') === 'oem' ? ['oem-front-suspension', 'oem-rear-suspension'] : [payload.suspension_id]),
+    componentId(payload.front_suspension_id, 'front', 'suspension'), componentId(payload.rear_suspension_id, 'rear', 'suspension')
+  ].filter(Boolean).map(value => String(value)));
+  const selectedParts = [...selectedIds]
+    .map(id => fitment.parts.find(part => part.id === id) || oemFitmentPartFromId(id))
+    .filter(Boolean)
+    .filter(part => part.status !== 'archived');
+  const verifiedParts = selectedParts.filter(part => part.auto_match_enabled === true && ['application_verified', 'template_verified', 'customer_measured'].includes(part.verification_status));
+  const provisionalParts = selectedParts.filter(part => !verifiedParts.includes(part));
+  const oemParts = selectedParts.filter(part => part.is_oem);
+  const issues = [];
+  const warnings = [];
+  const missing = [];
+  if (!vehicleRecord) missing.push('Select an exact vehicle year, make, model and trim from the F-Box vehicle library.');
+  if (!selectedParts.length) warnings.push('No catalogued brake, rotor, pad or suspension part was selected; the result will stay provisional.');
+  if (provisionalParts.length) {
+    const labels = provisionalParts.slice(0, 4).map(part => `${part.brand} ${part.model}`).join(', ');
+    warnings.push(`Selected part data is not cleared for automatic approval (${labels}); exact vehicle application and wheel/brake template review are still required.`);
+    missing.push('Exact part number, vehicle application and wheel clearance template for every selected modified part.');
+  }
+  if (oemParts.length) {
+    warnings.push('Factory OEM selections use the exact vehicle baseline, but the trim, option package and physical clearance still need confirmation.');
+    missing.push('Factory brake and suspension package confirmation by exact trim, VIN or OE part number.');
+  }
+  selectedParts.forEach(part => {
+    if (!fitmentPartMatchesVehicle(part, vehicle)) warnings.push(`${part.brand} ${part.model} is not listed for this exact vehicle selection.`);
+  });
+  const usage = fitmentText(payload.usage, 30).toLowerCase() || 'street';
+  const stanceProfile = fitmentText(payload.stance_profile || payload.suspension?.stance_profile, 40).toLowerCase() || 'oem';
+
+  const axles = {};
+  for (const axle of ['front', 'rear']) {
+    const input = fitmentAxleInput(payload, axle);
+    const oem = vehicleRecord?.oem_wheel_specs || {};
+    const diameterOptions = String(oem.diameter || '').split('/').map(fitmentNumber).filter(value => value !== null);
+    const oemDiameter = diameterOptions.length > 2 ? Math.min(...diameterOptions) : fitmentNumber(fitmentAxleValue(oem.diameter, axle));
+    const oemWidth = fitmentNumber(fitmentAxleValue(oem.width, axle));
+    const oemPcd = fitmentPcdKey(fitmentAxleValue(oem.pcd, axle));
+    const oemCenterBore = fitmentNumber(fitmentAxleValue(oem.center_bore, axle));
+    const oemOffset = fitmentNumber(fitmentAxleValue(oem.offset, axle));
+    // Only application/template-verified records can influence a hard result.
+    // Catalog records remain visible as evidence, but cannot silently approve a
+    // custom wheel when the exact vehicle or clearance drawing is unknown.
+    const brakes = fitmentAxleParts(verifiedParts, axle, ['brake', 'caliper']);
+    const rotors = fitmentAxleParts(verifiedParts, axle, 'rotor');
+    const pads = fitmentAxleParts(verifiedParts, axle, 'pad');
+    const suspensions = fitmentAxleParts(verifiedParts, axle, 'suspension');
+    const requestedDrop = fitmentNumber(payload.suspension?.[axle]?.ride_height_drop_mm ?? payload.suspension?.ride_height_drop_mm ?? payload.ride_height_drop_mm);
+    const dynamicReviewRequired = stanceProfile !== 'oem' || usage === 'show' || usage === 'track' || (requestedDrop !== null && requestedDrop > 0) || (input.camber_deg !== null && input.camber_deg <= -1) || ['mild-stretch', 'aggressive-stretch'].includes(input.tire_fitment_style);
+    const brakeMinDiameter = [...brakes, ...rotors].reduce((value, part) => Math.max(value, fitmentNumber(part.specs?.min_wheel_diameter_in) || 0), 0);
+    const recommendedDiameter = Math.max(oemDiameter || 0, brakeMinDiameter || 0) || null;
+    const widthDelta = input.width !== null && oemWidth !== null ? input.width - oemWidth : 0;
+    const baselineEt = oemOffset === null ? null : Number((oemOffset + input.spacer_mm + (widthDelta * 25.4 / 2)).toFixed(1));
+    const etRange = baselineEt === null ? null : [Number((baselineEt - 5).toFixed(1)), Number((baselineEt + 5).toFixed(1))];
+    const tire = fitmentTireMetrics(payload.tires?.[axle] || payload.tire?.[axle] || '');
+    const axleChecks = [];
+    const addCheck = (label, status, detail) => axleChecks.push({ label, status, detail });
+
+    if (input.pcd && oemPcd && fitmentPcdKey(input.pcd) !== oemPcd) {
+      issues.push(`${axle} PCD ${input.pcd} does not match the vehicle hub ${oemPcd}.`);
+      addCheck('PCD', 'conflict', `${input.pcd} vs ${oemPcd}`);
+    } else if (!input.pcd && oemPcd) {
+      addCheck('PCD', 'recommended', oemPcd);
+    } else if (input.pcd) {
+      addCheck('PCD', 'pass', input.pcd);
+    } else {
+      missing.push(`${axle} PCD is not available.`);
+    }
+    if (input.center_bore !== null && oemCenterBore !== null && input.center_bore + 0.2 < oemCenterBore) {
+      issues.push(`${axle} center bore ${input.center_bore} mm is smaller than the hub ${oemCenterBore} mm.`);
+      addCheck('Center bore', 'conflict', `${input.center_bore} mm < ${oemCenterBore} mm hub`);
+    } else if (input.center_bore !== null && oemCenterBore !== null && input.center_bore > oemCenterBore + 0.2) {
+      warnings.push(`${axle} wheel center bore is larger than the hub; a hub-centric ring or custom bore is required.`);
+      addCheck('Center bore', 'review', `${input.center_bore} mm with ${oemCenterBore} mm hub`);
+    } else if (oemCenterBore !== null) {
+      addCheck('Center bore', 'recommended', `${oemCenterBore} mm minimum`);
+    }
+    if (input.diameter !== null && recommendedDiameter !== null && input.diameter < recommendedDiameter) {
+      issues.push(`${axle} wheel diameter ${input.diameter} in is below the ${recommendedDiameter} in brake/OE minimum.`);
+      addCheck('Brake diameter', 'conflict', `${input.diameter} in < ${recommendedDiameter} in minimum`);
+    } else if (recommendedDiameter !== null) {
+      addCheck('Brake diameter', input.diameter ? 'pass' : 'recommended', `${recommendedDiameter} in minimum`);
+    }
+    if (input.spoke_clearance_mm !== null) {
+      const requiredSpokeClearance = brakes.reduce((value, part) => Math.max(value, fitmentNumber(part.specs?.min_spoke_clearance_mm) || 0), 0);
+      if (requiredSpokeClearance && input.spoke_clearance_mm < requiredSpokeClearance) {
+        issues.push(`${axle} spoke clearance is below the selected brake requirement.`);
+        addCheck('Spoke clearance', 'conflict', `${input.spoke_clearance_mm} mm measured`);
+      } else addCheck('Spoke clearance', 'pass', `${input.spoke_clearance_mm} mm measured`);
+    } else if (brakes.some(part => part.specs?.caliper_clearance_a_mm || part.specs?.min_spoke_clearance_mm)) {
+      warnings.push(`${axle} brake profile is known, but the custom wheel face still needs a spoke/template check.`);
+      missing.push(`${axle} spoke back to caliper highest point clearance or brake template.`);
+      addCheck('Spoke clearance', 'review', 'Brake profile found; wheel template still required');
+    }
+    if (input.inner_clearance_mm === null && (suspensions.length || input.width !== null || input.offset !== null)) {
+      warnings.push(`${axle} inner suspension clearance is not measured.`);
+      missing.push(`${axle} wheel barrel to strut or spring perch minimum clearance.`);
+    }
+    if (requestedDrop !== null && suspensions.length) {
+      const maxDrop = suspensions.reduce((value, part) => Math.max(value, fitmentNumber(part.specs?.drop_max_mm) || 0), 0);
+      if (maxDrop && requestedDrop > maxDrop) {
+        issues.push(`${axle} requested ride-height drop exceeds the selected suspension range.`);
+        addCheck('Ride height', 'conflict', `${requestedDrop} mm requested · ${maxDrop} mm maximum listed`);
+      } else addCheck('Ride height', 'pass', `${requestedDrop} mm drop requested`);
+    } else if (suspensions.length) {
+      addCheck('Ride height', 'recommended', 'Enter current drop to check tire and suspension clearance');
+    }
+    if (input.camber_deg === null) {
+      if (dynamicReviewRequired) {
+        missing.push(`${axle} current camber after lowering or alignment.`);
+        addCheck('Camber', 'review', 'Measure the installed alignment before using stance to set wheel clearance');
+      }
+    } else {
+      const camberDetail = `${input.camber_deg.toFixed(1)}°${input.camber_deg <= -2 ? ' negative; dynamic tire and fender clearance review required' : ''}`;
+      addCheck('Camber', input.camber_deg <= -2 ? 'review' : 'pass', camberDetail);
+      if (input.camber_deg <= -3.5) warnings.push(`${axle} negative camber is ${input.camber_deg.toFixed(1)}°; do not use static clearance alone, confirm tire load, wear and full compression clearance.`);
+      else if (input.camber_deg <= -2) warnings.push(`${axle} negative camber changes the tire-to-fender relationship; confirm dynamic clearance at steering lock and full compression.`);
+    }
+    if (dynamicReviewRequired && input.toe_deg === null) {
+      missing.push(`${axle} current toe after lowering or alignment.`);
+      addCheck('Toe', 'review', 'Measure toe because lowered geometry can change tire position and wear');
+    } else if (input.toe_deg !== null) {
+      addCheck('Toe', 'pass', `${input.toe_deg.toFixed(2)}° measured`);
+    }
+    if (input.fender_clearance_mm !== null && input.fender_clearance_mm < 0) {
+      issues.push(`${axle} measured tire-shoulder to inner-fender clearance is below zero; the current setup already contacts the body.`);
+      addCheck('Fender clearance', 'conflict', `${input.fender_clearance_mm} mm measured`);
+    } else if (dynamicReviewRequired && input.fender_clearance_mm === null) {
+      missing.push(axle === 'front' ? `${axle} tire shoulder to inner fender clearance at steering lock.` : `${axle} tire shoulder to inner fender clearance under load.`);
+      addCheck('Fender clearance', 'review', axle === 'front' ? 'Measure tire shoulder to inner fender at steering lock' : 'Measure tire shoulder to inner fender under load');
+    } else if (input.fender_clearance_mm !== null) {
+      addCheck('Fender clearance', 'pass', `${input.fender_clearance_mm} mm measured`);
+    }
+    if (input.compression_clearance_mm !== null && input.compression_clearance_mm < 0) {
+      issues.push(`${axle} measured full-compression minimum clearance is below zero; the setup cannot be approved as entered.`);
+      addCheck('Compression clearance', 'conflict', `${input.compression_clearance_mm} mm measured`);
+    } else if (dynamicReviewRequired && input.compression_clearance_mm === null) {
+      missing.push(`${axle} tire/fender/strut/barrel minimum clearance at full compression.`);
+      addCheck('Compression clearance', 'review', 'Measure with the suspension loaded through its usable travel');
+    } else if (input.compression_clearance_mm !== null) {
+      addCheck('Compression clearance', 'pass', `${input.compression_clearance_mm} mm measured`);
+    }
+    if (input.tire_fitment_style === 'mild-stretch' || input.tire_fitment_style === 'aggressive-stretch') {
+      warnings.push(`${axle} ${input.tire_fitment_style} tire fitment needs the tire manufacturer range and dynamic bead/fender clearance review.`);
+      if (input.fender_clearance_mm === null || input.compression_clearance_mm === null) missing.push(`${axle} tire manufacturer fitment range and dynamic clearance for the selected stretch setup.`);
+      addCheck('Tire fitment', 'review', input.tire_fitment_style);
+    } else if (input.tire_fitment_style === 'standard') {
+      addCheck('Tire fitment', 'pass', 'Standard tire fitment selected');
+    } else if (dynamicReviewRequired && tire) {
+      missing.push(`${axle} tire fitment style: standard or stretched.`);
+      addCheck('Tire fitment', 'review', 'Record whether the tire is standard or stretched');
+    }
+    if (input.diameter === null) missing.push(`${axle} target wheel diameter.`);
+    if (input.width === null) missing.push(`${axle} target wheel width.`);
+    if (input.offset === null) missing.push(`${axle} target wheel ET.`);
+    if (tire && input.diameter !== null && tire.rim !== input.diameter) {
+      issues.push(`${axle} tire rim diameter ${tire.rim} in does not match the selected wheel ${input.diameter} in.`);
+      addCheck('Tire diameter', 'conflict', `${tire.rim} in tire on ${input.diameter} in wheel`);
+    } else if (tire) addCheck('Tire size', 'pass', `${tire.size} · ${tire.diameter_mm} mm overall diameter`);
+
+    axles[axle] = {
+      input,
+      oem: { diameter: oemDiameter, width: oemWidth, pcd: oemPcd, center_bore: oemCenterBore, offset: oemOffset },
+      selected_brakes: fitmentAxleParts(selectedParts, axle, ['brake', 'caliper']).map(publicFitmentPart),
+      selected_rotors: fitmentAxleParts(selectedParts, axle, 'rotor').map(publicFitmentPart),
+      selected_pads: fitmentAxleParts(selectedParts, axle, 'pad').map(publicFitmentPart),
+      selected_suspension: fitmentAxleParts(selectedParts, axle, 'suspension').map(publicFitmentPart),
+      recommendation: {
+        diameter_min_in: recommendedDiameter,
+        width_baseline_in: oemWidth,
+        pcd: oemPcd || input.pcd || '',
+        center_bore_min_mm: oemCenterBore,
+        et_baseline: baselineEt,
+        et_estimate_range: etRange,
+        note: baselineEt === null ? 'Exact ET needs hub and clearance measurements.' : 'Initial ET estimate preserves the OEM inner edge for the selected width; confirm fender and suspension clearance before production.'
+      },
+      tire,
+      checks: axleChecks
+    };
+  }
+
+  const frontDiameter = axles.front.tire?.diameter_mm;
+  const rearDiameter = axles.rear.tire?.diameter_mm;
+  if (frontDiameter && rearDiameter && ['AWD', '4WD'].includes(String(vehicle.drive || '').toUpperCase())) {
+    const difference = Math.abs(frontDiameter - rearDiameter) / ((frontDiameter + rearDiameter) / 2) * 100;
+    if (difference > 1) warnings.push(`Front/rear tire rolling diameter differs by ${difference.toFixed(2)}% on a ${vehicle.drive} vehicle; confirm the manufacturer tolerance.`);
+  }
+  const uniqueMissing = [...new Set(missing)].slice(0, 14);
+  const uniqueWarnings = [...new Set(warnings)].slice(0, 14);
+  const uniqueIssues = [...new Set(issues)].slice(0, 14);
+  const status = uniqueIssues.length ? 'conflict' : (uniqueWarnings.length || uniqueMissing.length ? 'needs_review' : 'pass');
+  return localizeFitmentResult({
+    status,
+    status_label: status === 'pass' ? 'Rule pass' : status === 'conflict' ? 'Conflict found' : 'Needs measurement',
+    vehicle: { ...vehicle },
+    vehicle_record: vehicleRecord ? { id: vehicleRecord.id, year: vehicleRecord.year, make: vehicleRecord.make, model: vehicleRecord.model, trim: vehicleRecord.trim, drive: vehicleRecord.drive, oem_wheel_specs: vehicleRecord.oem_wheel_specs || {} } : null,
+    setup_context: { usage, stance_profile: stanceProfile, dynamic_clearance_review_required: Object.values(axles).some(axle => axle.input?.camber_deg !== null || axle.input?.compression_clearance_mm !== null || ['mild-stretch', 'aggressive-stretch'].includes(axle.input?.tire_fitment_style) || stanceProfile !== 'oem' || usage === 'show' || usage === 'track') },
+    selected_parts: selectedParts.map(publicFitmentPart),
+    verification_summary: {
+      selected: selectedParts.length,
+      hard_match_eligible: verifiedParts.length,
+      provisional: provisionalParts.length,
+      oem_selected: oemParts.length,
+      auto_approval: verifiedParts.length === selectedParts.length && selectedParts.length > 0
+    },
+    axles,
+    issues: uniqueIssues,
+    warnings: uniqueWarnings,
+    missing: uniqueMissing,
+    next_step: status === 'conflict' ? 'Correct the conflicting hub, brake or tire input before asking F-Box to quote.' : status === 'needs_review' ? 'Send the brake template, current ride height and inner/fender clearance to F-Box for final confirmation.' : 'The known rules pass. F-Box still verifies the final custom wheel drawing before production.',
+    generated_at: new Date().toISOString()
+  }, payload.locale);
+}
+
+function normalizeFitmentCase(payload = {}, id = operationId('fitment-case')) {
+  return {
+    id,
+    customer_name: fitmentText(payload.customer_name, 100),
+    customer_email: fitmentText(payload.customer_email, 160),
+    vehicle: payload.vehicle && typeof payload.vehicle === 'object' ? payload.vehicle : {},
+    part_ids: Array.isArray(payload.part_ids) ? payload.part_ids.map(value => fitmentText(value, 120)).filter(Boolean).slice(0, 20) : [],
+    request: payload.request && typeof payload.request === 'object' ? payload.request : {},
+    result: payload.result && typeof payload.result === 'object' ? payload.result : {},
+    status: ['open', 'confirmed', 'closed'].includes(payload.status) ? payload.status : 'open',
+    admin_note: fitmentText(payload.admin_note, 1000),
+    created_at: payload.created_at || new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+}
+
 function normalizeProductPayload(payload = {}, existing = {}) {
   const legacyImage = textValue(hasOwn(payload, 'image') ? payload.image : existing.image, 800);
   const images = normalizeProductImages(hasOwn(payload, 'images') ? payload.images : existing.images, legacyImage);
@@ -722,6 +1698,7 @@ function normalizeProductPayload(payload = {}, existing = {}) {
   const visualizerEnabledInput = hasOwn(payload, 'visualizer_enabled') ? payload.visualizer_enabled : existing.visualizer_enabled;
   const dynamicWheelEffectInput = hasOwn(payload, 'dynamic_wheel_effect') ? payload.dynamic_wheel_effect : existing.dynamic_wheel_effect;
   const visualizerModeInput = hasOwn(payload, 'visualizer_mode') ? payload.visualizer_mode : existing.visualizer_mode;
+  const sizeNoteInput = hasOwn(payload, 'size_note') ? payload.size_note : existing.size_note;
   const sort = Math.floor(Number(sortInput || 0));
   const cover = images[0];
   const boolValue = (value, fallback = true) => {
@@ -745,10 +1722,12 @@ function normalizeProductPayload(payload = {}, existing = {}) {
     visualizer_enabled: boolValue(visualizerEnabledInput, existing.visualizer_enabled !== false),
     dynamic_wheel_effect: boolValue(dynamicWheelEffectInput, existing.dynamic_wheel_effect !== false),
     visualizer_mode: textValue(visualizerModeInput || 'dynamic-wheel', 40) || 'dynamic-wheel',
+    custom_size: true,
+    size_note: textValue(sizeNoteInput, 240) || (String(payload.category || existing.category || '').toLowerCase() === 'wheels' ? 'All sizes supported - custom diameter, width and fitment' : 'All sizes supported - custom fitment built to order'),
     images,
     image: cover?.url || legacyImage,
     image_original: cover?.original_url || textValue(hasOwn(payload, 'image_original') ? payload.image_original : existing.image_original, 800),
-    image_cutout: cover?.cutout ?? Boolean(hasOwn(payload, 'image_cutout') ? payload.image_cutout : existing.image_cutout),
+    image_cutout: cover?.cutout ?? boolValue(hasOwn(payload, 'image_cutout') ? payload.image_cutout : existing.image_cutout, true),
     updated_at: new Date().toISOString()
   };
 }
@@ -1007,6 +1986,102 @@ function parseImageDataUrl(value, label = '商品图片') {
   return { mime, extension, bytes };
 }
 
+function pixelDistance(data, index, background) {
+  const red = data[index];
+  const green = data[index + 1];
+  const blue = data[index + 2];
+  return Math.sqrt((red - background[0]) ** 2 + (green - background[1]) ** 2 + (blue - background[2]) ** 2);
+}
+
+function removeFlatImageBackground(data, width, height) {
+  const pixelCount = width * height;
+  if (!pixelCount || data.length < pixelCount * 4) return { data, removed: 0, attempted: false };
+  const original = Buffer.from(data);
+  const cornerPoints = [
+    [0, 0], [width - 1, 0], [0, height - 1], [width - 1, height - 1]
+  ];
+  const cornerColors = cornerPoints.map(([x, y]) => {
+    const index = (y * width + x) * 4;
+    return [data[index], data[index + 1], data[index + 2]];
+  });
+  const background = [0, 1, 2].map(channel => Math.round(cornerColors.reduce((sum, color) => sum + color[channel], 0) / cornerColors.length));
+  const cornerSpread = Math.max(...cornerColors.map(color => Math.sqrt((color[0] - background[0]) ** 2 + (color[1] - background[1]) ** 2 + (color[2] - background[2]) ** 2)));
+  // A non-uniform border is usually a vehicle photo or a lifestyle scene. Do
+  // not make an aggressive guess on those images.
+  if (cornerSpread > 42) return { data, removed: 0, attempted: false };
+
+  const tolerance = 30;
+  const softRange = 18;
+  const visited = new Uint8Array(pixelCount);
+  const queue = new Int32Array(pixelCount);
+  let head = 0;
+  let tail = 0;
+  const enqueue = index => {
+    if (index < 0 || index >= pixelCount || visited[index]) return;
+    const distance = pixelDistance(data, index * 4, background);
+    if (distance > tolerance + softRange) return;
+    visited[index] = 1;
+    queue[tail++] = index;
+  };
+  for (let x = 0; x < width; x += 1) {
+    enqueue(x);
+    enqueue((height - 1) * width + x);
+  }
+  for (let y = 1; y < height - 1; y += 1) {
+    enqueue(y * width);
+    enqueue(y * width + width - 1);
+  }
+  let removed = 0;
+  while (head < tail) {
+    const pixel = queue[head++];
+    const index = pixel * 4;
+    const distance = pixelDistance(data, index, background);
+    const alpha = Math.max(0, Math.min(255, Math.round(((distance - tolerance) / softRange) * 255)));
+    if (data[index + 3] !== alpha) {
+      data[index + 3] = Math.min(data[index + 3], alpha);
+      if (data[index + 3] === 0) removed += 1;
+    }
+    const x = pixel % width;
+    const y = Math.floor(pixel / width);
+    if (x > 0) enqueue(pixel - 1);
+    if (x + 1 < width) enqueue(pixel + 1);
+    if (y > 0) enqueue(pixel - width);
+    if (y + 1 < height) enqueue(pixel + width);
+  }
+  // A tiny removal is more likely edge noise than a usable cutout. Return the
+  // original pixels in that case so the saved product is not unexpectedly
+  // softened.
+  if (removed < pixelCount * 0.08) return { data: original, removed: 0, attempted: true };
+  return { data, removed, attempted: true };
+}
+
+async function processCatalogImage(parsed, processMode = 'cutout') {
+  if (String(processMode || 'cutout').toLowerCase() !== 'cutout') {
+    return { ...parsed, processed: false, background_removed: false, processing: 'original' };
+  }
+  if (!sharp) {
+    return { ...parsed, processed: false, background_removed: false, processing: 'processor-unavailable' };
+  }
+  const source = sharp(parsed.bytes, { failOn: 'none' }).resize({ width: 2400, height: 2400, fit: 'inside', withoutEnlargement: true }).ensureAlpha();
+  const { data, info } = await source.raw().toBuffer({ resolveWithObject: true });
+  const hasTransparency = (() => {
+    for (let index = 3; index < data.length; index += 4) if (data[index] < 255) return true;
+    return false;
+  })();
+  const result = hasTransparency
+    ? { data, removed: 0, attempted: false }
+    : removeFlatImageBackground(data, info.width, info.height);
+  const output = await sharp(result.data, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer();
+  return {
+    bytes: output,
+    mime: 'image/png',
+    extension: 'png',
+    processed: true,
+    background_removed: Boolean(result.removed || hasTransparency),
+    processing: hasTransparency ? 'existing-alpha' : result.removed ? 'flat-background' : 'preserved-original'
+  };
+}
+
 function safeAssetFilename(value) {
   const filename = decodeURIComponent(String(value || ''));
   return /^[a-zA-Z0-9_-]{3,120}\.(?:png|jpg|jpeg|webp)$/i.test(filename) ? filename : '';
@@ -1021,18 +2096,22 @@ export async function handleFBoxAssetApi(req, res, url) {
     try {
       const payload = await readJson(req, 20 * 1024 * 1024);
       const parsed = parseImageDataUrl(payload.data_url);
-      const filename = `fbox_asset_${Date.now()}_${randomUUID().slice(0, 8)}.${parsed.extension}`;
+      const processed = await processCatalogImage(parsed, payload.process || 'cutout');
+      const filename = `fbox_asset_${Date.now()}_${randomUUID().slice(0, 8)}.${processed.extension}`;
       await fs.mkdir(mediaDir, { recursive: true });
-      await fs.writeFile(path.join(mediaDir, filename), parsed.bytes);
+      await fs.writeFile(path.join(mediaDir, filename), processed.bytes);
       return json(res, 200, {
         data: {
           id: filename,
           // Keep this relative so the same URL works from / and /admin/ and
           // with the storefront's legacy ./assets/ image prefix.
           url: `../api/fbox-assets/${encodeURIComponent(filename)}`,
-          mime_type: parsed.mime,
-          bytes: parsed.bytes.length,
-          processed: String(payload.process || 'cutout') === 'cutout'
+          mime_type: processed.mime,
+          bytes: processed.bytes.length,
+          original_bytes: parsed.bytes.length,
+          processed: processed.processed,
+          background_removed: processed.background_removed,
+          processing: processed.processing
         }
       });
     } catch (error) {
@@ -1146,13 +2225,15 @@ function normalizeStorefrontSettings(payload = {}) {
   const values = {
     company_name: String(payload.company_name || defaultStorefrontSettings.company_name).trim().slice(0, 160),
     phone: String(payload.phone || defaultStorefrontSettings.phone).trim().slice(0, 40),
+    whatsapp_number: String(payload.whatsapp_number || defaultStorefrontSettings.whatsapp_number).replace(/\D/g, '').slice(0, 15),
     domain: String(payload.domain || defaultStorefrontSettings.domain).trim().slice(0, 120),
     support_email: String(payload.support_email || '').trim().slice(0, 160),
     default_locale: String(payload.default_locale || defaultStorefrontSettings.default_locale).trim().slice(0, 16),
-    language_auto_detect: Boolean(payload.language_auto_detect),
-    preview_sponsored: Boolean(payload.preview_sponsored)
+    language_auto_detect: payload.language_auto_detect === undefined ? defaultStorefrontSettings.language_auto_detect : Boolean(payload.language_auto_detect),
+    preview_sponsored: payload.preview_sponsored === undefined ? defaultStorefrontSettings.preview_sponsored : Boolean(payload.preview_sponsored)
   };
   if (values.support_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.support_email)) throw new Error('Support email is not valid.');
+  if (!/^\d{8,15}$/.test(values.whatsapp_number)) throw new Error('WhatsApp number must contain 8 to 15 digits, including the country code.');
   if (!/^[a-z]{2}(?:-[A-Z]{2})?$/.test(values.default_locale)) throw new Error('Default language code is not valid.');
   return values;
 }
@@ -1858,6 +2939,33 @@ export async function handleFBoxOperationsApi(req, res, url) {
   const isAdminPath = pathName.startsWith('/api/fbox-ops');
 
   if (!isAdminPath) {
+    if (req.method === 'GET' && pathName === '/api/fbox-content/settings') {
+      const storefront = (await loadConfig()).storefront || defaultStorefrontSettings;
+      return json(res, 200, { data: {
+        company_name: storefront.company_name,
+        phone: storefront.phone,
+        whatsapp_number: storefront.whatsapp_number || defaultStorefrontSettings.whatsapp_number,
+        domain: storefront.domain,
+        default_locale: storefront.default_locale,
+        language_auto_detect: storefront.language_auto_detect !== false,
+        preview_sponsored: storefront.preview_sponsored !== false
+      } });
+    }
+    if (req.method === 'GET' && pathName === '/api/fbox-content/blog') {
+      const data = await loadBlog();
+      const category = textValue(url.searchParams.get('category'), 80);
+      const limit = Math.min(50, Math.max(1, Number(url.searchParams.get('limit') || 24)));
+      const posts = sortBlogPosts(data.posts.filter(item => item.status === 'published' && (!category || item.category === category)));
+      return json(res, 200, { data: posts.slice(0, limit).map(publicBlogPost), meta: { total: posts.length, categories: [...new Set(posts.map(item => item.category))] } });
+    }
+    const publicBlogMatch = pathName.match(/^\/api\/fbox-content\/blog\/([^/]+)$/);
+    if (req.method === 'GET' && publicBlogMatch) {
+      const data = await loadBlog();
+      const slug = decodeURIComponent(publicBlogMatch[1]);
+      const post = data.posts.find(item => item.status === 'published' && item.slug === slug);
+      if (!post) return json(res, 404, { detail: 'Journal post not found.' });
+      return json(res, 200, { data: publicBlogPost(post) });
+    }
     if (req.method === 'GET' && pathName === '/api/fbox-content/vehicles') {
       const data = await loadOperations();
       const library = await buildVehicleLibrary(data);
@@ -1887,6 +2995,25 @@ export async function handleFBoxOperationsApi(req, res, url) {
           note: 'Wheel geometry is shown only when entered and verified by the F-Box operator.'
         }
       });
+    }
+    if (req.method === 'GET' && pathName === '/api/fbox-content/fitment/parts') {
+      const fitment = await loadFitment();
+      const q = normalizedFitmentToken(url.searchParams.get('q'));
+      const type = textValue(url.searchParams.get('type'), 40);
+      const parts = fitment.parts
+        .filter(item => item.status === 'active')
+        .filter(item => !type || item.type === type)
+        .filter(item => !q || [item.brand, item.model, item.part_number, item.notes].some(value => normalizedFitmentToken(value).includes(q)))
+        .sort((a, b) => `${a.brand} ${a.model}`.localeCompare(`${b.brand} ${b.model}`));
+      return json(res, 200, { data: parts.map(publicFitmentPart), meta: { total: parts.length, source: 'F-Box fitment library' } });
+    }
+    if (req.method === 'POST' && pathName === '/api/fbox-content/fitment/check') {
+      try {
+        const data = await loadOperations();
+        const payload = await readJson(req, 256 * 1024);
+        const result = await runFitmentCheck(payload, data);
+        return json(res, 200, { data: result });
+      } catch (error) { return json(res, error.status || 422, { detail: error.message || 'Fitment check failed.' }); }
     }
   if (req.method === 'GET' && pathName === '/api/fbox-content/reviews') {
       const data = await loadOperations();
@@ -1918,6 +3045,16 @@ export async function handleFBoxOperationsApi(req, res, url) {
     if (req.method === 'GET' && pathName === '/api/fbox-content/cases') {
       const data = await loadOperations();
       return json(res, 200, { data: data.cases.filter(item => item.status === 'published').sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0)).map(publicContent) });
+    }
+    if (req.method === 'GET' && pathName === '/api/fbox-content/photo-reviews') {
+      const data = await loadOperations();
+      const limit = Math.min(20, Math.max(1, Number(url.searchParams.get('limit') || 20)));
+      const records = data.photo_reviews
+        .filter(item => item.status === 'published')
+        .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')))
+        .slice(0, limit)
+        .map(publicContent);
+      return json(res, 200, { data: records, meta: { total: records.length } });
     }
     if (req.method === 'POST' && pathName === '/api/fbox-content/reviews') {
       try {
@@ -2045,6 +3182,125 @@ export async function handleFBoxOperationsApi(req, res, url) {
   if (!(await requireOperationsAdmin(req, res))) return;
   const data = await loadOperations();
   const store = await loadStore();
+  const blog = await loadBlog();
+  const fitment = await loadFitment();
+
+  if (req.method === 'GET' && pathName === '/api/fbox-ops/blog') {
+    const status = textValue(url.searchParams.get('status'), 20);
+    const category = textValue(url.searchParams.get('category'), 80);
+    const posts = sortBlogPosts(blog.posts.filter(item => (!status || item.status === status) && (!category || item.category === category)));
+    return json(res, 200, { data: posts.map(publicBlogPost), meta: { total: posts.length, categories: [...new Set(blog.posts.map(item => item.category))] } });
+  }
+  if (req.method === 'POST' && pathName === '/api/fbox-ops/blog') {
+    try {
+      const payload = await readJson(req, 512 * 1024);
+      const id = textValue(payload.id || operationId('blog'), 120);
+      const existing = blog.posts.find(item => item.id === id) || {};
+      const record = normalizeBlogPost({ ...payload, id }, id, existing);
+      if (!record.title || !record.excerpt || !record.body) return json(res, 422, { detail: '文章标题、摘要和正文不能为空。' });
+      if (blog.posts.some(item => item.id !== id && item.slug === record.slug)) return json(res, 409, { detail: '文章 slug 已存在，请换一个。' });
+      const index = blog.posts.findIndex(item => item.id === id);
+      if (index >= 0) blog.posts[index] = record;
+      else blog.posts.unshift(record);
+      await saveBlog(blog);
+      return json(res, index >= 0 ? 200 : 201, { data: publicBlogPost(record) });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || '文章保存失败。' }); }
+  }
+  const blogMatch = pathName.match(/^\/api\/fbox-ops\/blog\/([^/]+)$/);
+  if (blogMatch && req.method === 'PUT') {
+    try {
+      const id = decodeURIComponent(blogMatch[1]);
+      const index = blog.posts.findIndex(item => item.id === id);
+      if (index < 0) return json(res, 404, { detail: '文章不存在。' });
+      const payload = await readJson(req, 512 * 1024);
+      const record = normalizeBlogPost({ ...blog.posts[index], ...payload }, id, blog.posts[index]);
+      if (!record.title || !record.excerpt || !record.body) return json(res, 422, { detail: '文章标题、摘要和正文不能为空。' });
+      if (blog.posts.some(item => item.id !== id && item.slug === record.slug)) return json(res, 409, { detail: '文章 slug 已存在，请换一个。' });
+      blog.posts[index] = record;
+      await saveBlog(blog);
+      return json(res, 200, { data: publicBlogPost(record) });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || '文章更新失败。' }); }
+  }
+  if (blogMatch && req.method === 'DELETE') {
+    const id = decodeURIComponent(blogMatch[1]);
+    const index = blog.posts.findIndex(item => item.id === id);
+    if (index < 0) return json(res, 404, { detail: '文章不存在。' });
+    blog.posts.splice(index, 1);
+    await saveBlog(blog);
+    return json(res, 200, { data: { deleted: true } });
+  }
+
+  if (req.method === 'GET' && pathName === '/api/fbox-ops/fitment/parts') {
+    const q = normalizedFitmentToken(url.searchParams.get('q'));
+    const type = textValue(url.searchParams.get('type'), 40);
+    const status = textValue(url.searchParams.get('status'), 20);
+    const parts = fitment.parts
+      .filter(item => !type || item.type === type)
+      .filter(item => !status || item.status === status)
+      .filter(item => !q || [item.brand, item.model, item.part_number, item.notes].some(value => normalizedFitmentToken(value).includes(q)))
+      .sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
+    return json(res, 200, { data: parts.map(publicFitmentPart), meta: { total: parts.length } });
+  }
+  if (req.method === 'POST' && pathName === '/api/fbox-ops/fitment/parts') {
+    try {
+      const payload = await readJson(req, 256 * 1024);
+      const id = textValue(payload.id || operationId('fitment-part'), 120);
+      const existing = fitment.parts.find(item => item.id === id) || {};
+      const record = normalizeFitmentPart({ ...payload, id }, id, existing);
+      if (!record.brand || !record.model) return json(res, 422, { detail: '品牌和型号不能为空。' });
+      const index = fitment.parts.findIndex(item => item.id === id);
+      if (index >= 0) fitment.parts[index] = record;
+      else fitment.parts.unshift(record);
+      await saveFitment(fitment);
+      return json(res, index >= 0 ? 200 : 201, { data: publicFitmentPart(record) });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || '适配部件保存失败。' }); }
+  }
+  const fitmentPartMatch = pathName.match(/^\/api\/fbox-ops\/fitment\/parts\/([^/]+)$/);
+  if (fitmentPartMatch && req.method === 'PUT') {
+    try {
+      const id = decodeURIComponent(fitmentPartMatch[1]);
+      const index = fitment.parts.findIndex(item => item.id === id);
+      if (index < 0) return json(res, 404, { detail: '适配部件不存在。' });
+      const payload = await readJson(req, 256 * 1024);
+      const record = normalizeFitmentPart({ ...fitment.parts[index], ...payload }, id, fitment.parts[index]);
+      if (!record.brand || !record.model) return json(res, 422, { detail: '品牌和型号不能为空。' });
+      fitment.parts[index] = record;
+      await saveFitment(fitment);
+      return json(res, 200, { data: publicFitmentPart(record) });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || '适配部件更新失败。' }); }
+  }
+  if (fitmentPartMatch && req.method === 'DELETE') {
+    const id = decodeURIComponent(fitmentPartMatch[1]);
+    const index = fitment.parts.findIndex(item => item.id === id);
+    if (index < 0) return json(res, 404, { detail: '适配部件不存在。' });
+    fitment.parts.splice(index, 1);
+    await saveFitment(fitment);
+    return json(res, 200, { data: { deleted: true } });
+  }
+  if (req.method === 'GET' && pathName === '/api/fbox-ops/fitment/cases') {
+    return json(res, 200, { data: fitment.cases.slice().sort((a, b) => String(b.updated_at || b.created_at || '').localeCompare(String(a.updated_at || a.created_at || ''))) });
+  }
+  if (req.method === 'POST' && pathName === '/api/fbox-ops/fitment/cases') {
+    try {
+      const record = normalizeFitmentCase(await readJson(req, 512 * 1024));
+      fitment.cases.unshift(record);
+      fitment.cases = fitment.cases.slice(0, 2000);
+      await saveFitment(fitment);
+      return json(res, 201, { data: record });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || '适配案例保存失败。' }); }
+  }
+  const fitmentCaseMatch = pathName.match(/^\/api\/fbox-ops\/fitment\/cases\/([^/]+)$/);
+  if (fitmentCaseMatch && req.method === 'PUT') {
+    try {
+      const id = decodeURIComponent(fitmentCaseMatch[1]);
+      const index = fitment.cases.findIndex(item => item.id === id);
+      if (index < 0) return json(res, 404, { detail: '适配案例不存在。' });
+      const payload = await readJson(req, 256 * 1024);
+      fitment.cases[index] = normalizeFitmentCase({ ...fitment.cases[index], ...payload }, id);
+      await saveFitment(fitment);
+      return json(res, 200, { data: fitment.cases[index] });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || '适配案例更新失败。' }); }
+  }
 
   if (req.method === 'GET' && pathName === '/api/fbox-ops/analytics') {
     const analytics = await loadAnalytics();

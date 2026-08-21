@@ -7,9 +7,12 @@ const icons = {
   eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg>',
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 6 12 12M18 6 6 18"></path></svg>',
   chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"></path></svg>',
+  arrowLeft: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m15 18-6-6 6-6"></path></svg>',
+  arrowRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 18 6-6-6-6"></path></svg>',
   truck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h11v10H3zM14 10h4l3 3v3h-7z"></path><circle cx="7" cy="19" r="1.8"></circle><circle cx="18" cy="19" r="1.8"></circle></svg>',
   shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 20 6v5c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-3Z"></path><path d="m8.5 12 2.2 2.2 4.8-5"></path></svg>',
   chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 18.5 3.5 21l4.2-1.9c1.3.6 2.8.9 4.3.9 4.7 0 8.5-3.1 8.5-7s-3.8-7-8.5-7S3.5 10.1 3.5 14c0 1.7.5 3.2 1.5 4.5Z"></path></svg>',
+  whatsapp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.4 7.6L4 20l1-3.8a8.5 8.5 0 1 1 15.5-4.7Z"></path><path d="M8.5 8.4c.2-.4.5-.4.8-.4h.6c.2 0 .4.1.5.4l.7 1.8c.1.3.1.5-.1.7l-.6.7c.6 1.1 1.5 2 2.7 2.6l.7-.6c.2-.2.4-.2.7-.1l1.8.8c.3.1.4.3.4.5v.6c0 .3-.1.6-.4.8-.5.4-1.1.5-1.8.3-2.1-.6-4-1.9-5.3-3.6-1-1.2-1.6-2.4-1.7-3.5-.1-.4 0-.7.2-1Z"></path></svg>',
   bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z"></path></svg>',
   spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"></path><path d="m19 16 .8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"></path></svg>',
   menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>'
@@ -71,13 +74,26 @@ let products = [
   { id: 'fbox-slotted-380', category: 'Rotors', brand: 'F-Box Braking', name: 'Track Slotted 380', meta: '2-piece · slotted · 380 mm', price: 420, oldPrice: 480, rating: 0, reviews: 0, finish: 'Black Hat', diameter: 380, image: 'e78ac1cfdeae4727.jpg', badge: 'Sale', deal: 'Availability managed by F-Box', material: 'Iron + Aluminum', color: 'Black Hat', part: 'FBX-TS380-2P', weight: '21.3 lb' },
   { id: 'fbox-drilled-330', category: 'Rotors', brand: 'F-Box Braking', name: 'Street Drilled 330', meta: '1-piece · drilled & slotted · 330 mm', price: 278, oldPrice: null, rating: 0, reviews: 0, finish: 'Geomet Coat', diameter: 330, image: '07576b43c0712d61.jpg', badge: '', deal: 'Availability managed by F-Box', material: 'High Carbon Iron', color: 'Geomet Coat', part: 'FBX-SD330-1P', weight: '17.9 lb' },
   { id: 'fbox-race-pad', category: 'Brake Pads', brand: 'F-Box Braking', name: 'R-Compound Pads', meta: 'Low dust · high bite · front axle', price: 168, oldPrice: 190, rating: 0, reviews: 0, finish: 'Carbon Ceramic', diameter: 0, image: '746b0039a724a70a.jpg', badge: 'Sale', deal: 'Availability managed by F-Box', material: 'Carbon Ceramic', color: 'Carbon Ceramic', part: 'FBX-RCP-FR', weight: '4.1 lb' },
-  { id: 'fbox-quiet-pad', category: 'Brake Pads', brand: 'F-Box Braking', name: 'Quiet Street Pads', meta: 'Low noise · low dust · front axle', price: 118, oldPrice: null, rating: 0, reviews: 0, finish: 'Ceramic', diameter: 0, image: '333cd3b0b1906049.jpg', badge: '', deal: 'Availability managed by F-Box', material: 'Ceramic', color: 'Ceramic', part: 'FBX-QSP-FR', weight: '3.7 lb' }
+  { id: 'fbox-quiet-pad', category: 'Brake Pads', brand: 'F-Box Braking', name: 'Quiet Street Pads', meta: 'Low noise · low dust · front axle', price: 118, oldPrice: null, rating: 0, reviews: 0, finish: 'Ceramic', diameter: 0, image: '333cd3b0b1906049.jpg', badge: '', deal: 'Availability managed by F-Box', material: 'Ceramic', color: 'Ceramic', part: 'FBX-QSP-FR', weight: '3.7 lb' },
+  { id: 'fbox-halo-20-spoke', category: 'Wheels', brand: 'F-Box', name: 'F-Box Halo 20-Spoke - Custom Hydraulic Forged Aluminum Alloy Step-Lip Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Satin Silver', diameter: null, image: 'halo-20-spoke-01.png', images: ['halo-20-spoke-01.png', 'halo-20-spoke-02.png', 'halo-20-spoke-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'Hydraulic Forged Aluminum Alloy', color: 'Satin Silver', part: 'FBX-HALO-20S', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
+  { id: 'fbox-meridian-multi-spoke', category: 'Wheels', brand: 'F-Box', name: 'F-Box Meridian - Custom Hydraulic Forged Aluminum Alloy Precision Multi-Spoke Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Brushed Silver', diameter: null, image: 'meridian-multi-spoke-01.png', images: ['meridian-multi-spoke-01.png', 'meridian-multi-spoke-02.png', 'meridian-multi-spoke-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'Hydraulic Forged Aluminum Alloy', color: 'Brushed Silver', part: 'FBX-MERIDIAN-MS', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
+  { id: 'fbox-vanta-10', category: 'Wheels', brand: 'F-Box', name: 'F-Box Vanta 10 - Custom Hydraulic Forged Aluminum Alloy 10-Spoke Deep-Lip Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Polished Silver', diameter: null, image: 'vanta-10-01.png', images: ['vanta-10-01.png', 'vanta-10-02.png', 'vanta-10-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'Hydraulic Forged Aluminum Alloy', color: 'Polished Silver', part: 'FBX-VANTA-10', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
+  { id: 'fbox-apex-split-spoke', category: 'Wheels', brand: 'F-Box', name: 'F-Box Apex - Custom Hydraulic Forged Aluminum Alloy Split-Spoke Performance Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Satin Silver', diameter: null, image: 'apex-split-spoke-01.png', images: ['apex-split-spoke-01.png', 'apex-split-spoke-02.png', 'apex-split-spoke-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'Hydraulic Forged Aluminum Alloy', color: 'Satin Silver', part: 'FBX-APEX-SPLIT', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
+  { id: 'fbox-sv100', category: 'Wheels', brand: 'F-Box', name: 'F-Box SV100 - Custom Forged Multi-Piece Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 290, oldPrice: null, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'sv100-01.png', images: ['sv100-01.png', 'sv100-02.png', 'sv100-03.png', 'sv100-04.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'Forged Aluminum - Multi-Piece', color: 'Custom finish', part: 'FBX-SV100', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
+  { id: 'fbox-rse', category: 'Wheels', brand: 'F-Box', name: 'F-Box RSE - CustomSpec Forged Performance Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 310, oldPrice: null, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'rse-01.png', images: ['rse-01.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'CustomSpec Forged Aluminum', color: 'Custom finish', part: 'FBX-RSE', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' }
 ];
+products = products.map(item => ({
+  ...item,
+  custom_size: true,
+  size_note: item.size_note || (item.category === 'Wheels' ? 'All sizes supported - custom diameter, width and fitment' : 'All sizes supported - custom fitment built to order')
+}));
+const localCustomProductFallback = products.filter(item => item.price_mode === 'from' || item.visualizer_enabled);
 
 // Customer reviews and build cases are intentionally empty until verified
 // orders are collected. The storefront must never present invented proof.
 let reviews = [];
 let fboxCases = [];
+let fboxPhotoReviews = [];
 
 const categories = [
   ['Wheels', 'The right spoke, width and offset.', 'spark'], ['Calipers', 'Big brake color and control.', 'bolt'], ['Rotors', 'Track-ready bite and cooling.', 'disc'], ['Brake Pads', 'Quiet street to race compounds.', 'shield'], ['Wheel & Tire Packages', 'Mount, balance and save.', 'truck'], ['Suspension', 'Drop it. Dial it. Drive it.', 'arrow']
@@ -87,7 +103,9 @@ const guideCards = [];
 const company = {
   legalName: 'Fanghe Overseas Intelligent Technology Co., Ltd.',
   phone: '+86 14726178447',
-  tel: '+8614726178447'
+  tel: '+8614726178447',
+  whatsapp: '+86 14726178447',
+  whatsappNumber: '8614726178447'
 };
 
 // All storefront data and account actions go through the F-Box backend.
@@ -132,6 +150,232 @@ Object.assign(localeDictionaries, {
   hi: { 'My Account': 'मेरा खाता', Cart: 'कार्ट', 'Browse all parts': 'सभी पार्ट्स देखें', 'Add my car': 'मेरी कार जोड़ें', 'Search gallery': 'गैलरी', Brands: 'ब्रांड', Resources: 'संसाधन', Shop: 'शॉप', 'Shop now': 'अभी खरीदें', 'View all parts': 'सभी पार्ट्स देखें', 'Product reviews': 'उत्पाद समीक्षाएं', 'Write a review': 'समीक्षा लिखें', 'Continue shopping': 'खरीदारी जारी रखें', 'Order summary': 'ऑर्डर सारांश', 'Continue to checkout': 'चेकआउट पर जाएं', Dismiss: 'बंद करें', 'Shopping cart': 'शॉपिंग कार्ट', 'Secure checkout': 'सुरक्षित चेकआउट', Continue: 'जारी रखें', 'Buy it now': 'अभी खरीदें', 'Add to cart': 'कार्ट में जोड़ें', Details: 'विवरण', Home: 'होम', 'Product type': 'उत्पाद प्रकार', 'Price range': 'मूल्य सीमा', 'Customer rating': 'ग्राहक रेटिंग', 'Search by vehicle': 'वाहन से खोजें', 'Search products': 'उत्पाद खोजें' }
 });
 
+Object.assign(localeDictionaries['zh-CN'], {
+  'F-BOX VISUAL STUDIO': 'F-BOX 效果工作室',
+  'Live fitment preview': '实时适配预览',
+  'See the selected wheel on your car before production.': '生产前先在你的车上查看所选轮毂效果。',
+  'Preview included': '预览已包含',
+  'LIVE / 01': '实时 / 01',
+  '03 ANGLES': '3 个角度',
+  'Selected design': '当前款式',
+  'Choose a wheel': '选择轮毂',
+  'All sizes · custom fitment': '全尺寸 · 定制适配',
+  'Upload your car photo': '上传车辆照片',
+  'Generate three fitment angles with the selected wheel.': '使用所选轮毂生成三个适配角度。',
+  'Upload photo & preview': '上传照片并查看效果'
+});
+
+const fitmentChineseTranslations = {
+  'F-Box Fitment Lab': 'F-Box 适配实验室',
+  'Chassis + parts + use case': '底盘 + 改装件 + 使用场景',
+  'Check the setup before we draw the wheel.': '画轮毂之前，先把整套参数核对清楚。',
+  'Choose the car, identify the modified parts and enter the numbers you already know. The rule engine surfaces brake diameter, hub match, ET direction, tire size and the measurements still needed for a final custom quote.': '先选择车辆，标记已经安装的改装件，再填写你已经知道的参数。规则引擎会先核对刹车直径、轮毂孔距、ET 方向、轮胎规格，并列出定制报价还需要的实测数据。',
+  'Hub pattern first': '先确认轮毂孔距',
+  'Brake profile': '刹车轮廓',
+  'Diameter is not enough': '只看直径还不够',
+  'Use case': '使用场景',
+  'Street, show or track': '日常、展示或赛道',
+  '01 / Vehicle': '01 / 车辆',
+  'Start with the exact platform.': '先选择准确车型。',
+  'Trim and drive can change the original wheel, brake and clearance baseline.': '配置和驱动形式会改变原厂轮毂、刹车及间隙基准。',
+  'How will you use it?': '你准备如何使用？',
+  'Current ride-height drop (mm)': '当前降低高度（毫米）',
+  'Current stance / ride-height profile': '当前姿态 / 车高状态',
+  'Factory original / exact trim': '原厂 / 准确配置',
+  'Lowered street': '街道降低',
+  'Static low / stance': '静态低趴',
+  'Air suspension low': '气动低趴',
+  'Track alignment': '赛道定位',
+  'Parts library': '改装件库',
+  'Tell us what is already on the car.': '告诉我们车辆现在装了什么。',
+  'Known brand and part numbers make the first-pass recommendation much sharper. The library is editable by F-Box staff.': '已知品牌和零件号能让第一轮推荐更准确。适配库可由 F-Box 后台继续维护。',
+  'Front brake kit': '前轴刹车套件',
+  'Rear brake kit': '后轴刹车套件',
+  'Front brake kit / caliper': '前轴刹车套件 / 卡钳',
+  'Rear brake kit / caliper': '后轴刹车套件 / 卡钳',
+  'Front brake rotor': '前轴刹车盘',
+  'Rear brake rotor': '后轴刹车盘',
+  'Front brake pad': '前轴刹车片',
+  'Rear brake pad': '后轴刹车片',
+  'Suspension / coilover': '避震 / 绞牙',
+  'Front axle': '前轴',
+  'Rear axle': '后轴',
+  'Front axle wheel + tire': '前轴轮毂 + 轮胎',
+  'Rear axle wheel + tire': '后轴轮毂 + 轮胎',
+  'Optional until you have measured values': '没有实测值前可留空',
+  'Diameter (in)': '直径（英寸）',
+  'Width (in)': '宽度（英寸）',
+  'ET / offset (mm)': 'ET / 偏距（毫米）',
+  'Center bore (mm)': '中心孔（毫米）',
+  'Spacer (mm)': '垫片（毫米）',
+  'Inner clearance (mm)': '内侧间隙（毫米）',
+  'Spoke clearance (mm)': '辐条间隙（毫米）',
+  'Spacer thickness (mm)': '垫片厚度（毫米）',
+  'Wheel barrel to strut clearance (mm)': '轮毂内桶到避震筒间隙（毫米）',
+  'Spoke back to caliper clearance (mm)': '辐条背面到卡钳间隙（毫米）',
+  'Camber (deg)': '倾角（度）',
+  'Toe (deg)': '前束（度）',
+  'Fender clearance (mm)': '轮眉间隙（毫米）',
+  'Full-compression clearance (mm)': '完全压缩间隙（毫米）',
+  'Tire shoulder to fender clearance (mm)': '轮胎肩部到轮眉内缘间隙（毫米）',
+  'Full-compression minimum clearance (mm)': '完全压缩最小间隙（毫米）',
+  'Tire fitment style': '轮胎安装风格',
+  'Not specified': '未说明',
+  'Standard tire': '标准安装',
+  'Mild stretch': '轻度拉伸',
+  'Aggressive stretch': '激进拉伸',
+  'Wheel barrel to strut or spring perch; measure the smallest gap.': '量轮毂内桶到避震筒或弹簧座的最小距离。',
+  'Wheel spoke back to the caliper highest point; use the brake template if available.': '量辐条背面到卡钳最高点；有模板时优先使用刹车模板。',
+  'Tire shoulder to the inner fender lip at steering lock.': '量轮胎肩部到轮眉内缘的最小距离；前轴请在打满方向后测量。',
+  'Tire, fender, strut and barrel gap with suspension fully compressed.': '悬挂完全压缩并受载时，量轮胎、轮眉、避震和轮毂内桶的最小间隙。',
+  'Spacer thickness changes inner and outer clearance; record the installed thickness.': '垫片会同时改变内外间隙，请填写实际安装厚度。',
+  'Rim bead-seat diameter, not tire outside diameter.': '填写轮圈胎唇座直径，不是轮胎外径。',
+  'Bead-seat width from the wheel drawing.': '填写轮毂图纸上的胎唇座宽度。',
+  'Mounting-face offset; positive ET moves the wheel inward.': '填写安装面偏距；正 ET 会让轮毂向车内移动。',
+  'Number of holes × pitch-circle diameter, e.g. 5x112.': '填写孔数 × 孔距圆直径，例如 5x112。',
+  'Wheel center hole over the hub; smaller will not fit.': '填写轮毂中心孔；小于车辆轴头就无法安装。',
+  'Installed spacer thickness; it changes both inner and outer clearance.': '填写实际安装的垫片厚度，它会同时改变内外间隙。',
+  'Installed tire size; it controls rolling diameter and sidewall position.': '填写当前轮胎规格，它决定滚动直径和胎壁位置。',
+  'Negative means the top of the tire leans inward.': '负值表示轮胎上端向车内倾。',
+  'Measure total toe for this axle after lowering; follow the alignment printout.': '降低车身后按四轮定位单填写该轴总前束。',
+  'Standard or stretched changes bead and fender clearance; record actual tire style.': '标准或拉伸会改变胎唇和轮眉间隙，请填写实际安装方式。',
+  'Tire size': '轮胎规格',
+  'Measured': '实测值',
+  'Ready to check the setup?': '准备检查适配了吗？',
+  'Leave unknown values blank and the result will list exactly what F-Box needs next.': '不知道的数值可以留空，结果会明确列出 F-Box 下一步需要的数据。',
+  'Checking…': '检查中…',
+  'Check fitment': '检查适配',
+  'F-Box rule engine': 'F-Box 规则引擎',
+  'Fitment result': '适配结果',
+  'F-Box will review the final wheel drawing before production.': 'F-Box 会在生产前复核最终轮毂图纸。',
+  'Known rules pass': '已知规则通过',
+  'Conflict found': '发现冲突',
+  'Needs measurement': '需要测量',
+  'Minimum diameter': '最低轮径',
+  'Width baseline': '宽度基准',
+  'ET estimate': 'ET 估算',
+  'Center bore': '中心孔',
+  'PCD pending': 'PCD 待确认',
+  'Confirm': '待确认',
+  'Measure': '需要测量',
+  'Enter wheel values for a more precise check.': '填写轮毂参数后，可以进行更精确的检查。',
+  'What needs attention': '需要注意',
+  'The known inputs are consistent. Final spoke and barrel clearance still require the selected wheel drawing.': '已知参数没有冲突，但最终辐条和轮辋内桶间隙仍需结合轮毂图纸确认。',
+  'Send this setup to F-Box': '把这套参数发给 F-Box',
+  'Send setup via WhatsApp': '通过 WhatsApp 发送这套参数',
+  'Open F-Box chat': '打开 F-Box 在线客服',
+  'Newest to archive': '最新到旧款',
+  'Previous wheels': '上一页轮毂',
+  'Next wheels': '下一页轮毂',
+  'WhatsApp quote': 'WhatsApp 咨询报价',
+  'Chat with F-Box on WhatsApp': '通过 WhatsApp 联系 F-Box',
+  'WhatsApp fitment consultation': 'WhatsApp 适配咨询',
+  'WhatsApp will open with your setup details and preview links ready to send.': 'WhatsApp 会打开并预填整套参数和效果图链接，确认后即可发送。',
+  'WhatsApp message copied': 'WhatsApp 文案已复制',
+  'Browse custom wheels': '浏览定制轮毂',
+  'How the result is used': '结果如何使用',
+  'Numbers first. Drawing second.': '先核对数字，再确认图纸。',
+  'Every custom wheel still goes through a final engineering review. The lab gets the order of questions right: vehicle and hub, modified brakes and suspension, use case, tire envelope, then the wheel diameter, width, ET, center bore and spoke/barrel clearance.': '每一款定制轮毂仍然要经过最终工程复核。实验室按正确顺序收集信息：车辆和轮毂孔距、刹车与避震改装、使用场景、轮胎范围，再到轮毂直径、宽度、ET、中心孔以及辐条和内桶间隙。',
+  'Year': '年份',
+  'Make': '品牌',
+  'Model': '车型',
+  'Trim': '配置',
+  'Drive': '驱动',
+  'Daily street': '日常街道',
+  'Spirited road': '激烈驾驶',
+  'Show / stance': '展示 / 低趴',
+  'Track / competition': '赛道 / 竞技',
+  'Not listed / use manual brake template': '未收录 / 使用手动刹车模板',
+  'Not listed / enter measured ride height': '未收录 / 输入实测车高',
+  'active component profiles loaded': '条启用的改装件档案已加载',
+  'Exact brake templates and measurements are still reviewed by a specialist.': '刹车模板和实测间隙仍需由专业人员复核。',
+  'OEM, low-stance and unverified component data still require exact template and dynamic-clearance review.': '原厂、低趴和未完成核验的改装件数据，仍需准确模板和动态间隙复核。',
+  'F-Box will review the final wheel drawing and dynamic clearance before production.': 'F-Box 会在生产前复核最终轮毂图纸和动态间隙。',
+  'Loading the component library. You can still enter the vehicle and measurements manually.': '正在加载改装件库，你仍可以手动填写车辆和测量值。',
+  'PCD': 'PCD',
+  'Wheel values': '轮毂参数',
+  'Rule pass': '规则通过',
+  'in min': '英寸起'
+};
+Object.assign(localeDictionaries['zh-CN'], fitmentChineseTranslations);
+const traditionalizeFitmentText = value => value
+  .replaceAll('轮毂', '輪圈')
+  .replaceAll('刹车', '煞車')
+  .replaceAll('车辆', '車輛')
+  .replaceAll('车型', '車型')
+  .replaceAll('适配', '適配')
+  .replaceAll('改装', '改裝')
+  .replaceAll('改装件', '改裝件')
+  .replaceAll('前轴', '前軸')
+  .replaceAll('后轴', '後軸')
+  .replaceAll('轮胎', '輪胎')
+  .replaceAll('直径', '直徑')
+  .replaceAll('宽度', '寬度')
+  .replaceAll('垫片', '墊片')
+  .replaceAll('内侧', '內側')
+  .replaceAll('辐条', '輻條')
+  .replaceAll('间隙', '間隙')
+  .replaceAll('实测', '實測')
+  .replaceAll('待确认', '待確認')
+  .replaceAll('需要测量', '需要測量')
+  .replaceAll('发现冲突', '發現衝突')
+  .replaceAll('已知规则通过', '已知規則通過')
+  .replaceAll('检查', '檢查')
+  .replaceAll('结果', '結果')
+  .replaceAll('浏览', '瀏覽')
+  .replaceAll('定制', '訂製')
+  .replaceAll('后台', '後台')
+  .replaceAll('来源', '來源')
+  .replaceAll('没有', '沒有')
+  .replaceAll('数值', '數值')
+  .replaceAll('参数', '參數')
+  .replaceAll('选择', '選擇')
+  .replaceAll('填写', '填寫')
+  .replaceAll('核对', '核對')
+  .replaceAll('准确', '準確')
+  .replaceAll('信息', '資訊')
+  .replaceAll('顺序', '順序')
+  .replaceAll('最终', '最終')
+  .replaceAll('经过', '經過')
+  .replaceAll('正确', '正確')
+  .replaceAll('赛道', '賽道')
+  .replaceAll('驾驶', '駕駛')
+  .replaceAll('手动', '手動')
+  .replaceAll('输入', '輸入')
+  .replaceAll('降低高度', '降低高度')
+  .replaceAll('毫米', '毫米')
+  .replaceAll('英寸', '英吋')
+  .replaceAll('卡钳', '卡鉗')
+  .replaceAll('刹车盘', '煞車碟')
+  .replaceAll('刹车片', '煞車片')
+  .replaceAll('避震', '避震')
+  .replaceAll('绞牙', '絞牙')
+  .replaceAll('底盘', '底盤')
+  .replaceAll('轮辋', '輪圈')
+  .replaceAll('实验室', '實驗室')
+  .replaceAll('轮廓', '輪廓')
+  .replaceAll('场景', '場景')
+  .replaceAll('画', '畫')
+  .replaceAll('已经', '已經')
+  .replaceAll('安装', '安裝')
+  .replaceAll('报价', '報價')
+  .replaceAll('还', '還')
+  .replaceAll('数据', '數據')
+  .replaceAll('规则', '規則')
+  .replaceAll('会', '會')
+  .replaceAll('规格', '規格')
+  .replaceAll('竞技', '競技')
+  .replaceAll('驱动', '驅動')
+  .replaceAll('标记', '標記')
+  .replaceAll('并', '並')
+  .replaceAll('够', '夠')
+    .replaceAll('确认', '確認');
+Object.assign(localeDictionaries['zh-TW'], Object.fromEntries(Object.entries(fitmentChineseTranslations).map(([key, value]) => [key, traditionalizeFitmentText(value)])));
+
+function uiLabel(key, fallback = key) {
+  return localeDictionaries[state.locale]?.[key] || fallback;
+}
+
 function localeLabel(code) { return localeOptions.find(([value]) => value === code)?.[1] || 'English'; }
 function browserLocale() {
   const raw = String(navigator.language || 'en').toLowerCase();
@@ -163,6 +407,13 @@ function countryLocale(countryCode = '') {
   return 'en';
 }
 function initialLocale() { return localStorage.getItem('fbox-locale') || browserLocale() || 'en'; }
+
+const blogFallbackPosts = [
+  { id: 'blog-fitment-before-finish', slug: 'fitment-before-finish-custom-wheel-buying-guide', title: 'Fitment Before Finish: A Better Way to Buy Custom Wheels', excerpt: 'The finish gets the attention, but diameter, width, PCD, center bore, offset and brake clearance decide whether the build works.', category: 'Fitment', cover_image: 'halo-20-spoke-01.png', author: 'F-Box Engineering', read_time: '6 min read', featured: true, published_at: '2026-08-18T09:00:00.000Z', tags: ['fitment', 'custom wheels'] },
+   { id: 'blog-read-wheel-specs', slug: 'how-to-read-wheel-specs-diameter-width-pcd-et', title: 'How to Read Wheel Specs Without Guessing', excerpt: 'A quick guide to diameter, width, PCD, center bore and ET, with the practical questions to ask before ordering.', category: 'Technical', cover_image: 'meridian-multi-spoke-01.png', author: 'F-Box Engineering', read_time: '5 min read', featured: false, published_at: '2026-08-14T09:00:00.000Z', tags: ['wheel specs', 'PCD'] },
+   { id: 'blog-forged-vs-cast', slug: 'forged-vs-cast-wheels-what-the-difference-means', title: 'Forged vs. Cast Wheels: What the Difference Means on the Road', excerpt: 'The manufacturing process changes how a wheel can be designed, tested and finished. Here is how to think about the trade-offs.', category: 'Engineering', cover_image: 'vanta-10-01.png', author: 'F-Box Engineering', read_time: '7 min read', featured: false, published_at: '2026-08-09T09:00:00.000Z', tags: ['forged wheels', 'engineering'] },
+   { id: 'blog-wheel-finish-guide', slug: 'wheel-finish-guide-satin-gloss-brushed-and-polished', title: 'Satin, Gloss, Brushed or Polished: Choosing a Wheel Finish', excerpt: 'Finish changes the way a spoke profile reads in daylight, under street lighting and in the photos you keep coming back to.', category: 'Finish', cover_image: 'apex-split-spoke-01.jpg', author: 'F-Box Design Studio', read_time: '4 min read', featured: false, published_at: '2026-08-03T09:00:00.000Z', tags: ['wheel finish', 'custom color'] }
+];
 
 const state = {
   route: getRoute(),
@@ -197,23 +448,47 @@ const state = {
   fboxVehicleLibrary: { ready: false, source: 'local-fallback', total: 0, officialSpecs: 0 },
   accountOrders: [],
   accountOrdersLoading: false,
-  wheelVisualizer: null
+  wheelVisualizer: null,
+  homePreviewProductId: 'fbox-rse',
+  homeWheelPage: 0,
+  homeWheelAutoPausedUntil: 0,
+  blogPosts: blogFallbackPosts,
+  blogCategory: 'All',
+  blogLoaded: false,
+  fitment: {
+    vehicle: JSON.parse(localStorage.getItem('fbox-vehicle') || 'null'),
+    parts: [],
+    loaded: false,
+    submitting: false,
+    error: '',
+    draft: {},
+    result: null
+  }
 };
 
 function getRoute() {
   const raw = location.hash.replace(/^#/, '') || 'home';
   const [path] = raw.split('?');
   if (path.startsWith('product/')) return { name: 'product', id: path.split('/')[1] };
-  if (path === 'store' || path === 'cart' || path === 'home') return { name: path };
+  if (path.startsWith('blog/')) return { name: 'blog-post', slug: decodeURIComponent(path.slice('blog/'.length)) };
+  if (path === 'blog') return { name: 'blog' };
+  if (path === 'store' || path === 'cart' || path === 'home' || path === 'fitment') return { name: path };
   return { name: 'home' };
 }
 function esc(value = '') { return String(value).replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
 function assetUrl(value = '') {
   const source = String(value || '');
+  if (/^assets\//i.test(source)) return `./${source}`;
   return /^(?:https?:|data:|\/|\.\.?\/)/i.test(source) ? source : `${ASSET}${source}`;
 }
 function money(value) { return `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; }
 function stars(rating) { return Number(rating) > 0 ? `<span class="stars" aria-label="${rating} out of 5">★★★★★</span>` : '<span class="rating-empty">No verified reviews yet</span>'; }
+function productSizeNote(item) { return item?.size_note || (item?.category === 'Wheels' ? 'All sizes supported - custom diameter, width and fitment' : 'All sizes supported - custom fitment built to order'); }
+function productMetaText(item) {
+  const meta = String(item?.meta || '').trim();
+  const note = productSizeNote(item);
+  return /all sizes supported|all diameters/i.test(meta) ? meta : [meta, note].filter(Boolean).join(' · ');
+}
 function productGallery(item) {
   const stored = Array.isArray(item?.images) ? item.images.map(image => typeof image === 'string' ? image : image?.url).filter(Boolean) : [];
   const fallback = item?.image ? [item.image, 'a7dd472643daf9b4.jpg', 'ff2a26733252a2c8.jpg'] : [];
@@ -222,6 +497,36 @@ function productGallery(item) {
 function hasStartingPrice(item) { return item?.price_mode === 'from'; }
 function productPriceText(item) { return hasStartingPrice(item) ? 'From US' + money(item.price) : money(item.price); }
 function product(id) { return products.find(item => item.id === id) || products[0]; }
+function homeWheelProducts() {
+  const fallbackRank = ['fbox-rse', 'fbox-sv100', 'fbox-apex-split-spoke', 'fbox-vanta-10', 'fbox-meridian-multi-spoke', 'fbox-halo-20-spoke'];
+  return products
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => item?.category === 'Wheels' && item.image && item.status !== 'draft' && item.status !== 'archived')
+    .sort((left, right) => {
+      const a = left.item;
+      const b = right.item;
+      const aDate = Date.parse(a.created_at || a.updated_at || '') || 0;
+      const bDate = Date.parse(b.created_at || b.updated_at || '') || 0;
+      if (aDate !== bDate) return bDate - aDate;
+      const aCustom = a.price_mode === 'from' || a.visualizer_enabled ? 1 : 0;
+      const bCustom = b.price_mode === 'from' || b.visualizer_enabled ? 1 : 0;
+      if (aCustom !== bCustom) return bCustom - aCustom;
+      const aSort = Number(a.sort || 0);
+      const bSort = Number(b.sort || 0);
+      if (aSort !== bSort) return bSort - aSort;
+      const aRank = fallbackRank.indexOf(a.id);
+      const bRank = fallbackRank.indexOf(b.id);
+      if (aRank !== bRank) return (aRank < 0 ? 99 : aRank) - (bRank < 0 ? 99 : bRank);
+      return left.index - right.index;
+    })
+    .map(({ item }) => item);
+}
+function homePreviewProduct() {
+  return products.find(item => item.id === state.homePreviewProductId && item.category === 'Wheels')
+    || homeWheelProducts()[0]
+    || products[0];
+}
+function homePreviewShortName(item) { return String(item?.name || 'F-Box wheel').replace(/^F-Box\s+/i, '').split(' - ')[0]; }
 function persist() { localStorage.setItem('fbox-cart', JSON.stringify(state.cart)); localStorage.setItem('fbox-wishlist', JSON.stringify(state.wishlist)); if (state.vehicle) localStorage.setItem('fbox-vehicle', JSON.stringify(state.vehicle)); }
 function setToast(message) { state.toast = message; render(); window.clearTimeout(setToast.timer); setToast.timer = window.setTimeout(() => { state.toast = ''; render(); }, 2800); }
 function go(hash) { state.modal = null; location.hash = hash; }
@@ -236,6 +541,161 @@ function currentVehicleRecord() {
 function currentOfficialWheelSpecs() {
   const record = currentVehicleRecord();
   return record?.oem_wheel_specs || {};
+}
+
+function whatsappIsChinese() { return String(state.locale || '').startsWith('zh'); }
+function whatsappCopy(english, chinese) { return whatsappIsChinese() ? chinese : english; }
+function whatsappValue(value, pending = whatsappCopy('To confirm', '待确认')) { return value === undefined || value === null || String(value).trim() === '' ? pending : String(value); }
+function whatsappVehicleLabel(vehicle = state.vehicle || state.fitment?.vehicle) {
+  return [vehicle?.year, vehicle?.make, vehicle?.model, vehicle?.trim, vehicle?.drive ? `(${vehicle.drive})` : ''].filter(Boolean).join(' ') || whatsappCopy('Vehicle not selected', '尚未选择车型');
+}
+function whatsappUsageLabel(value) {
+  return ({ street: whatsappCopy('Daily street', '日常街道'), spirited: whatsappCopy('Spirited road', '激烈驾驶'), show: whatsappCopy('Show / stance', '展示 / 低趴'), track: whatsappCopy('Track / competition', '赛道 / 竞技') })[value] || whatsappValue(value, whatsappCopy('Not specified', '未说明'));
+}
+function whatsappStanceLabel(value) {
+  return ({ oem: whatsappCopy('Factory original', '原厂状态'), lowered: whatsappCopy('Lowered street', '街道降低'), 'static-low': whatsappCopy('Static low / stance', '静态低趴'), 'air-low': whatsappCopy('Air suspension low', '气动低趴'), track: whatsappCopy('Track alignment', '赛道定位') })[value] || whatsappValue(value, whatsappCopy('Not specified', '未说明'));
+}
+function whatsappPartLabel(id, type = '') {
+  if (!id) return whatsappCopy('Not selected', '未选择');
+  if (id === 'oem') return type === 'suspension' ? whatsappCopy('Factory original suspension · exact trim to confirm', '原厂避震 · 需确认准确配置') : whatsappCopy('Factory original · exact trim to confirm', '原厂部件 · 需确认准确配置');
+  const part = state.fitment.parts.find(item => String(item.id) === String(id));
+  return part ? `${part.brand} ${part.model}${part.part_number ? ` · ${part.part_number}` : ''}` : String(id);
+}
+function whatsappImageUrl(value) {
+  const source = String(value || '').trim();
+  if (!source || /^(?:data|blob):/i.test(source)) return '';
+  try {
+    const url = new URL(assetUrl(source), location.href);
+    return /^https?:$/i.test(url.protocol) ? url.href : '';
+  } catch { return ''; }
+}
+function whatsappImageLinks(lines, imageUrls) {
+  const unique = [...new Set(imageUrls.map(whatsappImageUrl).filter(Boolean))].slice(0, 3);
+  if (unique.length) lines.push(`${whatsappCopy('Preview image links', '效果图链接')}:\n${unique.map((url, index) => `${index + 1}. ${url}`).join('\n')}`);
+  return { lines, imageUrls: unique };
+}
+function whatsappAxleLines(draft, axle) {
+  const label = axle === 'front' ? whatsappCopy('Front axle', '前轴') : whatsappCopy('Rear axle', '后轴');
+  const value = key => whatsappValue(draft[`${axle}_${key}`], '—');
+  return [
+    `${label} ${whatsappCopy('wheel', '轮毂')}：${value('diameter')} × ${value('width')} in · PCD ${value('pcd')} · ET ${value('offset')} · CB ${value('center_bore')} mm`,
+    `${whatsappCopy('Clearance', '间隙')}：${whatsappCopy('spacer', '垫片')} ${value('spacer_mm')} mm · ${whatsappCopy('barrel → strut / spring perch', '内桶 → 避震筒 / 弹簧座')} ${value('inner_clearance_mm')} mm · ${whatsappCopy('spoke back → caliper highest point', '辐条背面 → 卡钳最高点')} ${value('spoke_clearance_mm')} mm`,
+    `${whatsappCopy('Alignment', '定位')}：${whatsappCopy('camber', '倾角')} ${value('camber_deg')}° · ${whatsappCopy('toe', '前束')} ${value('toe_deg')}° · ${whatsappCopy('tire', '轮胎')} ${value('tire')} · ${whatsappCopy('style', '安装风格')} ${whatsappValue(draft[`${axle}_tire_fitment_style`], whatsappCopy('Not specified', '未说明'))}`,
+    `${whatsappCopy('Dynamic clearance', '动态间隙')}：${whatsappCopy('tire shoulder → inner fender', '轮胎肩部 → 轮眉内缘')} ${value('fender_clearance_mm')} mm · ${whatsappCopy('full compression minimum', '完全压缩最小值')} ${value('compression_clearance_mm')} mm`
+  ];
+}
+function fitmentWhatsAppContext() {
+  const draft = state.fitment.draft || {};
+  const result = state.fitment.result || {};
+  const lines = [
+    whatsappCopy('F-Box custom wheel fitment consultation', 'F-Box 定制轮毂适配咨询'),
+    `${whatsappCopy('Vehicle', '车型')}：${whatsappVehicleLabel(state.fitment.vehicle || state.vehicle)}`,
+    `${whatsappCopy('Use case', '使用场景')}：${whatsappUsageLabel(draft.usage)} · ${whatsappCopy('stance', '姿态')}：${whatsappStanceLabel(draft.stance_profile)} · ${whatsappCopy('ride-height drop', '降低高度')}：${whatsappValue(draft.ride_height_drop_mm, '0')} mm`,
+    `${whatsappCopy('Front brake / caliper', '前轴刹车 / 卡钳')}：${whatsappPartLabel(draft.front_brake_id, 'brake')}`,
+    `${whatsappCopy('Rear brake / caliper', '后轴刹车 / 卡钳')}：${whatsappPartLabel(draft.rear_brake_id, 'brake')}`,
+    `${whatsappCopy('Front rotor', '前轴刹车盘')}：${whatsappPartLabel(draft.front_rotor_id, 'rotor')}`,
+    `${whatsappCopy('Rear rotor', '后轴刹车盘')}：${whatsappPartLabel(draft.rear_rotor_id, 'rotor')}`,
+    `${whatsappCopy('Front pad', '前轴刹车片')}：${whatsappPartLabel(draft.front_pad_id, 'pad')}`,
+    `${whatsappCopy('Rear pad', '后轴刹车片')}：${whatsappPartLabel(draft.rear_pad_id, 'pad')}`,
+    `${whatsappCopy('Suspension / coilover', '避震 / 绞牙')}：${whatsappPartLabel(draft.suspension_id, 'suspension')}`,
+    '',
+    ...whatsappAxleLines(draft, 'front'),
+    ...whatsappAxleLines(draft, 'rear'),
+    '',
+    `${whatsappCopy('Rule result', '规则结果')}：${result.status_label || result.status || whatsappCopy('Needs measurement', '需要测量')}`,
+    `${whatsappCopy('Next step', '下一步')}：${result.next_step || whatsappCopy('Please confirm the final wheel drawing and dynamic clearance.', '请确认最终轮毂图纸和动态间隙。')}`
+  ];
+  const missing = (result.missing || []).slice(0, 8);
+  if (missing.length) lines.push(`${whatsappCopy('Still needed', '仍需补充')}：\n${missing.map(item => `- ${item}`).join('\n')}`);
+  const imageResult = whatsappImageLinks(lines, []);
+  return { kind: 'fitment', title: whatsappCopy('F-Box fitment consultation', 'F-Box 适配咨询'), message: imageResult.lines.join('\n'), imageUrls: imageResult.imageUrls };
+}
+function whatsappProductPrice(item) {
+  if (!hasStartingPrice(item)) return money(item?.price || 0);
+  return whatsappIsChinese() ? `USD ${Number(item.price || 0).toFixed(0)} 起` : `From USD ${item.price}`;
+}
+function whatsappProductFinish(item) {
+  const finish = String(item?.finish || item?.color || '').trim();
+  if (!finish) return whatsappCopy('Custom finish', '表面处理按需定制');
+  return whatsappIsChinese() && /custom/i.test(finish) ? '表面颜色和工艺按需定制' : finish;
+}
+function whatsappProductSizeNote(item) {
+  if (!whatsappIsChinese()) return productSizeNote(item);
+  return item?.category === 'Wheels'
+    ? '支持全尺寸定制：直径、宽度、PCD、ET、中心孔可按车型匹配'
+    : '支持全尺寸定制，并按车辆和安装空间适配';
+}
+function productWhatsAppContext(item) {
+  const lines = [
+    whatsappCopy('F-Box custom wheel quotation', 'F-Box 定制轮毂咨询报价'),
+    `${whatsappCopy('Product', '商品')}：${item?.name || whatsappCopy('Custom wheel', '定制轮毂')}`,
+    `${whatsappCopy('Price', '价格')}：${whatsappProductPrice(item)}`,
+    `${whatsappCopy('Finish', '表面处理')}：${whatsappProductFinish(item)}`,
+    `${whatsappCopy('Available size', '可定制尺寸')}：${whatsappProductSizeNote(item)}`,
+    `${whatsappCopy('Vehicle', '车型')}：${whatsappVehicleLabel()}`,
+    whatsappCopy('Please confirm the exact diameter, width, PCD, ET, center bore, brake template and dynamic clearance for my vehicle.', '请帮我确认这台车适配的直径、宽度、PCD、ET、中心孔、刹车模板和动态间隙。')
+  ];
+  const imageResult = whatsappImageLinks(lines, [state.productImage[item?.id], ...(productGallery(item) || [])]);
+  return { kind: 'product', title: whatsappCopy('F-Box wheel quotation', 'F-Box 轮毂报价'), productId: item?.id || '', message: imageResult.lines.join('\n'), imageUrls: imageResult.imageUrls };
+}
+function visualizerWhatsAppContext() {
+  const current = state.wheelVisualizer || {};
+  const item = wheelVisualizerItem();
+  const draft = current.inquiry?.draft || {};
+  const lines = [
+    whatsappCopy('F-Box visual fitment consultation', 'F-Box 效果图适配咨询'),
+    `${whatsappCopy('Product', '商品')}：${item?.name || whatsappCopy('Custom wheel', '定制轮毂')}`,
+    `${whatsappCopy('Vehicle', '车型')}：${current.vehicleName || whatsappVehicleLabel()}`,
+    `${whatsappCopy('Wheel specification', '轮毂参数')}：${whatsappValue(draft.diameter)} × ${whatsappValue(draft.width)} in · PCD ${whatsappValue(draft.pcd)} · ET ${whatsappValue(draft.offset)} · CB ${whatsappValue(draft.center_bore)} mm`,
+    `${whatsappCopy('Quantity', '数量')}：${whatsappValue(draft.quantity, '4')}`,
+    whatsappCopy('Please confirm the final custom wheel drawing and clearance before production.', '请在生产前确认最终定制轮毂图纸和间隙适配。')
+  ];
+  const images = [current.referenceImage, ...(current.results || []).map(result => result.imageUrl || result.image_url || result.url)];
+  const imageResult = whatsappImageLinks(lines, images);
+  return { kind: 'visualizer', title: whatsappCopy('F-Box visual fitment', 'F-Box 效果图适配'), productId: item?.id || '', message: imageResult.lines.join('\n'), imageUrls: imageResult.imageUrls };
+}
+function generalWhatsAppContext() {
+  return { kind: 'general', title: whatsappCopy('Contact F-Box', '联系 F-Box'), message: whatsappCopy('Hello F-Box, I would like help choosing custom wheels for my vehicle. Please tell me what fitment information and photos you need.', '你好 F-Box，我想咨询我的车辆定制轮毂。请告诉我需要提供哪些适配参数和照片。'), imageUrls: [] };
+}
+function whatsappContext(action = '', targetId = '') {
+  if (action === 'whatsapp-fitment' || (state.route.name === 'fitment' && state.fitment.result)) return fitmentWhatsAppContext();
+  if (action === 'whatsapp-visualizer' || state.wheelVisualizer?.open) return visualizerWhatsAppContext();
+  if (action === 'whatsapp-product' || state.route.name === 'product') return productWhatsAppContext(product(targetId || state.route.id));
+  return generalWhatsAppContext();
+}
+function whatsappHref(message) { return `https://wa.me/${company.whatsappNumber}?text=${encodeURIComponent(String(message || '').slice(0, 6000))}`; }
+async function openWhatsAppContext(context) {
+  const message = context.message || generalWhatsAppContext().message;
+  trackEvent('whatsapp_click', { path: location.pathname + location.hash, title: context.kind || 'general', product_id: context.productId || '', meta: { phone: company.whatsappNumber, image_count: context.imageUrls?.length || 0 } });
+  if (context.imageUrls?.length && window.matchMedia('(max-width: 760px)').matches && typeof navigator.share === 'function') {
+    try {
+      const files = [];
+      for (const [index, imageUrl] of context.imageUrls.slice(0, 3).entries()) {
+        const response = await fetch(imageUrl, { mode: 'cors' });
+        if (!response.ok) continue;
+        const blob = await response.blob();
+        if (!blob.size) continue;
+        const type = blob.type || 'image/jpeg';
+        const extension = type.includes('png') ? 'png' : 'jpg';
+        files.push(new File([blob], `fbox-${context.kind || 'preview'}-${index + 1}.${extension}`, { type }));
+      }
+      if (files.length && typeof navigator.canShare === 'function' && navigator.canShare({ files })) {
+        await navigator.share({ title: context.title, text: message, files });
+        setToast(whatsappCopy('Shared with your selected app.', '已通过手机分享面板发送。'));
+        return;
+      }
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+    }
+  }
+  const opened = window.open(whatsappHref(message), '_blank', 'noopener,noreferrer');
+  if (!opened) window.location.href = whatsappHref(message);
+  setToast(whatsappCopy('WhatsApp opened with your setup and preview links.', 'WhatsApp 已打开，参数和效果图链接已填入。'));
+}
+function whatsappFab() {
+  const label = uiLabel('Chat with F-Box on WhatsApp', 'Chat with F-Box on WhatsApp');
+  const context = whatsappContext();
+  return `<a class="whatsapp-fab" data-action="whatsapp" href="${esc(whatsappHref(context.message))}" target="_blank" rel="noopener" aria-label="${esc(label)}" title="${esc(label)}">${icons.whatsapp}<span class="whatsapp-fab-label">WhatsApp</span></a>`;
 }
 
 const wheelVisualizerDefaults = () => ({
@@ -516,15 +976,6 @@ async function mallRequest(base, endpoint, options = {}) {
   }
 }
 
-function mallStatusLabel(status) {
-  if (status === 'connected') return 'Connected';
-  if (status === 'checking') return 'Checking';
-  return 'Unavailable';
-}
-function mallStatusChip(kind = 'portal') {
-  const status = state.backend[kind] || 'testing';
-  return `<span class="integration-chip ${status === 'connected' ? 'is-live' : 'is-testing'}"><i></i>F-Box ${kind === 'portal' ? 'store' : 'admin'} API · ${mallStatusLabel(status)}</span>`;
-}
 async function checkMallBackend() {
   if (state.backend.checking) return;
   state.backend.checking = true;
@@ -553,14 +1004,18 @@ function applyProductReviewStats(catalog) {
 
 async function loadFBoxContent() {
   try {
-    const [vehicleResponse, reviewResponse, caseResponse] = await Promise.all([
+    const [vehicleResponse, reviewResponse, caseResponse, photoReviewResponse, fitmentResponse] = await Promise.all([
       fetch('/api/fbox-content/vehicles', { headers: { Accept: 'application/json' } }),
       fetch('/api/fbox-content/reviews?status=approved', { headers: { Accept: 'application/json' } }),
-      fetch('/api/fbox-content/cases?status=published', { headers: { Accept: 'application/json' } })
+      fetch('/api/fbox-content/cases?status=published', { headers: { Accept: 'application/json' } }),
+      fetch('/api/fbox-content/photo-reviews?limit=20', { headers: { Accept: 'application/json' } }),
+      fetch('/api/fbox-content/fitment/parts', { headers: { Accept: 'application/json' } })
     ]);
     const vehiclePayload = await vehicleResponse.json().catch(() => ({}));
     const reviewPayload = await reviewResponse.json().catch(() => ({}));
     const casePayload = await caseResponse.json().catch(() => ({}));
+    const photoReviewPayload = await photoReviewResponse.json().catch(() => ({}));
+    const fitmentPayload = await fitmentResponse.json().catch(() => ({}));
     state.fboxVehicleRecords = Array.isArray(vehiclePayload.data) ? vehiclePayload.data.filter(record => record.status !== 'inactive') : [];
     const remoteYears = state.fboxVehicleRecords.map(record => Number(record.year)).filter(Boolean);
     years.splice(0, years.length, ...Array.from(new Set([...years, ...remoteYears])).sort((a, b) => Number(b) - Number(a)));
@@ -578,12 +1033,112 @@ async function loadFBoxContent() {
     });
     reviews = Array.isArray(reviewPayload.data) ? reviewPayload.data : [];
     fboxCases = Array.isArray(casePayload.data) ? casePayload.data : [];
+    fboxPhotoReviews = Array.isArray(photoReviewPayload.data) ? photoReviewPayload.data : [];
+    state.fitment.parts = Array.isArray(fitmentPayload.data) ? fitmentPayload.data : [];
+    state.fitment.loaded = fitmentResponse.ok;
     products = applyProductReviewStats(products);
     render();
   } catch {
     // The storefront keeps its local vehicle fallback when the content API is offline.
   }
 }
+
+async function loadBlogContent() {
+  try {
+    const response = await fetch('/api/fbox-content/blog?limit=50', { headers: { Accept: 'application/json' } });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || 'Journal unavailable');
+    state.blogPosts = Array.isArray(payload.data) && payload.data.length ? payload.data : blogFallbackPosts;
+    state.blogLoaded = true;
+    if (state.route.name === 'blog' || state.route.name === 'blog-post' || state.route.name === 'home') render();
+  } catch {
+    state.blogPosts = blogFallbackPosts;
+  }
+}
+
+function normalizeWhatsAppNumber(value) {
+  const digits = String(value || '').replace(/\D/g, '');
+  return /^\d{8,15}$/.test(digits) ? digits : '';
+}
+
+function formatWhatsAppNumber(value) {
+  const digits = normalizeWhatsAppNumber(value);
+  if (!digits) return company.whatsapp || company.phone;
+  if (digits.startsWith('86') && digits.length === 13) return `+86 ${digits.slice(2, 5)} ${digits.slice(5)}`;
+  return `+${digits}`;
+}
+
+async function loadFBoxSettings() {
+  try {
+    const response = await fetch('/api/fbox-content/settings', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || 'Storefront settings unavailable');
+    const settings = payload.data || payload;
+    const whatsappNumber = normalizeWhatsAppNumber(settings.whatsapp_number);
+    if (whatsappNumber) {
+      company.whatsappNumber = whatsappNumber;
+      company.whatsapp = formatWhatsAppNumber(whatsappNumber);
+    }
+    if (settings.phone) company.phone = String(settings.phone);
+    if (settings.company_name) company.legalName = String(settings.company_name);
+    if (state.localeMode === 'auto' && browserLocale() === 'en' && localeOptions.some(([code]) => code === settings.default_locale)) {
+      state.locale = settings.default_locale;
+    }
+    render();
+  } catch {
+    // The built-in contact value keeps the storefront usable while the API is unavailable.
+  }
+}
+
+function blogPostsForDisplay() {
+  const posts = state.blogPosts.filter(post => post.status !== 'draft' && post.status !== 'archived');
+  if (state.blogCategory === 'All') return posts;
+  return posts.filter(post => post.category === state.blogCategory);
+}
+
+function blogCover(post) {
+  return assetUrl(post.cover_image || post.image || 'halo-20-spoke-01.png');
+}
+
+function blogDateLabel(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat(state.locale || 'en', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
+}
+
+function blogCard(post, index = 0, featured = false) {
+  return `<article class="blog-card ${featured ? 'is-featured' : ''} reveal delay-${index % 4}"><a class="blog-card-media" href="#blog/${encodeURIComponent(post.slug)}"><img src="${blogCover(post)}" alt="${esc(post.title)}" loading="lazy"><span>${esc(post.category || 'Journal')}</span></a><div class="blog-card-body"><div class="blog-card-meta"><span>${esc(post.read_time || '5 min read')}</span><span>${esc(blogDateLabel(post.published_at))}</span></div><h3><a href="#blog/${encodeURIComponent(post.slug)}">${esc(post.title)}</a></h3><p>${esc(post.excerpt)}</p><a class="blog-read-link" href="#blog/${encodeURIComponent(post.slug)}">Read the journal <span>${icons.chevron}</span></a></div></article>`;
+}
+
+function blogHomeSection() {
+  const posts = blogPostsForDisplay().slice(0, 3);
+  return `<section class="section blog-home-section"><div class="container"><div class="section-heading"><div><p class="eyebrow">F-Box Journal</p><h2>Build with more confidence.</h2></div><p>Practical notes on fitment, wheel engineering and finishes, written for the moment before you place the order.</p><a class="btn btn-dark" href="#blog">View all journal posts</a></div><div class="blog-home-grid">${posts.map((post, index) => blogCard(post, index)).join('')}</div></div></section>`;
+}
+
+function blogBodyMarkup(post) {
+  return String(post.body || '').split(/\n\s*\n/).map(block => block.trim()).filter(Boolean).map(block => {
+    const lines = block.split('\n');
+    const heading = lines[0].startsWith('## ') ? lines.shift().slice(3) : '';
+    const copy = lines.join('\n');
+    return `${heading ? `<h2>${esc(heading)}</h2>` : ''}${copy ? `<p>${esc(copy).replace(/\n/g, '<br>')}</p>` : ''}`;
+  }).join('');
+}
+
+function blogPage() {
+  const posts = blogPostsForDisplay();
+  const categories = ['All', ...new Set(state.blogPosts.filter(post => post.status !== 'draft' && post.status !== 'archived').map(post => post.category).filter(Boolean))];
+  const featured = posts.find(post => post.featured) || posts[0];
+  const remaining = featured ? posts.filter(post => post.id !== featured.id) : posts;
+  return `<section class="blog-hero"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>Journal</span></div><div class="blog-hero-grid"><div><p class="eyebrow">F-Box Journal</p><h1>Notes for the<br><em>next build.</em></h1><p class="blog-hero-copy">A practical editorial space for wheel fitment, custom design and the engineering decisions that make a finished build feel right.</p></div>${featured ? `<a class="blog-featured-card" href="#blog/${encodeURIComponent(featured.slug)}"><img src="${blogCover(featured)}" alt="${esc(featured.title)}"><div><span>${esc(featured.category)} · ${esc(featured.read_time || '5 min read')}</span><strong>${esc(featured.title)}</strong><small>${esc(featured.excerpt)}</small><b>Read featured post ${icons.chevron}</b></div></a>` : ''}</div></div></section><main class="section blog-main"><div class="container"><div class="blog-toolbar"><div><p class="eyebrow">Browse the archive</p><h2>Useful before you buy.</h2></div><div class="blog-categories">${categories.map(category => `<button class="blog-category ${state.blogCategory === category ? 'is-active' : ''}" data-action="blog-filter" data-blog-category="${esc(category)}">${esc(category)}</button>`).join('')}</div></div>${remaining.length ? `<div class="blog-grid">${remaining.map((post, index) => blogCard(post, index)).join('')}</div>` : `<div class="case-empty"><strong>No posts in this category yet.</strong><span>Return to All to see the current F-Box journal.</span></div>`}</div></main>`;
+}
+
+function blogArticlePage(post) {
+  if (!post) return `<main class="section"><div class="container"><div class="case-empty"><strong>Journal post not found.</strong><a class="btn btn-dark" href="#blog">Back to Journal</a></div></div></main>`;
+  const related = state.blogPosts.filter(item => item.id !== post.id && item.status !== 'draft' && item.status !== 'archived').slice(0, 3);
+  return `<main class="blog-article"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><a href="#blog">Journal</a><span>/</span><span>${esc(post.category || 'Journal')}</span></div><div class="blog-article-head"><p class="eyebrow">${esc(post.category || 'Journal')} · ${esc(post.read_time || '5 min read')}</p><h1>${esc(post.title)}</h1><p>${esc(post.excerpt)}</p><div class="blog-article-byline"><span>By ${esc(post.author || 'F-Box Editorial')}</span><span>${esc(blogDateLabel(post.published_at))}</span></div></div><figure class="blog-article-cover"><img src="${blogCover(post)}" alt="${esc(post.title)}"></figure><div class="blog-article-layout"><article class="blog-article-body">${blogBodyMarkup(post)}<div class="blog-article-cta"><strong>Have a build in mind?</strong><span>Bring the vehicle, the stance and the finish. F-Box will help turn the brief into a build-ready spec.</span><a class="btn btn-primary" href="#store" data-category-link="Wheels">Browse wheels</a></div></article><aside class="blog-article-aside"><span class="eyebrow">In this post</span>${(post.tags || []).map(tag => `<span class="blog-tag">${esc(tag)}</span>`).join('')}<a class="btn btn-outline btn-small" href="#blog">Back to Journal</a></aside></div>${related.length ? `<section class="blog-related"><div class="section-heading"><div><p class="eyebrow">Keep reading</p><h2>More from the journal.</h2></div></div><div class="blog-grid">${related.map((item, index) => blogCard(item, index)).join('')}</div></section>` : ''}</div></main>`;
+}
+
 async function mallLogin(username, password) {
   return mallRequest(mallConfig.portalBase, '/auth/login', {
     method: 'POST',
@@ -666,6 +1221,8 @@ function mallProductToFBox(raw) {
     deal: raw.deal || (Number(raw.stock || 0) > 0 ? 'In stock · live inventory' : 'Contact F-Box for availability'),
     stock: Number(raw.stock || 0),
     meta: base.meta,
+    custom_size: true,
+    size_note: raw.size_note || base.size_note || productSizeNote(base),
     backendPic: raw.pic || ''
   };
 }
@@ -687,7 +1244,9 @@ async function loadMallCatalog() {
         name: raw.name || base?.name || 'F-Box product',
         brand: raw.brand || raw.brandName || base?.brand || 'F-Box',
         category: raw.category || raw.productCategoryName || base?.category || 'Wheels',
-        meta: raw.meta || base?.meta || '',
+         meta: raw.meta || base?.meta || '',
+         custom_size: true,
+         size_note: raw.size_note || base?.size_note || (raw.category === 'Wheels' ? 'All sizes supported - custom diameter, width and fitment' : 'All sizes supported - custom fitment built to order'),
         price: Number(raw.price || base?.price || 0),
         oldPrice: raw.oldPrice ?? (raw.originalPrice || base?.oldPrice || null),
         image,
@@ -709,7 +1268,8 @@ async function loadMallCatalog() {
         return item;
       }
     }));
-    products = applyProductReviewStats(detailed);
+    const merged = [...detailed, ...localCustomProductFallback.filter(local => !detailed.some(item => item.id === local.id))];
+    products = applyProductReviewStats(merged);
     state.catalogLoaded = true;
     render();
     if (state.mallToken) await loadMallCart();
@@ -759,25 +1319,6 @@ async function createMallOrder(values) {
   return result?.order || result;
 }
 
-function decorateIntegrationState() {
-  const headerActions = document.querySelector(".header-actions");
-  if (headerActions && !headerActions.querySelector(".mall-status")) {
-    headerActions.insertAdjacentHTML("afterbegin", `<div class="mall-status" title="F-Box store backend">${mallStatusChip("portal")}</div>`);
-  }
-  const storeHero = document.querySelector(".store-hero .container");
-  if (storeHero && !storeHero.querySelector(".integration-strip")) {
-    storeHero.insertAdjacentHTML("beforeend", `<div class="integration-strip"><div><strong>Live F-Box catalog</strong><span>Products, prices, stock and orders are served by the F-Box backend.</span></div><div class="integration-chips">${mallStatusChip("portal")}${mallStatusChip("admin")}<span class="integration-chip is-live"><i></i>Order API · Connected</span></div></div>`);
-  }
-  const accountForm = document.querySelector("[data-form=account]");
-  if (accountForm && !accountForm.previousElementSibling?.classList.contains("integration-note")) {
-    accountForm.insertAdjacentHTML("beforebegin", `<div class="integration-note">${mallStatusChip("portal")}<span>登录使用 F-Box 账户服务；购物车、收货地址和订单都保存到 F-Box 后端。</span></div>`);
-  }
-  const checkoutForm = document.querySelector("[data-form=checkout]");
-  if (checkoutForm && !checkoutForm.previousElementSibling?.classList.contains("integration-note")) {
-    checkoutForm.insertAdjacentHTML("beforebegin", `<div class="integration-note">${mallStatusChip("portal")}<span>订单会写入 F-Box 后台并默认为待付款；支付渠道由 PayPal 配置决定。</span></div>`);
-  }
-}
-
 function selectOptions(values, selected = '', placeholder = 'Select') { return `<option value="">${placeholder}</option>${values.map(value => `<option value="${esc(value)}" ${String(value) === String(selected) ? 'selected' : ''}>${esc(value)}</option>`).join('')}`; }
 function vehicleSelector(prefix = 'vehicle') {
   const v = state.vehicle || {};
@@ -793,8 +1334,99 @@ function vehicleSelector(prefix = 'vehicle') {
   </div>`;
 }
 
+function fitmentVehicleSelector() {
+  const v = state.fitment.vehicle || {};
+  const makes = v.year && vehicles[v.year] ? Object.keys(vehicles[v.year]) : [];
+  const models = v.year && v.make && vehicles[v.year]?.[v.make] ? Object.keys(vehicles[v.year][v.make]) : [];
+  const trims = v.year && v.make && v.model && vehicles[v.year]?.[v.make]?.[v.model] ? vehicles[v.year][v.make][v.model] : [];
+  const fitmentSelectOptions = (values, selected, placeholder) => `<option value="" data-translate-option>${esc(uiLabel(placeholder, placeholder))}</option>${values.map(value => `<option value="${esc(value)}" ${String(value) === String(selected) ? 'selected' : ''}>${esc(value)}</option>`).join('')}`;
+  return `<div class="fitment-selects fitment-lab-vehicle" data-fitment-vehicle>
+    <select class="fitment-select" data-fitment-field="year">${fitmentSelectOptions(years, v.year, 'Year')}</select>
+    <select class="fitment-select" data-fitment-field="make" ${makes.length ? '' : 'disabled'}>${fitmentSelectOptions(makes, v.make, 'Make')}</select>
+    <select class="fitment-select" data-fitment-field="model" ${models.length ? '' : 'disabled'}>${fitmentSelectOptions(models, v.model, 'Model')}</select>
+    <select class="fitment-select" data-fitment-field="trim" ${trims.length ? '' : 'disabled'}>${fitmentSelectOptions(trims, v.trim, 'Trim')}</select>
+    <select class="fitment-select" data-fitment-field="drive" ${v.trim ? '' : 'disabled'}>${fitmentSelectOptions(driveOptions(v.make, v.model), v.drive, 'Drive')}</select>
+  </div>`;
+}
+
+function fitmentPartOptions(type, selected = '', axle = '') {
+  const labels = {
+    brake: 'Not listed / use manual brake template',
+    caliper: 'Not listed / use manual brake template',
+    rotor: 'Not listed / use manual brake template',
+    pad: 'Not listed / use manual brake template',
+    suspension: 'Not listed / enter measured ride height'
+  };
+  const types = type === 'brake' ? ['brake', 'caliper'] : [type];
+  const label = labels[type] || labels.suspension;
+  const records = state.fitment.parts.filter(part => types.includes(part.type) && part.status === 'active');
+  const oemId = 'oem';
+  const oemLabel = type === 'suspension' ? 'Factory original suspension / exact trim' : `Factory original ${type} / exact trim`;
+  return `<option value="" data-translate-option>${esc(uiLabel(label, label))}</option><option value="${oemId}" data-translate-option ${String(selected) === oemId ? 'selected' : ''}>${esc(uiLabel('Factory original / exact trim', oemLabel))}</option>${records.map(part => `<option value="${esc(part.id)}" ${String(part.id) === String(selected) ? 'selected' : ''}>${esc(`${part.brand} ${part.model}${part.part_number ? ` · ${part.part_number}` : ''}`)}</option>`).join('')}`;
+}
+
+function fitmentDraftValue(key) {
+  return esc(state.fitment.draft?.[key] ?? '');
+}
+
+function fitmentAxleForm(axle, label) {
+  const prefix = axle;
+  return `<article class="fitment-axle-card">
+    <div class="fitment-axle-head"><div><span class="fitment-step-index">${axle === 'front' ? '02' : '03'}</span><h3>${uiLabel(`${label} wheel + tire`, `${label} wheel + tire`)}</h3></div><span class="fitment-axle-note">${uiLabel('Optional until you have measured values')}</span></div>
+    <div class="fitment-input-grid">
+      <label><span>${uiLabel('Diameter (in)')}</span><small class="fitment-field-help">${uiLabel('Rim bead-seat diameter, not tire outside diameter.')}</small><input name="${prefix}_diameter" type="number" step="0.1" min="12" max="30" value="${fitmentDraftValue(`${prefix}_diameter`)}" placeholder="19"></label>
+      <label><span>${uiLabel('Width (in)')}</span><small class="fitment-field-help">${uiLabel('Bead-seat width from the wheel drawing.')}</small><input name="${prefix}_width" type="number" step="0.1" min="4" max="16" value="${fitmentDraftValue(`${prefix}_width`)}" placeholder="9.0"></label>
+      <label><span>${uiLabel('ET / offset (mm)')}</span><small class="fitment-field-help">${uiLabel('Mounting-face offset; positive ET moves the wheel inward.')}</small><input name="${prefix}_offset" type="number" step="0.1" value="${fitmentDraftValue(`${prefix}_offset`)}" placeholder="+35"></label>
+      <label><span>PCD</span><small class="fitment-field-help">${uiLabel('Number of holes × pitch-circle diameter, e.g. 5x112.')}</small><input name="${prefix}_pcd" value="${fitmentDraftValue(`${prefix}_pcd`)}" placeholder="5x112"></label>
+      <label><span>${uiLabel('Center bore (mm)')}</span><small class="fitment-field-help">${uiLabel('Wheel center hole over the hub; smaller will not fit.')}</small><input name="${prefix}_center_bore" type="number" step="0.1" value="${fitmentDraftValue(`${prefix}_center_bore`)}" placeholder="66.6"></label>
+      <label><span>${uiLabel('Spacer thickness (mm)')}</span><small class="fitment-field-help">${uiLabel('Installed spacer thickness; it changes both inner and outer clearance.')}</small><input name="${prefix}_spacer_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_spacer_mm`)}" placeholder="0"></label>
+      <label><span>${uiLabel('Wheel barrel to strut clearance (mm)')}</span><small class="fitment-field-help">${uiLabel('Wheel barrel to strut or spring perch; measure the smallest gap.')}</small><input name="${prefix}_inner_clearance_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_inner_clearance_mm`)}" placeholder="Smallest measured gap"></label>
+      <label><span>${uiLabel('Spoke back to caliper clearance (mm)')}</span><small class="fitment-field-help">${uiLabel('Wheel spoke back to the caliper highest point; use the brake template if available.')}</small><input name="${prefix}_spoke_clearance_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_spoke_clearance_mm`)}" placeholder="Template / measured gap"></label>
+      <label><span>${uiLabel('Camber (deg)')}</span><small class="fitment-field-help">${uiLabel('Negative means the top of the tire leans inward.')}</small><input name="${prefix}_camber_deg" type="number" step="0.1" value="${fitmentDraftValue(`${prefix}_camber_deg`)}" placeholder="-2.0"></label>
+      <label><span>${uiLabel('Toe (deg)')}</span><small class="fitment-field-help">${uiLabel('Measure total toe for this axle after lowering; follow the alignment printout.')}</small><input name="${prefix}_toe_deg" type="number" step="0.01" value="${fitmentDraftValue(`${prefix}_toe_deg`)}" placeholder="0.00"></label>
+      <label><span>${uiLabel('Tire shoulder to fender clearance (mm)')}</span><small class="fitment-field-help">${uiLabel('Tire shoulder to the inner fender lip at steering lock.')}</small><input name="${prefix}_fender_clearance_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_fender_clearance_mm`)}" placeholder="Lock + smallest gap"></label>
+      <label><span>${uiLabel('Full-compression minimum clearance (mm)')}</span><small class="fitment-field-help">${uiLabel('Tire, fender, strut and barrel gap with suspension fully compressed.')}</small><input name="${prefix}_compression_clearance_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_compression_clearance_mm`)}" placeholder="Loaded suspension gap"></label>
+      <label><span>${uiLabel('Tire fitment style')}</span><small class="fitment-field-help">${uiLabel('Standard or stretched changes bead and fender clearance; record actual tire style.')}</small><select name="${prefix}_tire_fitment_style" data-translate-options><option value="" data-translate-option>${uiLabel('Not specified')}</option><option value="standard" ${fitmentDraftValue(`${prefix}_tire_fitment_style`) === 'standard' ? 'selected' : ''} data-translate-option>${uiLabel('Standard tire')}</option><option value="mild-stretch" ${fitmentDraftValue(`${prefix}_tire_fitment_style`) === 'mild-stretch' ? 'selected' : ''} data-translate-option>${uiLabel('Mild stretch')}</option><option value="aggressive-stretch" ${fitmentDraftValue(`${prefix}_tire_fitment_style`) === 'aggressive-stretch' ? 'selected' : ''} data-translate-option>${uiLabel('Aggressive stretch')}</option></select></label>
+      <label class="fitment-input-wide"><span>${uiLabel('Tire size')}</span><small class="fitment-field-help">${uiLabel('Installed tire size; it controls rolling diameter and sidewall position.')}</small><input name="${prefix}_tire" value="${fitmentDraftValue(`${prefix}_tire`)}" placeholder="255/35R19"></label>
+    </div>
+  </article>`;
+}
+
+function fitmentStatusLabel(status) {
+  return status === 'pass' ? uiLabel('Known rules pass') : status === 'conflict' ? uiLabel('Conflict found') : uiLabel('Needs measurement');
+}
+
+function fitmentResultMarkup(result) {
+  const status = result?.status || 'needs_review';
+  const messages = [...(result?.issues || []), ...(result?.warnings || []), ...(result?.missing || [])];
+  const chinese = String(state.locale || '').startsWith('zh');
+  const inchUnit = chinese ? '英寸' : 'in';
+  const minSuffix = chinese ? '最低' : 'min';
+  const rangeJoin = chinese ? ' 至 ' : ' to ';
+  const verification = result?.verification_summary || {};
+  const safetyNote = verification.provisional || verification.oem_selected || result?.setup_context?.dynamic_clearance_review_required
+    ? uiLabel('OEM, low-stance and unverified component data still require exact template and dynamic-clearance review.')
+    : uiLabel('F-Box will review the final wheel drawing and dynamic clearance before production.');
+  const axleCards = ['front', 'rear'].map(axle => {
+    const data = result?.axles?.[axle] || {};
+    const recommendation = data.recommendation || {};
+    const axleLabel = axle === 'front' ? uiLabel('Front axle') : uiLabel('Rear axle');
+    return `<article class="fitment-result-axle"><div class="fitment-result-axle-head"><strong>${axleLabel}</strong><span>${esc(recommendation.pcd || uiLabel('PCD pending'))}</span></div><div class="fitment-result-specs"><span><small>${uiLabel('Minimum diameter')}</small><b>${recommendation.diameter_min_in ? `${esc(recommendation.diameter_min_in)} ${inchUnit}` : uiLabel('Confirm')}</b></span><span><small>${uiLabel('Width baseline')}</small><b>${recommendation.width_baseline_in ? `${esc(recommendation.width_baseline_in)} ${inchUnit}` : uiLabel('Measure')}</b></span><span><small>${uiLabel('ET estimate')}</small><b>${recommendation.et_estimate_range ? `ET ${esc(recommendation.et_estimate_range[0])}${rangeJoin}${esc(recommendation.et_estimate_range[1])}` : uiLabel('Confirm')}</b></span><span><small>${uiLabel('Center bore')}</small><b>${recommendation.center_bore_min_mm ? `${esc(recommendation.center_bore_min_mm)} mm ${minSuffix}` : uiLabel('Confirm')}</b></span></div><div class="fitment-check-list">${(data.checks || []).map(check => `<span class="fitment-check fitment-check-${esc(check.status)}"><i></i>${esc(check.label)}: ${esc(check.detail)}</span>`).join('') || `<span class="fitment-check fitment-check-review"><i></i>${uiLabel('Enter wheel values for a more precise check.')}</span>`}</div></article>`;
+  }).join('');
+  return `<section class="fitment-result" aria-live="polite"><div class="fitment-result-head"><div><p class="eyebrow">${uiLabel('F-Box rule engine')}</p><h2>${uiLabel('Fitment result')}</h2><p>${esc(result?.next_step || uiLabel('F-Box will review the final wheel drawing before production.'))}</p></div><span class="fitment-status fitment-status-${status}">${fitmentStatusLabel(status)}</span></div><div class="fitment-result-safety">${esc(safetyNote)}</div><div class="fitment-result-grid">${axleCards}</div>${messages.length ? `<div class="fitment-result-messages"><h3>${uiLabel('What needs attention')}</h3><ul>${messages.slice(0, 14).map(message => `<li>${esc(message)}</li>`).join('')}</ul></div>` : `<div class="fitment-result-clear">${uiLabel('The known inputs are consistent. Final spoke and barrel clearance still require the selected wheel drawing.')}</div>`}<div class="fitment-result-actions"><button class="btn btn-primary" data-action="whatsapp-fitment">${icons.whatsapp} ${uiLabel('Send setup via WhatsApp')}</button><button class="btn btn-outline" data-action="fitment-chat">${uiLabel('Open F-Box chat')}</button><a class="btn btn-light" href="#store" data-category-link="Wheels">${uiLabel('Browse custom wheels')}</a></div><p class="fitment-whatsapp-note">${uiLabel('WhatsApp will open with your setup details and preview links ready to send.')}</p></section>`;
+}
+
+function fitmentPage() {
+  const draft = state.fitment.draft || {};
+  const selectedSuspension = draft.suspension_id || '';
+  const stanceProfile = state.fitment.draft?.stance_profile || 'oem';
+  const stanceControl = `<label class="fitment-inline-control"><span>${uiLabel('Current stance / ride-height profile')}</span><select name="stance_profile" data-translate-options><option value="oem" ${stanceProfile === 'oem' ? 'selected' : ''} data-translate-option>${uiLabel('Factory original / exact trim')}</option><option value="lowered" ${stanceProfile === 'lowered' ? 'selected' : ''} data-translate-option>${uiLabel('Lowered street')}</option><option value="static-low" ${stanceProfile === 'static-low' ? 'selected' : ''} data-translate-option>${uiLabel('Static low / stance')}</option><option value="air-low" ${stanceProfile === 'air-low' ? 'selected' : ''} data-translate-option>${uiLabel('Air suspension low')}</option><option value="track" ${stanceProfile === 'track' ? 'selected' : ''} data-translate-option>${uiLabel('Track alignment')}</option></select></label>`;
+  const libraryNote = `${state.fitment.loaded ? `${state.fitment.parts.length} ${uiLabel('active component profiles loaded', 'active component profiles loaded')}. ${uiLabel('Exact brake templates and measurements are still reviewed by a specialist.', 'Exact brake templates and measurements are still reviewed by a specialist.')}` : uiLabel('Loading the component library. You can still enter the vehicle and measurements manually.', 'Loading the component library. You can still enter the vehicle and measurements manually.')} ${stanceControl}`;
+  return `<main class="fitment-lab-page"><div class="container"><section class="fitment-lab-intro"><div><p class="custom-kicker">${uiLabel('F-Box Fitment Lab')} <span>${uiLabel('Chassis + parts + use case')}</span></p><h1>${uiLabel('Check the setup before we draw the wheel.')}</h1><p>${uiLabel('Choose the car, identify the modified parts and enter the numbers you already know. The rule engine surfaces brake diameter, hub match, ET direction, tire size and the measurements still needed for a final custom quote.')}</p></div><div class="fitment-lab-facts"><span><strong>PCD</strong><small>${uiLabel('Hub pattern first')}</small></span><span><strong>${uiLabel('Brake profile')}</strong><small>${uiLabel('Diameter is not enough')}</small></span><span><strong>${uiLabel('Use case')}</strong><small>${uiLabel('Street, show or track')}</small></span></div></section><form class="fitment-lab-form" data-form="fitment-check"><section class="fitment-form-section"><div class="fitment-section-head"><div><span class="fitment-section-kicker">${uiLabel('01 / Vehicle')}</span><h2>${uiLabel('Start with the exact platform.')}</h2></div><p>${uiLabel('Trim and drive can change the original wheel, brake and clearance baseline.')}</p></div>${fitmentVehicleSelector()}<div class="fitment-form-inline"><label><span>${uiLabel('How will you use it?')}</span><select name="usage" data-translate-options><option value="street" ${draft.usage === 'street' ? 'selected' : ''}>${uiLabel('Daily street')}</option><option value="spirited" ${draft.usage === 'spirited' ? 'selected' : ''}>${uiLabel('Spirited road')}</option><option value="show" ${draft.usage === 'show' ? 'selected' : ''}>${uiLabel('Show / stance')}</option><option value="track" ${draft.usage === 'track' ? 'selected' : ''}>${uiLabel('Track / competition')}</option></select></label><label><span>${uiLabel('Current ride-height drop (mm)')}</span><input name="ride_height_drop_mm" type="number" step="1" min="0" value="${fitmentDraftValue('ride_height_drop_mm')}" placeholder="0"></label></div></section><section class="fitment-form-section"><div class="fitment-section-head"><div><span class="fitment-section-kicker">${uiLabel('Parts library')}</span><h2>${uiLabel('Tell us what is already on the car.')}</h2></div><p>${uiLabel('Known brand and part numbers make the first-pass recommendation much sharper. The library is editable by F-Box staff.')}</p></div><div class="fitment-parts-grid"><label><span>${uiLabel('Front brake kit / caliper')}</span><select name="front_brake_id">${fitmentPartOptions('brake', draft.front_brake_id)}</select></label><label><span>${uiLabel('Rear brake kit / caliper')}</span><select name="rear_brake_id">${fitmentPartOptions('brake', draft.rear_brake_id)}</select></label><label><span>${uiLabel('Front brake rotor')}</span><select name="front_rotor_id">${fitmentPartOptions('rotor', draft.front_rotor_id)}</select></label><label><span>${uiLabel('Rear brake rotor')}</span><select name="rear_rotor_id">${fitmentPartOptions('rotor', draft.rear_rotor_id)}</select></label><label><span>${uiLabel('Front brake pad')}</span><select name="front_pad_id">${fitmentPartOptions('pad', draft.front_pad_id)}</select></label><label><span>${uiLabel('Rear brake pad')}</span><select name="rear_pad_id">${fitmentPartOptions('pad', draft.rear_pad_id)}</select></label><label><span>${uiLabel('Suspension / coilover')}</span><select name="suspension_id">${fitmentPartOptions('suspension', selectedSuspension)}</select></label></div><div class="fitment-inline-note">${libraryNote}</div></section>${fitmentAxleForm('front', 'Front axle')}${fitmentAxleForm('rear', 'Rear axle')}<div class="fitment-submit-row"><div><strong>${uiLabel('Ready to check the setup?')}</strong><span>${uiLabel('Leave unknown values blank and the result will list exactly what F-Box needs next.')}</span></div><button class="btn btn-primary" type="submit" ${state.fitment.submitting ? 'disabled' : ''}>${state.fitment.submitting ? uiLabel('Checking…') : uiLabel('Check fitment')} ${icons.chevron}</button></div>${state.fitment.error ? `<p class="fitment-form-error">${esc(state.fitment.error)}</p>` : ''}</form>${state.fitment.result ? fitmentResultMarkup(state.fitment.result) : ''}<section class="fitment-lab-note"><div><p class="eyebrow">${uiLabel('How the result is used')}</p><h2>${uiLabel('Numbers first. Drawing second.')}</h2></div><p>${uiLabel('Every custom wheel still goes through a final engineering review. The lab gets the order of questions right: vehicle and hub, modified brakes and suspension, use case, tire envelope, then the wheel diameter, width, ET, center bore and spoke/barrel clearance.')}</p></section></div></main>`;
+}
+
 function header() {
-  const active = state.route.name === 'store' ? 'SHOP' : '';
+  const active = state.route.name === 'store' ? 'SHOP' : ['blog', 'blog-post'].includes(state.route.name) ? 'JOURNAL' : state.route.name === 'fitment' ? 'FITMENT' : '';
   const localeValue = state.localeMode === 'manual' ? state.locale : 'auto';
   return `<div class="announcement">Global delivery on performance parts · <span>Enjoy as low as 0% APR Financing</span> · Build now, pay later</div>
   <header class="site-header">
@@ -811,12 +1443,13 @@ function header() {
     <div class="nav-row ${state.mobileNav ? 'is-open' : ''}">
       <div class="container nav-inner">
         <nav class="nav-links">
-          <button class="nav-link ${active ? 'is-active' : ''}" data-action="mega">Shop ${icons.chevron}</button>
+          <button class="nav-link ${active === 'SHOP' ? 'is-active' : ''}" data-action="mega">Shop ${icons.chevron}</button>
           <a class="nav-link" href="#store" data-action="store-link">Browse all parts</a>
-          <a class="nav-link" href="#home#fitment">Add my car</a>
+          <a class="nav-link ${active === 'FITMENT' ? 'is-active' : ''}" href="#fitment" data-action="open-fitment-lab">Fitment Lab</a>
           <a class="nav-link" href="#home#gallery">Search gallery</a>
           <a class="nav-link" href="#home#brands">Brands</a>
           <a class="nav-link" href="#home#resources">Resources</a>
+          <a class="nav-link ${active === 'JOURNAL' ? 'is-active' : ''}" href="#blog">Journal</a>
         </nav>
         <div class="nav-meta"><span>Need help?</span><a href="tel:${company.tel}">${company.phone}</a></div>
       </div>
@@ -826,7 +1459,7 @@ function header() {
 }
 function megaMenu() {
   const groups = [['Shop by product', ['Wheels', 'Calipers', 'Rotors', 'Brake Pads', 'Wheel & Tire Packages']], ['Fitment tools', ['Shop by vehicle', 'Fitment guide', 'Brake clearance', 'Search gallery', 'Wheel offset guide']], ['Build essentials', ['Suspension', 'Wheel accessories', 'Lug nuts', 'Spacers & adapters', 'Car care']], ['F-Box service', ['Today’s deals', 'Financing', 'Track my order', 'Wholesale program', 'Fitment support']]];
-  return `<div class="mega-menu"><div class="container mega-grid">${groups.map(([title, links]) => `<div class="mega-col"><h3>${title}</h3>${links.map(link => link === 'Track my order' ? `<a href="#home" data-action="orders">${link}</a>` : `<a href="#store" data-category-link="${esc(link.includes('Wheels') ? 'Wheels' : link.includes('Calipers') ? 'Calipers' : link.includes('Rotors') ? 'Rotors' : link.includes('Pads') ? 'Brake Pads' : 'All')}">${link}</a>`).join('')}</div>`).join('')}</div></div>`;
+  return `<div class="mega-menu"><div class="container mega-grid">${groups.map(([title, links]) => `<div class="mega-col"><h3>${title}</h3>${links.map(link => link === 'Track my order' ? `<a href="#home" data-action="orders">${link}</a>` : ['Fitment guide', 'Brake clearance', 'Fitment support'].includes(link) ? `<a href="#fitment" data-action="open-fitment-lab">${link}</a>` : `<a href="#store" data-category-link="${esc(link.includes('Wheels') ? 'Wheels' : link.includes('Calipers') ? 'Calipers' : link.includes('Rotors') ? 'Rotors' : link.includes('Pads') ? 'Brake Pads' : 'All')}">${link}</a>`).join('')}</div>`).join('')}</div></div>`;
 }
 
 function fitmentProducts() {
@@ -876,21 +1509,45 @@ function customWheelHomePage() {
     ['Dealers + brands', 'Repeatable specs, private-label details and a factory route that scales with your catalog.', 'OEM / ODM / wholesale ready']
   ];
   const customProcess = [
-    ['Tell us the car', 'Year, make, model, trim, stock or modified.'],
+    ['Check the chassis', 'Vehicle, brakes, suspension and current use case.'],
     ['Lock the numbers', 'Diameter, width, PCD, ET, bore and brake clearance.'],
     ['Approve the look', 'Design direction, finish, center cap and brand details.'],
     ['Build + ship', 'Production updates, final inspection and global delivery.']
   ];
-  return `<section class="custom-wheel-hero" id="home"><div class="container custom-wheel-hero-grid"><div class="custom-wheel-copy reveal"><p class="custom-kicker">F-Box Custom Wheel Studio <span>Made to your numbers</span></p><h1>Made for your <em>exact build.</em></h1><p class="custom-hero-sub">Custom forged wheels for drivers who know the difference between a wheel that looks right and a wheel that fits right. Bring us the car, the stance and the finish — we will turn the brief into a build-ready spec.</p><div class="custom-hero-actions"><a class="btn btn-primary" href="#home#custom-build">Start a custom build</a><a class="btn btn-light" href="#store" data-category-link="Wheels">Shop finished wheels</a></div><div class="custom-hero-proof"><span><strong>1:1</strong> build brief</span><span><strong>PCD · ET · CB</strong> fitment-led</span><span><strong>Global</strong> delivery support</span></div></div><div class="custom-wheel-stage spotlight-card reveal delay-2"><div class="custom-stage-index">BUILD 001 <span>/ F-BOX CUSTOM</span></div><div class="custom-stage-ring"></div><img src="${ASSET}a7dd472643daf9b4.jpg" alt="F-Box custom black performance wheel" loading="eager"><div class="custom-stage-caption"><strong>Form follows fitment.</strong><span>Monoblock / satin black / custom spec</span></div></div></div><div class="container custom-wheel-rail"><a href="#home#custom-build"><span>01</span> Configure your spec</a><a href="#home#workshop"><span>02</span> See the process</a><a href="#home#gallery"><span>03</span> Browse real builds</a><a href="#home#brands"><span>04</span> Shop ready designs</a></div></section>
+  return `<section class="custom-wheel-hero" id="home"><div class="container custom-wheel-hero-grid"><div class="custom-wheel-copy reveal"><p class="custom-kicker">F-Box Custom Wheel Studio <span>Made to your numbers</span></p><h1>Made for your <em>exact build.</em></h1><p class="custom-hero-sub">Custom forged wheels for drivers who know the difference between a wheel that looks right and a wheel that fits right. Bring us the car, the stance and the finish — we will turn the brief into a build-ready spec.</p><div class="custom-hero-actions"><a class="btn btn-primary" href="#home#custom-build">Start a custom build</a><a class="btn btn-light" href="#fitment" data-action="open-fitment-lab">Check chassis fitment</a><a class="btn btn-light" href="#store" data-category-link="Wheels">Shop finished wheels</a></div><div class="custom-hero-proof"><span><strong>1:1</strong> build brief</span><span><strong>PCD · ET · CB</strong> fitment-led</span><span><strong>Global</strong> delivery support</span></div></div><div class="custom-wheel-stage spotlight-card reveal delay-2"><div class="custom-stage-index">BUILD 001 <span>/ F-BOX CUSTOM</span></div><div class="custom-stage-ring"></div><img src="${ASSET}a7dd472643daf9b4.jpg" alt="F-Box custom black performance wheel" loading="eager"><div class="custom-stage-caption"><strong>Form follows fitment.</strong><span>Monoblock / satin black / custom spec</span></div></div></div><div class="container custom-wheel-rail"><a href="#home#custom-build"><span>01</span> Configure your spec</a><a href="#fitment" data-action="open-fitment-lab"><span>02</span> Check chassis + parts</a><a href="#home#gallery"><span>03</span> Browse real builds</a><a href="#home#brands"><span>04</span> Shop ready designs</a></div></section>
   <div class="container"><div class="trust-strip custom-trust-strip"><div class="trust-item"><div class="trust-icon">${icons.shield}</div><div><strong>Fitment before finish</strong><span>Numbers first. No guesswork.</span></div></div><div class="trust-item"><div class="trust-icon">${icons.spark}</div><div><strong>Made-to-order options</strong><span>Size, color, cap and detail.</span></div></div><div class="trust-item"><div class="trust-icon">${icons.bolt}</div><div><strong>Proof before production</strong><span>Review the brief before we build.</span></div></div><div class="trust-item"><div class="trust-icon">${icons.chat}</div><div><strong>Human fitment help</strong><span>Talk to a real build specialist.</span></div></div></div></div>
-  <section class="custom-build-section section" id="custom-build"><div class="container"><div class="custom-section-heading"><div><p class="eyebrow">The custom brief</p><h2>Spec it once.<br><span>Get the wheel right.</span></h2></div><p>Custom wheel buyers are not choosing a generic product from a shelf. They are choosing a stance, a purpose and a set of numbers that have to work together. F-Box makes that decision visible before the order moves forward.</p></div><div class="custom-build-grid"><div class="custom-vehicle-card"><div class="custom-card-top"><span class="custom-step-number">01</span><div><p class="eyebrow">Start with the vehicle</p><h3>Tell us what you drive.</h3></div></div><p>Stock car, lowered street build, big-brake setup or full project — start with the platform so the wheel can be designed around the real clearance.</p><div class="fitment-card custom-fitment-card" id="fitment">${vehicleSelector('hero')}<button class="btn btn-primary" data-action="shop-vehicle">Check my fitment</button></div>${fitmentPreview()}</div><div class="custom-spec-card"><p class="eyebrow">What we lock together</p><div class="custom-spec-list">${customSpecs.map(([number, title, copy]) => `<div class="custom-spec-row"><strong>${number}</strong><div><h3>${title}</h3><p>${copy}</p></div></div>`).join('')}</div><div class="custom-spec-tags"><span>Forged / 1-piece / 2-piece</span><span>Deep concave / step lip</span><span>Custom finish / cap / logo</span></div></div></div></div></section>
+  <section class="custom-build-section section" id="custom-build"><div class="container"><div class="custom-section-heading"><div><p class="eyebrow">The custom brief</p><h2>Spec it once.<br><span>Get the wheel right.</span></h2></div><p>Custom wheel buyers are not choosing a generic product from a shelf. They are choosing a stance, a purpose and a set of numbers that have to work together. F-Box makes that decision visible before the order moves forward.</p></div><div class="custom-build-grid"><div class="custom-vehicle-card"><div class="custom-card-top"><span class="custom-step-number">01</span><div><p class="eyebrow">Start with the vehicle</p><h3>Tell us what you drive.</h3></div></div><p>Stock car, lowered street build, big-brake setup or full project — start with the platform so the wheel can be designed around the real clearance.</p><div class="fitment-card custom-fitment-card" id="fitment-inline">${vehicleSelector('hero')}<button class="btn btn-primary" data-action="open-fitment-lab">Open the fitment lab</button></div>${fitmentPreview()}</div><div class="custom-spec-card"><p class="eyebrow">What we lock together</p><div class="custom-spec-list">${customSpecs.map(([number, title, copy]) => `<div class="custom-spec-row"><strong>${number}</strong><div><h3>${title}</h3><p>${copy}</p></div></div>`).join('')}</div><div class="custom-spec-tags"><span>Forged / 1-piece / 2-piece</span><span>Deep concave / step lip</span><span>Custom finish / cap / logo</span></div></div></div></div></section>
   <section class="custom-audience section-tight"><div class="container"><div class="custom-section-heading compact"><div><p class="eyebrow">Built around the buyer</p><h2>One wheel studio.<br><span>Four ways to build.</span></h2></div><p>Lead with the use case instead of forcing every visitor through the same catalog path.</p></div><div class="custom-audience-grid">${buyerModes.map(([title, copy, meta], i) => `<article class="custom-audience-card reveal delay-${i % 4}"><span class="custom-audience-index">0${i + 1}</span><h3>${title}</h3><p>${copy}</p><small>${meta}</small></article>`).join('')}</div></div></section>
-  <section class="custom-workshop section" id="workshop"><div class="container"><div class="custom-workshop-grid"><div class="custom-workshop-media spotlight-card"><img src="${ASSET}ff2a26733252a2c8.jpg" alt="Custom wheel engineering and finish reference" loading="lazy"><div class="custom-media-stamp"><strong>F-BOX / 001</strong><span>Engineering reference</span></div><div class="custom-media-note">Finished wheel study · finish and spoke direction</div></div><div class="custom-workshop-copy"><p class="eyebrow">From brief to build</p><h2>A custom wheel is a process, not a product card.</h2><p>Strong custom-wheel brands sell confidence: a clear brief, transparent fitment decisions, a finish that feels personal and a human who stays close when the build gets specific.</p><div class="custom-process-list">${customProcess.map(([title, copy], i) => `<div class="custom-process-row"><span>0${i + 1}</span><div><strong>${title}</strong><p>${copy}</p></div></div>`).join('')}</div><a class="btn btn-dark" href="#home#custom-build">Build my wheel brief</a></div></div></div></section>
+  <section class="custom-workshop section" id="workshop"><div class="container"><div class="custom-workshop-grid"><div class="custom-workshop-media spotlight-card"><img src="${ASSET}ff2a26733252a2c8.jpg" alt="Custom wheel engineering and finish reference" loading="lazy"><div class="custom-media-stamp"><strong>F-BOX / 001</strong><span>Engineering reference</span></div><div class="custom-media-note">Finished wheel study · finish and spoke direction</div></div><div class="custom-workshop-copy"><p class="eyebrow">From brief to build</p><h2>A custom wheel is a process, not a product card.</h2><p>Strong custom-wheel brands sell confidence: a clear brief, transparent fitment decisions, a finish that feels personal and a human who stays close when the build gets specific.</p><div class="custom-process-list">${customProcess.map(([title, copy], i) => `<div class="custom-process-row"><span>0${i + 1}</span><div><strong>${title}</strong><p>${copy}</p></div></div>`).join('')}</div><div class="custom-workshop-actions"><a class="btn btn-primary" href="#fitment" data-action="open-fitment-lab">Open fitment lab</a><a class="btn btn-dark" href="#home#custom-build">Build my wheel brief</a></div></div></div></div></section>
   <section class="section custom-finish-section"><div class="container"><div class="custom-finish-grid"><div><p class="eyebrow">The details buyers remember</p><h2>Color is only the beginning.</h2><p class="muted">A custom wheel feels premium when the small decisions are easy to compare: satin or gloss, deep or flush, center cap or branded, street-safe or track-led.</p><div class="custom-finish-chips"><span>Gloss / satin / matte</span><span>Brushed / polished / milled</span><span>Custom center caps</span><span>Laser logo details</span><span>1-piece / 2-piece</span><span>Road / show / track</span></div></div><div class="custom-finish-collage"><div class="custom-finish-tile large"><img src="${ASSET}0938e8f8953be744.jpg" alt="Polished multi-spoke custom wheel" loading="lazy"><span>Polished / multi-spoke</span></div><div class="custom-finish-tile"><img src="${ASSET}038bd6e7abb31b4c.jpg" alt="Gloss black custom wheel" loading="lazy"><span>Gloss / deep dish</span></div><div class="custom-finish-tile"><img src="${ASSET}daff2c93eff5e0db.jpg" alt="Graphite custom wheel" loading="lazy"><span>Graphite / performance</span></div></div></div></div></section>
-  <section class="section" id="gallery"><div class="container"><div class="section-heading"><div><p class="eyebrow">Verified builds only</p><h2>Customer build gallery.</h2></div><p>Every customer photo is permissioned and reviewed by the F-Box team before it appears here.</p></div>${fboxCases.length ? `<div class="guide-grid">${fboxCases.map((item, i) => `<article class="guide-card spotlight-card reveal delay-${i % 4}"><img src="${esc(item.image_url)}" alt="${esc(item.title)}" loading="lazy"><div class="guide-label"><small>${esc(item.vehicle || item.product_name || 'F-Box build')}</small><strong>${esc(item.title)}</strong></div></article>`).join('')}</div>` : '<div class="case-empty"><strong>真实案例正在整理中</strong><span>下单并完成车型适配确认后，客户可授权展示自己的上车效果。</span></div>'}</div></section>
+  <section class="section" id="gallery"><div class="container"><div class="section-heading"><div><p class="eyebrow">Verified builds only</p><h2>Customer build gallery.</h2></div><p>See how custom wheels look on real cars and finished builds.</p></div>${fboxCases.length ? `<div class="guide-grid">${fboxCases.map((item, i) => `<article class="guide-card spotlight-card reveal delay-${i % 4}"><img src="${esc(item.image_url)}" alt="${esc(item.title)}" loading="lazy"><div class="guide-label"><small>${esc(item.vehicle || item.product_name || 'F-Box build')}</small><strong>${esc(item.title)}</strong></div></article>`).join('')}</div>` : '<div class="case-empty"><strong>Customer builds are coming soon.</strong><span>See real wheel fitment and finish examples from new builds.</span></div>'}</div></section>
   <section class="section custom-ready-section" id="brands"><div class="container"><div class="custom-ready-head"><div><p class="eyebrow">For buyers who want it now</p><h2>Start with a proven design.<br><span>Make it yours.</span></h2></div><div><p>These ready-to-buy F-Box wheels stay in the catalog exactly as before. Use them as a starting point, or ask us to take the fitment and finish further.</p><a class="btn btn-dark" href="#store" data-category-link="Wheels">Browse finished wheels</a></div></div><div class="product-grid">${products.filter(p => p.category === 'Wheels').slice(0, 4).map(renderProductCard).join('')}</div></div></section>
   <section class="section-tight"><div class="container"><div class="brand-feature"><div><p class="eyebrow" style="color:var(--lime)">F-Box brake lab</p><h2>Make the <span>stop</span> part of the build.</h2><p>From quiet street pads to six-piston ceramic kits, every braking product is presented with clearance, heat and daily-use context.</p><a class="btn btn-primary" href="#store" data-category-link="Calipers">Explore braking</a></div><div class="brand-carousel">${[['a7dd472643daf9b4.jpg', 'Ceramic Pro'], ['fe1a37ef746c28f0.jpg', 'Street 4P'], ['e78ac1cfdeae4727.jpg', 'Track Slotted'], ['f5effff1812a14eb.jpg', 'Street Blue']].map(([image, label]) => `<div class="brand-item"><img src="${ASSET + image}" alt="${label}" loading="lazy"><span>${label}</span></div>`).join('')}</div></div></div></section>
-  <section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">Verified customer feedback</p><h2>Reviews will live here.</h2></div><p>F-Box does not publish invented ratings. Reviews will appear after real orders are completed and verified.</p></div><div class="case-empty"><strong>暂无已验证评价</strong><span>商品评价会在真实订单完成后进入审核流程。</span></div></div></section>`;
+  <section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">Verified customer feedback</p><h2>Reviews will live here.</h2></div><p>Customer experiences will appear here as new builds are completed.</p></div><div class="case-empty"><strong>Customer reviews are coming soon.</strong><span>Share your fitment experience with other drivers.</span></div></div></section>`;
+}
+
+function homeReviewSection() {
+  const stats = reviewStats(reviews);
+  const records = reviews.slice(0, 2);
+  if (!records.length) return `<section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">Customer feedback</p><h2>Reviews are coming soon.</h2></div><p>See what drivers say after their wheels are on the car.</p></div><div class="case-empty"><strong>No customer reviews yet.</strong><span>Share your fitment experience with other drivers.</span></div></div></section>`;
+  return `<section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">Verified customer feedback</p><h2>Built by people who drive them.</h2></div><p>Real feedback from drivers building daily cars, weekend projects and track setups.</p></div><div class="reviews-layout"><div class="review-score"><strong>${stats.rating.toFixed(1)}</strong>${stars(stats.rating)}<p>${stats.total} customer reviews</p><div class="review-bars">${reviewBars(stats)}</div></div><div class="review-list">${records.map((review, index) => renderReview(review, index)).join('')}</div></div></div></section>`;
+}
+
+function sourcePhotoReviewCard(review, index = 0) {
+  const photo = assetUrl(review.image_url || '');
+  const productImage = assetUrl(review.product_image || review.image_url || '');
+  const countryCode = String(review.country_code || review.country || 'INT').slice(0, 3).toUpperCase();
+  const dateLabel = review.date_label || reviewDateLabel(review.created_at) || 'Photo review';
+  const reply = review.seller_replied
+    ? '<div class="source-review-reply"><span>Seller replied</span><span>Customer build photo</span></div>'
+    : '<div class="source-review-reply"><span>Photo review</span><span>5-star customer feedback</span></div>';
+  return `<article class="source-review-card reveal delay-${index % 4}"><div class="source-review-top"><div class="source-review-buyer"><span class="source-review-country-code">${esc(countryCode)}</span><div><div class="source-review-name"><strong>${esc(review.reviewer || 'Verified buyer')}</strong><span>${esc(review.country || 'International buyer')}</span></div><div class="source-review-rating"><span class="source-review-stars" aria-label="5 out of 5 stars">★★★★★</span><time>${esc(dateLabel)}</time></div></div></div></div><div class="source-review-product"><img src="${esc(productImage)}" alt="${esc(review.product_name || 'Custom forged wheel')}" loading="lazy"><div><span class="source-review-verified">✓ Verified purchase</span><strong>${esc(review.product_name || 'Custom forged wheel')}</strong></div></div><p class="source-review-copy">${esc(review.body || review.title || 'Beautiful custom wheel build.')}</p><a class="source-review-photo" href="${esc(photo)}" target="_blank" rel="noopener noreferrer"><img src="${esc(photo)}" alt="Customer photo for ${esc(review.product_name || 'custom forged wheel')}" loading="lazy"><span>Customer photo</span></a><div class="source-review-footer"><span>Helpful (${Number(review.helpful || 0)})</span><span>${Number(review.rating || 5)}-star review</span></div>${reply}</article>`;
+}
+
+function homePhotoReviewGallery() {
+  const records = fboxPhotoReviews.slice(0, 20);
+  if (!records.length) return `<section class="section source-review-section" id="gallery"><div class="container"><div class="section-heading"><div><p class="eyebrow">Customer photo reviews</p><h2>Photo reviews are coming soon.</h2></div><p>See how custom wheels look on real cars.</p></div><div class="case-empty"><strong>No photo reviews yet.</strong><span>Customer build photos will appear here soon.</span></div></div></section>`;
+  return `<section class="section source-review-section" id="gallery"><div class="container"><div class="section-heading"><div><p class="eyebrow">Customer photo reviews</p><h2>See the build in the real world.</h2></div><p>See how custom finishes, stance and spoke designs look on real cars.</p></div><div class="source-review-grid">${records.map(sourcePhotoReviewCard).join('')}</div></div></section>`;
 }
 
 function iconForCategory(type) {
@@ -906,7 +1563,7 @@ function filterProducts() {
   let list = products.filter(item => {
     const f = state.filters;
     const query = state.search.trim().toLowerCase();
-    return (f.category === 'All' || item.category === f.category) && (!f.saleOnly || item.oldPrice) && (f.finish === 'All' || item.finish === f.finish) && (f.diameter === 'All' || String(item.diameter) === String(f.diameter)) && (!f.minPrice || item.price >= Number(f.minPrice)) && (!f.maxPrice || item.price <= Number(f.maxPrice)) && item.rating >= Number(f.minRating) && (!query || [item.name, item.brand, item.category, item.meta].join(' ').toLowerCase().includes(query));
+    return (f.category === 'All' || item.category === f.category) && (!f.saleOnly || item.oldPrice) && (f.finish === 'All' || item.finish === f.finish) && (f.diameter === 'All' || String(item.diameter) === String(f.diameter)) && (!f.minPrice || item.price >= Number(f.minPrice)) && (!f.maxPrice || item.price <= Number(f.maxPrice)) && item.rating >= Number(f.minRating) && (!query || [item.name, item.brand, item.category, item.meta, productSizeNote(item)].join(' ').toLowerCase().includes(query));
   });
   if (state.sort === 'latest') {
     list.sort((left, right) => {
@@ -927,7 +1584,7 @@ function filterProducts() {
 }
 function renderProductCard(item) {
   const saved = state.wishlist.includes(item.id);
-  return `<article class="product-card spotlight-card reveal"><div class="product-media">${item.badge ? `<span class="product-badge ${item.badge === 'Sale' ? 'alt' : ''}">${item.badge}</span>` : ''}<div class="product-actions"><button class="icon-btn ${saved ? 'is-saved' : ''}" data-action="wishlist" data-id="${item.id}" aria-label="Save product">${icons.heart}</button><button class="icon-btn" data-action="quick-view" data-id="${item.id}" aria-label="Quick view">${icons.eye}</button></div><img class="product-image ${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(item.name)} ${esc(item.finish)}" loading="lazy"></div><div class="product-body"><div class="product-brand">${item.brand}</div><h3 class="product-title">${item.name}</h3><div class="product-meta">${item.meta}</div><div class="rating-row">${productRatingMarkup(item)}</div><div class="product-deal">${item.deal || 'Availability managed by F-Box'}</div><div class="price-row"><div><span class="price">${money(item.price)} <small>/ ea</small></span>${item.oldPrice ? `<span class="was-price">${money(item.oldPrice)}</span>` : ''}</div><span class="muted" style="font-size:10px">${item.category}</span></div><div class="product-cta"><a class="btn btn-outline btn-small" href="#product/${item.id}">Details</a><button class="btn btn-primary btn-small" data-action="add" data-id="${item.id}">Add</button></div></div></article>`;
+  return `<article class="product-card spotlight-card reveal"><div class="product-media">${item.badge ? `<span class="product-badge ${item.badge === 'Sale' ? 'alt' : ''}">${item.badge}</span>` : ''}<div class="product-actions"><button class="icon-btn ${saved ? 'is-saved' : ''}" data-action="wishlist" data-id="${item.id}" aria-label="Save product">${icons.heart}</button><button class="icon-btn" data-action="quick-view" data-id="${item.id}" aria-label="Quick view">${icons.eye}</button></div><img class="product-image ${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(item.name)} ${esc(item.finish)}" loading="lazy"></div><div class="product-body"><div class="product-brand">${item.brand}</div><h3 class="product-title">${item.name}</h3><div class="product-meta">${productMetaText(item)}</div><div class="rating-row">${productRatingMarkup(item)}</div><div class="product-deal">${item.deal || 'Availability managed by F-Box'}</div><div class="price-row"><div><span class="price">${money(item.price)} <small>/ ea</small></span>${item.oldPrice ? `<span class="was-price">${money(item.oldPrice)}</span>` : ''}</div><span class="muted" style="font-size:10px">${item.category}</span></div><div class="product-cta"><a class="btn btn-outline btn-small" href="#product/${item.id}">Details</a><button class="btn btn-primary btn-small" data-action="add" data-id="${item.id}">Add</button></div></div></article>`;
 }
 
 function storePage() {
@@ -975,9 +1632,8 @@ function renderReview(review, index = 0) {
     review.vehicle ? '<span>' + esc(review.vehicle) + '</span>' : ''
   ].filter(Boolean).join('');
   const photoBadge = Number(review.review_images_count || 0) > 0 ? '<span class="review-photo-badge">' + Number(review.review_images_count) + ' photo' + (Number(review.review_images_count) > 1 ? 's' : '') + ' shared</span>' : '';
-  const sourceBadge = review.source_platform ? '<span class="review-source">' + esc(review.source_platform) + '</span>' : '';
-  const reply = review.admin_reply ? '<div class="review-reply"><strong>F-Box reply</strong><p>' + esc(review.admin_reply) + '</p></div>' : '';
-  return '<article class="review-item" style="animation-delay:' + String(index * 80) + 'ms"><div class="review-head"><div><strong>' + esc(review.title) + '</strong><div>' + stars(Number(review.rating || 0)) + sourceBadge + photoBadge + '</div></div><small>' + esc(reviewDateLabel(review.created_at)) + '</small></div><p>' + esc(review.body) + '</p>' + reply + '<div class="review-meta">' + meta + '</div></article>';
+  const reply = review.admin_reply ? '<div class="review-reply"><strong>Seller response</strong><p>' + esc(review.admin_reply) + '</p></div>' : '';
+  return '<article class="review-item" style="animation-delay:' + String(index * 80) + 'ms"><div class="review-head"><div><strong>' + esc(review.title) + '</strong><div>' + stars(Number(review.rating || 0)) + photoBadge + '</div></div><small>' + esc(reviewDateLabel(review.created_at)) + '</small></div><p>' + esc(review.body) + '</p>' + reply + '<div class="review-meta">' + meta + '</div></article>';
 }
 function renderProductReviewSection(item) {
   const productReviews = reviewsForProduct(item);
@@ -987,7 +1643,7 @@ function renderProductReviewSection(item) {
     : '<p>No customer reviews yet.</p>';
   const list = productReviews.length
     ? productReviews.slice(0, state.reviewLimit).map(renderReview).join('') + (state.reviewLimit < productReviews.length ? '<button class="btn btn-outline" data-action="load-reviews">Load more reviews</button>' : '')
-    : '<div class="review-empty"><strong>Be the first to share your fitment experience.</strong><span>Your review goes to the F-Box team for approval before it is published.</span></div>';
+    : '<div class="review-empty"><strong>Be the first to share your fitment experience.</strong><span>Tell other drivers how your build looks and feels.</span></div>';
   return '<section class="detail-section" id="reviews"><div class="section-heading"><div><p class="eyebrow">Customer feedback</p><h2>Product reviews</h2></div><button class="btn btn-outline" data-action="write-review">Write a review</button></div><div class="reviews-layout"><div class="review-score"><strong>' + (stats.total ? stats.rating.toFixed(1) : '—') + '</strong>' + stars(stats.rating) + summary + '<div class="review-bars">' + reviewBars(stats) + '</div></div><div class="review-list">' + list + '</div></div></section>';
 }
 function wireProductReviews() {
@@ -1039,22 +1695,117 @@ function wireWheelVisualizerEntry() {
   const form = document.querySelector('.detail-form');
   if (item && form && !document.querySelector('.wheel-visualizer-entry')) form.insertAdjacentHTML('beforebegin', wheelVisualizerTrigger(item));
 }
+let homeWheelAutoTimer = 0;
+let homeWheelResumeTimer = 0;
+function homeWheelApplyPage(page, animate = true) {
+  const carousel = document.querySelector('[data-home-wheel-carousel]');
+  if (!carousel) return;
+  const total = Math.max(1, Number(carousel.dataset.homeWheelPageCount || 1));
+  const next = ((Number(page) || 0) % total + total) % total;
+  state.homeWheelPage = next;
+  const track = carousel.querySelector('[data-home-wheel-track]');
+  if (track) {
+    track.style.transition = animate ? '' : 'none';
+    track.style.transform = `translate3d(-${((next / total) * 100).toFixed(4)}%, 0, 0)`;
+    if (!animate) window.requestAnimationFrame(() => { if (track.isConnected) track.style.transition = ''; });
+  }
+  carousel.dataset.homeWheelCurrentPage = String(next);
+  const label = carousel.querySelector('[data-home-wheel-page-label]');
+  if (label) label.textContent = `${String(next + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+  carousel.querySelectorAll('[data-home-wheel-page]').forEach((pageNode, index) => {
+    const active = index === next;
+    pageNode.setAttribute('aria-hidden', String(!active));
+    pageNode.querySelectorAll('button').forEach(button => { button.tabIndex = active ? 0 : -1; });
+  });
+}
+function homeWheelStartAuto() {
+  window.clearInterval(homeWheelAutoTimer);
+  const carousel = document.querySelector('[data-home-wheel-carousel]');
+  const total = Number(carousel?.dataset.homeWheelPageCount || 1);
+  if (!carousel || total < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  state.homeWheelAutoPausedUntil = 0;
+  homeWheelAutoTimer = window.setInterval(() => {
+    if (!document.hidden) homeWheelApplyPage(state.homeWheelPage + 1);
+  }, 4800);
+}
+function homeWheelPauseForInteraction() {
+  const carousel = document.querySelector('[data-home-wheel-carousel]');
+  if (!carousel || Number(carousel.dataset.homeWheelPageCount || 1) < 2) return;
+  window.clearInterval(homeWheelAutoTimer);
+  window.clearTimeout(homeWheelResumeTimer);
+  state.homeWheelAutoPausedUntil = Date.now() + 10000;
+  homeWheelResumeTimer = window.setTimeout(() => {
+    state.homeWheelAutoPausedUntil = 0;
+    homeWheelStartAuto();
+  }, 10000);
+}
+function homeWheelNavigate(delta) {
+  homeWheelApplyPage(state.homeWheelPage + delta);
+  homeWheelPauseForInteraction();
+}
+function wireHomeWheelCarousel() {
+  window.clearInterval(homeWheelAutoTimer);
+  window.clearTimeout(homeWheelResumeTimer);
+  const carousel = document.querySelector('[data-home-wheel-carousel]');
+  if (!carousel) return;
+  homeWheelApplyPage(state.homeWheelPage, false);
+  const remaining = Math.max(0, state.homeWheelAutoPausedUntil - Date.now());
+  if (remaining) {
+    homeWheelResumeTimer = window.setTimeout(() => {
+      state.homeWheelAutoPausedUntil = 0;
+      homeWheelStartAuto();
+    }, remaining);
+  } else {
+    homeWheelStartAuto();
+  }
+  const viewport = carousel.querySelector('[data-home-wheel-viewport]');
+  if (!viewport) return;
+  let startPoint = null;
+  viewport.addEventListener('pointerdown', event => {
+    if (event.pointerType === 'touch' || event.pointerType === 'pen') startPoint = { x: event.clientX, y: event.clientY };
+  });
+  viewport.addEventListener('pointerup', event => {
+    if (!startPoint) return;
+    const deltaX = event.clientX - startPoint.x;
+    const deltaY = event.clientY - startPoint.y;
+    startPoint = null;
+    if (Math.abs(deltaX) > 42 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      event.preventDefault();
+      homeWheelNavigate(deltaX < 0 ? 1 : -1);
+    }
+  });
+  viewport.addEventListener('pointercancel', () => { startPoint = null; });
+}
+function customPreviewStage() {
+  const item = homePreviewProduct();
+  const selectedImage = state.productImage[item.id] || productGallery(item)[0] || item.image;
+  const options = homeWheelProducts();
+  const pageSize = 4;
+  const pages = [];
+  for (let index = 0; index < options.length; index += pageSize) pages.push(options.slice(index, index + pageSize));
+  const pageCount = Math.max(1, pages.length);
+  const optionButton = option => `<button type="button" class="custom-preview-wheel-option ${option.id === item.id ? 'is-active' : ''}" data-action="home-preview-wheel" data-id="${esc(option.id)}" aria-label="Preview ${esc(homePreviewShortName(option))}" aria-pressed="${option.id === item.id}"><img src="${esc(assetUrl(option.image))}" alt="${esc(option.name)}"><span>${esc(homePreviewShortName(option))}</span></button>`;
+  const pageMarkup = pages.map(page => `<div class="custom-preview-wheel-page" data-home-wheel-page>${page.map(optionButton).join('')}</div>`).join('');
+  const arrows = pageCount > 1 ? `<button type="button" class="custom-preview-wheel-arrow is-prev" data-action="home-preview-prev" aria-label="Previous wheels" title="Previous wheels">${icons.arrowLeft}</button><button type="button" class="custom-preview-wheel-arrow is-next" data-action="home-preview-next" aria-label="Next wheels" title="Next wheels">${icons.arrowRight}</button>` : '';
+  return `<div class="custom-preview-stage spotlight-card reveal delay-2" data-home-preview-stage><div class="custom-preview-head"><div><span class="custom-preview-kicker">F-BOX VISUAL STUDIO</span><strong>Live fitment preview</strong><small>See the selected wheel on your car before production.</small></div><span class="custom-preview-status"><i></i> Preview included</span></div><div class="custom-preview-canvas"><div class="custom-preview-canvas-grid"></div><div class="custom-preview-canvas-meta"><span>LIVE / 01</span><span>03 ANGLES</span></div><img class="custom-preview-wheel" data-home-preview-image src="${esc(assetUrl(selectedImage))}" alt="${esc(item.name)} preview" loading="eager"><div class="custom-preview-canvas-label"><span>Selected design</span><strong data-home-preview-name>${esc(homePreviewShortName(item))}</strong><em data-home-preview-finish>${esc(item.finish || item.color || 'Custom finish')}</em></div></div><div class="custom-preview-controls"><div class="custom-preview-control-head"><div><span class="custom-preview-step-number">01</span><div><strong>Choose a wheel</strong><small>All sizes · custom fitment</small></div></div><b data-home-preview-price>${productPriceText(item)}</b></div><div class="custom-preview-wheel-selector" data-home-wheel-carousel data-home-wheel-page-count="${pageCount}" role="group" aria-label="Choose a wheel"><div class="custom-preview-wheel-selector-meta"><span>Newest to archive</span><b data-home-wheel-page-label>01 / ${String(pageCount).padStart(2, '0')}</b></div><div class="custom-preview-wheel-viewport" data-home-wheel-viewport><div class="custom-preview-wheel-track" data-home-wheel-track>${pageMarkup}</div>${arrows}</div></div><div class="custom-preview-next"><div class="custom-preview-next-copy"><span class="custom-preview-step-number">02</span><div><strong>Upload your car photo</strong><small>Generate three fitment angles with the selected wheel.</small></div></div><button type="button" class="btn btn-primary custom-preview-open" data-action="wheel-open" data-home-preview-open data-id="${esc(item.id)}" data-image="${esc(selectedImage)}"><span>Upload photo &amp; preview</span><span aria-hidden="true">↗</span></button></div></div></div>`;
+}
 function wireHomeVisualizerBanner() {
   if (state.route.name !== 'home') return;
   const stage = document.querySelector('.custom-wheel-stage');
-  if (!stage || stage.querySelector('.home-visualizer-teaser')) return;
-  stage.insertAdjacentHTML('beforeend', `<aside class="home-visualizer-teaser" aria-labelledby="home-visualizer-title"><div class="home-visualizer-teaser-top"><span class="home-visualizer-badge">New / visual fitment</span><span class="home-visualizer-count">03 angles</span></div><h2 id="home-visualizer-title">See it on <em>your car.</em></h2><p>Choose a wheel, upload one photo and compare the stance before you commit.</p><div class="home-visualizer-angles"><span><strong>01</strong> front 3/4</span><span><strong>02</strong> rear 3/4</span><span><strong>03</strong> side profile</span></div><a class="home-visualizer-link" href="#store" data-category-link="Wheels">Choose a wheel to preview <span aria-hidden="true">↗</span></a></aside>`);
+  if (!stage) return;
+  stage.outerHTML = customPreviewStage();
 }
 function productPage(item) {
-  const image = state.productImage[item.id] || item.image;
+  const gallery = productGallery(item);
+  const image = state.productImage[item.id] || gallery[0] || item.image;
   const related = products.filter(p => p.category === item.category && p.id !== item.id).slice(0, 4);
-  const specs = [['Brand', item.brand], ['Model', item.name], ['Part number', item.part], ['Finish', item.color], ['Diameter', item.diameter ? `${item.diameter} mm / in` : 'Application specific'], ['Material', item.material], ['Weight', item.weight], ['Fitment', item.meta]];
-  return `<div class="detail-wrap"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><a href="#store">${item.category}</a><span>/</span><span>${item.name}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${[item.image, 'a7dd472643daf9b4.jpg', 'ff2a26733252a2c8.jpg'].map((img, i) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${item.id}" data-image="${img}"><img src="${ASSET + img}" alt="${esc(item.name)} view ${i + 1}"></button>`).join('')}</div><div class="main-image"><img src="${ASSET + image}" alt="${esc(item.name)} ${esc(item.finish)}"></div></div><div><div class="detail-kicker">${item.category} · ${item.brand}</div><h1 class="detail-title">${item.name}<br><span style="color:var(--lavender)">${item.meta}</span></h1><div class="detail-rating">${stars(item.rating)} <a href="#reviews">${item.rating} · ${item.reviews} ratings</a></div><div class="detail-price">${money(item.price)} <small>each</small></div><div class="detail-set">${money(item.price * 4)} set of four · ${item.oldPrice ? `was ${money(item.oldPrice)} each` : 'build pricing available'}</div><div class="financing-note">Pay over time with F-Box financing. Starting at ${money(Math.max(18, Math.round(item.price / 12)))}/month with approved credit.</div><div class="detail-form"><div><label class="field-label">Check vehicle fitment</label>${vehicleSelector('detail')}</div><div><label class="field-label">Finish</label><div class="finish-options"><button class="finish-option is-active">${item.color}</button><button class="finish-option">Satin Black</button><button class="finish-option">Bronze Machined</button></div></div><div><label class="field-label">Delivery estimate</label><div class="ship-note">${icons.truck}<span>Free delivery to the lower 48 · Aug 19–Aug 21<br>Enter a postcode for an exact estimate.</span></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="add" data-id="${item.id}">Add to cart</button><button class="btn btn-dark" data-action="buy-now" data-id="${item.id}">Buy it now</button></div></div></div></div><div class="specs">${specs.map(([label, value]) => `<div class="spec"><span>${label}</span><strong>${esc(value)}</strong></div>`).join('')}</div><section class="detail-section" id="reviews"><div class="section-heading"><div><p class="eyebrow">Customer proof</p><h2>Product reviews</h2></div><button class="btn btn-outline" data-action="write-review">Write a review</button></div><div class="reviews-layout"><div class="review-score"><strong>${item.rating}</strong>${stars(item.rating)}<p>${item.reviews} reviews for this product</p><div class="review-bars"><div class="review-bar"><span>5★</span><i class="bar-track"><i style="width:94%"></i></i><span>94%</span></div><div class="review-bar"><span>4★</span><i class="bar-track"><i style="width:5%"></i></i><span>5%</span></div><div class="review-bar"><span>3★</span><i class="bar-track"><i style="width:1%"></i></i><span>1%</span></div></div></div><div class="review-list">${reviews.slice(0, state.reviewLimit).map(renderReview).join('')}${state.reviewLimit < reviews.length ? `<button class="btn btn-outline" data-action="load-reviews">Load more reviews</button>` : ''}</div></div></section><section class="detail-section"><div class="section-heading"><div><p class="eyebrow">Keep building</p><h2>Related ${item.category}</h2></div><a class="btn btn-dark" href="#store">Shop all</a></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section></div></div>`;
+  const specs = [['Brand', item.brand], ['Model', item.name], ['Part number', item.part], ['Finish', item.color], ['Available sizes', productSizeNote(item)], ['Material', item.material], ['Weight', item.weight], ['Fitment', item.meta]];
+  return `<div class="detail-wrap"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><a href="#store">${item.category}</a><span>/</span><span>${item.name}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, i) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${item.id}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(item.name)} view ${i + 1}"></button>`).join('')}</div><div class="main-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(image)}" alt="${esc(item.name)} ${esc(item.finish)}"></div></div><div><div class="detail-kicker">${item.category} · ${item.brand}</div><h1 class="detail-title">${item.name}<br><span style="color:var(--lavender)">${productMetaText(item)}</span></h1><div class="detail-rating">${stars(item.rating)} <a href="#reviews">${item.rating} · ${item.reviews} ratings</a></div><div class="detail-price">${productPriceText(item)} <small>${hasStartingPrice(item) ? 'starting price / wheel' : 'each'}</small></div><div class="detail-set">${hasStartingPrice(item) ? 'Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.' : `${money(item.price * 4)} set of four · ${item.oldPrice ? `was ${money(item.oldPrice)} each` : 'build pricing available'}`}</div><div class="financing-note">Pay over time with F-Box financing. Starting at ${money(Math.max(18, Math.round(item.price / 12)))}/month with approved credit.</div><div class="detail-form"><div><label class="field-label">Check vehicle fitment</label>${vehicleSelector('detail')}</div><div><label class="field-label">Finish</label><div class="finish-options"><button class="finish-option is-active">${item.color}</button><button class="finish-option">Satin Black</button><button class="finish-option">Bronze Machined</button></div></div><div><label class="field-label">Delivery estimate</label><div class="ship-note">${icons.truck}<span>Free delivery to the lower 48 · Aug 19–Aug 21<br>Enter a postcode for an exact estimate.</span></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="add" data-id="${item.id}">Add to cart</button><button class="btn btn-dark" data-action="buy-now" data-id="${item.id}">Buy it now</button></div></div></div></div><div class="specs">${specs.map(([label, value]) => `<div class="spec"><span>${label}</span><strong>${esc(value)}</strong></div>`).join('')}</div><section class="detail-section" id="reviews"><div class="section-heading"><div><p class="eyebrow">Customer proof</p><h2>Product reviews</h2></div><button class="btn btn-outline" data-action="write-review">Write a review</button></div><div class="reviews-layout"><div class="review-score"><strong>${item.rating}</strong>${stars(item.rating)}<p>${item.reviews} reviews for this product</p><div class="review-bars"><div class="review-bar"><span>5★</span><i class="bar-track"><i style="width:94%"></i></i><span>94%</span></div><div class="review-bar"><span>4★</span><i class="bar-track"><i style="width:5%"></i></i><span>5%</span></div><div class="review-bar"><span>3★</span><i class="bar-track"><i style="width:1%"></i></i><span>1%</span></div></div></div><div class="review-list">${reviews.slice(0, state.reviewLimit).map(renderReview).join('')}${state.reviewLimit < reviews.length ? `<button class="btn btn-outline" data-action="load-reviews">Load more reviews</button>` : ''}</div></div></section><section class="detail-section"><div class="section-heading"><div><p class="eyebrow">Keep building</p><h2>Related ${item.category}</h2></div><a class="btn btn-dark" href="#store">Shop all</a></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section></div></div>`;
 }
 
 function cartPage() {
   const total = cartTotal();
-  return `<section class="cart-page"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>Shopping cart</span></div><div class="section-heading"><div><p class="eyebrow">Your saved build</p><h1 class="detail-title">Shopping cart</h1></div><a class="btn btn-outline" href="#store">Continue shopping</a></div>${state.cart.length ? `<div class="cart-layout"><div class="cart-list">${state.cart.map(item => { const p = product(item.id); return `<div class="cart-item"><img src="${ASSET + p.image}" alt="${esc(p.name)}"><div><h3>${p.name}</h3><p>${p.category} · ${p.meta}</p><button class="btn btn-outline btn-small" data-action="remove-cart" data-id="${p.id}" style="margin-top:10px">Remove</button></div><div class="qty-control"><button data-action="qty" data-id="${p.id}" data-delta="-1">−</button><span>${item.qty}</span><button data-action="qty" data-id="${p.id}" data-delta="1">+</button></div><div class="cart-price">${money(p.price * item.qty)}</div></div>`; }).join('')}</div><aside class="summary-card"><h2>Order summary</h2><div class="summary-row"><span>Parts subtotal</span><strong>${money(total)}</strong></div><div class="summary-row"><span>Estimated delivery</span><strong>Calculated at checkout</strong></div><div class="summary-row"><span>Fitment review</span><strong style="color:var(--success)">Included</strong></div><div class="coupon"><input class="text-input" placeholder="Promo code"><button class="btn btn-outline btn-small" data-action="apply-coupon">Apply</button></div><div class="summary-row total"><span>Total</span><strong>${money(total)}</strong></div><button class="btn btn-primary" data-action="checkout" style="width:100%;margin-top:12px">Continue to checkout</button><p class="filter-help">Orders are created in the F-Box backend. Payment remains a separate PayPal step.</p></aside></div>` : `<div class="empty-cart"><h2>Your cart is ready for a build.</h2><p class="muted">Add wheels, calipers, rotors or pads and we will keep the fitment context attached.</p><a class="btn btn-primary" href="#store">Start shopping</a></div>`}</div></section>`;
+  return `<section class="cart-page"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>Shopping cart</span></div><div class="section-heading"><div><p class="eyebrow">Your saved build</p><h1 class="detail-title">Shopping cart</h1></div><a class="btn btn-outline" href="#store">Continue shopping</a></div>${state.cart.length ? `<div class="cart-layout"><div class="cart-list">${state.cart.map(item => { const p = product(item.id); return `<div class="cart-item"><img class="${p.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(p.image)}" alt="${esc(p.name)}"><div><h3>${p.name}</h3><p>${p.category} · ${p.meta}</p><button class="btn btn-outline btn-small" data-action="remove-cart" data-id="${p.id}" style="margin-top:10px">Remove</button></div><div class="qty-control"><button data-action="qty" data-id="${p.id}" data-delta="-1">−</button><span>${item.qty}</span><button data-action="qty" data-id="${p.id}" data-delta="1">+</button></div><div class="cart-price">${money(p.price * item.qty)}</div></div>`; }).join('')}</div><aside class="summary-card"><h2>Order summary</h2><div class="summary-row"><span>Parts subtotal</span><strong>${money(total)}</strong></div><div class="summary-row"><span>Estimated delivery</span><strong>Calculated at checkout</strong></div><div class="summary-row"><span>Fitment review</span><strong style="color:var(--success)">Included</strong></div><div class="coupon"><input class="text-input" placeholder="Promo code"><button class="btn btn-outline btn-small" data-action="apply-coupon">Apply</button></div><div class="summary-row total"><span>Total</span><strong>${money(total)}</strong></div><button class="btn btn-primary" data-action="checkout" style="width:100%;margin-top:12px">Continue to checkout</button><p class="filter-help">Orders are created in the F-Box backend. Payment remains a separate PayPal step.</p></aside></div>` : `<div class="empty-cart"><h2>Your cart is ready for a build.</h2><p class="muted">Add wheels, calipers, rotors or pads and we will keep the fitment context attached.</p><a class="btn btn-primary" href="#store">Start shopping</a></div>`}</div></section>`;
 }
 
 function legacyWheelVisualizerResultCard(result, index, item, mode) {
@@ -1185,7 +1936,7 @@ function wheelVisualizerInquiryContent(item, current) {
     return `<div class="wheel-visualizer-content wheel-inquiry-success"><div class="wheel-success-mark">✓</div><div class="wheel-content-kicker">Inquiry received</div><h3>We have your build brief.<br><em>F-Box will follow up.</em></h3><p class="wheel-content-lead">Your product, wheel specifications and three generated previews are now attached to inquiry <strong>${esc(current.inquiry.id || 'submitted')}</strong>. A fitment specialist will confirm clearance and final pricing with you.</p><div class="wheel-inquiry-success-meta"><span>${esc(item.name)}</span><span>${resultImages.length} preview images attached</span><span>${esc(vehicleLabel)}</span></div><div class="wheel-inquiry-actions"><button type="button" class="btn btn-outline" data-action="wheel-inquiry-results">Back to previews</button><button type="button" class="btn btn-primary" data-action="wheel-close">Close studio <span aria-hidden="true">↗</span></button></div></div>`;
   }
   const submitting = current.inquiry?.status === 'submitting';
-  return `<div class="wheel-visualizer-content wheel-inquiry-content"><div class="wheel-content-kicker">Start your fitment inquiry</div><h3>Tell us the spec.<br><em>We will confirm the build.</em></h3><p class="wheel-content-lead">Your selected product and all three generated previews will be attached. Choose the wheel data below so the F-Box team can check the exact vehicle fitment before quoting.</p>${error}<div class="wheel-inquiry-preview-strip">${resultImages.map((imageUrl, index) => `<button type="button" class="wheel-inquiry-preview" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(wheelVisualizerAngleLabel(current.results[index]?.angle))}" data-product="${esc(item.name)}" data-download-name="${esc(wheelVisualizerDownloadName(item, current.results[index]?.angle, index))}" aria-label="View preview ${index + 1}"><img src="${esc(imageUrl)}" alt="${esc(item.name)} preview ${index + 1}"></button>`).join('')}</div><form class="wheel-inquiry-form" data-form="wheel-inquiry"><section class="wheel-inquiry-section"><div><strong>Wheel data</strong><span>Required for fitment review</span></div><div class="wheel-inquiry-grid"><label><span>Diameter <b>*</b></span>${wheelInquirySelect('diameter', ['17', '18', '19', '20', '21', '22'], draft.diameter, 'diameter')}</label><label><span>Width <b>*</b></span>${wheelInquirySelect('width', ['7.0', '7.5', '8.0', '8.5', '9.0', '9.5', '10.0', '10.5', '11.0', '11.5', '12.0'], draft.width, 'width')}</label><label><span>PCD / bolt pattern <b>*</b></span>${wheelInquirySelect('pcd', ['4x100', '5x100', '5x108', '5x112', '5x114.3', '5x120', '5x127', '5x130', '5x135', '5x139.7', '5x150', '6x135', '6x139.7'], draft.pcd, 'PCD')}</label><label><span>Offset / ET <b>*</b></span>${wheelInquirySelect('offset', ['-10', '0', '+15', '+20', '+25', '+30', '+35', '+40', '+45', '+50'], draft.offset, 'offset')}</label><label><span>Center bore <b>*</b></span><input class="text-input" name="center_bore" value="${esc(draft.center_bore)}" required placeholder="e.g. 66.1 mm"></label><label><span>Quantity <b>*</b></span>${wheelInquirySelect('quantity', ['1', '2', '4'], draft.quantity, 'quantity')}</label></div></section><section class="wheel-inquiry-section"><div><strong>Contact details</strong><span>So a fitment specialist can reply</span></div><div class="wheel-inquiry-grid"><label><span>Name <b>*</b></span><input class="text-input" name="customer_name" value="${esc(draft.customer_name)}" required placeholder="Your name"></label><label><span>Email <b>*</b></span><input class="text-input" name="customer_email" type="email" value="${esc(draft.customer_email)}" required placeholder="you@example.com"></label><label><span>Phone / WhatsApp</span><input class="text-input" name="customer_phone" value="${esc(draft.customer_phone)}" placeholder="Optional"></label><label><span>Vehicle reference</span><input class="text-input" value="${esc(vehicleLabel)}" readonly></label><label class="wheel-inquiry-full"><span>Notes for F-Box</span><textarea class="text-input" name="customer_note" rows="3" placeholder="Tell us about staggered fitment, brake clearance, finish or delivery needs.">${esc(draft.customer_note)}</textarea></label></div></section><div class="wheel-inquiry-form-actions"><button type="button" class="btn btn-outline" data-action="wheel-inquiry-results" ${submitting ? 'disabled' : ''}>Back to previews</button><button type="submit" class="btn btn-primary" ${submitting ? 'disabled' : ''}>${submitting ? 'Sending inquiry…' : 'Send inquiry'} <span aria-hidden="true">↗</span></button></div></form></div>`;
+  return `<div class="wheel-visualizer-content wheel-inquiry-content"><div class="wheel-content-kicker">Start your fitment inquiry</div><h3>Tell us the spec.<br><em>We will confirm the build.</em></h3><p class="wheel-content-lead">Your selected product and all three generated previews will be attached. Choose the wheel data below so the F-Box team can check the exact vehicle fitment before quoting.</p>${error}<div class="wheel-inquiry-preview-strip">${resultImages.map((imageUrl, index) => `<button type="button" class="wheel-inquiry-preview" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(wheelVisualizerAngleLabel(current.results[index]?.angle))}" data-product="${esc(item.name)}" data-download-name="${esc(wheelVisualizerDownloadName(item, current.results[index]?.angle, index))}" aria-label="View preview ${index + 1}"><img src="${esc(imageUrl)}" alt="${esc(item.name)} preview ${index + 1}"></button>`).join('')}</div><form class="wheel-inquiry-form" data-form="wheel-inquiry"><section class="wheel-inquiry-section"><div><strong>Wheel data</strong><span>Required for fitment review</span></div><div class="wheel-inquiry-grid"><label><span>Diameter <b>*</b></span>${wheelInquirySelect('diameter', ['17', '18', '19', '20', '21', '22'], draft.diameter, 'diameter')}</label><label><span>Width <b>*</b></span>${wheelInquirySelect('width', ['7.0', '7.5', '8.0', '8.5', '9.0', '9.5', '10.0', '10.5', '11.0', '11.5', '12.0'], draft.width, 'width')}</label><label><span>PCD / bolt pattern <b>*</b></span>${wheelInquirySelect('pcd', ['4x100', '5x100', '5x108', '5x112', '5x114.3', '5x120', '5x127', '5x130', '5x135', '5x139.7', '5x150', '6x135', '6x139.7'], draft.pcd, 'PCD')}</label><label><span>Offset / ET <b>*</b></span>${wheelInquirySelect('offset', ['-10', '0', '+15', '+20', '+25', '+30', '+35', '+40', '+45', '+50'], draft.offset, 'offset')}</label><label><span>Center bore <b>*</b></span><input class="text-input" name="center_bore" value="${esc(draft.center_bore)}" required placeholder="e.g. 66.1 mm"></label><label><span>Quantity <b>*</b></span>${wheelInquirySelect('quantity', ['1', '2', '4'], draft.quantity, 'quantity')}</label></div></section><section class="wheel-inquiry-section"><div><strong>Contact details</strong><span>So a fitment specialist can reply</span></div><div class="wheel-inquiry-grid"><label><span>Name <b>*</b></span><input class="text-input" name="customer_name" value="${esc(draft.customer_name)}" required placeholder="Your name"></label><label><span>Email <b>*</b></span><input class="text-input" name="customer_email" type="email" value="${esc(draft.customer_email)}" required placeholder="you@example.com"></label><label><span>Phone / WhatsApp</span><input class="text-input" name="customer_phone" value="${esc(draft.customer_phone)}" placeholder="Optional"></label><label><span>Vehicle reference</span><input class="text-input" value="${esc(vehicleLabel)}" readonly></label><label class="wheel-inquiry-full"><span>Notes for F-Box</span><textarea class="text-input" name="customer_note" rows="3" placeholder="Tell us about staggered fitment, brake clearance, finish or delivery needs.">${esc(draft.customer_note)}</textarea></label></div></section><div class="wheel-inquiry-form-actions"><button type="button" class="btn btn-outline" data-action="wheel-inquiry-results" ${submitting ? 'disabled' : ''}>Back to previews</button><button type="button" class="btn btn-outline" data-action="whatsapp-visualizer" ${submitting ? 'disabled' : ''}>${icons.whatsapp} ${uiLabel('WhatsApp fitment consultation')}</button><button type="submit" class="btn btn-primary" ${submitting ? 'disabled' : ''}>${submitting ? 'Sending inquiry…' : 'Send inquiry'} <span aria-hidden="true">↗</span></button></div></form></div>`;
 }
 function wheelVisualizerModalLegacy() {
   const current = state.wheelVisualizer;
@@ -1199,7 +1950,7 @@ function wheelVisualizerModalLegacy() {
   if (phase === 'upload') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Start with one real photo</div><h3>Show us the car.<br><em>We will show you the stance.</em></h3><p class="wheel-content-lead">Use a clear exterior photo with at least one wheel visible. A front three-quarter or side view gives the best fitment reference.</p><label class="wheel-upload-zone" data-wheel-dropzone><input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" data-wheel-upload><span class="wheel-upload-icon">＋</span><strong>Drop your car photo here</strong><span>JPG, PNG, WEBP or HEIC · Up to 20 MB · mobile photos are compressed securely</span><span class="btn btn-dark btn-small">Choose a photo</span></label><div class="wheel-visualizer-privacy"><span>${icons.shield}</span><span>Your image is used only to create this preview. No payment or credits are required.</span></div></div>`;
   if (phase === 'crop') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Frame the reference</div><h3>Keep the whole car.<br><em>Adjust only if needed.</em></h3><p class="wheel-content-lead">Upload the photo as-is. The full image stays available, even when the car sits low in a portrait frame. Drag the image or use the controls below; a wheel only needs to be visible, not centered in a box.</p><div class="wheel-crop-stage" data-wheel-crop-stage><img data-wheel-crop-image src="${esc(current.vehicleUrl)}" alt="${esc(current.vehicleName || 'Uploaded vehicle photo')}" draggable="false" style="${wheelVisualizerCropStyle(current.crop)}"><div class="wheel-crop-guide"><span>Full photo retained · drag to frame</span></div></div><div class="wheel-crop-live-note"><strong>Live framing</strong><span>Changes update the image above.</span></div><div class="wheel-crop-controls"><label><span>Zoom</span><input type="range" min="1" max="1.6" step="0.01" value="${current.crop.zoom}" data-wheel-crop="zoom"><output data-wheel-crop-output="zoom">${Number(current.crop.zoom).toFixed(2)}×</output></label><label><span>Horizontal position</span><input type="range" min="0" max="100" step="1" value="${current.crop.x}" data-wheel-crop="x"><output data-wheel-crop-output="x">${current.crop.x}%</output></label><label><span>Vertical position</span><input type="range" min="0" max="100" step="1" value="${current.crop.y}" data-wheel-crop="y"><output data-wheel-crop-output="y">${current.crop.y}%</output></label></div><div class="wheel-crop-actions"><button class="btn btn-outline btn-small" data-action="wheel-crop-reset">Reset frame</button><button class="btn btn-primary" data-action="wheel-generate">Generate 3 angles <span aria-hidden="true">↗</span></button></div></div>`;
   if (phase === 'generating') { const referenceAsset = visualizerReferenceAsset(item, current); content = `<div class="wheel-visualizer-content wheel-generating-content" aria-live="polite"><div class="wheel-generating-orbit"><div class="wheel-generating-wheel">${referenceAsset ? `<img src="${referenceAsset}" alt="${esc(item.name)}">` : `<span class="wheel-generating-part">${esc(item.category)}</span>`}</div><span></span><span></span><span></span></div><div class="wheel-content-kicker">F-Box visual studio</div><h3>Matching ${esc(visualizerProductContext(item).subject)} to vehicle<br><em>and checking the stance.</em></h3><p class="wheel-content-lead">We are applying only the selected ${esc(item.category.toLowerCase())} while keeping the original wheel and vehicle geometry locked.</p><div class="wheel-progress"><span></span></div><div class="wheel-generating-meta"><span>Product mask locked</span><span>3 angles requested</span><span>Officially included</span></div></div>`; }
-  if (phase === 'results') content = `<div class="wheel-visualizer-content wheel-results-content"><div class="wheel-results-head"><div><div class="wheel-content-kicker">Your preview set</div><h3>See the wheel<br><em>in its natural stance.</em></h3></div><div class="wheel-results-count"><strong>03</strong><span>angles</span></div></div><p class="wheel-content-lead">These views use ${esc(item.name)} in ${esc(item.finish)} as the wheel reference. Keep the final fitment check with the F-Box team before production.</p><div class="wheel-results-grid">${current.results.map((result, index) => wheelVisualizerResultCard(result, index, item, current.mode)).join('')}</div><div class="wheel-results-actions"><button class="btn btn-outline" data-action="wheel-reset">Try another photo</button><button class="btn btn-primary" data-action="wheel-inquiry-open">Start an inquiry <span aria-hidden="true">↗</span></button></div></div>`;
+  if (phase === 'results') content = `<div class="wheel-visualizer-content wheel-results-content"><div class="wheel-results-head"><div><div class="wheel-content-kicker">Your preview set</div><h3>See the wheel<br><em>in its natural stance.</em></h3></div><div class="wheel-results-count"><strong>03</strong><span>angles</span></div></div><p class="wheel-content-lead">These views use ${esc(item.name)} in ${esc(item.finish)} as the wheel reference. Keep the final fitment check with the F-Box team before production.</p><div class="wheel-results-grid">${current.results.map((result, index) => wheelVisualizerResultCard(result, index, item, current.mode)).join('')}</div><div class="wheel-results-actions"><button class="btn btn-outline" data-action="wheel-reset">Try another photo</button><button class="btn btn-outline" data-action="whatsapp-visualizer">${icons.whatsapp} ${uiLabel('WhatsApp fitment consultation')}</button><button class="btn btn-primary" data-action="wheel-inquiry-open">Start an inquiry <span aria-hidden="true">↗</span></button></div></div>`;
   if (phase === 'results' && item.category !== 'Wheels') {
     const context = visualizerProductContext(item);
     content = content.replace('See the wheel', `See the ${context.subject}`).replace('as the wheel reference', `as the ${context.subject} reference`);
@@ -1259,7 +2010,7 @@ function modal() {
     return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>Hi, ${esc(account.username || 'builder')}.</h2><div class="account-panel"><p>${esc(account.email || '')}${account.company ? ' · ' + esc(account.company) : ''}${account.country ? ' · ' + esc(account.country) : ''}</p><div class="account-panel-actions"><button class="btn btn-outline" data-action="orders">Track my orders</button><button class="btn btn-dark" data-action="account-logout">Sign out</button></div></div></div></div>`;
   }
   if (!state.modal) return '';
-  if (state.modal.type === 'quick') { const item = product(state.modal.id); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Quick view</p><h2>${item.name}</h2><div class="quick-product"><img src="${ASSET + item.image}" alt="${esc(item.name)}"><div><div class="product-brand">${item.brand} · ${item.category}</div><div>${stars(item.rating)} <span class="muted">${item.reviews} reviews</span></div><p>${item.meta}<br>${item.deal}</p><strong style="font-size:22px">${money(item.price)} <small class="muted">/ each</small></strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">Add to cart</button></div></div></div></div>`; }
+  if (state.modal.type === 'quick') { const item = product(state.modal.id); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Quick view</p><h2>${item.name}</h2><div class="quick-product"><img src="${assetUrl(item.image)}" alt="${esc(item.name)}"><div><div class="product-brand">${item.brand} · ${item.category}</div><div>${stars(item.rating)} <span class="muted">${item.reviews} reviews</span></div><p>${item.meta}<br>${item.deal}</p><strong style="font-size:22px">${money(item.price)} <small class="muted">/ each</small></strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">Add to cart</button></div></div></div></div>`; }
   if (state.modal.type === 'account') { const register = state.modal.mode === 'register'; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>${register ? 'Create your build account.' : 'Save your build.'}</h2><p>${register ? 'Save fitment builds, wishlist, addresses and orders. Dealers: add your company so we can quote wholesale.' : 'Sign in to sync your cart, wishlist and orders with the F-Box service.'}</p><form class="modal-form" data-form="account" data-mode="${register ? 'register' : 'login'}"><input class="text-input" name="username" placeholder="Username" autocomplete="username" required><input class="text-input" name="password" type="password" placeholder="Password (6+ characters)" autocomplete="${register ? 'new-password' : 'current-password'}" minlength="6" required>${register ? '<input class="text-input" name="email" type="email" autocomplete="email" placeholder="Email (for quotes & order updates)" required><input class="text-input" name="telephone" autocomplete="tel" placeholder="Phone / WhatsApp (optional)"><input class="text-input" name="company" autocomplete="organization" placeholder="Company (dealers & distributors)">' : ''}<button class="btn btn-primary">${register ? 'Create account & sign in' : 'Sign in'}</button><button class="btn btn-outline" type="button" data-action="${register ? 'account-login' : 'account-register'}">${register ? 'I already have an account' : 'Create a new account'}</button></form></div></div>`; }
   if (state.modal.type === 'orders') return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>Track my orders.</h2><p>订单状态来自 F-Box 自有订单服务；发货后可在这里继续查看物流信息。</p>${state.accountOrdersLoading ? '<div class="loading-copy">正在读取订单…</div>' : state.accountOrders.length ? `<div class="account-order-list">${state.accountOrders.map(order => `<article class="account-order"><div><strong>${esc(order.orderSn || order.id || 'Order')}</strong><small>${esc(order.createTime || '')}</small></div><div><span>${esc(order.productName || order.receiverName || 'F-Box order')}</span><small>${esc(order.status === 0 ? '待付款' : order.status === 1 ? '待发货' : order.status === 2 ? '已发货' : order.status === 3 ? '已完成' : order.status === 4 ? '已关闭' : '处理中')}</small></div><strong>${money(order.payAmount || order.totalAmount || 0)}</strong></article>`).join('')}</div>` : '<div class="empty-state"><h3>暂无订单</h3><p>登录后创建的 F-Box 订单会出现在这里。</p></div>'}</div></div>`;
   if (state.modal.type === 'review') return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Your experience</p><h2>Write a review.</h2><form class="modal-form" data-form="review"><div class="review-rating-input" role="radiogroup" aria-label="Rating"><input type="hidden" name="rating" value="5">${[5,4,3,2,1].map(n => `<button type="button" class="rating-star ${n === 5 ? 'is-active' : ''}" data-rating="${n}" aria-label="${n} stars">★</button>`).join('')}</div><input class="text-input" name="title" placeholder="Review title" required><textarea class="text-input" name="body" rows="5" placeholder="What did you install? How does it fit?" required></textarea><input class="text-input" name="vehicle" placeholder="Your vehicle (e.g. 2023 BMW M340i)"><button class="btn btn-primary">Submit review</button></form></div></div>`;
@@ -1300,7 +2051,7 @@ async function submitWebsiteChat(message) {
         product_name: state.route.name === 'product' ? product(state.route.id).name : '',
         product_category: state.route.name === 'product' ? product(state.route.id).category : '',
         product_finish: state.route.name === 'product' ? product(state.route.id).finish : '',
-        product_image: state.route.name === 'product' ? `${location.origin}/assets/${product(state.route.id).image}` : '',
+        product_image: state.route.name === 'product' ? new URL(assetUrl(product(state.route.id).image), location.href).href : '',
         product_display_price: state.route.name === 'product' ? product(state.route.id).price : 0
       })
     });
@@ -1351,7 +2102,7 @@ async function captureReturnedPayPalPayment() {
   } catch (error) { setToast(error?.message || 'PayPal payment confirmation failed.'); }
   history.replaceState({}, document.title, `${location.pathname}${location.hash || '#home'}`);
 }
-function footer() { return `<footer class="footer"><div class="container"><div class="footer-top"><div><a class="brand" href="#home"><i class="brand-mark"></i><span>F-BOX</span></a><p class="footer-slogan">A fitment-first destination for the parts that make your car feel like yours.</p><div class="company-meta"><strong>${company.legalName}</strong><a href="tel:${company.tel}">${company.phone}</a></div></div><div class="footer-grid"><div class="footer-col"><h3>Shop</h3><a href="#store">Wheels</a><a href="#store">Calipers</a><a href="#store">Rotors</a><a href="#store">Brake pads</a></div><div class="footer-col"><h3>Tools</h3><a href="#home#fitment">Shop by vehicle</a><a href="#home#gallery">Fitment guides</a><a href="#home#resources">Reviews</a><a href="#store">Financing</a></div><div class="footer-col"><h3>Help</h3><a href="#home#resources">FAQs & policies</a><a href="#home#resources">Shipping & returns</a><a href="#home#resources">Warranty</a><a href="tel:${company.tel}">Contact us · ${company.phone}</a></div><div class="footer-col"><h3>Company</h3><a href="#home">About F-Box</a><a href="#home">Wholesale</a><a href="#home">Careers</a><a href="#home" data-action="orders">Track order</a></div></div></div><div class="footer-bottom"><span>© 2026 ${company.legalName} · F-Box Performance Parts</span><span>Terms · Privacy · CCPA</span></div></div></footer>`; }
+function footer() { const whatsapp = generalWhatsAppContext(); return `<footer class="footer"><div class="container"><div class="footer-top"><div><a class="brand" href="#home"><i class="brand-mark"></i><span>F-BOX</span></a><p class="footer-slogan">A fitment-first destination for the parts that make your car feel like yours.</p><div class="company-meta"><strong>${company.legalName}</strong><a href="tel:${company.tel}">${company.phone}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">WhatsApp · ${company.whatsapp}</a></div></div><div class="footer-grid"><div class="footer-col"><h3>Shop</h3><a href="#store">Wheels</a><a href="#store">Calipers</a><a href="#store">Rotors</a><a href="#store">Brake pads</a></div><div class="footer-col"><h3>Tools</h3><a href="#fitment" data-action="open-fitment-lab">Fitment Lab</a><a href="#home#gallery">Fitment guides</a><a href="#home#resources">Reviews</a><a href="#store">Financing</a></div><div class="footer-col"><h3>Help</h3><a href="#home#resources">FAQs & policies</a><a href="#home#resources">Shipping & returns</a><a href="#home#resources">Warranty</a><a href="tel:${company.tel}">Contact us · ${company.phone}</a></div><div class="footer-col"><h3>Company</h3><a href="#home">About F-Box</a><a href="#home">Wholesale</a><a href="#home">Careers</a><a href="#home" data-action="orders">Track order</a></div></div></div><div class="footer-bottom"><span>© 2026 ${company.legalName} · F-Box Performance Parts</span><span>Terms · Privacy · CCPA</span></div></div></footer>`; }
 
 function applyTranslations() {
   document.documentElement.lang = state.locale;
@@ -1383,7 +2134,7 @@ function applyTranslations() {
 
 const translationCache = JSON.parse(localStorage.getItem('fbox-translation-cache') || '{}');
 let translationRun = 0;
-const translationProtectedClasses = ['brand', 'brand-mark', 'company-meta', 'product-brand', 'product-title', 'product-meta', 'fitment-selects', 'locale-select', 'cart-count', 'stars', 'part-number'];
+const translationProtectedClasses = ['brand', 'brand-mark', 'company-meta', 'product-brand', 'fitment-selects', 'locale-select', 'cart-count', 'stars', 'part-number'];
 function isProtectedTranslationNode(node, root) {
   let element = node.parentElement;
   while (element && element !== root) {
@@ -1401,6 +2152,13 @@ function preserveTextWhitespace(source, translated) {
 }
 function collectTranslationTargets(root) {
   const targets = [];
+  root.querySelectorAll('select[data-translate-options] option, option[data-translate-option]').forEach(option => {
+    const node = option.firstChild;
+    const source = node?.nodeValue || '';
+    const key = source.trim();
+    if (!node || !key || key.length < 2 || /[\u0400-\u04FF\u0600-\u06FF\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]/.test(key)) return;
+    targets.push({ node, source, key, kind: 'text' });
+  });
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   while (walker.nextNode()) {
     const node = walker.currentNode;
@@ -1468,6 +2226,17 @@ async function translatePageFull() {
 
 async function detectLocaleByIp() {
   if (state.localeMode === 'manual') return;
+  // A supported browser language is a stronger signal than the server-side IP
+  // guess. This keeps a Chinese browser in Chinese even when the visitor is
+  // travelling or using a network that geolocates elsewhere.
+  const preferredBrowserLocale = browserLocale();
+  if (preferredBrowserLocale !== 'en') {
+    if (state.locale !== preferredBrowserLocale) {
+      state.locale = preferredBrowserLocale;
+      render();
+    }
+    return;
+  }
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 2600);
   try {
@@ -1563,7 +2332,8 @@ function wireStartingPrices() {
     if (actions) {
       actions.replaceChildren(
         quoteActionButton('Upload car photo', 'btn btn-primary', item.id),
-        quoteActionButton('Ask F-Box', 'btn btn-dark', item.id, 'chat')
+        quoteActionButton('Ask F-Box', 'btn btn-dark', item.id, 'chat'),
+        quoteActionButton('WhatsApp quote', 'btn btn-outline', item.id, 'whatsapp-product')
       );
     }
   }
@@ -1587,8 +2357,11 @@ function wireStartingPrices() {
 }
 function render() {
   state.route = getRoute();
-  const page = state.route.name === 'home' ? customWheelHomePage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : productPage(product(state.route.id));
-  document.querySelector('#app').innerHTML = `${header()}${page}${footer()}${chat()}${state.cookie ? '<div class="cookie-banner"><span>By using F-Box, you agree to our cookie policy and fitment analytics.</span><button data-action="dismiss-cookie">Dismiss</button></div>' : ''}${modal()}${wheelVisualizerModal()}${wheelVisualizerImageViewer()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
+  const page = state.route.name === 'home' ? customWheelHomePage() : state.route.name === 'fitment' ? fitmentPage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : state.route.name === 'blog' ? blogPage() : state.route.name === 'blog-post' ? blogArticlePage(state.blogPosts.find(post => post.slug === state.route.slug)) : productPage(product(state.route.id));
+  const pageWithReviews = state.route.name === 'home' ? page.replace(/<section class="section" id="resources">[\s\S]*?<\/section>/, homeReviewSection()) : page;
+  const pageWithPhotoReviews = state.route.name === 'home' ? pageWithReviews.replace(/<section class="section" id="gallery">[\s\S]*?<\/section>/, homePhotoReviewGallery()) : pageWithReviews;
+  const pageWithJournal = state.route.name === 'home' ? `${pageWithPhotoReviews}${blogHomeSection()}` : pageWithPhotoReviews;
+  document.querySelector('#app').innerHTML = `${header()}${pageWithJournal}${footer()}${chat()}${whatsappFab()}${state.cookie ? '<div class="cookie-banner"><span>By using F-Box, you agree to our cookie policy and fitment analytics.</span><button data-action="dismiss-cookie">Dismiss</button></div>' : ''}${modal()}${wheelVisualizerModal()}${wheelVisualizerImageViewer()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
   wireProductGallery();
   wireStartingPrices();
   wireProductReviews();
@@ -1596,7 +2369,7 @@ function render() {
   wireWheelVisualizerEntry();
   wireWheelInquiryDetails();
   wireHomeVisualizerBanner();
-  decorateIntegrationState();
+  wireHomeWheelCarousel();
   applyTranslations();
   translatePageFull();
   wireSpotlights();
@@ -1621,6 +2394,20 @@ function updateVehicle(field, value) {
   else { v[field] = value; if (field === 'make') { delete v.model; delete v.trim; delete v.drive; } if (field === 'model') { delete v.trim; delete v.drive; } if (field === 'trim') delete v.drive; state.vehicle = v; }
   persist(); render();
   if (state.vehicle?.trim) window.setTimeout(() => document.querySelector('.fitment-preview')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+}
+function updateFitmentVehicle(field, value) {
+  const v = { ...(state.fitment.vehicle || {}) };
+  if (field === 'year') state.fitment.vehicle = value ? { year: value } : null;
+  else {
+    v[field] = value;
+    if (field === 'make') { delete v.model; delete v.trim; delete v.drive; }
+    if (field === 'model') { delete v.trim; delete v.drive; }
+    if (field === 'trim') delete v.drive;
+    state.fitment.vehicle = v;
+  }
+  state.vehicle = state.fitment.vehicle;
+  persist();
+  render();
 }
 function clearFilters() { state.search = ''; state.filters = { category: 'All', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' }; state.sort = 'latest'; render(); }
 async function wheelVisualizerSubmitInquiry(values) {
@@ -1708,10 +2495,11 @@ document.addEventListener('click', async event => {
   const target = event.target.closest('[data-action], [data-category-link]');
   if (!target) return;
   const action = target.dataset.action;
-  if (['add', 'buy-now', 'checkout', 'chat', 'write-review', 'customize', 'quote'].includes(action)) {
+  if (['add', 'buy-now', 'checkout', 'chat', 'write-review', 'customize', 'quote', 'whatsapp', 'whatsapp-fitment', 'whatsapp-product', 'whatsapp-visualizer', 'home-preview-wheel', 'home-preview-prev', 'home-preview-next'].includes(action)) {
     trackEvent('click', { path: location.pathname + location.hash, title: action, meta: { action, product_id: target.dataset.id || '' } });
   }
   if (target.dataset.categoryLink !== undefined) { state.filters.category = target.dataset.categoryLink || 'All'; state.menuOpen = false; go('#store'); return; }
+  if (action === 'blog-filter') { state.blogCategory = target.dataset.blogCategory || 'All'; render(); return; }
   if (action === 'mega') { state.menuOpen = !state.menuOpen; render(); return; }
   if (action === 'mobile-nav') { state.mobileNav = !state.mobileNav; render(); return; }
   if (action === 'cart') { go('#cart'); return; }
@@ -1721,11 +2509,61 @@ document.addEventListener('click', async event => {
   if (action === 'account-login') { state.modal = { type: 'account', mode: 'login' }; render(); return; }
   if (action === 'orders') { if (!state.mallToken) { state.modal = { type: 'account', mode: 'login', afterLogin: 'orders' }; render(); } else { state.modal = { type: 'orders' }; loadMemberOrders(); } return; }
   if (action === 'dismiss-cookie') { state.cookie = false; localStorage.setItem('fbox-cookie', 'dismissed'); render(); return; }
+  if (['whatsapp', 'whatsapp-fitment', 'whatsapp-product', 'whatsapp-visualizer'].includes(action)) { event.preventDefault(); void openWhatsAppContext(whatsappContext(action, target.dataset.id)); return; }
   if (action === 'chat') { state.chatOpen = !state.chatOpen; render(); if (state.chatOpen) void loadWebsiteChat(); return; }
   if (action === 'pay-quote') { void payQuote(target.dataset.quoteId, target.dataset.paymentToken); return; }
   if (action === 'chat-reply') {
     const message = target.dataset.message || 'I need fitment help.';
     await submitWebsiteChat(message);
+    return;
+  }
+  if (action === 'open-fitment-lab') {
+    state.fitment.vehicle = state.vehicle || state.fitment.vehicle;
+    go('#fitment');
+    return;
+  }
+  if (action === 'fitment-chat') {
+    const result = state.fitment.result;
+    if (!result) return;
+    state.vehicle = state.fitment.vehicle || state.vehicle;
+    persist();
+    const vehicle = currentVehicleLabel();
+    const summary = [`Fitment lab result: ${result.status_label || result.status}`, `Vehicle: ${vehicle}`, `Front: ${result.axles?.front?.recommendation?.pcd || 'PCD pending'} / ET ${result.axles?.front?.recommendation?.et_estimate_range?.join(' to ') || 'pending'}`, `Rear: ${result.axles?.rear?.recommendation?.pcd || 'PCD pending'} / ET ${result.axles?.rear?.recommendation?.et_estimate_range?.join(' to ') || 'pending'}`, result.next_step || 'Please confirm the final wheel drawing.'].join('\n');
+    state.chatOpen = true;
+    render();
+    await submitWebsiteChat(summary);
+    return;
+  }
+  if (action === 'home-preview-prev') { homeWheelNavigate(-1); return; }
+  if (action === 'home-preview-next') { homeWheelNavigate(1); return; }
+  if (action === 'home-preview-wheel') {
+    const item = products.find(candidate => candidate.id === target.dataset.id && candidate.category === 'Wheels');
+    if (!item) return;
+    homeWheelPauseForInteraction();
+    state.homePreviewProductId = item.id;
+    const referenceImage = state.productImage[item.id] || productGallery(item)[0] || item.image;
+    const stage = document.querySelector('[data-home-preview-stage]');
+    const image = stage?.querySelector('[data-home-preview-image]');
+    if (image) {
+      image.src = assetUrl(referenceImage);
+      image.alt = `${item.name} preview`;
+    }
+    const name = stage?.querySelector('[data-home-preview-name]');
+    const finish = stage?.querySelector('[data-home-preview-finish]');
+    const price = stage?.querySelector('[data-home-preview-price]');
+    const open = stage?.querySelector('[data-home-preview-open]');
+    if (name) name.textContent = homePreviewShortName(item);
+    if (finish) finish.textContent = item.finish || item.color || 'Custom finish';
+    if (price) price.textContent = productPriceText(item);
+    if (open) {
+      open.dataset.id = item.id;
+      open.dataset.image = referenceImage;
+    }
+    stage?.querySelectorAll('[data-action="home-preview-wheel"]').forEach(button => {
+      const active = button.dataset.id === item.id;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
     return;
   }
   if (action === 'wheel-open') { state.wheelVisualizer = wheelVisualizerState(target.dataset.id, target.dataset.image); render(); return; }
@@ -1840,6 +2678,7 @@ document.addEventListener('change', event => {
     }
     return;
   }
+  if (el.matches('[data-fitment-field]')) { updateFitmentVehicle(el.dataset.fitmentField, el.value); return; }
   if (el.matches('[data-field]')) { updateVehicle(el.dataset.field, el.value); return; }
   if (el.matches('[data-filter]')) {
     const key = el.dataset.filter;
@@ -1889,9 +2728,64 @@ document.addEventListener('drop', event => {
   event.preventDefault();
   wheelVisualizerHandleFile(event.dataTransfer?.files?.[0]);
 });
+function fitmentPayloadFromForm(form) {
+  const values = Object.fromEntries(new FormData(form).entries());
+  const axlePayload = axle => ({
+    diameter: values[`${axle}_diameter`],
+    width: values[`${axle}_width`],
+    offset: values[`${axle}_offset`],
+    pcd: values[`${axle}_pcd`],
+    center_bore: values[`${axle}_center_bore`],
+    spacer_mm: values[`${axle}_spacer_mm`],
+    inner_clearance_mm: values[`${axle}_inner_clearance_mm`],
+    spoke_clearance_mm: values[`${axle}_spoke_clearance_mm`],
+    camber_deg: values[`${axle}_camber_deg`],
+    toe_deg: values[`${axle}_toe_deg`],
+    fender_clearance_mm: values[`${axle}_fender_clearance_mm`],
+    compression_clearance_mm: values[`${axle}_compression_clearance_mm`],
+    tire_fitment_style: values[`${axle}_tire_fitment_style`]
+  });
+  return {
+    vehicle: state.fitment.vehicle || {},
+    locale: state.locale,
+    usage: values.usage,
+    front_brake_id: values.front_brake_id,
+    rear_brake_id: values.rear_brake_id,
+    front_rotor_id: values.front_rotor_id,
+    rear_rotor_id: values.rear_rotor_id,
+    front_pad_id: values.front_pad_id,
+    rear_pad_id: values.rear_pad_id,
+    suspension_id: values.suspension_id,
+    stance_profile: values.stance_profile || (values.usage === 'show' ? 'static-low' : Number(values.ride_height_drop_mm || 0) > 0 ? 'lowered' : 'oem'),
+    suspension: { ride_height_drop_mm: values.ride_height_drop_mm },
+    wheels: { front: axlePayload('front'), rear: axlePayload('rear') },
+    tires: { front: values.front_tire, rear: values.rear_tire }
+  };
+}
+async function submitFitmentForm(form) {
+  if (state.fitment.submitting) return;
+  const values = Object.fromEntries(new FormData(form).entries());
+  const payload = fitmentPayloadFromForm(form);
+  state.fitment.draft = values;
+  state.fitment.submitting = true;
+  state.fitment.error = '';
+  render();
+  try {
+    const response = await fetch('/api/fbox-content/fitment/check', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.detail || 'Fitment check failed.');
+    state.fitment.result = result.data || result;
+  } catch (error) {
+    state.fitment.error = error?.message || 'Fitment check failed. Please try again.';
+  } finally {
+    state.fitment.submitting = false;
+    render();
+  }
+}
 document.addEventListener('submit', async event => {
   event.preventDefault();
   const form = event.target;
+  if (form.dataset.form === 'fitment-check') { await submitFitmentForm(form); return; }
   if (form.dataset.form === 'search') { state.search = new FormData(form).get('query') || ''; go('#store'); }
   if (form.dataset.form === 'site-chat') { await submitWebsiteChat(new FormData(form).get('message')); return; }
   if (form.dataset.form === 'wheel-inquiry') { await wheelVisualizerSubmitInquiry(Object.fromEntries(new FormData(form).entries())); return; }
@@ -1973,5 +2867,7 @@ detectLocaleByIp();
 checkMallBackend();
 loadMallCatalog();
 loadFBoxContent();
+loadBlogContent();
+loadFBoxSettings();
 void loadAccountInfo();
 trackPageView();

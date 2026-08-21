@@ -30,6 +30,47 @@
 .console-logout { border: 0; background: none; color: var(--console-danger); cursor: pointer; font-size: 11px; padding: 4px 0; }
 .console-logout:hover { text-decoration: underline; }
 
+/* Fitment Lab */
+.fitment-admin-head { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.fitment-admin-head h3 { margin: 0 0 4px; }
+.fitment-admin-form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.fitment-admin-form label { display: grid; gap: 7px; color: #b8c1cb; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.fitment-admin-form input, .fitment-admin-form select, .fitment-admin-form textarea { width: 100%; border: 1px solid var(--console-line); border-radius: 9px; outline: 0; padding: 10px 11px; color: #fff; background: var(--console-panel); font: inherit; font-size: 12px; letter-spacing: 0; text-transform: none; }
+.fitment-admin-form textarea { resize: vertical; line-height: 1.5; }
+.fitment-admin-form input:focus, .fitment-admin-form select:focus, .fitment-admin-form textarea:focus { border-color: var(--console-lav); box-shadow: 0 0 0 3px rgba(169, 140, 255, .12); }
+.fitment-admin-form .field-wide { grid-column: 1 / -1; }
+.fitment-check-panel { margin-bottom: 16px; }
+.fitment-admin-axles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.fitment-admin-axle { padding: 14px; border: 1px solid var(--console-line); background: rgba(255, 255, 255, .02); }
+.fitment-admin-axle h4 { margin: 0 0 12px; color: #fff; font-size: 12px; }
+.fitment-admin-check-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
+.fitment-admin-check-grid label { font-size: 9px; }
+.fitment-admin-check-grid label > span { color: #d5dbe1; font-size: 10px; font-weight: 800; letter-spacing: 0; line-height: 1.25; text-transform: none; }
+.fitment-admin-help { color: var(--console-muted); font-size: 10px; font-weight: 500; letter-spacing: 0; line-height: 1.35; text-transform: none; }
+.fitment-admin-check-grid .field-wide { grid-column: span 2; }
+.fitment-admin-result { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--console-line); }
+.fitment-admin-result-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.fitment-admin-result-head strong { color: #fff; font-size: 13px; }
+.fitment-admin-status { padding: 5px 8px; font-size: 10px; font-weight: 800; }
+.fitment-admin-status-pass { color: var(--console-ok); background: rgba(125, 227, 176, .14); }
+.fitment-admin-status-needs_review { color: var(--console-warn); background: rgba(245, 185, 66, .14); }
+.fitment-admin-status-conflict { color: var(--console-danger); background: rgba(255, 141, 141, .14); }
+.fitment-admin-result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.fitment-admin-result-axle { display: grid; gap: 5px; padding: 12px; border: 1px solid var(--console-line); color: var(--console-muted); font-size: 11px; }
+.fitment-admin-result-axle strong { color: #fff; }
+.fitment-admin-result-axle span { display: inline-flex; justify-content: space-between; }
+.fitment-admin-result ul { display: grid; gap: 5px; margin: 12px 0 0; padding-left: 18px; color: var(--console-warn); font-size: 11px; line-height: 1.45; }
+
+@media (max-width: 900px) {
+  .fitment-admin-form-grid, .fitment-admin-axles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fitment-admin-check-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .fitment-admin-form-grid, .fitment-admin-axles, .fitment-admin-result-grid { grid-template-columns: 1fr; }
+  .fitment-admin-check-grid { grid-template-columns: 1fr; }
+  .fitment-admin-check-grid .field-wide, .fitment-admin-form .field-wide { grid-column: auto; }
+}
+
 .console-main { display: flex; flex-direction: column; min-width: 0; }
 .console-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 24px; border-bottom: 1px solid var(--console-line); }
 .console-top h2 { margin: 0; font-size: 19px; letter-spacing: -0.02em; }
@@ -91,6 +132,27 @@
 
 .review-admin-body { max-width: 560px; white-space: normal; color: #d8dee6; }
 .flag-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.blog-editor { margin-bottom: 18px; }
+.blog-editor-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.blog-editor-head h3 { margin: 0 0 4px; }
+.blog-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.blog-form label { display: grid; gap: 7px; color: #b8c1cb; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.blog-form input, .blog-form select, .blog-form textarea { width: 100%; border: 1px solid var(--console-line); border-radius: 9px; outline: 0; padding: 10px 11px; color: #fff; background: var(--console-panel); font: inherit; font-size: 12px; letter-spacing: 0; text-transform: none; }
+.blog-form textarea { min-height: 78px; resize: vertical; line-height: 1.55; }
+.blog-form textarea[name="body"] { min-height: 300px; }
+.blog-form input:focus, .blog-form select:focus, .blog-form textarea:focus { border-color: var(--console-lav); box-shadow: 0 0 0 3px rgba(169, 140, 255, .12); }
+.blog-form .field-wide { grid-column: 1 / -1; }
+.blog-featured-toggle { display: flex !important; align-items: center; grid-template-columns: auto 1fr; }
+.blog-featured-toggle input { width: auto; accent-color: var(--console-lime); }
+.blog-form .field-note { color: var(--console-muted); font-size: 11px; font-weight: 400; letter-spacing: 0; line-height: 1.5; text-transform: none; }
+.console-table td strong { white-space: normal; }
+
+@media (max-width: 700px) {
+  .blog-form-grid { grid-template-columns: 1fr; }
+  .blog-form .field-wide { grid-column: auto; }
+  .blog-editor-head { flex-direction: column; }
+}
 
 @media (max-width: 900px) {
   .console-shell { grid-template-columns: 1fr; }
