@@ -24,6 +24,7 @@ const jobs = new Map();
 const jobTtlMs = 60 * 60 * 1000;
 const operationsPath = path.join(runtimeDir, 'fbox-operations.json');
 const seedOperationsPath = path.join(moduleDir, 'data', 'fbox-operations.seed.json');
+const seedReviewsPath = path.join(moduleDir, 'data', 'fbox-reviews-imported.json');
 const storePath = path.join(runtimeDir, 'fbox-store.json');
 const seedStorePath = path.join(moduleDir, 'data', 'fbox-store.seed.json');
 const mediaDir = path.join(runtimeDir, 'fbox-media');
@@ -35,6 +36,267 @@ let adminSessionsLoading = null;
 let adminSessionsWriteQueue = Promise.resolve();
 const customerSessions = new Map();
 const customerSessionTtlMs = 30 * 24 * 60 * 60 * 1000;
+const customerSessionsPath = path.join(runtimeDir, 'fbox-customer-sessions.json');
+let customerSessionsLoaded = false;
+let customerSessionsWriteQueue = Promise.resolve();
+
+// ---------------------------------------------------------------------------
+// Storefront analytics: privacy-conscious, first-party event log. Every event
+// carries the country derived from the client IP plus coarse region/city when
+// the (free, key-less) ipwho.is lookup succeeds. Raw IPs are kept only in the
+// runtime file (outside the repo) so the owner can follow up with leads.
+// ---------------------------------------------------------------------------
+const analyticsPath = path.join(runtimeDir, 'fbox-analytics.json');
+const analyticsMaxEvents = 50_000;
+let analyticsCache = null;
+let analyticsWriteQueue = Promise.resolve();
+const geoCache = new Map();
+const analyticsBotPattern = /bot|crawler|spider|wget|python-requests|headless|lighthouse|pingdom/i;
+
+const analyticsCountryNames = {
+  US: 'United States', CA: 'Canada', MX: 'Mexico', BR: 'Brazil', AR: 'Argentina', CL: 'Chile', CO: 'Colombia', PE: 'Peru',
+  GB: 'United Kingdom', IE: 'Ireland', FR: 'France', DE: 'Germany', ES: 'Spain', PT: 'Portugal', IT: 'Italy', NL: 'Netherlands',
+  BE: 'Belgium', CH: 'Switzerland', AT: 'Austria', SE: 'Sweden', NO: 'Norway', DK: 'Denmark', FI: 'Finland', PL: 'Poland',
+  CZ: 'Czechia', HU: 'Hungary', RO: 'Romania', GR: 'Greece', TR: 'Turkey', UA: 'Ukraine', RU: 'Russia',
+  AE: 'United Arab Emirates', SA: 'Saudi Arabia', QA: 'Qatar', KW: 'Kuwait', IL: 'Israel', EG: 'Egypt',
+  ZA: 'South Africa', NG: 'Nigeria', KE: 'Kenya', MA: 'Morocco',
+  CN: 'China', HK: 'Hong Kong', TW: 'Taiwan', JP: 'Japan', KR: 'South Korea', SG: 'Singapore', MY: 'Malaysia',
+  TH: 'Thailand', VN: 'Vietnam', ID: 'Indonesia', PH: 'Philippines', IN: 'India', PK: 'Pakistan', AU: 'Australia', NZ: 'New Zealand'
+};
+
+async function loadAnalytics() {
+  if (analyticsCache) return analyticsCache;
+  try {
+    const raw = JSON.parse(await fs.readFile(analyticsPath, 'utf8'));
+    analyticsCache = { events: Array.isArray(raw?.events) ? raw.events : [] };
+  } catch {
+    analyticsCache = { events: [] };
+  }
+  return analyticsCache;
+}
+
+function saveAnalytics() {
+  const write = async () => {
+    await fs.mkdir(runtimeDir, { recursive: true });
+    await fs.writeFile(analyticsPath, JSON.stringify(analyticsCache), 'utf8');
+  };
+  analyticsWriteQueue = analyticsWriteQueue.then(write, write);
+  return analyticsWriteQueue;
+}
+
+function clientIp(req) {
+  const forwarded = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  const raw = forwarded || String(req.socket?.remoteAddress || '').trim();
+  const ip = raw.replace(/^::ffff:/, '');
+  if (ip === '::1' || ip === '127.0.0.1') return '';
+  return ip;
+}
+
+async function lookupIpCountry(ip) {
+  if (!ip) return { ip: '', country: '', country_code: '', region: '', city: '' };
+  if (geoCache.has(ip)) return { ip, ...geoCache.get(ip) };
+  try {
+    const response = await fetch(`http://ipwho.is/${encodeURIComponent(ip)}?fields=success,country,country_code,region,city`, { signal: AbortSignal.timeout(4_000) });
+    const payload = await response.json().catch(() => ({}));
+    if (payload && payload.success !== false && payload.country_code) {
+      const geo = {
+        country: String(payload.country || '').slice(0, 80),
+        country_code: String(payload.country_code || '').slice(0, 4).toUpperCase(),
+        region: String(payload.region || '').slice(0, 80),
+        city: String(payload.city || '').slice(0, 80)
+      };
+      geoCache.set(ip, geo);
+      return { ip, ...geo };
+    }
+  } catch {
+    // geo lookup is best-effort; analytics must never block the storefront
+  }
+  const empty = { country: '', country_code: '', region: '', city: '' };
+  geoCache.set(ip, empty);
+  return { ip, ...empty };
+}
+
+function geoForRequest(req) {
+  return lookupIpCountry(clientIp(req));
+}
+
+function analyticsCustomerId(req) {
+  try { return currentCustomer(req)?.accountId || ''; } catch { return ''; }
+}
+
+async function recordAnalyticsEvent(req, { type = 'page_view', path: eventPath = '', title = '', referrer = '', locale = '', customer_id = '', product_id = '', product_name = '', meta = null, geo = null } = {}) {
+  try {
+    const userAgent = String(req.headers['user-agent'] || '').slice(0, 240);
+    if (analyticsBotPattern.test(userAgent)) return null;
+    const data = await loadAnalytics();
+    const resolvedGeo = geo || await geoForRequest(req);
+    const event = {
+      id: operationId('event'),
+      type: textValue(type, 24) || 'page_view',
+      path: textValue(eventPath, 300),
+      title: textValue(title, 160),
+      referrer: textValue(referrer, 500),
+      locale: textValue(locale, 16),
+      customer_id: textValue(customer_id, 80),
+      product_id: textValue(product_id, 100),
+      product_name: textValue(product_name, 160),
+      meta: meta && typeof meta === 'object' ? JSON.parse(JSON.stringify(meta)).constructor === Object ? meta : null : null,
+      ip: resolvedGeo.ip || '',
+      country: resolvedGeo.country || '',
+      country_code: resolvedGeo.country_code || '',
+      region: resolvedGeo.region || '',
+      city: resolvedGeo.city || '',
+      user_agent: userAgent,
+      created_at: new Date().toISOString()
+    };
+    if (event.country_code && analyticsCountryNames[event.country_code] && !event.country) event.country = analyticsCountryNames[event.country_code];
+    data.events.push(event);
+    if (data.events.length > analyticsMaxEvents) data.events = data.events.slice(-analyticsMaxEvents);
+    await saveAnalytics();
+    return event;
+  } catch (error) {
+    console.error('[fbox-analytics] failed to record event:', error?.message || error);
+    return null;
+  }
+}
+
+function analyticsInRange(event, fromMs, toMs) {
+  const time = Date.parse(event.created_at || '');
+  if (!Number.isFinite(time)) return false;
+  if (fromMs && time < fromMs) return false;
+  if (toMs && time > toMs) return false;
+  return true;
+}
+
+function analyticsSourceOf(event) {
+  const ref = String(event.referrer || '');
+  if (!ref) return 'Direct';
+  try {
+    const host = new URL(ref).hostname.toLowerCase();
+    if (!host) return 'Direct';
+    if (/(^|\.)google\./.test(host)) return 'Google';
+    if (/(^|\.)bing\./.test(host)) return 'Bing';
+    if (/(^|\.)facebook\.|(^|\.)fb\./.test(host)) return 'Facebook';
+    if (/(^|\.)instagram\./.test(host)) return 'Instagram';
+    if (/(^|\.)tiktok\./.test(host)) return 'TikTok';
+    if (/(^|\.)youtube\.|(^|\.)youtu\.be/.test(host)) return 'YouTube';
+    if (/(^|\.)x\.com|(^|\.)twitter\./.test(host)) return 'X / Twitter';
+    if (/(^|\.)reddit\./.test(host)) return 'Reddit';
+    if (/(^|\.)alibaba\./.test(host)) return 'Alibaba';
+    if (/(^|\.)linkedin\./.test(host)) return 'LinkedIn';
+    return host.replace(/^www\./, '');
+  } catch {
+    return 'Direct';
+  }
+}
+
+function countBy(records, keyFn) {
+  const map = new Map();
+  for (const record of records) {
+    const key = keyFn(record) || 'Unknown';
+    map.set(key, (map.get(key) || 0) + 1);
+  }
+  return [...map.entries()].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
+}
+
+function buildAnalyticsDashboard(events, store, operations, fromMs, toMs) {
+  const scoped = events.filter(event => analyticsInRange(event, fromMs, toMs));
+  const pageViews = scoped.filter(event => event.type === 'page_view');
+  const productViews = scoped.filter(event => event.type === 'product_view');
+  const clicks = scoped.filter(event => event.type === 'click');
+  const inquiries = (operations.inquiries || []).filter(item => analyticsInRange(item, fromMs, toMs));
+  const orders = (store.orders || []).filter(item => analyticsInRange(item, fromMs, toMs));
+  const accounts = store.accounts || [];
+  const registrations = accounts.filter(item => analyticsInRange({ created_at: item.created_at }, fromMs, toMs));
+
+  const dayMs = 24 * 60 * 60 * 1000;
+  const days = [];
+  const startDay = fromMs ? new Date(fromMs) : (scoped.length ? new Date(Date.parse(scoped[0].created_at)) : new Date());
+  const endDay = toMs ? new Date(toMs) : new Date();
+  for (let t = new Date(startDay.setHours(0, 0, 0, 0)).getTime(); t <= endDay.getTime(); t += dayMs) {
+    const dayStart = t;
+    const dayEnd = t + dayMs;
+    const dayEvents = scoped.filter(event => { const time = Date.parse(event.created_at || ''); return time >= dayStart && time < dayEnd; });
+    days.push({
+      date: new Date(t).toISOString().slice(0, 10),
+      page_views: dayEvents.filter(event => event.type === 'page_view').length,
+      product_views: dayEvents.filter(event => event.type === 'product_view').length,
+      clicks: dayEvents.filter(event => event.type === 'click').length,
+      visitors: new Set(dayEvents.map(event => event.ip).filter(Boolean)).size
+    });
+  }
+
+  const leadByCustomer = new Map();
+  for (const event of scoped) {
+    if (!event.customer_id) continue;
+    leadByCustomer.set(event.customer_id, {
+      customer_id: event.customer_id,
+      country: event.country,
+      country_code: event.country_code,
+      last_seen_at: event.created_at,
+      product_ids: new Set([...(leadByCustomer.get(event.customer_id)?.product_ids || []), event.product_id].filter(Boolean))
+    });
+  }
+
+  const leads = accounts.map(account => {
+    const behavior = leadByCustomer.get(account.id) || {};
+    const accountOrders = orders.filter(order => order.customer_id === account.id);
+    const accountInquiries = (operations.inquiries || []).filter(item => item.customer_id === account.id || (account.email && item.customer_email && String(item.customer_email).toLowerCase() === String(account.email).toLowerCase()));
+    const interest = [...(behavior.product_ids || [])].map(id => store.products.find(p => p.id === id)?.name || id).slice(0, 4);
+    let grade = 'C';
+    if (accountOrders.length || accountInquiries.some(item => item.status === 'resolved' || item.quotes?.length)) grade = 'A';
+    else if (accountInquiries.length || (behavior.product_ids?.size || 0) >= 2) grade = 'B';
+    return {
+      id: account.id,
+      username: account.username,
+      email: account.email || '',
+      telephone: account.telephone || '',
+      company: account.company || '',
+      country: account.country || behavior.country || accountInquiries[0]?.country || '',
+      country_code: account.country_code || behavior.country_code || accountInquiries[0]?.country_code || '',
+      created_at: account.created_at,
+      last_login_at: account.last_login_at || '',
+      last_seen_at: behavior.last_seen_at || '',
+      orders: accountOrders.length,
+      inquiries: accountInquiries.length,
+      interest,
+      grade
+    };
+  }).sort((a, b) => (a.grade.charCodeAt(0) - b.grade.charCodeAt(0)) || String(b.last_seen_at || b.created_at).localeCompare(String(a.last_seen_at || a.created_at)));
+
+  return {
+    range: { from: fromMs ? new Date(fromMs).toISOString() : '', to: toMs ? new Date(toMs).toISOString() : '' },
+    totals: {
+      page_views: pageViews.length,
+      product_views: productViews.length,
+      clicks: clicks.length,
+      unique_visitors: new Set(scoped.map(event => event.ip).filter(Boolean)).size,
+      registered_customers: accounts.length,
+      new_registrations: registrations.length,
+      inquiries: inquiries.length,
+      orders: orders.length
+    },
+    days,
+    countries: countBy(scoped.filter(event => event.country), event => event.country),
+    sources: countBy(pageViews, analyticsSourceOf),
+    pages: countBy(pageViews, event => event.path || '/'),
+    products: countBy(productViews, event => event.product_name || event.product_id),
+    locales: countBy(pageViews, event => event.locale),
+    leads,
+    recent_events: [...scoped].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 40).map(event => ({
+      id: event.id,
+      type: event.type,
+      path: event.path,
+      title: event.title,
+      product_name: event.product_name,
+      country: event.country,
+      city: event.city,
+      ip: event.ip,
+      source: analyticsSourceOf(event),
+      created_at: event.created_at
+    }))
+  };
+}
 
 function adminUsername() {
   return String(process.env.FBOX_ADMIN_USERNAME || 'admin').trim();
@@ -148,7 +410,8 @@ async function loadFrontendVehicleLibrary() {
   if (frontendVehicleLibraryCache) return frontendVehicleLibraryCache;
   const source = await fs.readFile(path.join(moduleDir, 'app.js'), 'utf8');
   const start = source.indexOf('const vehicleFamilies = ');
-  const end = source.indexOf('\n\nfunction buildVehicleCatalog', start);
+  const endMatch = start >= 0 ? source.slice(start).match(/\r?\n\r?\nfunction buildVehicleCatalog/) : null;
+  const end = endMatch ? start + endMatch.index : -1;
   if (start < 0 || end < 0) throw new Error('The storefront vehicle catalog could not be read.');
   const objectSource = source.slice(start + 'const vehicleFamilies = '.length, end).replace(/;\s*$/, '');
   const families = vm.runInNewContext(`(${objectSource})`, Object.create(null));
@@ -209,6 +472,8 @@ async function loadOperations() {
         return { ...item, oem_wheel_specs: normalizeInquirySpecs(specs), spec_source: item.spec_source || specs?.source || seed?.oem_wheel_specs?.source || '', spec_status: item.spec_status || (seed ? 'pending' : 'needs_review'), source_type: 'managed' };
       }),
       jobs: Array.isArray(raw.jobs) ? raw.jobs : [],
+      // Imported review ids are reconciled with the deployable seed below;
+      // customer-submitted and test records stay in the runtime file.
       reviews: Array.isArray(raw.reviews) ? raw.reviews : [],
       cases: Array.isArray(raw.cases) ? raw.cases : [],
       inquiries: Array.isArray(raw.inquiries) ? raw.inquiries.map(item => ({
@@ -224,13 +489,41 @@ async function loadOperations() {
     // Seed data is shipped with the deployable site so a fresh server starts
     // with the same fitment library. Runtime edits are still written outside
     // the repository and take precedence on the next request.
-    if (!await fs.access(operationsPath).then(() => true).catch(() => false)) await saveOperations(operationsCache);
+    const mergedReviews = await mergeImportedReviewSeed(operationsCache.reviews);
+    const previousImported = operationsCache.reviews.filter(item => String(item?.id || '').startsWith('review-import-'));
+    const currentImported = mergedReviews.filter(item => String(item?.id || '').startsWith('review-import-'));
+    const importedReviewsChanged = JSON.stringify(previousImported) !== JSON.stringify(currentImported);
+    if (mergedReviews.length !== operationsCache.reviews.length || importedReviewsChanged) {
+      operationsCache.reviews = mergedReviews;
+      await saveOperations(operationsCache);
+    } else if (!await fs.access(operationsPath).then(() => true).catch(() => false)) await saveOperations(operationsCache);
   } else {
     operationsCache = copyDefaultOperations();
     operationsCache.vehicles = operationsCache.vehicles.map(item => ({ ...item, source_type: 'managed' }));
+    operationsCache.reviews = await loadImportedReviewSeed();
     await saveOperations(operationsCache);
   }
   return operationsCache;
+}
+
+// The imported review set ships as its own seed file so the operations seed
+// stays untouched. A deploy should update these records in place while leaving
+// customer-submitted and test records from the runtime file alone.
+async function loadImportedReviewSeed() {
+  try {
+    const records = JSON.parse(await fs.readFile(seedReviewsPath, 'utf8'));
+    return Array.isArray(records) ? records : [];
+  } catch {
+    return [];
+  }
+}
+
+async function mergeImportedReviewSeed(reviews) {
+  const list = Array.isArray(reviews) ? reviews : [];
+  const seed = await loadImportedReviewSeed();
+  if (!seed.length) return list;
+  const preservedRuntimeRecords = list.filter(item => !String(item?.id || '').startsWith('review-import-'));
+  return [...seed, ...preservedRuntimeRecords];
 }
 
 async function saveOperations(data) {
@@ -272,6 +565,36 @@ function hashCustomerPassword(password) {
   return createHash('sha256').update(String(password || '')).digest('hex');
 }
 
+async function ensureCustomerSessionsLoaded() {
+  if (customerSessionsLoaded) return;
+  try {
+    const payload = JSON.parse(await fs.readFile(customerSessionsPath, 'utf8'));
+    const sessions = Array.isArray(payload?.sessions) ? payload.sessions : [];
+    for (const session of sessions) {
+      const token = String(session?.token || '').trim();
+      const accountId = String(session?.accountId || '').trim();
+      const createdAt = Number(session?.createdAt || 0);
+      if (token && accountId && Date.now() - createdAt <= customerSessionTtlMs) {
+        customerSessions.set(token, { accountId, createdAt });
+      }
+    }
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  } finally {
+    customerSessionsLoaded = true;
+  }
+}
+
+function saveCustomerSessions() {
+  const write = async () => {
+    await fs.mkdir(runtimeDir, { recursive: true });
+    const sessions = [...customerSessions.entries()].map(([token, session]) => ({ token, accountId: session.accountId, createdAt: session.createdAt }));
+    await fs.writeFile(customerSessionsPath, JSON.stringify({ sessions }, null, 2), 'utf8');
+  };
+  customerSessionsWriteQueue = customerSessionsWriteQueue.then(write, write);
+  return customerSessionsWriteQueue;
+}
+
 function customerToken(req) {
   const authorization = String(req.headers.authorization || '');
   if (/^Bearer\s+/i.test(authorization)) return authorization.replace(/^Bearer\s+/i, '').trim();
@@ -284,13 +607,24 @@ function currentCustomer(req) {
   if (!session) return null;
   if (Date.now() - session.createdAt > customerSessionTtlMs) {
     customerSessions.delete(token);
+    void saveCustomerSessions();
     return null;
   }
   return session;
 }
 
 function publicCustomer(account) {
-  return { id: account.id, username: account.username, email: account.email || '', telephone: account.telephone || '', created_at: account.created_at };
+  return {
+    id: account.id,
+    username: account.username,
+    email: account.email || '',
+    telephone: account.telephone || '',
+    company: account.company || '',
+    country: account.country || '',
+    country_code: account.country_code || '',
+    created_at: account.created_at,
+    last_login_at: account.last_login_at || ''
+  };
 }
 
 function requireCustomer(req, res) {
@@ -384,8 +718,18 @@ function normalizeProductPayload(payload = {}, existing = {}) {
   const priceInput = hasOwn(payload, 'price') ? payload.price : existing.price;
   const statusInput = hasOwn(payload, 'status') ? payload.status : existing.status;
   const sortInput = hasOwn(payload, 'sort') ? payload.sort : existing.sort;
+  const currencyInput = hasOwn(payload, 'currency') ? payload.currency : existing.currency;
+  const visualizerEnabledInput = hasOwn(payload, 'visualizer_enabled') ? payload.visualizer_enabled : existing.visualizer_enabled;
+  const dynamicWheelEffectInput = hasOwn(payload, 'dynamic_wheel_effect') ? payload.dynamic_wheel_effect : existing.dynamic_wheel_effect;
+  const visualizerModeInput = hasOwn(payload, 'visualizer_mode') ? payload.visualizer_mode : existing.visualizer_mode;
   const sort = Math.floor(Number(sortInput || 0));
   const cover = images[0];
+  const boolValue = (value, fallback = true) => {
+    if (typeof value === 'boolean') return value;
+    if (['false', '0', 'no', 'off'].includes(String(value || '').toLowerCase())) return false;
+    if (['true', '1', 'yes', 'on'].includes(String(value || '').toLowerCase())) return true;
+    return fallback;
+  };
   return {
     ...existing,
     ...payload,
@@ -397,6 +741,10 @@ function normalizeProductPayload(payload = {}, existing = {}) {
     // stay in their natural newest-uploaded order on the storefront.
     sort: Number.isFinite(sort) && sort > 0 ? sort : 0,
     price_mode: priceMode,
+    currency: textValue(currencyInput || 'USD', 8).toUpperCase() || 'USD',
+    visualizer_enabled: boolValue(visualizerEnabledInput, existing.visualizer_enabled !== false),
+    dynamic_wheel_effect: boolValue(dynamicWheelEffectInput, existing.dynamic_wheel_effect !== false),
+    visualizer_mode: textValue(visualizerModeInput || 'dynamic-wheel', 40) || 'dynamic-wheel',
     images,
     image: cover?.url || legacyImage,
     image_original: cover?.original_url || textValue(hasOwn(payload, 'image_original') ? payload.image_original : existing.image_original, 800),
@@ -485,6 +833,11 @@ function normalizeReview(payload = {}, id = operationId('review'), existing = {}
     title: textValue(payload.title, 120),
     body: textValue(payload.body, 2000),
     vehicle: textValue(payload.vehicle, 160),
+    customer_country: textValue(hasOwn(payload, 'customer_country') ? payload.customer_country : existing.customer_country, 80),
+    customer_country_code: textValue(hasOwn(payload, 'customer_country_code') ? payload.customer_country_code : existing.customer_country_code, 8).toUpperCase(),
+    source_platform: textValue(hasOwn(payload, 'source_platform') ? payload.source_platform : existing.source_platform, 80),
+    source_url: textValue(hasOwn(payload, 'source_url') ? payload.source_url : existing.source_url, 400),
+    review_images_count: Math.max(0, Math.min(12, Number(hasOwn(payload, 'review_images_count') ? payload.review_images_count : existing.review_images_count) || 0)),
     customer_name: textValue(payload.customer_name || payload.name || existing.customer_name, 80),
     customer_email: textValue(
       hasOwn(payload, 'customer_email')
@@ -562,6 +915,8 @@ function normalizeInquiry(payload = {}, id = operationId('inquiry')) {
     customer_name: textValue(payload.customer_name || payload.name || 'Website visitor', 80),
     customer_email: textValue(payload.customer_email || payload.email, 160),
     customer_phone: textValue(payload.customer_phone || payload.phone, 60),
+    country: textValue(payload.country, 80),
+    country_code: textValue(payload.country_code, 8).toUpperCase(),
     vehicle: textValue(payload.vehicle, 160),
     vehicle_selection: normalizeVehicleSelection(payload.vehicle_selection),
     official_wheel_specs: normalizeInquirySpecs(payload.official_wheel_specs),
@@ -1004,6 +1359,8 @@ export async function handleFBoxStoreApi(req, res, url) {
   if (req.method === 'OPTIONS') return json(res, 204, {});
   const pathName = url.pathname.replace(/\/$/, '');
   const data = await loadStore();
+  await ensureCustomerSessionsLoaded();
+  const geo = await geoForRequest(req);
 
   if (req.method === 'GET' && pathName === '/api/fbox-store/products') {
     const query = textValue(url.searchParams.get('q'), 120).toLowerCase();
@@ -1019,12 +1376,32 @@ export async function handleFBoxStoreApi(req, res, url) {
       const password = String(payload.password || '');
       const email = textValue(payload.email, 160).toLowerCase();
       const telephone = textValue(payload.telephone || payload.phone, 60);
+      const company = textValue(payload.company, 120);
       if (!username || password.length < 6) return json(res, 422, { detail: 'Username and a password of at least 6 characters are required.' });
       if (data.accounts.some(account => account.username.toLowerCase() === username.toLowerCase() || (email && account.email?.toLowerCase() === email))) return json(res, 409, { detail: 'This F-Box account already exists.' });
-      const account = { id: operationId('customer'), username, email, telephone, password_hash: hashCustomerPassword(password), wishlist: [], cart: [], created_at: new Date().toISOString() };
+      const now = new Date().toISOString();
+      const account = {
+        id: operationId('customer'),
+        username,
+        email,
+        telephone,
+        company,
+        country: geo.country,
+        country_code: geo.country_code,
+        signup_ip: geo.ip,
+        password_hash: hashCustomerPassword(password),
+        wishlist: [],
+        cart: [],
+        created_at: now,
+        last_login_at: now
+      };
       data.accounts.push(account);
       await saveStore(data);
-      return json(res, 200, { code: 200, data: { member: publicCustomer(account) } });
+      await recordAnalyticsEvent(req, { type: 'register', customer_id: account.id, geo });
+      const token = `fbox_customer_${randomUUID()}`;
+      customerSessions.set(token, { accountId: account.id, createdAt: Date.now() });
+      await saveCustomerSessions();
+      return json(res, 200, { code: 200, data: { tokenHead: 'Bearer ', token, member: publicCustomer(account) } });
     } catch (error) { return json(res, error.status || 422, { detail: error.message || 'F-Box account registration failed.' }); }
   }
 
@@ -1036,6 +1413,11 @@ export async function handleFBoxStoreApi(req, res, url) {
       if (!account || account.password_hash !== hashCustomerPassword(payload.password)) return json(res, 401, { detail: 'Invalid F-Box account or password.' });
       const token = `fbox_customer_${randomUUID()}`;
       customerSessions.set(token, { accountId: account.id, createdAt: Date.now() });
+      account.last_login_at = new Date().toISOString();
+      if (!account.country && geo.country) { account.country = geo.country; account.country_code = geo.country_code; }
+      await saveStore(data);
+      await saveCustomerSessions();
+      await recordAnalyticsEvent(req, { type: 'login', customer_id: account.id, geo });
       return json(res, 200, { code: 200, data: { tokenHead: 'Bearer ', token, member: publicCustomer(account) } });
     } catch (error) { return json(res, error.status || 422, { detail: error.message || 'F-Box account login failed.' }); }
   }
@@ -1045,6 +1427,28 @@ export async function handleFBoxStoreApi(req, res, url) {
     if (!session) return json(res, 401, { detail: 'F-Box customer authentication is required.' });
     const account = data.accounts.find(item => item.id === session.accountId);
     return account ? json(res, 200, { code: 200, data: { member: publicCustomer(account) } }) : json(res, 401, { detail: 'F-Box account was not found.' });
+  }
+
+  if (req.method === 'POST' && pathName === '/api/fbox-store/auth/logout') {
+    const token = customerToken(req);
+    if (token && customerSessions.delete(token)) await saveCustomerSessions();
+    return json(res, 200, { code: 200, data: { signed_out: true } });
+  }
+
+  if (req.method === 'PUT' && pathName === '/api/fbox-store/auth/profile') {
+    const session = currentCustomer(req);
+    if (!session) return json(res, 401, { detail: 'F-Box customer authentication is required.' });
+    try {
+      const payload = await readJson(req, 64 * 1024);
+      const account = data.accounts.find(item => item.id === session.accountId);
+      if (!account) return json(res, 401, { detail: 'F-Box account was not found.' });
+      if (hasOwn(payload, 'username')) account.username = textValue(payload.username, 80) || account.username;
+      if (hasOwn(payload, 'telephone')) account.telephone = textValue(payload.telephone, 60);
+      if (hasOwn(payload, 'company')) account.company = textValue(payload.company, 120);
+      if (hasOwn(payload, 'email')) account.email = textValue(payload.email, 160).toLowerCase();
+      await saveStore(data);
+      return json(res, 200, { code: 200, data: { member: publicCustomer(account) } });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || 'F-Box profile update failed.' }); }
   }
 
   const customer = currentCustomer(req);
@@ -1388,11 +1792,16 @@ export async function handleWheelVisualizerApi(req, res, url) {
       if (!String(payload.product_image || '').startsWith('data:image/')) throw new Error('Select a product reference image first.');
       parseImageDataUrl(payload.vehicle_image, '车辆图片');
       parseImageDataUrl(payload.product_image, '产品参考图片');
+      const store = await loadStore();
+      const selectedProduct = store.products.find(item => item.id === textValue(payload.product_id, 80));
+      const visualizerEnabled = selectedProduct ? selectedProduct.visualizer_enabled !== false : true;
+      const dynamicWheelEffect = selectedProduct ? selectedProduct.dynamic_wheel_effect !== false : true;
+      const visualizerMode = textValue(selectedProduct?.visualizer_mode || 'dynamic-wheel', 40) || 'dynamic-wheel';
       const config = await loadConfig();
       if (!config.api_key) return json(res, 503, { detail: 'F-Box image routing is not configured. Open /admin and save the LingkeAI API key first.' });
       const jobId = `fbox_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
       const now = new Date().toISOString();
-      jobs.set(jobId, { job_id: jobId, status: 'queued', mode: 'fbox-lingkeai', results: [], created_at: Date.now(), updated_at: Date.now() });
+      jobs.set(jobId, { job_id: jobId, status: 'queued', mode: 'fbox-lingkeai', results: [], visualizer_enabled: visualizerEnabled, dynamic_wheel_effect: dynamicWheelEffect, visualizer_mode: visualizerMode, created_at: Date.now(), updated_at: Date.now() });
       const operations = await loadOperations();
       operations.jobs.unshift({
         id: jobId,
@@ -1404,6 +1813,9 @@ export async function handleWheelVisualizerApi(req, res, url) {
         product_category: textValue(payload.product_category, 80),
         product_finish: textValue(payload.product_finish, 80),
         product_fitment: textValue(payload.product_fitment, 240),
+        visualizer_enabled: visualizerEnabled,
+        dynamic_wheel_effect: dynamicWheelEffect,
+        visualizer_mode: visualizerMode,
         vehicle_name: textValue(payload.vehicle_name || payload.vehicle_label, 160),
         vehicle_file_name: textValue(payload.vehicle_file_name || payload.vehicle_name, 180),
         angles: 3,
@@ -1414,15 +1826,16 @@ export async function handleWheelVisualizerApi(req, res, url) {
       });
       operations.jobs = operations.jobs.slice(0, 300);
       await saveOperations(operations);
+      await recordAnalyticsEvent(req, { type: 'click', path: '/visualizer', title: 'AI visualizer job', product_id: payload.product_id, product_name: payload.product_name, customer_id: analyticsCustomerId(req), meta: { action: 'visualizer-job' } });
       void runJob(jobId, payload);
-      return json(res, 202, { data: { job_id: jobId, status: 'queued', mode: 'fbox-lingkeai', results: [] } });
+      return json(res, 202, { data: { job_id: jobId, status: 'queued', mode: 'fbox-lingkeai', visualizer_enabled: visualizerEnabled, dynamic_wheel_effect: dynamicWheelEffect, visualizer_mode: visualizerMode, results: [] } });
     } catch (error) { return json(res, error.status || 422, { detail: error.message || 'Invalid visualizer request.' }); }
   }
   if (req.method === 'GET' && match[1]) {
     pruneJobs();
     const job = jobs.get(match[1]);
     if (!job) return json(res, 404, { detail: 'The visualizer job was not found.' });
-    const response = { job_id: job.job_id, status: job.status, mode: job.mode, results: job.results };
+    const response = { job_id: job.job_id, status: job.status, mode: job.mode, visualizer_enabled: job.visualizer_enabled !== false, dynamic_wheel_effect: job.dynamic_wheel_effect !== false, visualizer_mode: job.visualizer_mode || 'dynamic-wheel', results: job.results };
     if (job.status === 'failed') response.message = job.message;
     return json(res, 200, { data: response });
   }
@@ -1475,11 +1888,32 @@ export async function handleFBoxOperationsApi(req, res, url) {
         }
       });
     }
-    if (req.method === 'GET' && pathName === '/api/fbox-content/reviews') {
+  if (req.method === 'GET' && pathName === '/api/fbox-content/reviews') {
       const data = await loadOperations();
       const productId = textValue(url.searchParams.get('product_id'), 80);
       const reviews = data.reviews.filter(item => item.status === 'approved' && item.source !== 'test' && (!productId || item.product_id === productId)).map(publicContent);
       return json(res, 200, { data: sortNewest(reviews) });
+    }
+    if (req.method === 'POST' && pathName === '/api/fbox-content/track') {
+      try {
+        const payload = await readJson(req, 32 * 1024);
+        const type = ['page_view', 'product_view', 'click'].includes(String(payload.type || '')) ? String(payload.type) : 'page_view';
+        await recordAnalyticsEvent(req, {
+          type,
+          path: payload.path,
+          title: payload.title,
+          referrer: payload.referrer,
+          locale: payload.locale,
+          product_id: payload.product_id,
+          product_name: payload.product_name,
+          meta: payload.meta,
+          customer_id: analyticsCustomerId(req)
+        });
+        return json(res, 201, { data: { recorded: true } });
+      } catch (error) {
+        console.error('[fbox-track] error:', error?.message || error);
+        return json(res, 201, { data: { recorded: false } });
+      }
     }
     if (req.method === 'GET' && pathName === '/api/fbox-content/cases') {
       const data = await loadOperations();
@@ -1489,7 +1923,8 @@ export async function handleFBoxOperationsApi(req, res, url) {
       try {
         const data = await loadOperations();
         const payload = await readJson(req, 512 * 1024);
-        const review = normalizeReview({ ...payload, status: 'pending', source: 'customer', verified_purchase: false });
+        const geo = await geoForRequest(req);
+        const review = normalizeReview({ ...payload, status: 'pending', source: 'customer', verified_purchase: false, customer_country: payload.customer_country || geo.country, customer_country_code: payload.customer_country_code || geo.country_code });
         data.reviews.unshift(review);
         data.reviews = data.reviews.slice(0, 1000);
         await saveOperations(data);
@@ -1499,10 +1934,14 @@ export async function handleFBoxOperationsApi(req, res, url) {
     if (req.method === 'POST' && pathName === '/api/fbox-content/inquiries') {
       try {
         const data = await loadOperations();
-        const inquiry = normalizeInquiry(await readJson(req, 512 * 1024));
+      const inquiryPayload = await readJson(req, 512 * 1024);
+      const inquiryGeo = await geoForRequest(req);
+      if (!inquiryPayload.country && inquiryGeo.country) { inquiryPayload.country = inquiryGeo.country; inquiryPayload.country_code = inquiryGeo.country_code; }
+      const inquiry = normalizeInquiry(inquiryPayload);
         data.inquiries.unshift(inquiry);
         data.inquiries = data.inquiries.slice(0, 1000);
         await saveOperations(data);
+        await recordAnalyticsEvent(req, { type: 'click', path: '/inquiry', title: 'Inquiry submitted', product_id: inquiry.product_id, product_name: inquiry.product_name, customer_id: analyticsCustomerId(req), meta: { action: 'inquiry', inquiry_id: inquiry.id } });
         return json(res, 201, { data: { id: inquiry.id, status: inquiry.status } });
       } catch (error) { return json(res, error.status || 422, { detail: error.message || '咨询提交失败。' }); }
     }
@@ -1606,6 +2045,49 @@ export async function handleFBoxOperationsApi(req, res, url) {
   if (!(await requireOperationsAdmin(req, res))) return;
   const data = await loadOperations();
   const store = await loadStore();
+
+  if (req.method === 'GET' && pathName === '/api/fbox-ops/analytics') {
+    const analytics = await loadAnalytics();
+    const range = String(url.searchParams.get('range') || '30d');
+    const nowMs = Date.now();
+    const fromMs = range === 'all' ? 0 : nowMs - ({ '24h': 1, '7d': 7, '30d': 30, '90d': 90 }[range] || 30) * 24 * 60 * 60 * 1000;
+    return json(res, 200, { data: buildAnalyticsDashboard(analytics.events, store, data, fromMs, nowMs) });
+  }
+
+  if (req.method === 'GET' && pathName === '/api/fbox-ops/analytics/events') {
+    const analytics = await loadAnalytics();
+    const limit = Math.min(200, Math.max(1, Number(url.searchParams.get('limit') || 50)));
+    const events = [...analytics.events].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, limit);
+    return json(res, 200, { data: events, meta: { total: analytics.events.length } });
+  }
+
+  if (req.method === 'GET' && pathName === '/api/fbox-ops/customers') {
+    const analytics = await loadAnalytics();
+    const dashboard = buildAnalyticsDashboard(analytics.events, store, data, 0, Date.now());
+    const q = textValue(url.searchParams.get('q'), 120).toLowerCase();
+    const country = textValue(url.searchParams.get('country'), 80);
+    const grade = textValue(url.searchParams.get('grade'), 4).toUpperCase();
+    let leads = dashboard.leads;
+    if (q) leads = leads.filter(item => [item.username, item.email, item.company, item.country].some(value => String(value || '').toLowerCase().includes(q)));
+    if (country) leads = leads.filter(item => item.country === country || item.country_code === country);
+    if (grade) leads = leads.filter(item => item.grade === grade);
+    return json(res, 200, { data: leads, meta: { total: leads.length } });
+  }
+
+  if (req.method === 'GET' && pathName === '/api/fbox-ops/customers/export') {
+    const analytics = await loadAnalytics();
+    const dashboard = buildAnalyticsDashboard(analytics.events, store, data, 0, Date.now());
+    const escCell = value => '"' + String(value ?? '').replace(/"/g, '""') + '"';
+    const header = ['username', 'email', 'telephone', 'company', 'country', 'grade', 'orders', 'inquiries', 'interested_products', 'registered_at', 'last_seen_at'];
+    const rows = dashboard.leads.map(lead => [lead.username, lead.email, lead.telephone, lead.company, lead.country, lead.grade, lead.orders, lead.inquiries, (lead.interest || []).join(' | '), lead.created_at, lead.last_seen_at].map(escCell).join(','));
+    res.writeHead(200, {
+      'content-type': 'text/csv; charset=utf-8',
+      'content-disposition': 'attachment; filename="fbox-customers-' + new Date().toISOString().slice(0, 10) + '.csv"',
+      'cache-control': 'no-store'
+    });
+    res.end('\uFEFF' + header.join(',') + '\n' + rows.join('\n'));
+    return;
+  }
   if (req.method === 'GET' && pathName === '/api/fbox-ops/products') {
     const q = textValue(url.searchParams.get('q'), 120).toLowerCase();
     const category = textValue(url.searchParams.get('category'), 80);
@@ -1662,6 +2144,7 @@ export async function handleFBoxOperationsApi(req, res, url) {
   if (req.method === 'GET' && pathName === '/api/fbox-ops/summary') {
     const config = await loadConfig();
     const library = await buildVehicleLibrary(data);
+    const analytics = await loadAnalytics();
     return json(res, 200, { data: {
       vehicles_total: library.length,
       vehicles_active: library.filter(item => item.status === 'active').length,
@@ -1676,6 +2159,9 @@ export async function handleFBoxOperationsApi(req, res, url) {
       products_total: store.products.filter(item => item.status !== 'archived').length,
       orders_total: store.orders.length,
       orders_pending_payment: store.orders.filter(item => item.status_label === 'pending_payment').length,
+      customers_total: store.accounts.length,
+      visitors_total: new Set(analytics.events.map(event => event.ip).filter(Boolean)).size,
+      analytics_events_total: analytics.events.length,
       image_route_ready: Boolean(config.api_key),
       generated_at: new Date().toISOString()
     } });

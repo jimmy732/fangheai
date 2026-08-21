@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>F-Box Admin · Visualizer Route</title>
+  <link rel="stylesheet" href="./console.css">
   <style>
     :root { color-scheme: dark; --ink:#080a0e; --panel:#11151b; --panel-2:#171d25; --line:rgba(255,255,255,.12); --muted:#89939e; --lime:#c8ff1a; --lav:#a98cff; --danger:#ff8d8d; --ok:#7de3b0; }
     * { box-sizing:border-box; }
@@ -60,6 +61,37 @@
 <body>
   <header class="topbar"><a class="brand" href="/"><i></i><span>F-Box Admin</span></a><a class="back" href="/">← Back to storefront</a></header>
   <main>
+    <section id="console-auth" class="console-auth" hidden>
+      <div class="console-login panel">
+        <p class="eyebrow">F-Box console</p>
+        <h2>Sign in to the operator console</h2>
+        <p class="console-login-note">Use your F-Box admin account (default <code>admin</code>) to access customer insights, traffic analytics, reviews and visualizer settings.</p>
+        <form id="console-login-form">
+          <label>Username<input name="username" autocomplete="username" value="admin" required></label>
+          <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+          <div class="actions"><button class="btn btn-primary" type="submit">Sign in</button></div>
+          <p class="message" id="console-login-message" role="status"></p>
+        </form>
+      </div>
+    </section>
+    <section id="console-app" hidden>
+      <div class="console-shell">
+        <aside class="console-side">
+          <div class="console-side-brand"><i></i>F-BOX CONSOLE</div>
+          <nav class="console-nav">
+            <button class="console-nav-item is-active" data-view="dashboard">数据面板</button>
+            <button class="console-nav-item" data-view="customers">客户管理</button>
+            <button class="console-nav-item" data-view="reviews">评价管理</button>
+            <button class="console-nav-item" data-view="visualizer">效果图配置</button>
+          </nav>
+          <div class="console-side-foot"><span id="console-operator"></span><button class="console-logout" id="console-logout">退出登录</button></div>
+        </aside>
+        <div class="console-main">
+          <header class="console-top"><h2 id="console-view-title">数据面板</h2><div class="console-top-actions"><select id="console-range" class="console-range"><option value="24h">24 小时</option><option value="7d">7 天</option><option value="30d" selected>30 天</option><option value="90d">90 天</option><option value="all">全部</option></select><button class="btn btn-outline" id="console-refresh" type="button">刷新</button></div></header>
+          <div id="console-view" class="console-view"></div>
+        </div>
+      </div>
+    </section>
     <p class="eyebrow">Sponsored visualizer control</p>
     <h1>Route the real<br><em>image model.</em></h1>
     <p class="lede">Configure the server-side LingkeAI connection used by F-Box Visual Studio. The customer storefront never receives this key, the fitment prompt stays on the F-Box backend, and every preview remains free for the customer.</p>
@@ -88,6 +120,8 @@
     <div class="notice"><strong>!</strong><div><b>How this is used:</b> after this route is verified, the product page sends the vehicle photo and selected wheel reference to the F-Box backend. The backend makes three server-side <code>gpt-image-2</code> image-edit calls. If the route is not configured, the storefront shows an error and does not fabricate a pasted-wheel result.</div></div>
   </main>
   <footer>Fanghe Overseas Intelligent Technology Co., Ltd. · F-Box Visual Studio · local operator surface</footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script type="module" src="./console.js"></script>
   <script>
     const $ = selector => document.querySelector(selector);
     const message = (text, kind = '') => { const el = $('#message'); el.textContent = text; el.className = `message ${kind}`; };

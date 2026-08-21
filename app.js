@@ -188,6 +188,7 @@ const state = {
   localeMode: localStorage.getItem('fbox-locale') ? 'manual' : 'auto',
   localeCountry: '',
   mallToken: localStorage.getItem('fbox-mall-token') || '',
+  account: null,
   catalogLoaded: false,
   checkoutForm: JSON.parse(localStorage.getItem('fbox-checkout-form') || '{}'),
   lastOrder: null,
@@ -593,8 +594,29 @@ async function mallLogin(username, password) {
 
 async function mallRegister(values) {
   return mallRequest(mallConfig.portalBase, '/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-    username: String(values.username || ''), password: String(values.password || ''), telephone: String(values.telephone || ''), email: String(values.email || '')
+    username: String(values.username || ''), password: String(values.password || ''), telephone: String(values.telephone || ''), email: String(values.email || ''), company: String(values.company || '')
   }) });
+}
+
+async function loadAccountInfo() {
+  if (!state.mallToken) { state.account = null; return; }
+  try {
+    const payload = await mallRequest(mallConfig.portalBase, '/auth/info', { timeout: 7000 });
+    state.account = payload?.data?.member || payload?.member || null;
+  } catch {
+    // token expired or backend offline: drop the session so the UI falls back to sign-in
+    state.mallToken = '';
+    state.account = null;
+    localStorage.removeItem('fbox-mall-token');
+  }
+}
+
+async function mallLogout() {
+  try { await mallRequest(mallConfig.portalBase, '/auth/logout', { method: 'POST', timeout: 5000 }); } catch { /* best-effort */ }
+  state.mallToken = '';
+  state.account = null;
+  state.accountOrders = [];
+  localStorage.removeItem('fbox-mall-token');
 }
 
 async function syncMallWishlist() {
@@ -780,7 +802,7 @@ function header() {
       <a class="brand" href="#home" aria-label="F-Box home"><i class="brand-mark"></i><span>F-BOX</span></a>
       <form class="search-bar" data-form="search">${icons.search}<input name="query" value="${esc(state.search)}" placeholder="Search wheels, calipers, rotors, pads..." aria-label="Search products" /></form>
       <div class="header-actions">
-        <button class="header-action" data-action="account">${icons.user}<span>My Account</span></button>
+        <button class="header-action" data-action="account">${icons.user}<span>${state.account?.username ? esc(state.account.username) : 'My Account'}</span></button>
         <button class="header-action" data-action="cart">${icons.cart}<span>Cart</span><b class="cart-count">${cartCount()}</b></button>
         <label class="locale-control"><span>Language</span><select class="locale-select" data-locale aria-label="Language selection"><option value="auto" ${localeValue === 'auto' ? 'selected' : ''}>Auto · ${localeLabel(state.locale)}</option>${localeOptions.map(([code, label]) => `<option value="${code}" ${localeValue === code ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
         <button class="hamburger" data-action="mobile-nav" aria-label="Open navigation">${icons.menu}</button>
@@ -949,10 +971,13 @@ function renderReview(review, index = 0) {
   const meta = [
     review.verified_purchase ? '<span class="review-verified">✓ Verified purchase</span>' : '',
     review.customer_name ? '<span>' + esc(review.customer_name) + '</span>' : '',
+    review.customer_country ? '<span class="review-country">' + esc(review.customer_country) + '</span>' : '',
     review.vehicle ? '<span>' + esc(review.vehicle) + '</span>' : ''
   ].filter(Boolean).join('');
+  const photoBadge = Number(review.review_images_count || 0) > 0 ? '<span class="review-photo-badge">' + Number(review.review_images_count) + ' photo' + (Number(review.review_images_count) > 1 ? 's' : '') + ' shared</span>' : '';
+  const sourceBadge = review.source_platform ? '<span class="review-source">' + esc(review.source_platform) + '</span>' : '';
   const reply = review.admin_reply ? '<div class="review-reply"><strong>F-Box reply</strong><p>' + esc(review.admin_reply) + '</p></div>' : '';
-  return '<article class="review-item" style="animation-delay:' + String(index * 80) + 'ms"><div class="review-head"><div><strong>' + esc(review.title) + '</strong><div>' + stars(Number(review.rating || 0)) + '</div></div><small>' + esc(reviewDateLabel(review.created_at)) + '</small></div><p>' + esc(review.body) + '</p>' + reply + '<div class="review-meta">' + meta + '</div></article>';
+  return '<article class="review-item" style="animation-delay:' + String(index * 80) + 'ms"><div class="review-head"><div><strong>' + esc(review.title) + '</strong><div>' + stars(Number(review.rating || 0)) + sourceBadge + photoBadge + '</div></div><small>' + esc(reviewDateLabel(review.created_at)) + '</small></div><p>' + esc(review.body) + '</p>' + reply + '<div class="review-meta">' + meta + '</div></article>';
 }
 function renderProductReviewSection(item) {
   const productReviews = reviewsForProduct(item);
@@ -982,6 +1007,12 @@ function wireReviewForm() {
   if (!form || form.querySelector('[name="customer_name"]')) return;
   form.insertAdjacentHTML('afterbegin', '<div class="review-form-grid"><input class="text-input" name="customer_name" autocomplete="name" placeholder="Your name" required><input class="text-input" name="customer_email" type="email" autocomplete="email" placeholder="Email for review follow-up" required></div>');
   form.insertAdjacentHTML('beforeend', '<label class="review-consent"><input type="checkbox" name="consent" required> I confirm this is my own experience and allow F-Box to review it for publication.</label>');
+  form.querySelectorAll('.rating-star').forEach(button => {
+    button.addEventListener('click', () => {
+      form.querySelector('[name="rating"]').value = button.dataset.rating;
+      form.querySelectorAll('.rating-star').forEach(item => item.classList.toggle('is-active', Number(item.dataset.rating) <= Number(button.dataset.rating)));
+    });
+  });
 }
 function visualizerReferenceImages(item) {
   return productGallery(item);
@@ -1191,12 +1222,47 @@ function wheelVisualizerModal() {
   }
   return html;
 }
+// First-party analytics beacon: every page/product view and key CTA click is
+// reported to the F-Box backend so the owner can see where buyers come from.
+// Events are fire-and-forget; failures never affect the storefront.
+function trackEvent(type, payload = {}) {
+  try {
+    fetch('/api/fbox-content/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ type, locale: state.locale, ...payload }),
+      keepalive: true,
+      signal: AbortSignal.timeout(4000)
+    }).catch(() => {});
+  } catch { /* analytics must never break the page */ }
+}
+
+let lastTrackedPath = '';
+function trackPageView() {
+  const path = location.pathname + location.hash;
+  if (path === lastTrackedPath) return;
+  lastTrackedPath = path;
+  const productId = state.route?.name === 'product' ? state.route.id : '';
+  trackEvent(productId ? 'product_view' : 'page_view', {
+    path,
+    title: document.title,
+    referrer: document.referrer || '',
+    product_id: productId,
+    product_name: productId ? (product(productId)?.name || '') : ''
+  });
+}
+
 function modal() {
   if (!state.modal) return '';
+  if (state.modal.type === 'account-panel') {
+    const account = state.account || {};
+    return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>Hi, ${esc(account.username || 'builder')}.</h2><div class="account-panel"><p>${esc(account.email || '')}${account.company ? ' · ' + esc(account.company) : ''}${account.country ? ' · ' + esc(account.country) : ''}</p><div class="account-panel-actions"><button class="btn btn-outline" data-action="orders">Track my orders</button><button class="btn btn-dark" data-action="account-logout">Sign out</button></div></div></div></div>`;
+  }
+  if (!state.modal) return '';
   if (state.modal.type === 'quick') { const item = product(state.modal.id); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Quick view</p><h2>${item.name}</h2><div class="quick-product"><img src="${ASSET + item.image}" alt="${esc(item.name)}"><div><div class="product-brand">${item.brand} · ${item.category}</div><div>${stars(item.rating)} <span class="muted">${item.reviews} reviews</span></div><p>${item.meta}<br>${item.deal}</p><strong style="font-size:22px">${money(item.price)} <small class="muted">/ each</small></strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">Add to cart</button></div></div></div></div>`; }
-  if (state.modal.type === 'account') { const register = state.modal.mode === 'register'; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>${register ? 'Create your build account.' : 'Save your build.'}</h2><p>${register ? '注册后可以保存收藏、车辆、地址和订单。' : '登录后，购物车、收货地址、收藏和订单会进入 F-Box 自有后端。'}</p><form class="modal-form" data-form="account" data-mode="${register ? 'register' : 'login'}"><input class="text-input" name="username" placeholder="Username" required><input class="text-input" name="password" type="password" placeholder="Password" required>${register ? '<input class="text-input" name="telephone" placeholder="Phone number" required><input class="text-input" name="authCode" placeholder="Verification code" required>' : ''}<button class="btn btn-primary">${register ? 'Create account' : 'Sign in'}</button><button class="btn btn-outline" type="button" data-action="${register ? 'account-login' : 'account-register'}">${register ? 'I already have an account' : 'Create a new account'}</button></form></div></div>`; }
+  if (state.modal.type === 'account') { const register = state.modal.mode === 'register'; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>${register ? 'Create your build account.' : 'Save your build.'}</h2><p>${register ? 'Save fitment builds, wishlist, addresses and orders. Dealers: add your company so we can quote wholesale.' : 'Sign in to sync your cart, wishlist and orders with the F-Box service.'}</p><form class="modal-form" data-form="account" data-mode="${register ? 'register' : 'login'}"><input class="text-input" name="username" placeholder="Username" autocomplete="username" required><input class="text-input" name="password" type="password" placeholder="Password (6+ characters)" autocomplete="${register ? 'new-password' : 'current-password'}" minlength="6" required>${register ? '<input class="text-input" name="email" type="email" autocomplete="email" placeholder="Email (for quotes & order updates)" required><input class="text-input" name="telephone" autocomplete="tel" placeholder="Phone / WhatsApp (optional)"><input class="text-input" name="company" autocomplete="organization" placeholder="Company (dealers & distributors)">' : ''}<button class="btn btn-primary">${register ? 'Create account & sign in' : 'Sign in'}</button><button class="btn btn-outline" type="button" data-action="${register ? 'account-login' : 'account-register'}">${register ? 'I already have an account' : 'Create a new account'}</button></form></div></div>`; }
   if (state.modal.type === 'orders') return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>Track my orders.</h2><p>订单状态来自 F-Box 自有订单服务；发货后可在这里继续查看物流信息。</p>${state.accountOrdersLoading ? '<div class="loading-copy">正在读取订单…</div>' : state.accountOrders.length ? `<div class="account-order-list">${state.accountOrders.map(order => `<article class="account-order"><div><strong>${esc(order.orderSn || order.id || 'Order')}</strong><small>${esc(order.createTime || '')}</small></div><div><span>${esc(order.productName || order.receiverName || 'F-Box order')}</span><small>${esc(order.status === 0 ? '待付款' : order.status === 1 ? '待发货' : order.status === 2 ? '已发货' : order.status === 3 ? '已完成' : order.status === 4 ? '已关闭' : '处理中')}</small></div><strong>${money(order.payAmount || order.totalAmount || 0)}</strong></article>`).join('')}</div>` : '<div class="empty-state"><h3>暂无订单</h3><p>登录后创建的 F-Box 订单会出现在这里。</p></div>'}</div></div>`;
-  if (state.modal.type === 'review') return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Your experience</p><h2>Write a review.</h2><form class="modal-form" data-form="review"><input class="text-input" name="title" placeholder="Review title" required><textarea class="text-input" name="body" rows="5" placeholder="What did you install? How does it fit?" required></textarea><input class="text-input" name="vehicle" placeholder="Your vehicle"><button class="btn btn-primary">Submit review</button></form></div></div>`;
+  if (state.modal.type === 'review') return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Your experience</p><h2>Write a review.</h2><form class="modal-form" data-form="review"><div class="review-rating-input" role="radiogroup" aria-label="Rating"><input type="hidden" name="rating" value="5">${[5,4,3,2,1].map(n => `<button type="button" class="rating-star ${n === 5 ? 'is-active' : ''}" data-rating="${n}" aria-label="${n} stars">★</button>`).join('')}</div><input class="text-input" name="title" placeholder="Review title" required><textarea class="text-input" name="body" rows="5" placeholder="What did you install? How does it fit?" required></textarea><input class="text-input" name="vehicle" placeholder="Your vehicle (e.g. 2023 BMW M340i)"><button class="btn btn-primary">Submit review</button></form></div></div>`;
   if (state.modal.type === 'checkout') { const f = state.checkoutForm || {}; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Secure checkout</p><h2>创建 F-Box 订单</h2><div class="checkout-steps">${['客户信息', '收货信息', '创建订单'].map((label, i) => `<div class="checkout-step ${state.checkoutStep === i + 1 || state.checkoutStep === 3 ? 'is-active' : ''}">${i + 1}. ${label}</div>`).join('')}</div>${state.checkoutStep === 4 ? `<div class="success-box"><h3>订单已创建。</h3><p>订单号：${esc(state.lastOrder?.orderSn || state.lastOrder?.id || '已提交')}。你可以在后台“订单 > 订单列表”继续处理。</p><button class="btn btn-dark" data-action="close-modal">返回商城</button></div>` : `<form class="modal-form" data-form="checkout"><input class="text-input" name="name" value="${esc(f.name || '')}" required placeholder="Full name"><input class="text-input" name="phone" value="${esc(f.phone || '')}" required placeholder="Phone number"><input class="text-input" name="email" value="${esc(f.email || '')}" type="email" required placeholder="Email address"><input class="text-input" name="address" value="${esc(f.address || '')}" required placeholder="Street address"><div class="filter-row"><input class="text-input" name="city" value="${esc(f.city || '')}" required placeholder="City"><input class="text-input" name="province" value="${esc(f.province || '')}" placeholder="State / Province"></div><div class="filter-row"><input class="text-input" name="region" value="${esc(f.region || '')}" placeholder="Region"><input class="text-input" name="postCode" value="${esc(f.postCode || '')}" required placeholder="Postcode"></div><p class="filter-help">订单会先创建为“待付款”，支付由后台配置的支付渠道处理。</p><button class="btn btn-primary" data-submit-order>${state.checkoutStep === 3 ? '提交并创建订单' : '继续填写并创建订单'}</button></form>`}</div></div>`; }
   return '';
 }
@@ -1642,11 +1708,15 @@ document.addEventListener('click', async event => {
   const target = event.target.closest('[data-action], [data-category-link]');
   if (!target) return;
   const action = target.dataset.action;
+  if (['add', 'buy-now', 'checkout', 'chat', 'write-review', 'customize', 'quote'].includes(action)) {
+    trackEvent('click', { path: location.pathname + location.hash, title: action, meta: { action, product_id: target.dataset.id || '' } });
+  }
   if (target.dataset.categoryLink !== undefined) { state.filters.category = target.dataset.categoryLink || 'All'; state.menuOpen = false; go('#store'); return; }
   if (action === 'mega') { state.menuOpen = !state.menuOpen; render(); return; }
   if (action === 'mobile-nav') { state.mobileNav = !state.mobileNav; render(); return; }
   if (action === 'cart') { go('#cart'); return; }
-  if (action === 'account') { state.modal = { type: 'account', mode: 'login' }; render(); return; }
+  if (action === 'account') { state.modal = state.mallToken && state.account ? { type: 'account-panel' } : { type: 'account', mode: 'login' }; render(); return; }
+  if (action === 'account-logout') { await mallLogout(); state.modal = null; setToast('Signed out. Your local cart stays on this device.'); return; }
   if (action === 'account-register') { state.modal = { type: 'account', mode: 'register' }; render(); return; }
   if (action === 'account-login') { state.modal = { type: 'account', mode: 'login' }; render(); return; }
   if (action === 'orders') { if (!state.mallToken) { state.modal = { type: 'account', mode: 'login', afterLogin: 'orders' }; render(); } else { state.modal = { type: 'orders' }; loadMemberOrders(); } return; }
@@ -1829,14 +1899,29 @@ document.addEventListener('submit', async event => {
     const values = new FormData(form);
     try {
       if (form.dataset.mode === 'register') {
-        await mallRegister(Object.fromEntries(values.entries()));
-        state.modal = { type: 'account', mode: 'login' };
-        setToast('账户已创建，请登录 F-Box。');
+        const registered = await mallRegister(Object.fromEntries(values.entries()));
+        const registerToken = `${registered?.tokenHead || 'Bearer '}${registered?.token || ''}`.trim();
+        if (registerToken && registered?.token) {
+          state.mallToken = registerToken;
+          localStorage.setItem('fbox-mall-token', state.mallToken);
+          state.account = registered?.data?.member || registered?.member || null;
+          await syncMallCart();
+          await syncMallWishlist();
+          const next = state.modal?.afterLogin;
+          state.modal = next === 'checkout' ? { type: 'checkout' } : next === 'orders' ? { type: 'orders' } : null;
+          state.checkoutStep = next === 'checkout' ? 3 : state.checkoutStep;
+          if (next === 'orders') await loadMemberOrders();
+          setToast('Welcome to F-Box — your account is ready.');
+        } else {
+          state.modal = { type: 'account', mode: 'login' };
+          setToast('账户已创建，请登录 F-Box。');
+        }
         return;
       }
       const result = await mallLogin(values.get('username'), values.get('password'));
       state.mallToken = `${result?.tokenHead || 'Bearer '}${result?.token || ''}`.trim();
       if (state.mallToken) localStorage.setItem('fbox-mall-token', state.mallToken);
+      state.account = result?.data?.member || result?.member || null;
       const next = state.modal?.afterLogin;
       await syncMallCart();
       await syncMallWishlist();
@@ -1855,7 +1940,7 @@ document.addEventListener('submit', async event => {
       return;
     }
     try {
-      const reviewResponse = await fetch('/api/fbox-content/reviews', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ product_id: state.modal?.id || '', product_name: state.modal?.id ? product(state.modal.id).name : '', customer_name: values.get('customer_name'), customer_email: values.get('customer_email'), title: values.get('title'), body: values.get('body'), vehicle: values.get('vehicle'), rating: 5 }) });
+      const reviewResponse = await fetch('/api/fbox-content/reviews', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ product_id: state.modal?.id || '', product_name: state.modal?.id ? product(state.modal.id).name : '', customer_name: values.get('customer_name'), customer_email: values.get('customer_email'), title: values.get('title'), body: values.get('body'), vehicle: values.get('vehicle'), rating: Math.min(5, Math.max(1, Number(values.get('rating') || 5))) }) });
       const reviewPayload = await reviewResponse.json().catch(() => ({}));
       if (!reviewResponse.ok) throw new Error(reviewPayload.detail || 'Review could not be submitted.');
       state.modal = null;
@@ -1881,10 +1966,12 @@ document.addEventListener('keydown', event => {
   if (state.wheelVisualizer?.resultViewer?.open) { state.wheelVisualizer.resultViewer = null; render(); return; }
   if (state.wheelVisualizer?.open) wheelVisualizerClose();
 });
-window.addEventListener('hashchange', () => { state.menuOpen = false; state.mobileNav = false; state.modal = null; state.reviewLimit = 3; render(); window.scrollTo({ top: 0, behavior: 'instant' }); });
+window.addEventListener('hashchange', () => { state.menuOpen = false; state.mobileNav = false; state.modal = null; state.reviewLimit = 3; render(); window.scrollTo({ top: 0, behavior: 'instant' }); trackPageView(); });
 render();
 void captureReturnedPayPalPayment();
 detectLocaleByIp();
 checkMallBackend();
 loadMallCatalog();
 loadFBoxContent();
+void loadAccountInfo();
+trackPageView();
