@@ -564,7 +564,7 @@ function productPriceText(item) { return hasStartingPrice(item) ? 'From US' + mo
 function productMinimumQuantity(item) {
   const configured = Number(item?.minimum_quantity || 0);
   const fallback = item?.id === paypalCartButtonConfig.productId ? 4 : 1;
-  return Math.max(1, configured || fallback);
+  return Math.max(fallback, configured || 0);
 }
 function productMinimumOrderText(item) {
   const minimum = productMinimumQuantity(item);
@@ -1066,7 +1066,7 @@ async function checkMallBackend() {
   state.backend.checking = true;
   state.backend.portal = 'checking';
   state.backend.admin = 'checking';
-  render();
+  renderBackgroundUpdate();
   const [portal, admin] = await Promise.allSettled([
     fetch(`${mallConfig.portalBase}/products`, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) }),
     fetch('/api/fbox-content/vehicles', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
@@ -1075,6 +1075,16 @@ async function checkMallBackend() {
   state.backend.admin = admin.status === 'fulfilled' && admin.value.ok ? 'connected' : 'testing';
   state.backend.checked = true;
   state.backend.checking = false;
+  renderBackgroundUpdate();
+}
+
+function isPaymentProductPageMounted() {
+  return getRoute().name === 'product'
+    && Boolean(document.querySelector('[data-paypal-hosted-container], [data-paypal-cart-button]'));
+}
+
+function renderBackgroundUpdate() {
+  if (isPaymentProductPageMounted()) return;
   render();
 }
 
@@ -1122,7 +1132,7 @@ async function loadFBoxContent() {
     state.fitment.parts = Array.isArray(fitmentPayload.data) ? fitmentPayload.data : [];
     state.fitment.loaded = fitmentResponse.ok;
     products = applyProductReviewStats(products);
-    render();
+    renderBackgroundUpdate();
   } catch {
     // The storefront keeps its local vehicle fallback when the content API is offline.
   }
@@ -1155,6 +1165,7 @@ function formatWhatsAppNumber(value) {
 
 async function loadFBoxSettings() {
   try {
+    const previousLocale = state.locale;
     const response = await fetch('/api/fbox-content/settings', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.detail || 'Storefront settings unavailable');
@@ -1169,7 +1180,8 @@ async function loadFBoxSettings() {
     if (state.localeMode === 'auto' && browserLocale() === 'en' && localeOptions.some(([code]) => code === settings.default_locale)) {
       state.locale = settings.default_locale;
     }
-    render();
+    if (state.locale !== previousLocale) render();
+    else renderBackgroundUpdate();
   } catch {
     // The built-in contact value keeps the storefront usable while the API is unavailable.
   }
@@ -1356,12 +1368,12 @@ async function loadMallCatalog() {
     const merged = [...detailed, ...localCustomProductFallback.filter(local => !detailed.some(item => item.id === local.id))];
     products = applyProductReviewStats(merged);
     state.catalogLoaded = true;
-    render();
+    renderBackgroundUpdate();
     if (state.mallToken) await loadMallCart();
   } catch (error) {
     state.catalogLoaded = false;
     state.backend.portal = 'testing';
-    render();
+    renderBackgroundUpdate();
   }
 }
 
