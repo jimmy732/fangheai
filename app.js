@@ -77,7 +77,7 @@ let products = [
   { id: 'fbox-quiet-pad', category: 'Brake Pads', brand: 'F-Box Braking', name: 'Quiet Street Pads', meta: 'Low noise · low dust · front axle', price: 118, oldPrice: null, rating: 0, reviews: 0, finish: 'Ceramic', diameter: 0, image: '333cd3b0b1906049.jpg', badge: '', deal: 'Availability managed by F-Box', material: 'Ceramic', color: 'Ceramic', part: 'FBX-QSP-FR', weight: '3.7 lb' },
   { id: 'fbox-halo-20-spoke', category: 'Wheels', brand: 'F-Box', name: 'F-Box Halo 20-Spoke - Custom Hydraulic Forged Aluminum Alloy Step-Lip Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Satin Silver', diameter: null, image: 'halo-20-spoke-01.png', images: ['halo-20-spoke-01.png', 'halo-20-spoke-02.png', 'halo-20-spoke-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'Hydraulic Forged Aluminum Alloy', color: 'Satin Silver', part: 'FBX-HALO-20S', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
   { id: 'fbox-meridian-multi-spoke', category: 'Wheels', brand: 'F-Box', name: 'F-Box Meridian - Custom Hydraulic Forged Aluminum Alloy Precision Multi-Spoke Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Brushed Silver', diameter: null, image: 'meridian-multi-spoke-01.png', images: ['meridian-multi-spoke-01.png', 'meridian-multi-spoke-02.png', 'meridian-multi-spoke-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'Hydraulic Forged Aluminum Alloy', color: 'Brushed Silver', part: 'FBX-MERIDIAN-MS', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
-  { id: 'fbox-vanta-10', category: 'Wheels', brand: 'F-Box', name: 'F-Box Vanta 10 - Custom Hydraulic Forged Aluminum Alloy 10-Spoke Deep-Lip Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Polished Silver', diameter: null, image: 'vanta-10-01.png', images: ['vanta-10-01.png', 'vanta-10-02.png', 'vanta-10-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'Hydraulic Forged Aluminum Alloy', color: 'Polished Silver', part: 'FBX-VANTA-10', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
+  { id: 'fbox-vanta-10', category: 'Wheels', brand: 'F-Box', name: 'F-Box Vanta 10 - Custom Hydraulic Forged Aluminum Alloy 10-Spoke Deep-Lip Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Polished Silver', diameter: null, image: 'vanta-10-01.png', images: ['vanta-10-01.png', 'vanta-10-02.png', 'vanta-10-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'Hydraulic Forged Aluminum Alloy', color: 'Polished Silver', part: 'FBX-VANTA-10', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel', minimum_quantity: 4 },
   { id: 'fbox-apex-split-spoke', category: 'Wheels', brand: 'F-Box', name: 'F-Box Apex - Custom Hydraulic Forged Aluminum Alloy Split-Spoke Performance Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Satin Silver', diameter: null, image: 'apex-split-spoke-01.png', images: ['apex-split-spoke-01.png', 'apex-split-spoke-02.png', 'apex-split-spoke-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'Hydraulic Forged Aluminum Alloy', color: 'Satin Silver', part: 'FBX-APEX-SPLIT', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
   { id: 'fbox-sv100', category: 'Wheels', brand: 'F-Box', name: 'F-Box SV100 - Custom Forged Multi-Piece Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 290, oldPrice: null, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'sv100-01.png', images: ['sv100-01.png', 'sv100-02.png', 'sv100-03.png', 'sv100-04.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'Forged Aluminum - Multi-Piece', color: 'Custom finish', part: 'FBX-SV100', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
   { id: 'fbox-rse', category: 'Wheels', brand: 'F-Box', name: 'F-Box RSE - CustomSpec Forged Performance Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 310, oldPrice: null, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'rse-01.png', images: ['rse-01.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by F-Box', material: 'CustomSpec Forged Aluminum', color: 'Custom finish', part: 'FBX-RSE', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' }
@@ -113,6 +113,17 @@ const company = {
 const mallConfig = {
   portalBase: '/api/fbox-store',
   adminBase: '/api/fbox-ops'
+};
+
+const paypalHostedButtonConfig = {
+  productId: 'fbox-halo-20-spoke',
+  buttonId: 'H3B5HFVS2UW6Q'
+};
+
+const paypalCartButtonConfig = {
+  productId: 'fbox-vanta-10',
+  merchantId: '3VP6957R27FNQ',
+  buttonId: 'pp-view-cart'
 };
 
 const localeOptions = [
@@ -371,6 +382,36 @@ const traditionalizeFitmentText = value => value
   .replaceAll('够', '夠')
     .replaceAll('确认', '確認');
 Object.assign(localeDictionaries['zh-TW'], Object.fromEntries(Object.entries(fitmentChineseTranslations).map(([key, value]) => [key, traditionalizeFitmentText(value)])));
+Object.assign(localeDictionaries['zh-CN'], {
+  'PayPal checkout': 'PayPal 支付',
+  'Pay securely with PayPal.': '使用 PayPal 安全付款。',
+  'The PayPal button below uses the product and amount configured in your PayPal account.': '下面的 PayPal 按钮使用您 PayPal 账户中配置的商品和金额。',
+  'Custom diameter, width, PCD, ET, center bore and brake clearance are confirmed separately before production.': '定制直径、宽度、PCD、ET、中心孔以及刹车间隙会在生产前单独确认。',
+  'PayPal is temporarily unavailable. Please use the F-Box quote or WhatsApp for this build.': 'PayPal 暂时不可用，请使用 F-Box 报价或 WhatsApp 咨询这套方案。',
+  'Minimum order: 4 wheels.': '最低订购 4 只轮毂。',
+  'The starting price is per wheel.': '页面显示的起始价为单只轮毂价格。',
+  'Please update the quantity before checkout.': '请将数量调整到最低订购数量后再结算。',
+  'PayPal cart': 'PayPal 购物车',
+  'View your PayPal cart': '查看 PayPal 购物车',
+  'Review this build in your PayPal cart.': '在 PayPal 购物车中查看这套方案。',
+  'The PayPal cart keeps the four-wheel minimum order. Final custom fitment is confirmed before production.': 'PayPal 购物车按四只起订执行，定制适配参数会在生产前最终确认。',
+  'PayPal cart is temporarily unavailable. Please use the F-Box quote or WhatsApp for this build.': 'PayPal 购物车暂时不可用，请使用 F-Box 报价或 WhatsApp 咨询这套方案。'
+});
+Object.assign(localeDictionaries['zh-TW'], {
+  'PayPal checkout': 'PayPal 付款',
+  'Pay securely with PayPal.': '使用 PayPal 安全付款。',
+  'The PayPal button below uses the product and amount configured in your PayPal account.': '下方的 PayPal 按鈕使用您 PayPal 帳戶中設定的商品與金額。',
+  'Custom diameter, width, PCD, ET, center bore and brake clearance are confirmed separately before production.': '訂製直徑、寬度、PCD、ET、中心孔以及煞車間隙會在生產前另外確認。',
+  'PayPal is temporarily unavailable. Please use the F-Box quote or WhatsApp for this build.': 'PayPal 暫時無法使用，請改用 F-Box 報價或 WhatsApp 諮詢這套方案。',
+  'Minimum order: 4 wheels.': '最低訂購 4 只輪圈。',
+  'The starting price is per wheel.': '頁面顯示的起始價為單只輪圈價格。',
+  'Please update the quantity before checkout.': '請將數量調整到最低訂購數量後再結帳。',
+  'PayPal cart': 'PayPal 購物車',
+  'View your PayPal cart': '查看 PayPal 購物車',
+  'Review this build in your PayPal cart.': '在 PayPal 購物車中查看這套方案。',
+  'The PayPal cart keeps the four-wheel minimum order. Final custom fitment is confirmed before production.': 'PayPal 購物車按四只起訂執行，訂製適配參數會在生產前最終確認。',
+  'PayPal cart is temporarily unavailable. Please use the F-Box quote or WhatsApp for this build.': 'PayPal 購物車暫時無法使用，請改用 F-Box 報價或 WhatsApp 諮詢這套方案。'
+});
 
 function uiLabel(key, fallback = key) {
   return localeDictionaries[state.locale]?.[key] || fallback;
@@ -520,6 +561,23 @@ function productGallery(item) {
 }
 function hasStartingPrice(item) { return item?.price_mode === 'from'; }
 function productPriceText(item) { return hasStartingPrice(item) ? 'From US' + money(item.price) : money(item.price); }
+function productMinimumQuantity(item) {
+  const configured = Number(item?.minimum_quantity || 0);
+  const fallback = item?.id === paypalCartButtonConfig.productId ? 4 : 1;
+  return Math.max(1, configured || fallback);
+}
+function productMinimumOrderText(item) {
+  const minimum = productMinimumQuantity(item);
+  return minimum > 1 ? uiLabel(`Minimum order: ${minimum} wheels.`, `Minimum order: ${minimum} wheels.`) : '';
+}
+function productMinimumOrderSummary(item) {
+  const minimum = productMinimumQuantity(item);
+  if (minimum <= 1) return '';
+  const subtotal = money(Number(item?.price || 0) * minimum);
+  if (state.locale === 'zh-TW') return `最低起訂金額：${subtotal}，${minimum} 只輪圈。`;
+  if (String(state.locale || '').startsWith('zh')) return `最低起订金额：${subtotal}，${minimum} 只轮毂。`;
+  return `Minimum starting subtotal: ${subtotal} for ${minimum} wheels.`;
+}
 function product(id) { return products.find(item => item.id === id) || products[0]; }
 function homeWheelProducts() {
   const fallbackRank = ['fbox-rse', 'fbox-sv100', 'fbox-apex-split-spoke', 'fbox-vanta-10', 'fbox-meridian-multi-spoke', 'fbox-halo-20-spoke'];
@@ -556,6 +614,9 @@ function setToast(message) { state.toast = message; render(); window.clearTimeou
 function go(hash) { state.modal = null; location.hash = hash; }
 function cartCount() { return state.cart.reduce((sum, item) => sum + item.qty, 0); }
 function cartTotal() { return state.cart.reduce((sum, item) => sum + item.qty * product(item.id).price, 0); }
+function cartMinimumIssue() {
+  return state.cart.map(row => ({ row, item: product(row.id) })).find(({ row, item }) => row.qty < productMinimumQuantity(item)) || null;
+}
 function currentVehicleLabel() { return state.vehicle ? [state.vehicle.year, state.vehicle.make, state.vehicle.model, state.vehicle.trim].filter(Boolean).join(' ') : 'Select your vehicle'; }
 function currentVehicleRecord() {
   const selected = state.vehicle || {};
@@ -1309,7 +1370,7 @@ async function loadMallCart() {
   const remote = await mallRequest(mallConfig.portalBase, '/cart', { timeout: 7000 });
   const next = (Array.isArray(remote?.items) ? remote.items : Array.isArray(remote) ? remote : []).map(row => {
     const item = products.find(productItem => String(productItem.id) === String(row.product_id || row.productId || row.id));
-    return item ? { id: item.id, qty: Number(row.quantity || row.qty || 1), backendCartId: row.id } : null;
+    return item ? { id: item.id, qty: Math.max(productMinimumQuantity(item), Number(row.quantity || row.qty || 1)), backendCartId: row.id } : null;
   }).filter(Boolean);
   state.cart = next;
   persist();
@@ -1320,16 +1381,20 @@ async function syncMallCart() {
   for (const row of state.cart) {
     const item = product(row.id);
     if (!item) continue;
+    row.qty = Math.max(productMinimumQuantity(item), Number(row.qty || 1));
     await mallRequest(mallConfig.portalBase, '/cart/items', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ product_id: item.id, quantity: row.qty })
     });
   }
+  persist();
   await loadMallCart();
 }
 
 async function createMallOrder(values) {
+  const minimumIssue = cartMinimumIssue();
+  if (minimumIssue) throw new Error(`${productMinimumOrderText(minimumIssue.item)} Please update the quantity before checkout.`);
   await syncMallCart();
   const result = await mallRequest(mallConfig.portalBase, '/orders', {
     method: 'POST',
@@ -1819,17 +1884,98 @@ function wireHomeVisualizerBanner() {
   if (!stage) return;
   stage.outerHTML = customPreviewStage();
 }
+function paypalHostedButtonMarkup(item) {
+  if (item?.id !== paypalHostedButtonConfig.productId) return '';
+  const containerId = `paypal-container-${paypalHostedButtonConfig.buttonId}`;
+  const label = key => uiLabel(key, key);
+  return `<section class="paypal-hosted-panel" aria-labelledby="paypal-hosted-title"><div class="paypal-hosted-copy"><p class="eyebrow">${label('PayPal checkout')}</p><h2 id="paypal-hosted-title">${label('Pay securely with PayPal.')}</h2><p>${label('The PayPal button below uses the product and amount configured in your PayPal account.')}</p></div><div class="paypal-hosted-container" id="${containerId}" data-paypal-hosted-container></div><p class="paypal-hosted-note">${label('Custom diameter, width, PCD, ET, center bore and brake clearance are confirmed separately before production.')}</p></section>`;
+}
+function wirePayPalHostedButton() {
+  const container = document.querySelector('[data-paypal-hosted-container]');
+  if (!container || container.dataset.paypalRendered === 'true') return;
+  let attempts = 0;
+  const showFailure = () => {
+    if (!container.isConnected) return;
+    container.dataset.paypalRendered = 'failed';
+    container.innerHTML = `<p class="paypal-hosted-fallback">${uiLabel('PayPal is temporarily unavailable.', 'PayPal is temporarily unavailable. Please use the F-Box quote or WhatsApp for this build.')}</p>`;
+  };
+  const mount = () => {
+    if (!container.isConnected || container.dataset.paypalRendered === 'true') return;
+    if (!window.paypal?.HostedButtons) {
+      attempts += 1;
+      if (attempts < 24) window.setTimeout(mount, 250);
+      else showFailure();
+      return;
+    }
+    try {
+      container.dataset.paypalRendered = 'true';
+      const result = window.paypal.HostedButtons({ hostedButtonId: paypalHostedButtonConfig.buttonId }).render(`#${container.id}`);
+      Promise.resolve(result).catch(showFailure);
+    } catch {
+      showFailure();
+    }
+  };
+  mount();
+}
+function paypalCartButtonMarkup(item) {
+  if (item?.id !== paypalCartButtonConfig.productId) return '';
+  const label = key => uiLabel(key, key);
+  return `<section class="paypal-cart-panel" aria-labelledby="paypal-cart-title"><div class="paypal-hosted-copy"><p class="eyebrow">PayPal cart</p><h2 id="paypal-cart-title">${label('View your PayPal cart')}</h2><p>${label('Review this build in your PayPal cart.')}</p></div><div class="paypal-cart-button-wrap"><paypal-cart-button data-id="${paypalCartButtonConfig.buttonId}" data-paypal-cart-button></paypal-cart-button><p class="paypal-cart-fallback" data-paypal-cart-fallback hidden>${label('PayPal cart is temporarily unavailable. Please use the F-Box quote or WhatsApp for this build.')}</p></div><p class="paypal-hosted-note">${label('The PayPal cart keeps the four-wheel minimum order. Final custom fitment is confirmed before production.')}</p></section>`;
+}
+function wirePayPalCartButton() {
+  const button = document.querySelector('[data-paypal-cart-button]');
+  if (!button || button.dataset.paypalCartRendered === 'true') return;
+  let attempts = 0;
+  const showFailure = () => {
+    if (!button.isConnected) return;
+    button.dataset.paypalCartRendered = 'failed';
+    const fallback = button.parentElement?.querySelector('[data-paypal-cart-fallback]');
+    if (fallback) fallback.hidden = false;
+  };
+  const waitForContent = () => {
+    if (!button.isConnected || button.dataset.paypalCartRendered === 'true') return;
+    const content = `${button.innerText || ''}${button.shadowRoot?.textContent || ''}`.trim();
+    if (content) {
+      button.dataset.paypalCartRendered = 'true';
+      return;
+    }
+    attempts += 1;
+    if (attempts < 24) window.setTimeout(waitForContent, 250);
+    else showFailure();
+  };
+  const mount = () => {
+    if (!button.isConnected || button.dataset.paypalCartRendered === 'true') return;
+    if (typeof window.cartPaypal?.Cart !== 'function') {
+      attempts += 1;
+      if (attempts < 24) window.setTimeout(mount, 250);
+      else showFailure();
+      return;
+    }
+    try {
+      window.cartPaypal.Cart({ id: paypalCartButtonConfig.buttonId });
+      waitForContent();
+    } catch {
+      showFailure();
+    }
+  };
+  window.setTimeout(mount, state.catalogLoaded && state.backend.checked ? 250 : 1000);
+}
 function productPage(item) {
   const gallery = productGallery(item);
   const image = state.productImage[item.id] || gallery[0] || item.image;
   const related = products.filter(p => p.category === item.category && p.id !== item.id).slice(0, 4);
   const specs = [['Brand', item.brand], ['Model', item.name], ['Part number', item.part], ['Finish', item.color], ['Available sizes', productSizeNote(item)], ['Material', item.material], ['Weight', item.weight], ['Fitment', item.meta]];
-  return `<div class="detail-wrap"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><a href="#store">${item.category}</a><span>/</span><span>${item.name}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, i) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${item.id}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(item.name)} view ${i + 1}"></button>`).join('')}</div><div class="main-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(image)}" alt="${esc(item.name)} ${esc(item.finish)}"></div></div><div><div class="detail-kicker">${item.category} · ${item.brand}</div><h1 class="detail-title">${item.name}<br><span style="color:var(--lavender)">${productMetaText(item)}</span></h1><div class="detail-rating">${stars(item.rating)} <a href="#reviews">${item.rating} · ${item.reviews} ratings</a></div><div class="detail-price">${productPriceText(item)} <small>${hasStartingPrice(item) ? 'starting price / wheel' : 'each'}</small></div><div class="detail-set">${hasStartingPrice(item) ? 'Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.' : `${money(item.price * 4)} set of four · ${item.oldPrice ? `was ${money(item.oldPrice)} each` : 'build pricing available'}`}</div><div class="financing-note">Pay over time with F-Box financing. Starting at ${money(Math.max(18, Math.round(item.price / 12)))}/month with approved credit.</div><div class="detail-form"><div><label class="field-label">Check vehicle fitment</label>${vehicleSelector('detail')}</div><div><label class="field-label">Finish</label><div class="finish-options"><button class="finish-option is-active">${item.color}</button><button class="finish-option">Satin Black</button><button class="finish-option">Bronze Machined</button></div></div><div><label class="field-label">Delivery estimate</label><div class="ship-note">${icons.truck}<span>Free delivery to the lower 48 · Aug 19–Aug 21<br>Enter a postcode for an exact estimate.</span></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="add" data-id="${item.id}">Add to cart</button><button class="btn btn-dark" data-action="buy-now" data-id="${item.id}">Buy it now</button></div></div></div></div><div class="specs">${specs.map(([label, value]) => `<div class="spec"><span>${label}</span><strong>${esc(value)}</strong></div>`).join('')}</div><section class="detail-section" id="reviews"><div class="section-heading"><div><p class="eyebrow">Customer proof</p><h2>Product reviews</h2></div><button class="btn btn-outline" data-action="write-review">Write a review</button></div><div class="reviews-layout"><div class="review-score"><strong>${item.rating}</strong>${stars(item.rating)}<p>${item.reviews} reviews for this product</p><div class="review-bars"><div class="review-bar"><span>5★</span><i class="bar-track"><i style="width:94%"></i></i><span>94%</span></div><div class="review-bar"><span>4★</span><i class="bar-track"><i style="width:5%"></i></i><span>5%</span></div><div class="review-bar"><span>3★</span><i class="bar-track"><i style="width:1%"></i></i><span>1%</span></div></div></div><div class="review-list">${reviews.slice(0, state.reviewLimit).map(renderReview).join('')}${state.reviewLimit < reviews.length ? `<button class="btn btn-outline" data-action="load-reviews">Load more reviews</button>` : ''}</div></div></section><section class="detail-section"><div class="section-heading"><div><p class="eyebrow">Keep building</p><h2>Related ${item.category}</h2></div><a class="btn btn-dark" href="#store">Shop all</a></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section></div></div>`;
+  const minimumNote = productMinimumOrderText(item);
+  const startingPriceNote = hasStartingPrice(item) ? [uiLabel('The starting price is per wheel.', 'The starting price is per wheel.'), minimumNote, productMinimumOrderSummary(item)].filter(Boolean).join(' ') : '';
+  return `<div class="detail-wrap"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><a href="#store">${item.category}</a><span>/</span><span>${item.name}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, i) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${item.id}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(item.name)} view ${i + 1}"></button>`).join('')}</div><div class="main-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(image)}" alt="${esc(item.name)} ${esc(item.finish)}"></div></div><div><div class="detail-kicker">${item.category} · ${item.brand}</div><h1 class="detail-title">${item.name}<br><span style="color:var(--lavender)">${productMetaText(item)}</span></h1><div class="detail-rating">${stars(item.rating)} <a href="#reviews">${item.rating} · ${item.reviews} ratings</a></div><div class="detail-price">${productPriceText(item)} <small>${hasStartingPrice(item) ? 'starting price / wheel' : 'each'}</small></div><div class="detail-set">${hasStartingPrice(item) ? `Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.${startingPriceNote ? `<br><strong class="minimum-order-note">${startingPriceNote}</strong>` : ''}` : `${money(item.price * 4)} set of four · ${item.oldPrice ? `was ${money(item.oldPrice)} each` : 'build pricing available'}`}</div><div class="financing-note">Pay over time with F-Box financing. Starting at ${money(Math.max(18, Math.round(item.price / 12)))}/month with approved credit.</div><div class="detail-form"><div><label class="field-label">Check vehicle fitment</label>${vehicleSelector('detail')}</div><div><label class="field-label">Finish</label><div class="finish-options"><button class="finish-option is-active">${item.color}</button><button class="finish-option">Satin Black</button><button class="finish-option">Bronze Machined</button></div></div><div><label class="field-label">Delivery estimate</label><div class="ship-note">${icons.truck}<span>Free delivery to the lower 48 · Aug 19–Aug 21<br>Enter a postcode for an exact estimate.</span></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="add" data-id="${item.id}">Add to cart</button><button class="btn btn-dark" data-action="buy-now" data-id="${item.id}">Buy it now</button></div></div>${paypalHostedButtonMarkup(item)}${paypalCartButtonMarkup(item)}</div></div><div class="specs">${specs.map(([label, value]) => `<div class="spec"><span>${label}</span><strong>${esc(value)}</strong></div>`).join('')}</div><section class="detail-section" id="reviews"><div class="section-heading"><div><p class="eyebrow">Customer proof</p><h2>Product reviews</h2></div><button class="btn btn-outline" data-action="write-review">Write a review</button></div><div class="reviews-layout"><div class="review-score"><strong>${item.rating}</strong>${stars(item.rating)}<p>${item.reviews} reviews for this product</p><div class="review-bars"><div class="review-bar"><span>5★</span><i class="bar-track"><i style="width:94%"></i></i><span>94%</span></div><div class="review-bar"><span>4★</span><i class="bar-track"><i style="width:5%"></i></i><span>5%</span></div><div class="review-bar"><span>3★</span><i class="bar-track"><i style="width:1%"></i></i><span>1%</span></div></div></div><div class="review-list">${reviews.slice(0, state.reviewLimit).map(renderReview).join('')}${state.reviewLimit < reviews.length ? `<button class="btn btn-outline" data-action="load-reviews">Load more reviews</button>` : ''}</div></div></section><section class="detail-section"><div class="section-heading"><div><p class="eyebrow">Keep building</p><h2>Related ${item.category}</h2></div><a class="btn btn-dark" href="#store">Shop all</a></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section></div></div>`;
 }
 
 function cartPage() {
   const total = cartTotal();
-  return `<section class="cart-page"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>Shopping cart</span></div><div class="section-heading"><div><p class="eyebrow">Your saved build</p><h1 class="detail-title">Shopping cart</h1></div><a class="btn btn-outline" href="#store">Continue shopping</a></div>${state.cart.length ? `<div class="cart-layout"><div class="cart-list">${state.cart.map(item => { const p = product(item.id); return `<div class="cart-item"><img class="${p.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(p.image)}" alt="${esc(p.name)}"><div><h3>${p.name}</h3><p>${p.category} · ${p.meta}</p><button class="btn btn-outline btn-small" data-action="remove-cart" data-id="${p.id}" style="margin-top:10px">Remove</button></div><div class="qty-control"><button data-action="qty" data-id="${p.id}" data-delta="-1">−</button><span>${item.qty}</span><button data-action="qty" data-id="${p.id}" data-delta="1">+</button></div><div class="cart-price">${money(p.price * item.qty)}</div></div>`; }).join('')}</div><aside class="summary-card"><h2>Order summary</h2><div class="summary-row"><span>Parts subtotal</span><strong>${money(total)}</strong></div><div class="summary-row"><span>Estimated delivery</span><strong>Calculated at checkout</strong></div><div class="summary-row"><span>Fitment review</span><strong style="color:var(--success)">Included</strong></div><div class="coupon"><input class="text-input" placeholder="Promo code"><button class="btn btn-outline btn-small" data-action="apply-coupon">Apply</button></div><div class="summary-row total"><span>Total</span><strong>${money(total)}</strong></div><button class="btn btn-primary" data-action="checkout" style="width:100%;margin-top:12px">Continue to checkout</button><p class="filter-help">Orders are created in the F-Box backend. Payment remains a separate PayPal step.</p></aside></div>` : `<div class="empty-cart"><h2>Your cart is ready for a build.</h2><p class="muted">Add wheels, calipers, rotors or pads and we will keep the fitment context attached.</p><a class="btn btn-primary" href="#store">Start shopping</a></div>`}</div></section>`;
+  const minimumIssue = cartMinimumIssue();
+  const minimumNotice = minimumIssue ? `<p class="cart-minimum-warning">${esc(productMinimumOrderText(minimumIssue.item))} ${uiLabel('Please update the quantity before checkout.', 'Please update the quantity before checkout.')}</p>` : '';
+  const checkoutDisabled = minimumIssue ? ' disabled aria-disabled="true"' : '';
+  return `<section class="cart-page"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>Shopping cart</span></div><div class="section-heading"><div><p class="eyebrow">Your saved build</p><h1 class="detail-title">Shopping cart</h1></div><a class="btn btn-outline" href="#store">Continue shopping</a></div>${state.cart.length ? `<div class="cart-layout"><div class="cart-list">${state.cart.map(item => { const p = product(item.id); const minimumText = productMinimumOrderText(p); return `<div class="cart-item"><img class="${p.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(p.image)}" alt="${esc(p.name)}"><div><h3>${p.name}</h3><p>${p.category} · ${p.meta}</p>${minimumText ? `<small class="cart-minimum-note">${esc(minimumText)}</small>` : ''}<button class="btn btn-outline btn-small" data-action="remove-cart" data-id="${p.id}" style="margin-top:10px">Remove</button></div><div class="qty-control"><button data-action="qty" data-id="${p.id}" data-delta="-1">−</button><span>${item.qty}</span><button data-action="qty" data-id="${p.id}" data-delta="1">+</button></div><div class="cart-price">${money(p.price * item.qty)}</div></div>`; }).join('')}</div><aside class="summary-card"><h2>Order summary</h2><div class="summary-row"><span>Parts subtotal</span><strong>${money(total)}</strong></div><div class="summary-row"><span>Estimated delivery</span><strong>Calculated at checkout</strong></div><div class="summary-row"><span>Fitment review</span><strong style="color:var(--success)">Included</strong></div><div class="coupon"><input class="text-input" placeholder="Promo code"><button class="btn btn-outline btn-small" data-action="apply-coupon">Apply</button></div><div class="summary-row total"><span>Total</span><strong>${money(total)}</strong></div>${minimumNotice}<button class="btn btn-primary" data-action="checkout"${checkoutDisabled} style="width:100%;margin-top:12px">Continue to checkout</button><p class="filter-help">Orders are created in the F-Box backend. Payment remains a separate PayPal step.</p></aside></div>` : `<div class="empty-cart"><h2>Your cart is ready for a build.</h2><p class="muted">Add wheels, calipers, rotors or pads and we will keep the fitment context attached.</p><a class="btn btn-primary" href="#store">Start shopping</a></div>`}</div></section>`;
 }
 
 function legacyWheelVisualizerResultCard(result, index, item, mode) {
@@ -2349,7 +2495,17 @@ function wireStartingPrices() {
       price.replaceChildren(document.createTextNode(productPriceText(item) + ' '), note);
     }
     const set = document.querySelector('.detail-set');
-    if (set) set.textContent = 'Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.';
+    if (set) {
+      const minimumNote = [uiLabel('The starting price is per wheel.', 'The starting price is per wheel.'), productMinimumOrderText(item), productMinimumOrderSummary(item)].filter(Boolean).join(' ');
+      set.replaceChildren(document.createTextNode('Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.'));
+      if (minimumNote) {
+        set.append(document.createElement('br'));
+        const strong = document.createElement('strong');
+        strong.className = 'minimum-order-note';
+        strong.textContent = minimumNote;
+        set.append(strong);
+      }
+    }
     const financing = document.querySelector('.financing-note');
     if (financing) financing.textContent = 'Made to order. Start the visual fitment preview or send an inquiry to receive your exact USD quote.';
     const actions = document.querySelector('.detail-actions');
@@ -2385,7 +2541,11 @@ function render() {
   const pageWithReviews = state.route.name === 'home' ? page.replace(/<section class="section" id="resources">[\s\S]*?<\/section>/, homeReviewSection()) : page;
   const pageWithPhotoReviews = state.route.name === 'home' ? pageWithReviews.replace(/<section class="section" id="gallery">[\s\S]*?<\/section>/, homePhotoReviewGallery()) : pageWithReviews;
   const pageWithJournal = state.route.name === 'home' ? `${pageWithPhotoReviews}${blogHomeSection()}` : pageWithPhotoReviews;
-  document.querySelector('#app').innerHTML = `${header()}${pageWithJournal}${footer()}${chat()}${whatsappFab()}${state.cookie ? '<div class="cookie-banner"><span>By using F-Box, you agree to our cookie policy and fitment analytics.</span><button data-action="dismiss-cookie">Dismiss</button></div>' : ''}${modal()}${wheelVisualizerModal()}${wheelVisualizerImageViewer()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
+  const appRoot = document.querySelector('#app');
+  const existingHostedContainer = appRoot.querySelector('[data-paypal-hosted-container]');
+  appRoot.innerHTML = `${header()}${pageWithJournal}${footer()}${chat()}${whatsappFab()}${state.cookie ? '<div class="cookie-banner"><span>By using F-Box, you agree to our cookie policy and fitment analytics.</span><button data-action="dismiss-cookie">Dismiss</button></div>' : ''}${modal()}${wheelVisualizerModal()}${wheelVisualizerImageViewer()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
+  const nextHostedContainer = appRoot.querySelector('[data-paypal-hosted-container]');
+  if (existingHostedContainer && nextHostedContainer) nextHostedContainer.replaceWith(existingHostedContainer);
   wireProductGallery();
   wireStartingPrices();
   wireProductReviews();
@@ -2393,6 +2553,8 @@ function render() {
   wireWheelVisualizerEntry();
   wireWheelInquiryDetails();
   wireHomeVisualizerBanner();
+  wirePayPalHostedButton();
+  wirePayPalCartButton();
   wireHomeWheelCarousel();
   applyTranslations();
   translatePageFull();
@@ -2486,16 +2648,17 @@ async function addToCart(id) {
     go('#product/' + item.id);
     return;
   }
+  const minimum = productMinimumQuantity(item);
   const existing = state.cart.find(row => row.id === id);
-  if (existing) existing.qty += 1;
-  else state.cart.push({ id, qty: 1 });
+  if (existing) existing.qty = Math.max(minimum, existing.qty + 1);
+  else state.cart.push({ id, qty: minimum });
   persist();
   if (state.mallToken && item) {
     try {
       await mallRequest(mallConfig.portalBase, '/cart/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_id: item.id, quantity: 1 })
+        body: JSON.stringify({ product_id: item.id, quantity: minimum })
       });
       await loadMallCart();
     } catch (error) {
@@ -2677,9 +2840,9 @@ document.addEventListener('click', async event => {
   if (action === 'ai-filter') { const input = document.querySelector('.ai-query input'); state.search = input?.value || ''; render(); return; }
   if (action === 'save-zip') { setToast('Delivery estimate saved for this session.'); return; }
   if (action === 'remove-cart') { const item = state.cart.find(row => row.id === target.dataset.id); state.cart = state.cart.filter(row => row.id !== target.dataset.id); persist(); if (state.mallToken && item) { await mallRequest(mallConfig.portalBase, `/cart/items/${encodeURIComponent(item.id)}`, { method: 'DELETE' }).catch(() => {}); } render(); return; }
-  if (action === 'qty') { const item = state.cart.find(x => x.id === target.dataset.id); if (item) item.qty = Math.max(0, item.qty + Number(target.dataset.delta)); state.cart = state.cart.filter(x => x.qty > 0); persist(); if (state.mallToken && item && item.qty > 0) await mallRequest(mallConfig.portalBase, `/cart/items/${encodeURIComponent(item.id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quantity: item.qty }) }).catch(() => {}); render(); return; }
+  if (action === 'qty') { const item = state.cart.find(x => x.id === target.dataset.id); if (item) { const productItem = product(item.id); item.qty = Math.max(productMinimumQuantity(productItem), item.qty + Number(target.dataset.delta)); } state.cart = state.cart.filter(x => x.qty > 0); persist(); if (state.mallToken && item && item.qty > 0) await mallRequest(mallConfig.portalBase, `/cart/items/${encodeURIComponent(item.id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quantity: item.qty }) }).catch(() => {}); render(); return; }
   if (action === 'apply-coupon') { setToast(state.mallToken ? '优惠码将在 F-Box 结算规则中校验；当前订单按商品美元售价创建。' : '请先登录 F-Box 账户，再选择可用优惠。'); return; }
-  if (action === 'checkout') { if (!state.cart.length) { setToast('Your cart is empty.'); return; } state.modal = state.mallToken ? { type: 'checkout' } : { type: 'account', afterLogin: 'checkout' }; state.checkoutStep = state.mallToken ? 3 : 1; render(); return; }
+  if (action === 'checkout') { if (!state.cart.length) { setToast('Your cart is empty.'); return; } const minimumIssue = cartMinimumIssue(); if (minimumIssue) { setToast(`${productMinimumOrderText(minimumIssue.item)} ${uiLabel('Please update the quantity before checkout.', 'Please update the quantity before checkout.')}`); return; } state.modal = state.mallToken ? { type: 'checkout' } : { type: 'account', afterLogin: 'checkout' }; state.checkoutStep = state.mallToken ? 3 : 1; render(); return; }
   if (action === 'load-reviews') { state.reviewLimit = reviews.length; render(); return; }
   if (action === 'write-review') { state.modal = { type: 'review', id: state.route.name === 'product' ? state.route.id : '' }; render(); return; }
 });
@@ -2868,6 +3031,11 @@ document.addEventListener('submit', async event => {
     } catch (error) { setToast(error?.message || '评价提交失败，请稍后再试。'); }
   }
   if (form.dataset.form === 'checkout') {
+    const minimumIssue = cartMinimumIssue();
+    if (minimumIssue) {
+      setToast(`${productMinimumOrderText(minimumIssue.item)} ${uiLabel('Please update the quantity before checkout.', 'Please update the quantity before checkout.')}`);
+      return;
+    }
     state.checkoutForm = Object.fromEntries(new FormData(form).entries());
     localStorage.setItem('fbox-checkout-form', JSON.stringify(state.checkoutForm));
     try {

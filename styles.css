@@ -264,6 +264,19 @@ img { display: block; max-width: 100%; }
 .detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
 .detail-actions:has(> :nth-child(3)) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .detail-actions .btn { min-height: 52px; }
+.paypal-hosted-panel { display: grid; gap: 12px; margin-top: 18px; padding: 16px; border: 1px solid #dce5ef; border-radius: 9px; background: #f8fafc; }
+.paypal-hosted-copy h2 { margin: 0; font-size: 19px; }
+.paypal-hosted-copy p:last-child { margin: 6px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.paypal-hosted-container { min-height: 46px; width: 100%; }
+.paypal-hosted-fallback, .paypal-hosted-note { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
+.paypal-hosted-fallback { padding: 10px; border: 1px dashed #cbd5e1; border-radius: 7px; background: #fff; }
+.paypal-cart-panel { display: grid; gap: 12px; margin-top: 18px; padding: 16px; border: 1px solid #dce5ef; border-radius: 9px; background: #f8fafc; }
+.paypal-cart-button-wrap { min-height: 46px; width: 100%; }
+paypal-cart-button { display: block; min-height: 46px; width: 100%; }
+.paypal-cart-fallback { margin: 0; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 7px; background: #fff; color: var(--muted); font-size: 10px; line-height: 1.45; }
+.minimum-order-note { display: inline-block; margin-top: 5px; color: var(--ink); font-size: 11px; }
+.cart-minimum-note { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+.cart-minimum-warning { margin: 12px 0 0; padding: 10px; border: 1px solid #f0c36a; border-radius: 7px; background: #fff8e6; color: #8b5a00; font-size: 11px; line-height: 1.45; }
 .ship-note { display: flex; gap: 9px; align-items: flex-start; padding: 13px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); font-size: 11px; line-height: 1.5; }
 .ship-note svg { flex: 0 0 auto; width: 18px; color: var(--success); }
 .specs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; margin-top: 38px; border: 1px solid var(--line); background: var(--line); }
