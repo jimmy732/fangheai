@@ -378,11 +378,19 @@ function uiLabel(key, fallback = key) {
 
 function localeLabel(code) { return localeOptions.find(([value]) => value === code)?.[1] || 'English'; }
 function browserLocale() {
-  const raw = String(navigator.language || 'en').toLowerCase();
-  if (raw.startsWith('zh-tw') || raw.startsWith('zh-hk') || raw.startsWith('zh-mo')) return 'zh-TW';
-  if (raw.startsWith('zh')) return 'zh-CN';
-  const exact = localeOptions.find(([value]) => raw === value.toLowerCase() || raw.startsWith(`${value.toLowerCase()}-`));
-  return exact?.[0] || 'en';
+  const candidates = [
+    ...(Array.isArray(navigator.languages) ? navigator.languages : []),
+    navigator.language,
+    typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().locale : ''
+  ].filter(Boolean);
+  for (const candidate of [...new Set(candidates)]) {
+    const raw = String(candidate).toLowerCase();
+    if (raw.startsWith('zh-tw') || raw.startsWith('zh-hk') || raw.startsWith('zh-mo')) return 'zh-TW';
+    if (raw.startsWith('zh')) return 'zh-CN';
+    const exact = localeOptions.find(([value]) => raw === value.toLowerCase() || raw.startsWith(`${value.toLowerCase()}-`));
+    if (exact) return exact[0];
+  }
+  return 'en';
 }
 function countryLocale(countryCode = '') {
   const code = countryCode.toUpperCase();
@@ -406,7 +414,23 @@ function countryLocale(countryCode = '') {
   if (code === 'NL') return 'nl';
   return 'en';
 }
-function initialLocale() { return localStorage.getItem('fbox-locale') || browserLocale() || 'en'; }
+function storedLocaleIsValid() {
+  const stored = localStorage.getItem('fbox-locale');
+  return Boolean(stored && localeOptions.some(([code]) => code === stored));
+}
+function initialLocale() {
+  const stored = localStorage.getItem('fbox-locale');
+  const storedMode = localStorage.getItem('fbox-locale-mode');
+  if (storedMode === 'manual' && storedLocaleIsValid()) return stored;
+  if (stored) {
+    // Older builds used fbox-locale without recording whether it was manual.
+    // Treat that legacy value as stale so mobile auto-detection can take over.
+    localStorage.removeItem('fbox-locale');
+    localStorage.removeItem('fbox-locale-mode');
+  }
+  return browserLocale() || 'en';
+}
+function initialLocaleMode() { return localStorage.getItem('fbox-locale-mode') === 'manual' && storedLocaleIsValid() ? 'manual' : 'auto'; }
 
 const blogFallbackPosts = [
   { id: 'blog-fitment-before-finish', slug: 'fitment-before-finish-custom-wheel-buying-guide', title: 'Fitment Before Finish: A Better Way to Buy Custom Wheels', excerpt: 'The finish gets the attention, but diameter, width, PCD, center bore, offset and brake clearance decide whether the build works.', category: 'Fitment', cover_image: 'halo-20-spoke-01.png', author: 'F-Box Engineering', read_time: '6 min read', featured: true, published_at: '2026-08-18T09:00:00.000Z', tags: ['fitment', 'custom wheels'] },
@@ -436,7 +460,7 @@ const state = {
   reviewLimit: 3,
   checkoutStep: 1,
   locale: initialLocale(),
-  localeMode: localStorage.getItem('fbox-locale') ? 'manual' : 'auto',
+  localeMode: initialLocaleMode(),
   localeCountry: '',
   mallToken: localStorage.getItem('fbox-mall-token') || '',
   account: null,
@@ -2666,6 +2690,7 @@ document.addEventListener('change', event => {
   if (el.matches('[data-locale]')) {
     if (el.value === 'auto') {
       localStorage.removeItem('fbox-locale');
+      localStorage.removeItem('fbox-locale-mode');
       state.localeMode = 'auto';
       state.locale = browserLocale() || 'en';
       render();
@@ -2674,6 +2699,7 @@ document.addEventListener('change', event => {
       state.localeMode = 'manual';
       state.locale = localeOptions.some(([code]) => code === el.value) ? el.value : 'en';
       localStorage.setItem('fbox-locale', state.locale);
+      localStorage.setItem('fbox-locale-mode', 'manual');
       render();
     }
     return;
@@ -2861,6 +2887,14 @@ document.addEventListener('keydown', event => {
   if (state.wheelVisualizer?.open) wheelVisualizerClose();
 });
 window.addEventListener('hashchange', () => { state.menuOpen = false; state.mobileNav = false; state.modal = null; state.reviewLimit = 3; render(); window.scrollTo({ top: 0, behavior: 'instant' }); trackPageView(); });
+window.addEventListener('languagechange', () => {
+  if (state.localeMode !== 'auto') return;
+  const nextLocale = browserLocale();
+  if (nextLocale !== state.locale) {
+    state.locale = nextLocale;
+    render();
+  }
+});
 render();
 void captureReturnedPayPalPayment();
 detectLocaleByIp();
