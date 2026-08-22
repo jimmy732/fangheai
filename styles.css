@@ -100,10 +100,10 @@ img { display: block; max-width: 100%; }
 .hero h1 { margin: 0; max-width: 850px; font-family: 'Barlow Condensed', sans-serif; font-size: clamp(72px, 11vw, 154px); font-weight: 800; line-height: .8; letter-spacing: -.06em; text-transform: uppercase; }
 .hero h1 em { display: block; color: var(--lime); font-family: 'Barlow Condensed', sans-serif; font-size: .72em; font-style: normal; letter-spacing: -.045em; }
 .hero-sub { max-width: 430px; margin: 28px 0 34px; color: rgba(255,255,255,.72); font-size: 15px; line-height: 1.7; }
-.fitment-card { display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: 8px; max-width: 940px; padding: 10px; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; background: rgba(255,255,255,.1); backdrop-filter: blur(14px); }
-.fitment-card .fitment-selects { display: contents; }
+.fitment-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; max-width: 940px; min-width: 0; padding: 10px; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; background: rgba(255,255,255,.1); backdrop-filter: blur(14px); }
+.fitment-card .fitment-selects { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-width: 0; }
 .fitment-selects { display: grid; gap: 8px; }
-.fitment-select { min-height: 50px; padding: 0 12px; border: 0; border-radius: 7px; outline: 0; background: rgba(255,255,255,.92); color: var(--ink); font-size: 12px; text-transform: uppercase; }
+.fitment-select { min-height: 50px; min-width: 0; width: 100%; overflow: hidden; padding: 0 12px; border: 0; border-radius: 7px; outline: 0; background: rgba(255,255,255,.92); color: var(--ink); font-size: 12px; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
 .fitment-select:disabled { color: #a9b0b8; background: rgba(255,255,255,.65); }
 .fitment-source-note { grid-column: 1 / -1; color: rgba(255,255,255,.62); font-size: 10px; letter-spacing: .03em; }
 .filter-rail .fitment-source-note { color: var(--muted); }
@@ -412,8 +412,9 @@ img { display: block; max-width: 100%; }
   .guide-grid { grid-template-columns: repeat(3, 1fr); }
   .category-grid { grid-template-columns: repeat(4, 1fr); }
   .product-grid { grid-template-columns: repeat(3, 1fr); }
-  .fitment-card { grid-template-columns: repeat(3, 1fr); }
-  .fitment-card .btn { grid-column: span 3; }
+  .fitment-card { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .fitment-card .fitment-selects { grid-column: 1 / -1; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .fitment-card .btn { grid-column: 1 / -1; width: 100%; }
   .brand-feature { grid-template-columns: 1fr; }
 }
 @media (max-width: 900px) {
@@ -447,8 +448,9 @@ img { display: block; max-width: 100%; }
   .hero::after { right: -180px; bottom: 16px; width: 360px; height: 360px; }
   .hero h1 { font-size: clamp(64px, 21vw, 102px); }
   .hero-sub { font-size: 13px; }
-  .fitment-card { grid-template-columns: 1fr 1fr; }
-  .fitment-card .btn { grid-column: span 2; }
+  .fitment-card { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fitment-card .fitment-selects { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fitment-card .btn { grid-column: 1 / -1; width: 100%; }
   .fitment-products { grid-template-columns: repeat(2, 1fr); }
   .fitment-preview-foot { align-items: stretch; flex-direction: column; }
   .trust-strip { grid-template-columns: repeat(2, 1fr); }
@@ -504,10 +506,16 @@ img { display: block; max-width: 100%; }
   .quick-product img { width: 100px; height: 100px; }
 }
 @media (max-width: 430px) {
+  .header-main { grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+  .header-actions { min-width: 0; gap: 0; }
+  .header-action { padding-right: 4px; padding-left: 4px; }
+  .locale-control { min-width: 0; }
+  .locale-select { width: 96px; max-width: 96px; padding-right: 5px; padding-left: 5px; font-size: 10px; }
   .brand { font-size: 20px; }
   .hero h1 { font-size: 70px; }
   .fitment-card { grid-template-columns: 1fr; }
-  .fitment-card .btn { grid-column: auto; }
+  .fitment-card .fitment-selects { grid-template-columns: 1fr; }
+  .fitment-card .btn { grid-column: auto; width: 100%; }
   .fitment-products { grid-template-columns: 1fr; }
   .fitment-match-banner { align-items: stretch; flex-direction: column; }
   .product-grid { grid-template-columns: 1fr 1fr; }
@@ -516,6 +524,16 @@ img { display: block; max-width: 100%; }
   .product-actions { gap: 4px; }
   .detail-title { font-size: 51px; }
   .footer-grid { gap: 18px; }
+}
+@media (max-width: 350px) {
+  .brand { gap: 7px; font-size: 18px; }
+  .brand-mark { width: 24px; height: 24px; }
+  .header-action svg { width: 16px; }
+  .locale-select { width: 82px; max-width: 82px; }
+  .hamburger { width: 36px; height: 36px; }
+  .trust-strip { grid-template-columns: 1fr; }
+  .trust-item { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trust-item:last-child { border-bottom: 0; }
 }
 
 /* Custom wheel studio home layer — the existing catalog, product cards and checkout remain unchanged. */
@@ -622,10 +640,10 @@ img { display: block; max-width: 100%; }
 .custom-card-top .eyebrow { margin-bottom: 6px; }
 .custom-card-top h3 { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 33px; line-height: .9; text-transform: uppercase; }
 .custom-vehicle-card > p { max-width: 650px; margin: 22px 0 23px; color: var(--muted); font-size: 13px; line-height: 1.7; }
-.custom-fitment-card { grid-template-columns: repeat(5, 1fr) auto; max-width: none; border-color: #dfe4e8; background: #f2f5f7; }
+.custom-fitment-card { grid-template-columns: minmax(0, 1fr) auto; max-width: none; border-color: #dfe4e8; background: #f2f5f7; }
 .custom-fitment-card .fitment-select { background: #fff; }
-.custom-fitment-card .fitment-selects { display: contents; }
-.custom-fitment-card .btn { white-space: nowrap; }
+.custom-fitment-card .fitment-selects { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-width: 0; }
+.custom-fitment-card .btn { min-width: 0; max-width: 100%; white-space: nowrap; }
 .custom-fitment-card + .fitment-preview { margin-top: 12px; border-color: #cdd6de; background: var(--ink); }
 .custom-spec-card { background: var(--ink); color: #fff; }
 .custom-spec-card .eyebrow { color: var(--lime); }
@@ -688,7 +706,11 @@ img { display: block; max-width: 100%; }
   .custom-wheel-hero-grid { grid-template-columns: minmax(0, 1fr) minmax(320px, .8fr); gap: 32px; }
   .custom-wheel-copy h1 { font-size: clamp(70px, 10vw, 118px); }
   .custom-wheel-stage { min-height: 420px; }
-  .custom-build-grid, .custom-workshop-grid { gap: 20px; }
+  .custom-build-grid { grid-template-columns: 1fr; gap: 20px; }
+  .custom-workshop-grid { gap: 20px; }
+  .custom-fitment-card { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .custom-fitment-card .fitment-selects { grid-column: 1 / -1; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .custom-fitment-card .btn { grid-column: 1 / -1; width: 100%; }
   .custom-audience-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 760px) {
@@ -711,9 +733,9 @@ img { display: block; max-width: 100%; }
   .custom-section-heading, .custom-ready-head { display: block; }
   .custom-section-heading > p, .custom-ready-head > div:last-child { max-width: 560px; margin-top: 17px; }
   .custom-build-grid, .custom-workshop-grid, .custom-finish-grid { grid-template-columns: 1fr; }
-  .custom-fitment-card { grid-template-columns: repeat(2, 1fr); }
-  .custom-fitment-card .fitment-selects { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(2, 1fr); }
-  .custom-fitment-card .btn { grid-column: 1 / -1; }
+  .custom-fitment-card { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .custom-fitment-card .fitment-selects { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .custom-fitment-card .btn { grid-column: 1 / -1; width: 100%; }
   .custom-workshop-media, .custom-workshop-media img { min-height: 360px; }
   .custom-finish-collage { min-height: 360px; }
 }
@@ -745,7 +767,7 @@ img { display: block; max-width: 100%; }
   .custom-wheel-rail a { min-height: 57px; padding: 0 10px; font-size: 9px; }
   .custom-fitment-card { grid-template-columns: 1fr; }
   .custom-fitment-card .fitment-selects { grid-template-columns: 1fr; }
-  .custom-fitment-card .btn { grid-column: auto; }
+  .custom-fitment-card .btn { grid-column: auto; width: 100%; }
   .custom-audience-grid { grid-template-columns: 1fr; }
   .custom-audience-card { min-height: 190px; }
   .custom-finish-collage { grid-template-columns: 1fr 1fr; min-height: 285px; }
