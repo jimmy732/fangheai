@@ -640,10 +640,10 @@ img { display: block; max-width: 100%; }
 .custom-card-top .eyebrow { margin-bottom: 6px; }
 .custom-card-top h3 { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 33px; line-height: .9; text-transform: uppercase; }
 .custom-vehicle-card > p { max-width: 650px; margin: 22px 0 23px; color: var(--muted); font-size: 13px; line-height: 1.7; }
-.custom-fitment-card { grid-template-columns: minmax(0, 1fr) auto; max-width: none; border-color: #dfe4e8; background: #f2f5f7; }
+.custom-fitment-card { grid-template-columns: 1fr; max-width: none; border-color: #dfe4e8; background: #f2f5f7; }
 .custom-fitment-card .fitment-select { background: #fff; }
-.custom-fitment-card .fitment-selects { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-width: 0; }
-.custom-fitment-card .btn { min-width: 0; max-width: 100%; white-space: nowrap; }
+.custom-fitment-card .fitment-selects { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(5, minmax(0, 1fr)); min-width: 0; }
+.custom-fitment-card .btn { grid-column: 1 / -1; width: 100%; min-width: 0; max-width: 100%; white-space: nowrap; }
 .custom-fitment-card + .fitment-preview { margin-top: 12px; border-color: #cdd6de; background: var(--ink); }
 .custom-spec-card { background: var(--ink); color: #fff; }
 .custom-spec-card .eyebrow { color: var(--lime); }
