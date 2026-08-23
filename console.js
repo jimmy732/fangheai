@@ -18,7 +18,9 @@ const state = {
   fitmentFilter: { q: '', type: '', status: '' },
   fitmentEditingId: '',
   fitmentResult: null,
-  fitmentCheckPayload: null
+  fitmentCheckPayload: null,
+  visualizerJobs: [],
+  visualizerViewer: null
 };
 
 const viewTitles = {
@@ -98,7 +100,7 @@ async function renderView() {
   if (state.view === 'reviews') return renderReviews();
   if (state.view === 'blog') return renderBlog();
   if (state.view === 'fitment') return renderFitment();
-  if (state.view === 'visualizer') return renderVisualizerNote();
+  if (state.view === 'visualizer') return renderVisualizer();
 }
 
 // ---------------------------------------------------------------- dashboard
@@ -388,7 +390,7 @@ function wireBlogView() {
 }
 
 // ---------------------------------------------------------------- fitment lab
-const fitmentTypeLabels = { brake: '刹车套件', caliper: '刹车卡钳', rotor: '刹车盘', pad: '刹车片', suspension: '避震 / 绞牙', spacer: '法兰 / 垫片', 'control-arm': '控制臂', 'top-mount': '塔顶', tire: '轮胎', other: '其他' };
+const fitmentTypeLabels = { wheel: '轮毂', brake: '刹车套件', caliper: '刹车卡钳', rotor: '刹车盘', pad: '刹车片', suspension: '避震 / 绞牙', spacer: '法兰 / 垫片', 'control-arm': '控制臂', 'top-mount': '塔顶', tire: '轮胎', other: '其他' };
 function fitmentTypeLabel(type) { return fitmentTypeLabels[type] || type || '其他'; }
 function fitmentStatusLabel(status) { return { active: '启用', draft: '草稿', archived: '归档' }[status] || status || '草稿'; }
 function fitmentConfidenceLabel(value) { return { 'source-listed': '来源已列出', 'operator-verified': '人工核验', 'customer-measured': '客户实测', 'catalog-extracted': '目录提取', 'marketplace-listed': '商城列出', 'needs-review': '待复核' }[value] || value || '待复核'; }
@@ -438,12 +440,14 @@ function fitmentAdminResultMarkup(result) {
   const status = result?.status || 'needs_review';
   const statusText = status === 'pass' ? '已通过' : status === 'conflict' ? '有冲突' : '需要测量';
   const messages = [...(result?.issues || []), ...(result?.warnings || []), ...(result?.missing || [])];
+  const baseline = result?.research_baseline;
   const axles = ['front', 'rear'].map(axle => {
     const item = result?.axles?.[axle] || {};
     const recommendation = item.recommendation || {};
     return `<div class="fitment-admin-result-axle"><strong>${axle === 'front' ? '前轴' : '后轴'}</strong><span>PCD ${esc(recommendation.pcd || '待确认')}</span><span>直径 ${recommendation.diameter_min_in ? `${esc(recommendation.diameter_min_in)} in 起` : '待确认'}</span><span>ET ${recommendation.et_estimate_range ? esc(recommendation.et_estimate_range.join(' ~ ')) : '待确认'}</span></div>`;
   }).join('');
-  return `<div class="fitment-admin-result"><div class="fitment-admin-result-head"><strong>检查结果</strong><span class="fitment-admin-status fitment-admin-status-${status}">${statusText}</span></div><div class="fitment-admin-result-grid">${axles}</div>${messages.length ? `<ul>${messages.slice(0, 14).map(message => `<li>${esc(message)}</li>`).join('')}</ul>` : '<p class="fitment-result-clear">目前已知规则没有冲突，继续由工程人员确认最终轮毂图纸。</p>'}<div class="actions"><button class="console-btn is-primary" type="button" data-fitment-save-case>保存为客户适配案例</button></div></div>`;
+  const baselineMarkup = baseline ? `<div class="fitment-admin-research"><strong>研究平台基线（仅参考，不是批准值）</strong><span>${esc(baseline.platform)} · PCD ${esc(baseline.pcd || '—')} · CB ${baseline.center_bore_mm ? `${esc(baseline.center_bore_mm)} mm` : '—'}</span><small>${esc(baseline.wheel_target_not_approved || '')}</small></div>` : '';
+  return `<div class="fitment-admin-result"><div class="fitment-admin-result-head"><strong>检查结果</strong><span class="fitment-admin-status fitment-admin-status-${status}">${statusText}</span></div>${baselineMarkup}<div class="fitment-admin-result-grid">${axles}</div>${messages.length ? `<ul>${messages.slice(0, 14).map(message => `<li>${esc(message)}</li>`).join('')}</ul>` : '<p class="fitment-result-clear">目前已知规则没有冲突，继续由工程人员确认最终轮毂图纸。</p>'}<div class="actions"><button class="console-btn is-primary" type="button" data-fitment-save-case>保存为客户适配案例</button></div></div>`;
 }
 
 async function renderFitment() {
@@ -517,8 +521,65 @@ function wireFitmentView() {
 }
 
 // --------------------------------------------------------------- visualizer
-function renderVisualizerNote() {
-  el('#console-view').innerHTML = `<div class="console-card"><h3>效果图通道</h3><p class="card-note">LingkeAI gpt-image-2 的密钥配置在本页下方的「GPT Image 2 connection」面板中，保存后即时生效。当前状态见下方状态卡。</p><p class="card-note">效果图任务记录、询价和报价在完整版管理端（_mall-admin-web）中维护；本控制台聚焦外贸获客数据。</p></div>`;
+function visualizerImageUrl(value) {
+  const source = String(value || '').trim();
+  if (source.startsWith('/')) return source;
+  try {
+    const parsed = new URL(source, window.location.origin);
+    return ['http:', 'https:'].includes(parsed.protocol) ? parsed.href : '';
+  } catch { return ''; }
+}
+function visualizerStatusLabel(status) {
+  return { queued: '排队中', running: '生成中', succeeded: '已完成', reviewed: '已复核', failed: '失败' }[status] || status || '未知';
+}
+function visualizerStatusClass(status) {
+  return status === 'succeeded' || status === 'reviewed' ? 'approved' : status === 'failed' ? 'hidden' : 'pending';
+}
+function visualizerJobImages(job) {
+  return (Array.isArray(job?.results) ? job.results : []).map((result, index) => ({
+    url: visualizerImageUrl(result?.image_url || result?.imageUrl || result?.url),
+    angle: result?.angle || `View ${index + 1}`
+  })).filter(item => item.url);
+}
+function visualizerJobCard(job) {
+  const images = visualizerJobImages(job);
+  const product = job.product_name || job.product_id || '未记录商品';
+  const vehicle = job.vehicle_name || job.vehicle_file_name || '未记录车型';
+  const imageMarkup = images.length
+    ? `<div class="visualizer-job-images">${images.map((image, index) => `<button class="visualizer-job-image" type="button" data-visualizer-image="${esc(image.url)}" data-visualizer-title="${esc(`${product} · ${image.angle}`)}" aria-label="放大查看 ${esc(image.angle)}"><img src="${esc(image.url)}" alt="${esc(`${product} ${image.angle}`)}" loading="lazy"><span>${esc(image.angle)} · 点击放大</span></button>`).join('')}</div>`
+    : `<div class="visualizer-job-empty">${job.status === 'failed' ? esc(job.message || '生成失败，请查看任务信息。') : '任务完成后，效果图会出现在这里。'}</div>`;
+  return `<article class="visualizer-job-card"><div class="visualizer-job-head"><div><span class="visualizer-job-id">${esc(job.job_id || job.id || 'visualizer task')}</span><h3>${esc(product)}</h3></div><span class="chip chip-${visualizerStatusClass(job.status)}">${visualizerStatusLabel(job.status)}</span></div><div class="visualizer-job-meta"><span><b>车型</b>${esc(vehicle)}</span><span><b>创建</b>${dateLabel(job.created_at)}</span><span><b>更新</b>${dateLabel(job.updated_at)}</span><span><b>角度</b>${num(job.angles || images.length || 0)}</span></div>${imageMarkup}${job.admin_note ? `<p class="visualizer-job-note">后台备注：${esc(job.admin_note)}</p>` : ''}</article>`;
+}
+function visualizerViewerMarkup() {
+  const viewer = state.visualizerViewer;
+  if (!viewer?.url) return '';
+  return `<div class="visualizer-image-viewer" data-visualizer-close><div class="visualizer-image-viewer-panel" role="dialog" aria-modal="true" aria-label="效果图放大查看"><header><div><span>F-BOX VISUAL TASK</span><h3>${esc(viewer.title || '效果图')}</h3></div><button class="console-btn" type="button" data-visualizer-close>关闭</button></header><div class="visualizer-image-viewer-stage"><img src="${esc(viewer.url)}" alt="${esc(viewer.title || '效果图')}"></div></div></div>`;
+}
+function visualizerGalleryMarkup(jobs) {
+  const completed = jobs.filter(job => ['succeeded', 'reviewed'].includes(job.status)).length;
+  const pending = jobs.filter(job => ['queued', 'running'].includes(job.status)).length;
+  return `<div class="visualizer-gallery-head"><div><p class="eyebrow">客户效果图任务</p><h3>效果图图库</h3><p class="card-note">客户生成的每组角度会在这里集中展示。点击任意图片放大查看，移动端也可以直接查看。</p></div><div class="visualizer-gallery-stats"><span><b>${num(jobs.length)}</b>全部任务</span><span><b>${num(completed)}</b>已完成</span><span><b>${num(pending)}</b>处理中</span></div></div>${jobs.length ? `<div class="visualizer-job-grid">${jobs.map(visualizerJobCard).join('')}</div>` : '<div class="empty-console">还没有客户效果图任务。</div>'}${visualizerViewerMarkup()}`;
+}
+function wireVisualizerView() {
+  document.querySelectorAll('[data-visualizer-image]').forEach(button => button.addEventListener('click', () => {
+    state.visualizerViewer = { url: button.dataset.visualizerImage, title: button.dataset.visualizerTitle || '效果图' };
+    renderVisualizer();
+  }));
+  document.querySelectorAll('[data-visualizer-close]').forEach(button => button.addEventListener('click', event => {
+    if (event.currentTarget.classList.contains('visualizer-image-viewer') && event.target !== event.currentTarget) return;
+    state.visualizerViewer = null;
+    renderVisualizer();
+  }));
+}
+async function renderVisualizer() {
+  const root = el('#console-view');
+  root.innerHTML = '<div class="console-loading">正在读取客户效果图任务…</div>';
+  try {
+    const payload = await api('/api/fbox-ops/jobs');
+    state.visualizerJobs = Array.isArray(payload.data) ? payload.data : [];
+    root.innerHTML = visualizerGalleryMarkup(state.visualizerJobs);
+    wireVisualizerView();
+  } catch (error) { root.innerHTML = `<div class="console-error">${esc(error.message)}</div>`; }
 }
 
 // -------------------------------------------------------------------- wire

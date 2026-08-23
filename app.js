@@ -837,6 +837,9 @@ const wheelVisualizerDefaults = () => ({
   errorCode: '',
   resultViewer: null,
   inquiry: null,
+  registrationDraft: { name: '', email: '', telephone: '' },
+  registrationError: '',
+  registrationSubmitting: false,
   mode: 'fbox-lingkeai'
 });
 state.wheelVisualizer = wheelVisualizerDefaults();
@@ -914,7 +917,9 @@ function wheelVisualizerHandleFile(file) {
   current.vehicleUrl = URL.createObjectURL(file);
   current.vehicleName = file.name;
   current.crop = { zoom: 1, x: 50, y: 50 };
-  current.phase = 'crop';
+  current.registrationDraft = { name: state.account?.name || state.account?.username || '', email: state.account?.email || '', telephone: '' };
+  current.registrationError = '';
+  current.phase = state.mallToken && state.account ? 'crop' : 'registration';
   current.error = '';
   render();
 }
@@ -986,7 +991,7 @@ async function wheelVisualizerRemoteJob(request) {
     crop: request.crop,
     angles: 3
   };
-  const response = await fetch('/api/wheel-visualizer/jobs', { method: 'POST', body: JSON.stringify(body), headers: { Accept: 'application/json', 'Content-Type': 'application/json' } });
+  const response = await fetch('/api/wheel-visualizer/jobs', { method: 'POST', body: JSON.stringify(body), headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...(state.mallToken ? { Authorization: state.mallToken } : {}) } });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) { const error = new Error(payload.message || payload.detail || payload.error?.message || 'The F-Box AI visualizer is unavailable.'); error.status = response.status; throw error; }
   return payload.data || payload;
@@ -1001,6 +1006,11 @@ async function createWheelVisualizerJob() {
 async function wheelVisualizerStart() {
   const current = state.wheelVisualizer;
   if (!current?.vehicleFile) return;
+  if (!state.mallToken || !state.account) {
+    current.phase = 'registration';
+    render();
+    return;
+  }
   current.phase = 'generating';
   current.error = '';
   current.errorCode = '';
@@ -1352,6 +1362,43 @@ async function mallRegister(values) {
   }) });
 }
 
+async function mallVisualizerRegister(values) {
+  return mallRequest(mallConfig.portalBase, '/auth/visualizer-register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+    name: String(values.name || ''),
+    email: String(values.email || ''),
+    telephone: values.telephone_local ? `+1 ${String(values.telephone_local).trim()}` : ''
+  }) });
+}
+
+async function submitWheelVisualizerRegistration(values) {
+  const current = state.wheelVisualizer;
+  if (!current?.open || current.phase !== 'registration' || current.registrationSubmitting) return;
+  current.registrationDraft = {
+    name: String(values.name || '').trim(),
+    email: String(values.email || '').trim(),
+    telephone: String(values.telephone_local || '').trim()
+  };
+  current.registrationSubmitting = true;
+  current.registrationError = '';
+  render();
+  try {
+    const registered = await mallVisualizerRegister(current.registrationDraft);
+    const token = `${registered?.tokenHead || 'Bearer '}${registered?.token || ''}`.trim();
+    if (!token || !registered?.token) throw new Error('The F-Box account service returned no session.');
+    state.mallToken = token;
+    state.account = registered?.member || registered?.data?.member || null;
+    localStorage.setItem('fbox-mall-token', state.mallToken);
+    current.phase = 'crop';
+    current.registrationSubmitting = false;
+    current.registrationError = '';
+    render();
+  } catch (error) {
+    current.registrationSubmitting = false;
+    current.registrationError = error?.message || 'Account registration failed. Please try again.';
+    render();
+  }
+}
+
 async function loadAccountInfo() {
   if (!state.mallToken) { state.account = null; return; }
   try {
@@ -1607,6 +1654,7 @@ function fitmentResultMarkup(result) {
   const minSuffix = chinese ? '最低' : 'min';
   const rangeJoin = chinese ? ' 至 ' : ' to ';
   const verification = result?.verification_summary || {};
+  const baseline = result?.research_baseline;
   const safetyNote = verification.provisional || verification.oem_selected || result?.setup_context?.dynamic_clearance_review_required
     ? uiLabel('OEM, low-stance and unverified component data still require exact template and dynamic-clearance review.')
     : uiLabel('F-Box will review the final wheel drawing and dynamic clearance before production.');
@@ -1616,7 +1664,8 @@ function fitmentResultMarkup(result) {
     const axleLabel = axle === 'front' ? uiLabel('Front axle') : uiLabel('Rear axle');
     return `<article class="fitment-result-axle"><div class="fitment-result-axle-head"><strong>${axleLabel}</strong><span>${esc(recommendation.pcd || uiLabel('PCD pending'))}</span></div><div class="fitment-result-specs"><span><small>${uiLabel('Minimum diameter')}</small><b>${recommendation.diameter_min_in ? `${esc(recommendation.diameter_min_in)} ${inchUnit}` : uiLabel('Confirm')}</b></span><span><small>${uiLabel('Width baseline')}</small><b>${recommendation.width_baseline_in ? `${esc(recommendation.width_baseline_in)} ${inchUnit}` : uiLabel('Measure')}</b></span><span><small>${uiLabel('ET estimate')}</small><b>${recommendation.et_estimate_range ? `ET ${esc(recommendation.et_estimate_range[0])}${rangeJoin}${esc(recommendation.et_estimate_range[1])}` : uiLabel('Confirm')}</b></span><span><small>${uiLabel('Center bore')}</small><b>${recommendation.center_bore_min_mm ? `${esc(recommendation.center_bore_min_mm)} mm ${minSuffix}` : uiLabel('Confirm')}</b></span></div><div class="fitment-check-list">${(data.checks || []).map(check => `<span class="fitment-check fitment-check-${esc(check.status)}"><i></i>${esc(check.label)}: ${esc(check.detail)}</span>`).join('') || `<span class="fitment-check fitment-check-review"><i></i>${uiLabel('Enter wheel values for a more precise check.')}</span>`}</div></article>`;
   }).join('');
-  return `<section class="fitment-result" aria-live="polite"><div class="fitment-result-head"><div><p class="eyebrow">${uiLabel('F-Box rule engine')}</p><h2>${uiLabel('Fitment result')}</h2><p>${esc(result?.next_step || uiLabel('F-Box will review the final wheel drawing before production.'))}</p></div><span class="fitment-status fitment-status-${status}">${fitmentStatusLabel(status)}</span></div><div class="fitment-result-safety">${esc(safetyNote)}</div><div class="fitment-result-grid">${axleCards}</div>${messages.length ? `<div class="fitment-result-messages"><h3>${uiLabel('What needs attention')}</h3><ul>${messages.slice(0, 14).map(message => `<li>${esc(message)}</li>`).join('')}</ul></div>` : `<div class="fitment-result-clear">${uiLabel('The known inputs are consistent. Final spoke and barrel clearance still require the selected wheel drawing.')}</div>`}<div class="fitment-result-actions"><button class="btn btn-primary" data-action="whatsapp-fitment">${icons.whatsapp} ${uiLabel('Send setup via WhatsApp')}</button><button class="btn btn-outline" data-action="fitment-chat">${uiLabel('Open F-Box chat')}</button><a class="btn btn-light" href="#store" data-category-link="Wheels">${uiLabel('Browse custom wheels')}</a></div><p class="fitment-whatsapp-note">${uiLabel('WhatsApp will open with your setup details and preview links ready to send.')}</p></section>`;
+  const baselineMarkup = baseline ? `<div class="fitment-result-research"><div><strong>${chinese ? '平台研究基线' : 'Platform research baseline'}</strong><span>${esc(baseline.platform)} · ${esc(baseline.year_range || 'year range not listed')}</span></div><p>${chinese ? '以下是来源资料中的非批准范围，只用于提醒核对方向；不替代精确配置、刹车模板、避震型号和动态实测。' : 'This source range is a non-approved reference only. It does not replace exact trim, brake template, coilover model or dynamic measurements.'}</p><div><span>PCD <b>${esc(baseline.pcd || '—')}</b></span><span>CB <b>${baseline.center_bore_mm ? `${esc(baseline.center_bore_mm)} mm` : '—'}</b></span><span>${chinese ? '风险' : 'Risk'} <b>${esc(baseline.installation_risks || '—')}</b></span></div></div>` : '';
+  return `<section class="fitment-result" aria-live="polite"><div class="fitment-result-head"><div><p class="eyebrow">${uiLabel('F-Box rule engine')}</p><h2>${uiLabel('Fitment result')}</h2><p>${esc(result?.next_step || uiLabel('F-Box will review the final wheel drawing before production.'))}</p></div><span class="fitment-status fitment-status-${status}">${fitmentStatusLabel(status)}</span></div><div class="fitment-result-safety">${esc(safetyNote)}</div>${baselineMarkup}<div class="fitment-result-grid">${axleCards}</div>${messages.length ? `<div class="fitment-result-messages"><h3>${uiLabel('What needs attention')}</h3><ul>${messages.slice(0, 14).map(message => `<li>${esc(message)}</li>`).join('')}</ul></div>` : `<div class="fitment-result-clear">${uiLabel('The known inputs are consistent. Final spoke and barrel clearance still require the selected wheel drawing.')}</div>`}<div class="fitment-result-actions"><button class="btn btn-primary" data-action="whatsapp-fitment">${icons.whatsapp} ${uiLabel('Send setup via WhatsApp')}</button><button class="btn btn-outline" data-action="fitment-chat">${uiLabel('Open F-Box chat')}</button><a class="btn btn-light" href="#store" data-category-link="Wheels">${uiLabel('Browse custom wheels')}</a></div><p class="fitment-whatsapp-note">${uiLabel('WhatsApp will open with your setup details and preview links ready to send.')}</p></section>`;
 }
 
 function fitmentPage() {
@@ -2188,8 +2237,36 @@ function wheelVisualizerDownloadName(item, angle, index = 0) {
   const angleSlug = String(angle || `view-${index + 1}`).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || `view-${index + 1}`;
   return `fbox-${slug}-${angleSlug}.jpg`;
 }
+function wheelVisualizerSaveLabel() {
+  if (state.locale === 'zh-CN') return '保存到相册';
+  if (state.locale === 'zh-TW') return '儲存到相簿';
+  return 'Save to Photos';
+}
+function wheelVisualizerMobile() {
+  return window.matchMedia?.('(max-width: 760px)').matches || Number(navigator.maxTouchPoints || 0) > 0;
+}
 async function wheelVisualizerDownload(imageUrl, fileName) {
   if (!imageUrl) return;
+  if (wheelVisualizerMobile()) {
+    try {
+      const response = await fetch(imageUrl, { mode: 'cors' });
+      if (!response.ok) throw new Error('Image share failed');
+      const blob = await response.blob();
+      if (!blob.size) throw new Error('Empty image');
+      const file = new File([blob], fileName || 'fbox-preview.jpg', { type: blob.type || 'image/jpeg' });
+      if (typeof navigator.share === 'function' && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
+        await navigator.share({ files: [file], title: 'F-Box vehicle preview', text: 'F-Box custom wheel preview' });
+        setToast(state.locale === 'zh-CN' ? '请在系统分享面板选择“存储到照片”或“保存图像”。' : 'Choose Save Image or Add to Photos in the system share sheet.');
+        return;
+      }
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+    }
+    const opened = window.open(imageUrl, '_blank', 'noopener,noreferrer');
+    if (!opened) window.location.href = imageUrl;
+    setToast(state.locale === 'zh-CN' ? '图片已打开，请长按图片保存到相册。' : 'Image opened. Long-press it to save to Photos.');
+    return;
+  }
   try {
     const response = await fetch(imageUrl, { mode: 'cors' });
     if (!response.ok) throw new Error('Image download failed');
@@ -2214,13 +2291,13 @@ function wheelVisualizerResultCard(result, index, item, mode) {
   const imageUrl = result.imageUrl || result.image_url || result.url || '';
   const context = visualizerProductContext(item);
   const downloadName = wheelVisualizerDownloadName(item, angle, index);
-  const imageActions = imageUrl ? `<div class="wheel-result-actions"><button type="button" class="btn btn-outline btn-small" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(angle)}" data-product="${esc(item.name)}" data-download-name="${esc(downloadName)}">View larger <span aria-hidden="true">↗</span></button><button type="button" class="btn btn-outline btn-small" data-action="wheel-image-download" data-image-url="${esc(imageUrl)}" data-download-name="${esc(downloadName)}">Save image <span aria-hidden="true">↓</span></button></div>` : '';
+  const imageActions = imageUrl ? `<div class="wheel-result-actions"><button type="button" class="btn btn-outline btn-small" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(angle)}" data-product="${esc(item.name)}" data-download-name="${esc(downloadName)}">View larger <span aria-hidden="true">↗</span></button><button type="button" class="btn btn-outline btn-small" data-action="wheel-image-download" data-image-url="${esc(imageUrl)}" data-download-name="${esc(downloadName)}">${wheelVisualizerSaveLabel()} <span aria-hidden="true">↓</span></button></div>` : '';
   return `<article class="wheel-result-card"><div class="wheel-result-media">${imageUrl ? `<button type="button" class="wheel-result-open" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(angle)}" data-product="${esc(item.name)}" data-download-name="${esc(downloadName)}" aria-label="View enlarged ${esc(angle)} preview"><img class="wheel-result-output is-ai-generated" src="${esc(imageUrl)}" alt="${esc(item.name)} on your vehicle — ${esc(angle)}" loading="lazy"><span class="wheel-result-zoom-hint">Click to enlarge</span></button>` : '<div class="wheel-result-empty">Preview unavailable</div>'}<span class="wheel-result-mode">F-Box AI visual preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>${esc(context.resultNote)}</span>${imageActions}</div></article>`;
 }
 function wheelVisualizerImageViewer() {
   const viewer = state.wheelVisualizer?.resultViewer;
   if (!viewer?.open || !viewer.imageUrl) return '';
-  return `<div class="wheel-image-viewer-overlay" data-action="wheel-image-viewer-close"><div class="wheel-image-viewer" data-wheel-image-viewer role="dialog" aria-modal="true" aria-labelledby="wheel-image-viewer-title" tabindex="-1"><header class="wheel-image-viewer-head"><div><div class="wheel-content-kicker">F-Box preview</div><h3 id="wheel-image-viewer-title">${esc(viewer.angleLabel)}</h3><span>${esc(viewer.productName)} · click outside to close</span></div><button type="button" class="icon-btn wheel-modal-close" data-action="wheel-image-viewer-close" aria-label="Close enlarged preview">${icons.close}</button></header><div class="wheel-image-viewer-stage"><img src="${esc(viewer.imageUrl)}" alt="${esc(viewer.alt)}"></div><div class="wheel-image-viewer-actions"><button type="button" class="btn btn-primary" data-action="wheel-image-download" data-image-url="${esc(viewer.imageUrl)}" data-download-name="${esc(viewer.downloadName)}">Save image <span aria-hidden="true">↓</span></button><button type="button" class="btn btn-outline" data-action="wheel-image-viewer-close">Close</button></div></div></div>`;
+  return `<div class="wheel-image-viewer-overlay" data-action="wheel-image-viewer-close"><div class="wheel-image-viewer" data-wheel-image-viewer role="dialog" aria-modal="true" aria-labelledby="wheel-image-viewer-title" tabindex="-1"><header class="wheel-image-viewer-head"><div><div class="wheel-content-kicker">F-Box preview</div><h3 id="wheel-image-viewer-title">${esc(viewer.angleLabel)}</h3><span>${esc(viewer.productName)} · click outside to close</span></div><button type="button" class="icon-btn wheel-modal-close" data-action="wheel-image-viewer-close" aria-label="Close enlarged preview">${icons.close}</button></header><div class="wheel-image-viewer-stage"><img src="${esc(viewer.imageUrl)}" alt="${esc(viewer.alt)}"></div><p class="wheel-image-viewer-mobile-note">${state.locale === 'zh-CN' ? '手机端可长按图片保存到相册。' : 'On mobile, long-press the image to save it to Photos.'}</p><div class="wheel-image-viewer-actions"><button type="button" class="btn btn-primary" data-action="wheel-image-download" data-image-url="${esc(viewer.imageUrl)}" data-download-name="${esc(viewer.downloadName)}">${wheelVisualizerSaveLabel()} <span aria-hidden="true">↓</span></button><button type="button" class="btn btn-outline" data-action="wheel-image-viewer-close">Close</button></div></div></div>`;
 }
 function wheelVisualizerInquiryContent(item, current) {
   const draft = { ...wheelVisualizerInquiryDefaults(item), ...(current.inquiry?.draft || {}) };
@@ -2238,11 +2315,16 @@ function wheelVisualizerModalLegacy() {
   if (!current?.open) return '';
   const item = wheelVisualizerItem();
   const phase = current.phase;
-  const steps = [['upload', '01', 'Upload'], ['crop', '02', 'Frame'], ['reference', '03', 'Reference'], ['generating', '04', 'Generate'], ['results', '05', 'Results'], ['inquiry', '06', 'Inquiry']];
+  const steps = [['upload', '01', 'Upload'], ['registration', '02', 'Account'], ['crop', '03', 'Frame'], ['reference', '04', 'Reference'], ['generating', '05', 'Generate'], ['results', '06', 'Results'], ['inquiry', '07', 'Inquiry']];
   const stepIndex = phase === 'error' ? 3 : Math.max(0, steps.findIndex(([key]) => key === phase));
   const stepRail = steps.map(([key, number, label], index) => `<div class="wheel-step ${index === stepIndex ? 'is-active' : ''} ${index < stepIndex ? 'is-done' : ''}"><span>${index < stepIndex ? '✓' : number}</span><strong>${label}</strong></div>`).join('');
   let content = '';
   if (phase === 'upload') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Start with one real photo</div><h3>Show us the car.<br><em>We will show you the stance.</em></h3><p class="wheel-content-lead">Use a clear exterior photo with at least one wheel visible. A front three-quarter or side view gives the best fitment reference.</p><label class="wheel-upload-zone" data-wheel-dropzone><input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" data-wheel-upload><span class="wheel-upload-icon">＋</span><strong>Drop your car photo here</strong><span>JPG, PNG, WEBP or HEIC · Up to 20 MB · mobile photos are compressed securely</span><span class="btn btn-dark btn-small">Choose a photo</span></label><div class="wheel-visualizer-privacy"><span>${icons.shield}</span><span>Your image is used only to create this preview. No payment or credits are required.</span></div></div>`;
+  if (phase === 'registration') {
+    const draft = current.registrationDraft || {};
+    const registrationError = current.registrationError ? `<div class="wheel-registration-error" role="alert">${esc(current.registrationError)}</div>` : '';
+    content = `<div class="wheel-visualizer-content wheel-registration-content"><div class="wheel-content-kicker">One quick account step</div><h3>Keep your preview.<br><em>Tell us who is building.</em></h3><p class="wheel-content-lead">Your photo is ready. Create an F-Box account before we generate the preview so your task and final fitment conversation stay attached to you.</p>${registrationError}<form class="wheel-registration-form" data-form="visualizer-register"><label><span>Name <b>*</b></span><input class="text-input" name="name" value="${esc(draft.name || '')}" autocomplete="name" required placeholder="Your name"></label><label><span>Email <b>*</b></span><input class="text-input" name="email" type="email" value="${esc(draft.email || '')}" autocomplete="email" required placeholder="you@example.com"></label><label><span>Phone / WhatsApp <small>(optional)</small></span><div class="wheel-phone-field"><span>+1</span><input class="text-input" name="telephone_local" value="${esc(draft.telephone || '')}" autocomplete="tel" inputmode="tel" placeholder="Phone number"></div></label><p class="wheel-registration-note">Name and email are required. The phone field uses the United States +1 code by default and can be left empty.</p><div class="wheel-registration-actions"><button type="submit" class="btn btn-primary" ${current.registrationSubmitting ? 'disabled' : ''}>${current.registrationSubmitting ? 'Creating account…' : 'Create account & continue'} <span aria-hidden="true">↗</span></button></div></form></div>`;
+  }
   if (phase === 'crop') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Frame the reference</div><h3>Keep the whole car.<br><em>Adjust only if needed.</em></h3><p class="wheel-content-lead">Upload the photo as-is. The full image stays available, even when the car sits low in a portrait frame. Drag the image or use the controls below; a wheel only needs to be visible, not centered in a box.</p><div class="wheel-crop-stage" data-wheel-crop-stage><img data-wheel-crop-image src="${esc(current.vehicleUrl)}" alt="${esc(current.vehicleName || 'Uploaded vehicle photo')}" draggable="false" style="${wheelVisualizerCropStyle(current.crop)}"><div class="wheel-crop-guide"><span>Full photo retained · drag to frame</span></div></div><div class="wheel-crop-live-note"><strong>Live framing</strong><span>Changes update the image above.</span></div><div class="wheel-crop-controls"><label><span>Zoom</span><input type="range" min="1" max="1.6" step="0.01" value="${current.crop.zoom}" data-wheel-crop="zoom"><output data-wheel-crop-output="zoom">${Number(current.crop.zoom).toFixed(2)}×</output></label><label><span>Horizontal position</span><input type="range" min="0" max="100" step="1" value="${current.crop.x}" data-wheel-crop="x"><output data-wheel-crop-output="x">${current.crop.x}%</output></label><label><span>Vertical position</span><input type="range" min="0" max="100" step="1" value="${current.crop.y}" data-wheel-crop="y"><output data-wheel-crop-output="y">${current.crop.y}%</output></label></div><div class="wheel-crop-actions"><button class="btn btn-outline btn-small" data-action="wheel-crop-reset">Reset frame</button><button class="btn btn-primary" data-action="wheel-generate">Generate 3 angles <span aria-hidden="true">↗</span></button></div></div>`;
   if (phase === 'generating') { const referenceAsset = visualizerReferenceAsset(item, current); content = `<div class="wheel-visualizer-content wheel-generating-content" aria-live="polite"><div class="wheel-generating-orbit"><div class="wheel-generating-wheel">${referenceAsset ? `<img src="${referenceAsset}" alt="${esc(item.name)}">` : `<span class="wheel-generating-part">${esc(item.category)}</span>`}</div><span></span><span></span><span></span></div><div class="wheel-content-kicker">F-Box visual studio</div><h3>Matching ${esc(visualizerProductContext(item).subject)} to vehicle<br><em>and checking the stance.</em></h3><p class="wheel-content-lead">We are applying only the selected ${esc(item.category.toLowerCase())} while keeping the original wheel and vehicle geometry locked.</p><div class="wheel-progress"><span></span></div><div class="wheel-generating-meta"><span>Product mask locked</span><span>3 angles requested</span><span>Officially included</span></div></div>`; }
   if (phase === 'results') content = `<div class="wheel-visualizer-content wheel-results-content"><div class="wheel-results-head"><div><div class="wheel-content-kicker">Your preview set</div><h3>See the wheel<br><em>in its natural stance.</em></h3></div><div class="wheel-results-count"><strong>03</strong><span>angles</span></div></div><p class="wheel-content-lead">These views use ${esc(item.name)} in ${esc(item.finish)} as the wheel reference. Keep the final fitment check with the F-Box team before production.</p><div class="wheel-results-grid">${current.results.map((result, index) => wheelVisualizerResultCard(result, index, item, current.mode)).join('')}</div><div class="wheel-results-actions"><button class="btn btn-outline" data-action="wheel-reset">Try another photo</button><button class="btn btn-outline" data-action="whatsapp-visualizer">${icons.whatsapp} ${uiLabel('WhatsApp fitment consultation')}</button><button class="btn btn-primary" data-action="wheel-inquiry-open">Start an inquiry <span aria-hidden="true">↗</span></button></div></div>`;
@@ -2302,7 +2384,7 @@ function modal() {
   if (!state.modal) return '';
   if (state.modal.type === 'account-panel') {
     const account = state.account || {};
-    return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>Hi, ${esc(account.username || 'builder')}.</h2><div class="account-panel"><p>${esc(account.email || '')}${account.company ? ' · ' + esc(account.company) : ''}${account.country ? ' · ' + esc(account.country) : ''}</p><div class="account-panel-actions"><button class="btn btn-outline" data-action="orders">Track my orders</button><button class="btn btn-dark" data-action="account-logout">Sign out</button></div></div></div></div>`;
+    return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">F-Box account</p><h2>Hi, ${esc(account.name || account.username || 'builder')}.</h2><div class="account-panel"><p>${esc(account.email || '')}${account.company ? ' · ' + esc(account.company) : ''}${account.country ? ' · ' + esc(account.country) : ''}</p><div class="account-panel-actions"><button class="btn btn-outline" data-action="orders">Track my orders</button><button class="btn btn-dark" data-action="account-logout">Sign out</button></div></div></div></div>`;
   }
   if (!state.modal) return '';
   if (state.modal.type === 'quick') { const item = product(state.modal.id); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Quick view</p><h2>${item.name}</h2><div class="quick-product"><img src="${assetUrl(item.image)}" alt="${esc(item.name)}"><div><div class="product-brand">${item.brand} · ${item.category}</div><div>${stars(item.rating)} <span class="muted">${item.reviews} reviews</span></div><p>${item.meta}<br>${item.deal}</p><strong style="font-size:22px">${money(item.price)} <small class="muted">/ each</small></strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">Add to cart</button></div></div></div></div>`; }
@@ -3102,6 +3184,7 @@ async function submitFitmentForm(form) {
 document.addEventListener('submit', async event => {
   event.preventDefault();
   const form = event.target;
+  if (form.dataset.form === 'visualizer-register') { await submitWheelVisualizerRegistration(Object.fromEntries(new FormData(form).entries())); return; }
   if (form.dataset.form === 'fitment-check') { await submitFitmentForm(form); return; }
   if (form.dataset.form === 'search') { state.search = new FormData(form).get('query') || ''; go('#store'); }
   if (form.dataset.form === 'site-chat') { await submitWebsiteChat(new FormData(form).get('message')); return; }

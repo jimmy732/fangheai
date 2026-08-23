@@ -44,6 +44,8 @@ const seedBlogPath = path.join(moduleDir, 'data', 'fbox-blog.seed.json');
 const fitmentPath = path.join(runtimeDir, 'fbox-fitment.json');
 const seedFitmentPath = path.join(moduleDir, 'data', 'fbox-fitment.seed.json');
 const catalogFitmentPath = path.join(moduleDir, 'data', 'fbox-fitment.catalog.json');
+const researchFitmentPath = path.join(moduleDir, 'data', 'fbox-fitment.research.json');
+const vehicleBaselineFitmentPath = path.join(moduleDir, 'data', 'fbox-fitment.vehicle-baseline.json');
 const mediaDir = path.join(runtimeDir, 'fbox-media');
 const qiniuMediaPrefix = String(process.env.FBOX_QINIU_MEDIA_PREFIX || 'fbox/media').replace(/^\/+|\/+$/g, '');
 const adminSessions = new Map();
@@ -743,6 +745,7 @@ function publicCustomer(account) {
   return {
     id: account.id,
     username: account.username,
+    name: account.name || account.display_name || '',
     email: account.email || '',
     telephone: account.telephone || '',
     company: account.company || '',
@@ -921,7 +924,7 @@ async function saveBlog(data) {
 }
 
 function copyDefaultFitment() {
-  return { parts: [], cases: [] };
+  return { parts: [], cases: [], vehicle_baselines: [], research_prechecks: [], research_combinations: [], research_sources: [] };
 }
 
 function fitmentNumber(value) {
@@ -1054,7 +1057,7 @@ function normalizeFitmentPart(payload = {}, id = operationId('fitment-part'), ex
     ...existing,
     ...payload,
     id,
-    type: ['brake', 'caliper', 'rotor', 'pad', 'suspension', 'spacer', 'control-arm', 'top-mount', 'tire', 'other'].includes(payload.type || existing.type) ? (payload.type || existing.type) : 'other',
+    type: ['wheel', 'brake', 'caliper', 'rotor', 'pad', 'suspension', 'spacer', 'control-arm', 'top-mount', 'tire', 'other'].includes(payload.type || existing.type) ? (payload.type || existing.type) : 'other',
     brand: fitmentText(payload.brand ?? existing.brand, 80),
     model: fitmentText(payload.model ?? existing.model, 160),
     part_number: fitmentText(payload.part_number ?? existing.part_number, 100),
@@ -1085,6 +1088,8 @@ async function loadFitment() {
   let runtime = null;
   let seed = null;
   let catalog = null;
+  let research = null;
+  let vehicleBaseline = null;
   try {
     runtime = JSON.parse(await fs.readFile(fitmentPath, 'utf8'));
   } catch { /* A fresh runtime is populated from the deployable seed below. */ }
@@ -1094,9 +1099,15 @@ async function loadFitment() {
   try {
     catalog = JSON.parse(await fs.readFile(catalogFitmentPath, 'utf8'));
   } catch { /* The catalog is optional so manual operation still works. */ }
+  try {
+    research = JSON.parse(await fs.readFile(researchFitmentPath, 'utf8'));
+  } catch { /* The research snapshot is optional for older deployments. */ }
+  try {
+    vehicleBaseline = JSON.parse(await fs.readFile(vehicleBaselineFitmentPath, 'utf8'));
+  } catch { /* Platform evidence is optional for older deployments. */ }
   const runtimeParts = Array.isArray(runtime?.parts) ? runtime.parts : [];
   const seedParts = Array.isArray(seed?.parts) ? seed.parts : Array.isArray(seed) ? seed : [];
-  const catalogParts = expandFitmentCatalog(catalog || {});
+  const catalogParts = [...expandFitmentCatalog(catalog || {}), ...expandFitmentCatalog(research || {})];
   const partsById = new Map();
   seedParts.forEach(item => partsById.set(item.id || operationId('fitment-part'), item));
   catalogParts.forEach(item => partsById.set(item.id || operationId('fitment-part'), item));
@@ -1104,7 +1115,11 @@ async function loadFitment() {
   fitmentCache = {
     ...copyDefaultFitment(),
     parts: [...partsById.values()].map(item => normalizeFitmentPart(item, item.id || operationId('fitment-part'), item)),
-    cases: Array.isArray(runtime?.cases) ? runtime.cases : []
+    cases: Array.isArray(runtime?.cases) ? runtime.cases : [],
+    vehicle_baselines: Array.isArray(vehicleBaseline?.platforms) ? vehicleBaseline.platforms : [],
+    research_prechecks: Array.isArray(vehicleBaseline?.prechecks) ? vehicleBaseline.prechecks : [],
+    research_combinations: Array.isArray(vehicleBaseline?.high_frequency_combinations) ? vehicleBaseline.high_frequency_combinations : [],
+    research_sources: Array.isArray(vehicleBaseline?.sources) ? vehicleBaseline.sources : []
   };
   if (!await fs.access(fitmentPath).then(() => true).catch(() => false) || partsById.size !== runtimeParts.length) await saveFitment(fitmentCache);
   return fitmentCache;
@@ -1445,11 +1460,24 @@ function localizeFitmentResult(result, locale) {
   };
 }
 
+function researchVehicleBaseline(baselines = [], vehicle = {}) {
+  const make = normalizedFitmentToken(vehicle.make);
+  const model = normalizedFitmentToken(vehicle.model);
+  if (!make || !model) return null;
+  const vehicleLabel = `${make} ${model}`;
+  const matches = baselines.filter(item => {
+    const platform = normalizedFitmentToken(item.platform);
+    return platform && ((platform.includes(make) && platform.includes(model)) || platform === vehicleLabel || vehicleLabel.includes(platform));
+  });
+  return matches.length === 1 ? matches[0] : null;
+}
+
 async function runFitmentCheck(payload = {}, operations) {
   const fitment = await loadFitment();
   const vehicle = payload.vehicle && typeof payload.vehicle === 'object' ? payload.vehicle : {};
   const library = await buildVehicleLibrary(operations);
   const vehicleRecord = library.find(record => Number(record.year) === Number(vehicle.year) && normalizedFitmentToken(record.make) === normalizedFitmentToken(vehicle.make) && normalizedFitmentToken(record.model) === normalizedFitmentToken(vehicle.model) && normalizedFitmentToken(record.trim) === normalizedFitmentToken(vehicle.trim) && (!vehicle.drive || !record.drive || normalizedFitmentToken(record.drive) === normalizedFitmentToken(vehicle.drive))) || null;
+  const researchBaseline = researchVehicleBaseline(fitment.vehicle_baselines, vehicle);
   const componentId = (value, axle, component) => String(value || '') === 'oem' ? `oem-${axle}-${component}` : value;
   const selectedIds = new Set([
     ...(Array.isArray(payload.part_ids) ? payload.part_ids : []),
@@ -1469,6 +1497,10 @@ async function runFitmentCheck(payload = {}, operations) {
   const warnings = [];
   const missing = [];
   if (!vehicleRecord) missing.push('Select an exact vehicle year, make, model and trim from the F-Box vehicle library.');
+  if (researchBaseline) {
+    warnings.push(`${researchBaseline.platform} platform baseline is a non-approved research range; exact year, trim, market, brake kit and physical measurements still control the wheel design.`);
+    missing.push('Confirm the exact platform variant and compare the selected wheel against the supplied brake and coilover clearance evidence.');
+  }
   if (!selectedParts.length) warnings.push('No catalogued brake, rotor, pad or suspension part was selected; the result will stay provisional.');
   if (provisionalParts.length) {
     const labels = provisionalParts.slice(0, 4).map(part => `${part.brand} ${part.model}`).join(', ');
@@ -1651,6 +1683,23 @@ async function runFitmentCheck(payload = {}, operations) {
     status_label: status === 'pass' ? 'Rule pass' : status === 'conflict' ? 'Conflict found' : 'Needs measurement',
     vehicle: { ...vehicle },
     vehicle_record: vehicleRecord ? { id: vehicleRecord.id, year: vehicleRecord.year, make: vehicleRecord.make, model: vehicleRecord.model, trim: vehicleRecord.trim, drive: vehicleRecord.drive, oem_wheel_specs: vehicleRecord.oem_wheel_specs || {} } : null,
+    research_baseline: researchBaseline ? {
+      platform: researchBaseline.platform,
+      region: researchBaseline.region,
+      year_range: researchBaseline.year_range,
+      variants: researchBaseline.variants,
+      pcd: researchBaseline.pcd,
+      center_bore_mm: researchBaseline.center_bore_mm,
+      oem_brake_baseline: researchBaseline.oem_brake_baseline,
+      wheel_target_not_approved: researchBaseline.wheel_target_not_approved,
+      coilover_lines: researchBaseline.coilover_lines,
+      brake_directions: researchBaseline.brake_directions,
+      installation_risks: researchBaseline.installation_risks,
+      confidence: researchBaseline.confidence,
+      source_url: researchBaseline.source_url,
+      source_limitations: researchBaseline.source_limitations,
+      application_limits: researchBaseline.application_limits
+    } : null,
     setup_context: { usage, stance_profile: stanceProfile, dynamic_clearance_review_required: Object.values(axles).some(axle => axle.input?.camber_deg !== null || axle.input?.compression_clearance_mm !== null || ['mild-stretch', 'aggressive-stretch'].includes(axle.input?.tire_fitment_style) || stanceProfile !== 'oem' || usage === 'show' || usage === 'track') },
     selected_parts: selectedParts.map(publicFitmentPart),
     verification_summary: {
@@ -2500,6 +2549,58 @@ export async function handleFBoxStoreApi(req, res, url) {
     } catch (error) { return json(res, error.status || 422, { detail: error.message || 'F-Box account registration failed.' }); }
   }
 
+  if (req.method === 'POST' && pathName === '/api/fbox-store/auth/visualizer-register') {
+    try {
+      const payload = await readJson(req, 64 * 1024);
+      const name = textValue(payload.name || payload.full_name, 100);
+      const email = textValue(payload.email, 160).toLowerCase();
+      const phoneInput = textValue(payload.telephone || payload.phone, 60);
+      const telephone = phoneInput ? (/^\+/.test(phoneInput) ? phoneInput : `+1 ${phoneInput}`) : '';
+      if (!name) return json(res, 422, { detail: 'Name is required to create a visualizer account.' });
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json(res, 422, { detail: 'A valid email is required to create a visualizer account.' });
+      const now = new Date().toISOString();
+      let account = data.accounts.find(item => String(item.email || '').toLowerCase() === email);
+      const existing = Boolean(account);
+      if (account) {
+        account.name = name;
+        account.display_name = name;
+        if (telephone) account.telephone = telephone;
+        account.visualizer_registered_at ||= now;
+      } else {
+        const emailSlug = email.split('@')[0].replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'builder';
+        let username = `visualizer-${emailSlug}`;
+        let suffix = 2;
+        while (data.accounts.some(item => String(item.username || '').toLowerCase() === username.toLowerCase())) username = `visualizer-${emailSlug}-${suffix++}`;
+        account = {
+          id: operationId('customer'),
+          username,
+          name,
+          display_name: name,
+          email,
+          telephone,
+          company: '',
+          country: geo.country,
+          country_code: geo.country_code,
+          signup_ip: geo.ip,
+          password_hash: hashCustomerPassword(randomUUID()),
+          wishlist: [],
+          cart: [],
+          visualizer_registered_at: now,
+          created_at: now,
+          last_login_at: now
+        };
+        data.accounts.push(account);
+      }
+      account.last_login_at = now;
+      await saveStore(data);
+      await recordAnalyticsEvent(req, { type: 'register', customer_id: account.id, geo, meta: { action: 'visualizer-register', existing_account: existing, phone_optional: true } });
+      const token = `fbox_customer_${randomUUID()}`;
+      customerSessions.set(token, { accountId: account.id, createdAt: Date.now() });
+      await saveCustomerSessions();
+      return json(res, 200, { code: 200, data: { tokenHead: 'Bearer ', token, registration_status: existing ? 'existing' : 'created', member: publicCustomer(account) } });
+    } catch (error) { return json(res, error.status || 422, { detail: error.message || 'F-Box visualizer registration failed.' }); }
+  }
+
   if (req.method === 'POST' && pathName === '/api/fbox-store/auth/login') {
     try {
       const payload = await readJson(req, 64 * 1024);
@@ -2882,6 +2983,9 @@ export async function handleWheelVisualizerApi(req, res, url) {
   if (!match) return json(res, 404, { detail: 'F-Box visualizer endpoint not found.' });
   if (req.method === 'POST' && !match[1]) {
     try {
+      await ensureCustomerSessionsLoaded();
+      const customer = currentCustomer(req);
+      if (!customer) return json(res, 401, { detail: 'Create an F-Box account with your name and email before generating a preview.' });
       const payload = await readJson(req);
       if (!String(payload.vehicle_image || '').startsWith('data:image/')) throw new Error('Upload a vehicle image first.');
       if (!String(payload.product_image || '').startsWith('data:image/')) throw new Error('Select a product reference image first.');

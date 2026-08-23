@@ -49,6 +49,9 @@
 .fitment-admin-help { color: var(--console-muted); font-size: 10px; font-weight: 500; letter-spacing: 0; line-height: 1.35; text-transform: none; }
 .fitment-admin-check-grid .field-wide { grid-column: span 2; }
 .fitment-admin-result { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--console-line); }
+.fitment-admin-research { display: grid; gap: 4px; margin: 14px 0; padding: 11px 12px; border-left: 3px solid var(--console-lav); background: rgba(169,140,255,.08); color: var(--console-muted); font-size: 11px; line-height: 1.45; }
+.fitment-admin-research strong { color: #fff; font-size: 11px; }
+.fitment-admin-research small { color: var(--console-warn); }
 .fitment-admin-result-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .fitment-admin-result-head strong { color: #fff; font-size: 13px; }
 .fitment-admin-status { padding: 5px 8px; font-size: 10px; font-weight: 800; }
@@ -130,6 +133,36 @@
 .console-error { padding: 14px 16px; border: 1px solid rgba(255, 141, 141, 0.4); border-radius: 11px; color: var(--console-danger); font-size: 12px; margin-bottom: 14px; }
 .console-loading { padding: 42px 20px; color: var(--console-muted); text-align: center; font-size: 13px; }
 
+.visualizer-gallery-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
+.visualizer-gallery-head h3 { margin: 0 0 5px; font-size: 22px; }
+.visualizer-gallery-head .eyebrow { margin: 0 0 7px; color: var(--console-lime); font-size: 10px; font-weight: 900; letter-spacing: .12em; }
+.visualizer-gallery-head .card-note { max-width: 620px; margin: 0; }
+.visualizer-gallery-stats { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.visualizer-gallery-stats span { display: grid; gap: 3px; min-width: 82px; padding: 10px 11px; border: 1px solid var(--console-line); border-radius: 10px; background: rgba(255,255,255,.03); color: var(--console-muted); font-size: 10px; }
+.visualizer-gallery-stats b { color: #fff; font-size: 18px; font-variant-numeric: tabular-nums; }
+.visualizer-job-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 14px; }
+.visualizer-job-card { min-width: 0; border: 1px solid var(--console-line); border-radius: 13px; background: var(--console-panel-2); padding: 15px; }
+.visualizer-job-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.visualizer-job-id { display: block; max-width: 250px; overflow: hidden; color: var(--console-muted); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.visualizer-job-head h3 { margin: 7px 0 0; color: #fff; font-size: 14px; line-height: 1.25; }
+.visualizer-job-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin: 14px 0; }
+.visualizer-job-meta span { display: grid; gap: 2px; min-width: 0; color: var(--console-muted); font-size: 10px; line-height: 1.35; }
+.visualizer-job-meta span b { color: #dce2e8; font-size: 9px; font-weight: 800; }
+.visualizer-job-images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.visualizer-job-image { position: relative; display: block; min-width: 0; aspect-ratio: 1 / 1.15; overflow: hidden; border: 1px solid var(--console-line); border-radius: 9px; background: #0d1117; padding: 0; cursor: zoom-in; }
+.visualizer-job-image img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 180ms ease; }
+.visualizer-job-image:hover img { transform: scale(1.04); }
+.visualizer-job-image span { position: absolute; right: 5px; bottom: 5px; left: 5px; overflow: hidden; padding: 4px 5px; border-radius: 4px; background: rgba(0,0,0,.68); color: #fff; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.visualizer-job-empty { display: grid; min-height: 130px; place-items: center; padding: 16px; border: 1px dashed var(--console-line); border-radius: 9px; color: var(--console-muted); font-size: 11px; line-height: 1.5; text-align: center; }
+.visualizer-job-note { margin: 11px 0 0; color: var(--console-warn); font-size: 10px; line-height: 1.45; }
+.visualizer-image-viewer { position: fixed; z-index: 20; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(0,0,0,.78); }
+.visualizer-image-viewer-panel { display: flex; flex-direction: column; width: min(1100px, 100%); max-height: calc(100vh - 48px); overflow: hidden; border: 1px solid var(--console-line); border-radius: 13px; background: var(--console-panel); box-shadow: 0 30px 100px rgba(0,0,0,.5); }
+.visualizer-image-viewer-panel header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 14px 16px; }
+.visualizer-image-viewer-panel header span { color: var(--console-lime); font-size: 9px; font-weight: 900; letter-spacing: .12em; }
+.visualizer-image-viewer-panel header h3 { margin: 6px 0 0; color: #fff; font-size: 16px; }
+.visualizer-image-viewer-stage { display: grid; min-height: 0; place-items: center; padding: 12px; background: #080a0e; }
+.visualizer-image-viewer-stage img { display: block; max-width: 100%; max-height: calc(100vh - 150px); width: auto; height: auto; object-fit: contain; }
+
 .review-admin-body { max-width: 560px; white-space: normal; color: #d8dee6; }
 .flag-grid { display: flex; flex-wrap: wrap; gap: 6px; }
 
@@ -152,6 +185,14 @@
   .blog-form-grid { grid-template-columns: 1fr; }
   .blog-form .field-wide { grid-column: auto; }
   .blog-editor-head { flex-direction: column; }
+  .visualizer-gallery-head { flex-direction: column; gap: 14px; }
+  .visualizer-gallery-stats { justify-content: flex-start; width: 100%; }
+  .visualizer-gallery-stats span { flex: 1; min-width: 0; }
+  .visualizer-job-grid { grid-template-columns: 1fr; }
+  .visualizer-image-viewer { padding: 8px; }
+  .visualizer-image-viewer-panel { max-height: calc(100vh - 16px); border-radius: 10px; }
+  .visualizer-image-viewer-stage { flex: 1; padding: 6px; }
+  .visualizer-image-viewer-stage img { max-height: calc(100vh - 120px); }
 }
 
 @media (max-width: 900px) {
