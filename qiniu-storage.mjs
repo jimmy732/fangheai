@@ -18,7 +18,7 @@ function storageConfig() {
   const accessKey = envValue('FBOX_QINIU_ACCESS_KEY', 'QINIU_ACCESS_KEY');
   const secretKey = envValue('FBOX_QINIU_SECRET_KEY', 'QINIU_SECRET_KEY');
   const bucket = envValue('FBOX_QINIU_BUCKET', 'QINIU_BUCKET_STATIC');
-  const uploadUrl = envValue('FBOX_QINIU_UPLOAD_URL') || 'https://upload.qiniup.com';
+  const uploadUrl = envValue('FBOX_QINIU_UPLOAD_URL') || 'https://up-na0.qiniup.com';
   const publicBaseUrl = envValue('FBOX_QINIU_PUBLIC_BASE_URL', 'QINIU_PUBLIC_BASE_URL').replace(/\/+$/, '');
   const configured = enabled
     && Boolean(accessKey && secretKey && bucket)

@@ -42,7 +42,7 @@ FBOX_QINIU_ENABLED=false
 FBOX_QINIU_ACCESS_KEY=
 FBOX_QINIU_SECRET_KEY=
 FBOX_QINIU_BUCKET=
-FBOX_QINIU_UPLOAD_URL=https://upload.qiniup.com
+FBOX_QINIU_UPLOAD_URL=https://up-na0.qiniup.com
 FBOX_QINIU_PUBLIC_BASE_URL=https://img.forcarbox.cn
 FBOX_QINIU_STATIC_PREFIX=fbox/static/assets
 FBOX_QINIU_MEDIA_PREFIX=fbox/media
@@ -54,3 +54,7 @@ Qiniu failure never rejects the local upload. Turn on
 `FBOX_ASSET_CDN_ENABLED` only after `img.forcarbox.cn` is configured for
 foreign/global acceleration, HTTPS is valid, and the synchronized WebP paths
 return `200` from overseas test locations.
+
+The `forcarbox` bucket is hosted in Qiniu's North America region, so its upload
+endpoint must remain `https://up-na0.qiniup.com`. A bucket in another region
+must use that region's matching upload endpoint.
