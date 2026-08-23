@@ -3,6 +3,7 @@ import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
+import { uploadQiniuObject } from './qiniu-storage.mjs';
 
 let sharp = null;
 try {
@@ -44,6 +45,7 @@ const fitmentPath = path.join(runtimeDir, 'fbox-fitment.json');
 const seedFitmentPath = path.join(moduleDir, 'data', 'fbox-fitment.seed.json');
 const catalogFitmentPath = path.join(moduleDir, 'data', 'fbox-fitment.catalog.json');
 const mediaDir = path.join(runtimeDir, 'fbox-media');
+const qiniuMediaPrefix = String(process.env.FBOX_QINIU_MEDIA_PREFIX || 'fbox/media').replace(/^\/+|\/+$/g, '');
 const adminSessions = new Map();
 const adminSessionsPath = path.join(runtimeDir, 'fbox-admin-sessions.json');
 const adminSessionTtlMs = 12 * 60 * 60 * 1000;
@@ -2062,7 +2064,7 @@ async function processCatalogImage(parsed, processMode = 'cutout') {
   if (!sharp) {
     return { ...parsed, processed: false, background_removed: false, processing: 'processor-unavailable' };
   }
-  const source = sharp(parsed.bytes, { failOn: 'none' }).resize({ width: 2400, height: 2400, fit: 'inside', withoutEnlargement: true }).ensureAlpha();
+  const source = sharp(parsed.bytes, { failOn: 'none' }).resize({ width: 1800, height: 1800, fit: 'inside', withoutEnlargement: true }).ensureAlpha();
   const { data, info } = await source.raw().toBuffer({ resolveWithObject: true });
   const hasTransparency = (() => {
     for (let index = 3; index < data.length; index += 4) if (data[index] < 255) return true;
@@ -2071,11 +2073,13 @@ async function processCatalogImage(parsed, processMode = 'cutout') {
   const result = hasTransparency
     ? { data, removed: 0, attempted: false }
     : removeFlatImageBackground(data, info.width, info.height);
-  const output = await sharp(result.data, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer();
+  const output = await sharp(result.data, { raw: { width: info.width, height: info.height, channels: 4 } })
+    .webp({ quality: 88, alphaQuality: 100, effort: 5, smartSubsample: true })
+    .toBuffer();
   return {
     bytes: output,
-    mime: 'image/png',
-    extension: 'png',
+    mime: 'image/webp',
+    extension: 'webp',
     processed: true,
     background_removed: Boolean(result.removed || hasTransparency),
     processing: hasTransparency ? 'existing-alpha' : result.removed ? 'flat-background' : 'preserved-original'
@@ -2100,6 +2104,13 @@ export async function handleFBoxAssetApi(req, res, url) {
       const filename = `fbox_asset_${Date.now()}_${randomUUID().slice(0, 8)}.${processed.extension}`;
       await fs.mkdir(mediaDir, { recursive: true });
       await fs.writeFile(path.join(mediaDir, filename), processed.bytes);
+      let cloud = { uploaded: false, reason: 'disabled' };
+      try {
+        cloud = await uploadQiniuObject({ key: `${qiniuMediaPrefix}/${filename}`, bytes: processed.bytes, mime: processed.mime });
+      } catch (error) {
+        cloud = { uploaded: false, reason: 'upload-failed' };
+        console.error('[fbox-assets] Qiniu mirror failed:', error?.message || error);
+      }
       return json(res, 200, {
         data: {
           id: filename,
@@ -2111,7 +2122,10 @@ export async function handleFBoxAssetApi(req, res, url) {
           original_bytes: parsed.bytes.length,
           processed: processed.processed,
           background_removed: processed.background_removed,
-          processing: processed.processing
+          processing: processed.processing,
+          storage: cloud.uploaded ? 'local+qiniu' : 'local',
+          cdn_url: cloud.url || '',
+          cdn_mirrored: cloud.uploaded === true
         }
       });
     } catch (error) {

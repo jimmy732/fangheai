@@ -6,7 +6,9 @@
     "node": ">=18.17"
   },
   "scripts": {
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "optimize:assets": "node scripts/optimize-assets.mjs",
+    "sync:qiniu": "node scripts/sync-assets-to-qiniu.mjs"
   },
   "dependencies": {
     "sharp": "^0.35.3"

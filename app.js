@@ -1,4 +1,6 @@
 const ASSET = './assets/';
+const runtimeConfig = globalThis.__FBOX_RUNTIME__ || {};
+const staticAssetFallbacks = new Map();
 const icons = {
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>',
   cart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h7.5a2 2 0 0 0 1.9-1.5L20 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg>',
@@ -117,13 +119,15 @@ const mallConfig = {
 
 const paypalHostedButtonConfig = {
   productId: 'fbox-halo-20-spoke',
-  buttonId: 'H3B5HFVS2UW6Q'
+  buttonId: 'H3B5HFVS2UW6Q',
+  sdkUrl: 'https://www.paypal.com/sdk/js?client-id=BAA8s4HvB-lyiiKYKM_GT6F_AebG4mRT6fQP9ZEHYZ17BU9vy9KaSahJUqK8hVYyCRKWYqeVl-u6H7D9Qg&components=hosted-buttons&disable-funding=venmo&currency=USD'
 };
 
 const paypalCartButtonConfig = {
   productId: 'fbox-vanta-10',
   merchantId: '3VP6957R27FNQ',
-  buttonId: 'pp-view-cart'
+  buttonId: 'pp-view-cart',
+  sdkUrl: 'https://www.paypalobjects.com/ncp/cart/cart.js'
 };
 
 const localeOptions = [
@@ -524,6 +528,7 @@ const state = {
     vehicle: JSON.parse(localStorage.getItem('fbox-vehicle') || 'null'),
     parts: [],
     loaded: false,
+    loading: false,
     submitting: false,
     error: '',
     draft: {},
@@ -542,10 +547,44 @@ function getRoute() {
 }
 function esc(value = '') { return String(value).replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
 function assetUrl(value = '') {
-  const source = String(value || '');
-  if (/^assets\//i.test(source)) return `./${source}`;
-  return /^(?:https?:|data:|\/|\.\.?\/)/i.test(source) ? source : `${ASSET}${source}`;
+  const source = String(value || '').trim();
+  if (!source) return source;
+  const cdnBase = String(runtimeConfig.assetCdnBaseUrl || '').replace(/\/+$/, '');
+  const cdnPrefix = String(runtimeConfig.assetCdnPathPrefix || '').replace(/^\/+|\/+$/g, '');
+  const cdnMediaPrefix = String(runtimeConfig.assetCdnMediaPathPrefix || 'fbox/media').replace(/^\/+|\/+$/g, '');
+  const useCdn = runtimeConfig.assetCdnEnabled === true && /^https:\/\//i.test(cdnBase);
+  const apiAssetMatch = source.match(/(?:^|\/)api\/fbox-assets\/([^/?#]+)/i);
+  if (apiAssetMatch) {
+    if (!useCdn) return source;
+    const resolved = `${cdnBase}/${[cdnMediaPrefix, apiAssetMatch[1]].filter(Boolean).join('/')}`;
+    staticAssetFallbacks.set(new URL(resolved, location.href).href, source);
+    return resolved;
+  }
+  if (/^(?:https?:|data:|blob:)/i.test(source)) return source;
+  if (/^(?:\/|\.\.?\/)/.test(source) && !/^(?:\.\/|\/)?assets\//i.test(source)) return source;
+  const relative = source.replace(/^\.\//, '').replace(/^\/+/g, '').replace(/^assets\//i, '');
+  const localOriginal = `${ASSET}${relative}`;
+  if (!/\.(?:png|jpe?g)$/i.test(relative)) return localOriginal;
+
+  const optimizedRelative = relative.replace(/\.(?:png|jpe?g)$/i, '.webp');
+  const localOptimized = `${ASSET}${optimizedRelative}`;
+  const resolved = useCdn
+    ? `${cdnBase}/${[cdnPrefix, optimizedRelative].filter(Boolean).join('/')}`
+    : localOptimized;
+  staticAssetFallbacks.set(new URL(resolved, location.href).href, localOriginal);
+  return resolved;
 }
+document.addEventListener('error', event => {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement) || image.dataset.fboxFallbackTried === 'true') return;
+  const failedSource = image.currentSrc || image.src;
+  const fallback = staticAssetFallbacks.get(failedSource);
+  if (!fallback) return;
+  image.dataset.fboxFallbackTried = 'true';
+  const link = image.closest('a[href]');
+  if (link && link.href === failedSource) link.href = new URL(fallback, location.href).href;
+  image.src = fallback;
+}, true);
 function money(value) { return `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; }
 function stars(rating) { return Number(rating) > 0 ? `<span class="stars" aria-label="${rating} out of 5">★★★★★</span>` : '<span class="rating-empty">No verified reviews yet</span>'; }
 function productSizeNote(item) { return item?.size_note || (item?.category === 'Wheels' ? 'All sizes supported - custom diameter, width and fitment' : 'All sizes supported - custom fitment built to order'); }
@@ -1069,7 +1108,7 @@ async function checkMallBackend() {
   renderBackgroundUpdate();
   const [portal, admin] = await Promise.allSettled([
     fetch(`${mallConfig.portalBase}/products`, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) }),
-    fetch('/api/fbox-content/vehicles', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
+    fetch('/api/fbox-content/settings', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
   ]);
   state.backend.portal = portal.status === 'fulfilled' && portal.value.ok ? 'connected' : 'testing';
   state.backend.admin = admin.status === 'fulfilled' && admin.value.ok ? 'connected' : 'testing';
@@ -1097,45 +1136,108 @@ function applyProductReviewStats(catalog) {
   });
 }
 
-async function loadFBoxContent() {
+async function loadReviewsContent() {
   try {
-    const [vehicleResponse, reviewResponse, caseResponse, photoReviewResponse, fitmentResponse] = await Promise.all([
-      fetch('/api/fbox-content/vehicles', { headers: { Accept: 'application/json' } }),
-      fetch('/api/fbox-content/reviews?status=approved', { headers: { Accept: 'application/json' } }),
-      fetch('/api/fbox-content/cases?status=published', { headers: { Accept: 'application/json' } }),
-      fetch('/api/fbox-content/photo-reviews?limit=20', { headers: { Accept: 'application/json' } }),
-      fetch('/api/fbox-content/fitment/parts', { headers: { Accept: 'application/json' } })
-    ]);
-    const vehiclePayload = await vehicleResponse.json().catch(() => ({}));
+    const reviewResponse = await fetch('/api/fbox-content/reviews?status=approved', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10000) });
     const reviewPayload = await reviewResponse.json().catch(() => ({}));
-    const casePayload = await caseResponse.json().catch(() => ({}));
-    const photoReviewPayload = await photoReviewResponse.json().catch(() => ({}));
-    const fitmentPayload = await fitmentResponse.json().catch(() => ({}));
-    state.fboxVehicleRecords = Array.isArray(vehiclePayload.data) ? vehiclePayload.data.filter(record => record.status !== 'inactive') : [];
-    const remoteYears = state.fboxVehicleRecords.map(record => Number(record.year)).filter(Boolean);
-    years.splice(0, years.length, ...Array.from(new Set([...years, ...remoteYears])).sort((a, b) => Number(b) - Number(a)));
-    state.fboxVehicleLibrary = {
-      ready: vehicleResponse.ok,
-      source: vehicleResponse.ok ? 'F-Box vehicle library' : 'local-fallback',
-      total: Number(vehiclePayload.meta?.total || state.fboxVehicleRecords.length),
-      officialSpecs: Number(vehiclePayload.meta?.verified_specs || 0),
-    };
-    state.fboxVehicleRecords.forEach(record => {
-      vehicles[record.year] ||= {};
-      vehicles[record.year][record.make] ||= {};
-      vehicles[record.year][record.make][record.model] ||= [];
-      if (record.trim && !vehicles[record.year][record.make][record.model].includes(record.trim)) vehicles[record.year][record.make][record.model].push(record.trim);
-    });
+    if (!reviewResponse.ok) throw new Error('Reviews unavailable');
     reviews = Array.isArray(reviewPayload.data) ? reviewPayload.data : [];
-    fboxCases = Array.isArray(casePayload.data) ? casePayload.data : [];
-    fboxPhotoReviews = Array.isArray(photoReviewPayload.data) ? photoReviewPayload.data : [];
-    state.fitment.parts = Array.isArray(fitmentPayload.data) ? fitmentPayload.data : [];
-    state.fitment.loaded = fitmentResponse.ok;
     products = applyProductReviewStats(products);
     renderBackgroundUpdate();
   } catch {
-    // The storefront keeps its local vehicle fallback when the content API is offline.
+    // Reviews stay empty when the public content API is offline.
   }
+}
+
+async function loadCasesContent() {
+  try {
+    const caseResponse = await fetch('/api/fbox-content/cases?status=published', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10000) });
+    const casePayload = await caseResponse.json().catch(() => ({}));
+    if (!caseResponse.ok) throw new Error('Cases unavailable');
+    fboxCases = Array.isArray(casePayload.data) ? casePayload.data : [];
+    renderBackgroundUpdate();
+  } catch {
+    // Case studies are optional storefront content.
+  }
+}
+
+async function loadPhotoReviewsContent() {
+  try {
+    const photoReviewResponse = await fetch('/api/fbox-content/photo-reviews?limit=20', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10000) });
+    const photoReviewPayload = await photoReviewResponse.json().catch(() => ({}));
+    if (!photoReviewResponse.ok) throw new Error('Photo reviews unavailable');
+    fboxPhotoReviews = Array.isArray(photoReviewPayload.data) ? photoReviewPayload.data : [];
+    renderBackgroundUpdate();
+  } catch {
+    // Photo reviews are optional storefront content.
+  }
+}
+
+async function loadFitmentPartsContent() {
+  if (state.fitment.loaded || state.fitment.loading) return;
+  state.fitment.loading = true;
+  try {
+    const fitmentResponse = await fetch('/api/fbox-content/fitment/parts', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(12000) });
+    const fitmentPayload = await fitmentResponse.json().catch(() => ({}));
+    if (!fitmentResponse.ok) throw new Error('Fitment parts unavailable');
+    state.fitment.parts = Array.isArray(fitmentPayload.data) ? fitmentPayload.data : [];
+    state.fitment.loaded = true;
+    renderBackgroundUpdate();
+  } catch {
+    state.fitment.loaded = false;
+  } finally {
+    state.fitment.loading = false;
+  }
+}
+
+function loadFBoxContent() {
+  return Promise.allSettled([
+    loadReviewsContent(),
+    loadCasesContent(),
+    loadPhotoReviewsContent()
+  ]);
+}
+
+const loadedVehicleRecordKeys = new Set();
+const vehicleRecordRequests = new Map();
+function vehicleRecordKey(vehicle = {}) {
+  return [vehicle.year, vehicle.make, vehicle.model, vehicle.trim].map(value => String(value || '').trim()).join('|');
+}
+async function loadSelectedVehicleRecord(vehicle = state.vehicle) {
+  if (!vehicle?.year || !vehicle?.make || !vehicle?.model || !vehicle?.trim) return null;
+  const key = vehicleRecordKey(vehicle);
+  const existing = state.fboxVehicleRecords.find(record => vehicleRecordKey(record) === key);
+  if (existing || loadedVehicleRecordKeys.has(key)) return existing || null;
+  if (vehicleRecordRequests.has(key)) return vehicleRecordRequests.get(key);
+
+  const request = (async () => {
+    const params = new URLSearchParams({
+      year: String(vehicle.year),
+      make: vehicle.make,
+      model: vehicle.model,
+      trim: vehicle.trim
+    });
+    const response = await fetch(`/api/fbox-content/vehicles?${params}`, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10000) });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error('Vehicle specification unavailable');
+    const records = Array.isArray(payload.data) ? payload.data.filter(record => record.status !== 'inactive') : [];
+    const known = new Set(state.fboxVehicleRecords.map(record => record.id || `${vehicleRecordKey(record)}|${record.drive || ''}`));
+    records.forEach(record => {
+      const identity = record.id || `${vehicleRecordKey(record)}|${record.drive || ''}`;
+      if (!known.has(identity)) state.fboxVehicleRecords.push(record);
+    });
+    loadedVehicleRecordKeys.add(key);
+    state.fboxVehicleLibrary = {
+      ready: true,
+      source: payload.meta?.source || 'F-Box vehicle library',
+      total: Number(payload.meta?.total || records.length),
+      officialSpecs: Number(payload.meta?.verified_specs || 0)
+    };
+    if (vehicleRecordKey(state.vehicle || state.fitment.vehicle || {}) === key) renderBackgroundUpdate();
+    return records[0] || null;
+  })().catch(() => null).finally(() => vehicleRecordRequests.delete(key));
+  vehicleRecordRequests.set(key, request);
+  return request;
 }
 
 async function loadBlogContent() {
@@ -1589,10 +1691,10 @@ function homePage() {
     <div class="hero-foot"><span><strong>60,000+</strong> builds studied</span><span><strong>4.9/5</strong> verified reviews</span><span><strong>48 hr</strong> brake parts dispatch</span></div>
   </div></div></section>
   <div class="container"><div class="trust-strip"><div class="trust-item"><div class="trust-icon">${icons.shield}</div><div><strong>Fitment checked</strong><span>Confidence before checkout</span></div></div><div class="trust-item"><div class="trust-icon">${icons.truck}</div><div><strong>Fast global delivery</strong><span>Live estimates at checkout</span></div></div><div class="trust-item"><div class="trust-icon">${icons.bolt}</div><div><strong>Build-ready stock</strong><span>In-stock picks ship first</span></div></div><div class="trust-item"><div class="trust-icon">${icons.chat}</div><div><strong>Real human help</strong><span>Talk to a fitment expert</span></div></div></div></div>
-  <section class="section" id="gallery"><div class="container"><div class="section-heading"><div><p class="eyebrow">Start with your platform</p><h2>Fitment video guides</h2></div><p>See the stance, clearance and brake-room decisions before you buy. Every guide is built to make the next click feel obvious.</p></div><div class="guide-grid">${guideCards.map(([name, caption, image], i) => `<a class="guide-card spotlight-card reveal delay-${i % 4}" href="#store"><img src="${ASSET + image}" alt="${esc(name)} fitment guide" loading="lazy"><div class="guide-label"><small>${caption}</small><strong>${name}</strong></div></a>`).join('')}</div></div></section>
+  <section class="section" id="gallery"><div class="container"><div class="section-heading"><div><p class="eyebrow">Start with your platform</p><h2>Fitment video guides</h2></div><p>See the stance, clearance and brake-room decisions before you buy. Every guide is built to make the next click feel obvious.</p></div><div class="guide-grid">${guideCards.map(([name, caption, image], i) => `<a class="guide-card spotlight-card reveal delay-${i % 4}" href="#store"><img src="${assetUrl(image)}" alt="${esc(name)} fitment guide" loading="lazy"><div class="guide-label"><small>${caption}</small><strong>${name}</strong></div></a>`).join('')}</div></div></section>
   <section class="section-tight" style="background:#f7f9fa"><div class="container"><div class="section-heading"><div><p class="eyebrow">One catalog, all the pieces</p><h2>Shop the build</h2></div><a class="btn btn-dark" href="#store">View all parts</a></div><div class="category-grid">${categories.map(([name, copy, icon], i) => `<a class="category-card reveal delay-${i % 4}" href="#store" data-category-link="${esc(name.includes('Wheel') ? 'Wheels' : name)}"><div class="category-icon">${iconForCategory(icon)}</div><strong>${name}</strong><span>${copy}</span></a>`).join('')}</div></div></section>
   <section class="section" id="brands"><div class="container"><div class="section-heading"><div><p class="eyebrow">Popular right now</p><h2>Best-selling wheels</h2></div><p>Our most saved silhouettes, translated into F-Box fitment notes so you can compare the visual and the actual spec.</p></div><div class="product-grid">${products.filter(p => p.category === 'Wheels').slice(0, 4).map(renderProductCard).join('')}</div></div></section>
-  <section class="section-tight"><div class="container"><div class="brand-feature"><div><p class="eyebrow" style="color:var(--lime)">F-Box brake lab</p><h2>Make the <span>stop</span> part of the build.</h2><p>From quiet street pads to six-piston ceramic kits, every braking product is presented with clearance, heat and daily-use context.</p><a class="btn btn-primary" href="#store" data-category-link="Calipers">Explore braking</a></div><div class="brand-carousel">${[['a7dd472643daf9b4.jpg', 'Ceramic Pro'], ['fe1a37ef746c28f0.jpg', 'Street 4P'], ['e78ac1cfdeae4727.jpg', 'Track Slotted'], ['f5effff1812a14eb.jpg', 'Street Blue']].map(([image, label]) => `<div class="brand-item"><img src="${ASSET + image}" alt="${label}" loading="lazy"><span>${label}</span></div>`).join('')}</div></div></div></section>
+  <section class="section-tight"><div class="container"><div class="brand-feature"><div><p class="eyebrow" style="color:var(--lime)">F-Box brake lab</p><h2>Make the <span>stop</span> part of the build.</h2><p>From quiet street pads to six-piston ceramic kits, every braking product is presented with clearance, heat and daily-use context.</p><a class="btn btn-primary" href="#store" data-category-link="Calipers">Explore braking</a></div><div class="brand-carousel">${[['a7dd472643daf9b4.jpg', 'Ceramic Pro'], ['fe1a37ef746c28f0.jpg', 'Street 4P'], ['e78ac1cfdeae4727.jpg', 'Track Slotted'], ['f5effff1812a14eb.jpg', 'Street Blue']].map(([image, label]) => `<div class="brand-item"><img src="${assetUrl(image)}" alt="${label}" loading="lazy"><span>${label}</span></div>`).join('')}</div></div></div></section>
   <section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">Proof from the community</p><h2>Built by people who drive them.</h2></div><p>4.9/5 from F-Box customers across daily builds, weekend cars and track setups.</p></div><div class="reviews-layout"><div class="review-score"><strong>4.9</strong>${stars(4.9)}<p>from 16,494 verified reviews</p><div class="review-bars"><div class="review-bar"><span>5★</span><i class="bar-track"><i style="width:94%"></i></i><span>94%</span></div><div class="review-bar"><span>4★</span><i class="bar-track"><i style="width:5%"></i></i><span>5%</span></div><div class="review-bar"><span>3★</span><i class="bar-track"><i style="width:1%"></i></i><span>1%</span></div></div></div><div class="review-list">${reviews.slice(0, 2).map((review, i) => renderReview(review, i)).join('')}</div></div></div></section>`;
 }
 
@@ -1615,15 +1717,15 @@ function customWheelHomePage() {
     ['Approve the look', 'Design direction, finish, center cap and brand details.'],
     ['Build + ship', 'Production updates, final inspection and global delivery.']
   ];
-  return `<section class="custom-wheel-hero" id="home"><div class="container custom-wheel-hero-grid"><div class="custom-wheel-copy reveal"><p class="custom-kicker">F-Box Custom Wheel Studio <span>Made to your numbers</span></p><h1>Made for your <em>exact build.</em></h1><p class="custom-hero-sub">Custom forged wheels for drivers who know the difference between a wheel that looks right and a wheel that fits right. Bring us the car, the stance and the finish — we will turn the brief into a build-ready spec.</p><div class="custom-hero-actions"><a class="btn btn-primary" href="#home#custom-build">Start a custom build</a><a class="btn btn-light" href="#fitment" data-action="open-fitment-lab">Check chassis fitment</a><a class="btn btn-light" href="#store" data-category-link="Wheels">Shop finished wheels</a></div><div class="custom-hero-proof"><span><strong>1:1</strong> build brief</span><span><strong>PCD · ET · CB</strong> fitment-led</span><span><strong>Global</strong> delivery support</span></div></div><div class="custom-wheel-stage spotlight-card reveal delay-2"><div class="custom-stage-index">BUILD 001 <span>/ F-BOX CUSTOM</span></div><div class="custom-stage-ring"></div><img src="${ASSET}a7dd472643daf9b4.jpg" alt="F-Box custom black performance wheel" loading="eager"><div class="custom-stage-caption"><strong>Form follows fitment.</strong><span>Monoblock / satin black / custom spec</span></div></div></div><div class="container custom-wheel-rail"><a href="#home#custom-build"><span>01</span> Configure your spec</a><a href="#fitment" data-action="open-fitment-lab"><span>02</span> Check chassis + parts</a><a href="#home#gallery"><span>03</span> Browse real builds</a><a href="#home#brands"><span>04</span> Shop ready designs</a></div></section>
+  return `<section class="custom-wheel-hero" id="home"><div class="container custom-wheel-hero-grid"><div class="custom-wheel-copy reveal"><p class="custom-kicker">F-Box Custom Wheel Studio <span>Made to your numbers</span></p><h1>Made for your <em>exact build.</em></h1><p class="custom-hero-sub">Custom forged wheels for drivers who know the difference between a wheel that looks right and a wheel that fits right. Bring us the car, the stance and the finish — we will turn the brief into a build-ready spec.</p><div class="custom-hero-actions"><a class="btn btn-primary" href="#home#custom-build">Start a custom build</a><a class="btn btn-light" href="#fitment" data-action="open-fitment-lab">Check chassis fitment</a><a class="btn btn-light" href="#store" data-category-link="Wheels">Shop finished wheels</a></div><div class="custom-hero-proof"><span><strong>1:1</strong> build brief</span><span><strong>PCD · ET · CB</strong> fitment-led</span><span><strong>Global</strong> delivery support</span></div></div><div class="custom-wheel-stage spotlight-card reveal delay-2"><div class="custom-stage-index">BUILD 001 <span>/ F-BOX CUSTOM</span></div><div class="custom-stage-ring"></div><img src="${assetUrl('rse-01.png')}" alt="F-Box custom black performance wheel" loading="eager" decoding="async" fetchpriority="high"><div class="custom-stage-caption"><strong>Form follows fitment.</strong><span>Monoblock / satin black / custom spec</span></div></div></div><div class="container custom-wheel-rail"><a href="#home#custom-build"><span>01</span> Configure your spec</a><a href="#fitment" data-action="open-fitment-lab"><span>02</span> Check chassis + parts</a><a href="#home#gallery"><span>03</span> Browse real builds</a><a href="#home#brands"><span>04</span> Shop ready designs</a></div></section>
   <div class="container"><div class="trust-strip custom-trust-strip"><div class="trust-item"><div class="trust-icon">${icons.shield}</div><div><strong>Fitment before finish</strong><span>Numbers first. No guesswork.</span></div></div><div class="trust-item"><div class="trust-icon">${icons.spark}</div><div><strong>Made-to-order options</strong><span>Size, color, cap and detail.</span></div></div><div class="trust-item"><div class="trust-icon">${icons.bolt}</div><div><strong>Proof before production</strong><span>Review the brief before we build.</span></div></div><div class="trust-item"><div class="trust-icon">${icons.chat}</div><div><strong>Human fitment help</strong><span>Talk to a real build specialist.</span></div></div></div></div>
   <section class="custom-build-section section" id="custom-build"><div class="container"><div class="custom-section-heading"><div><p class="eyebrow">The custom brief</p><h2>Spec it once.<br><span>Get the wheel right.</span></h2></div><p>Custom wheel buyers are not choosing a generic product from a shelf. They are choosing a stance, a purpose and a set of numbers that have to work together. F-Box makes that decision visible before the order moves forward.</p></div><div class="custom-build-grid"><div class="custom-vehicle-card"><div class="custom-card-top"><span class="custom-step-number">01</span><div><p class="eyebrow">Start with the vehicle</p><h3>Tell us what you drive.</h3></div></div><p>Stock car, lowered street build, big-brake setup or full project — start with the platform so the wheel can be designed around the real clearance.</p><div class="fitment-card custom-fitment-card" id="fitment-inline">${vehicleSelector('hero')}<button class="btn btn-primary" data-action="open-fitment-lab">Open the fitment lab</button></div>${fitmentPreview()}</div><div class="custom-spec-card"><p class="eyebrow">What we lock together</p><div class="custom-spec-list">${customSpecs.map(([number, title, copy]) => `<div class="custom-spec-row"><strong>${number}</strong><div><h3>${title}</h3><p>${copy}</p></div></div>`).join('')}</div><div class="custom-spec-tags"><span>Forged / 1-piece / 2-piece</span><span>Deep concave / step lip</span><span>Custom finish / cap / logo</span></div></div></div></div></section>
   <section class="custom-audience section-tight"><div class="container"><div class="custom-section-heading compact"><div><p class="eyebrow">Built around the buyer</p><h2>One wheel studio.<br><span>Four ways to build.</span></h2></div><p>Lead with the use case instead of forcing every visitor through the same catalog path.</p></div><div class="custom-audience-grid">${buyerModes.map(([title, copy, meta], i) => `<article class="custom-audience-card reveal delay-${i % 4}"><span class="custom-audience-index">0${i + 1}</span><h3>${title}</h3><p>${copy}</p><small>${meta}</small></article>`).join('')}</div></div></section>
-  <section class="custom-workshop section" id="workshop"><div class="container"><div class="custom-workshop-grid"><div class="custom-workshop-media spotlight-card"><img src="${ASSET}ff2a26733252a2c8.jpg" alt="Custom wheel engineering and finish reference" loading="lazy"><div class="custom-media-stamp"><strong>F-BOX / 001</strong><span>Engineering reference</span></div><div class="custom-media-note">Finished wheel study · finish and spoke direction</div></div><div class="custom-workshop-copy"><p class="eyebrow">From brief to build</p><h2>A custom wheel is a process, not a product card.</h2><p>Strong custom-wheel brands sell confidence: a clear brief, transparent fitment decisions, a finish that feels personal and a human who stays close when the build gets specific.</p><div class="custom-process-list">${customProcess.map(([title, copy], i) => `<div class="custom-process-row"><span>0${i + 1}</span><div><strong>${title}</strong><p>${copy}</p></div></div>`).join('')}</div><div class="custom-workshop-actions"><a class="btn btn-primary" href="#fitment" data-action="open-fitment-lab">Open fitment lab</a><a class="btn btn-dark" href="#home#custom-build">Build my wheel brief</a></div></div></div></div></section>
-  <section class="section custom-finish-section"><div class="container"><div class="custom-finish-grid"><div><p class="eyebrow">The details buyers remember</p><h2>Color is only the beginning.</h2><p class="muted">A custom wheel feels premium when the small decisions are easy to compare: satin or gloss, deep or flush, center cap or branded, street-safe or track-led.</p><div class="custom-finish-chips"><span>Gloss / satin / matte</span><span>Brushed / polished / milled</span><span>Custom center caps</span><span>Laser logo details</span><span>1-piece / 2-piece</span><span>Road / show / track</span></div></div><div class="custom-finish-collage"><div class="custom-finish-tile large"><img src="${ASSET}0938e8f8953be744.jpg" alt="Polished multi-spoke custom wheel" loading="lazy"><span>Polished / multi-spoke</span></div><div class="custom-finish-tile"><img src="${ASSET}038bd6e7abb31b4c.jpg" alt="Gloss black custom wheel" loading="lazy"><span>Gloss / deep dish</span></div><div class="custom-finish-tile"><img src="${ASSET}daff2c93eff5e0db.jpg" alt="Graphite custom wheel" loading="lazy"><span>Graphite / performance</span></div></div></div></div></section>
+  <section class="custom-workshop section" id="workshop"><div class="container"><div class="custom-workshop-grid"><div class="custom-workshop-media spotlight-card"><img src="${assetUrl('ff2a26733252a2c8.jpg')}" alt="Custom wheel engineering and finish reference" loading="lazy"><div class="custom-media-stamp"><strong>F-BOX / 001</strong><span>Engineering reference</span></div><div class="custom-media-note">Finished wheel study · finish and spoke direction</div></div><div class="custom-workshop-copy"><p class="eyebrow">From brief to build</p><h2>A custom wheel is a process, not a product card.</h2><p>Strong custom-wheel brands sell confidence: a clear brief, transparent fitment decisions, a finish that feels personal and a human who stays close when the build gets specific.</p><div class="custom-process-list">${customProcess.map(([title, copy], i) => `<div class="custom-process-row"><span>0${i + 1}</span><div><strong>${title}</strong><p>${copy}</p></div></div>`).join('')}</div><div class="custom-workshop-actions"><a class="btn btn-primary" href="#fitment" data-action="open-fitment-lab">Open fitment lab</a><a class="btn btn-dark" href="#home#custom-build">Build my wheel brief</a></div></div></div></div></section>
+  <section class="section custom-finish-section"><div class="container"><div class="custom-finish-grid"><div><p class="eyebrow">The details buyers remember</p><h2>Color is only the beginning.</h2><p class="muted">A custom wheel feels premium when the small decisions are easy to compare: satin or gloss, deep or flush, center cap or branded, street-safe or track-led.</p><div class="custom-finish-chips"><span>Gloss / satin / matte</span><span>Brushed / polished / milled</span><span>Custom center caps</span><span>Laser logo details</span><span>1-piece / 2-piece</span><span>Road / show / track</span></div></div><div class="custom-finish-collage"><div class="custom-finish-tile large"><img src="${assetUrl('0938e8f8953be744.jpg')}" alt="Polished multi-spoke custom wheel" loading="lazy"><span>Polished / multi-spoke</span></div><div class="custom-finish-tile"><img src="${assetUrl('038bd6e7abb31b4c.jpg')}" alt="Gloss black custom wheel" loading="lazy"><span>Gloss / deep dish</span></div><div class="custom-finish-tile"><img src="${assetUrl('daff2c93eff5e0db.jpg')}" alt="Graphite custom wheel" loading="lazy"><span>Graphite / performance</span></div></div></div></div></section>
   <section class="section" id="gallery"><div class="container"><div class="section-heading"><div><p class="eyebrow">Verified builds only</p><h2>Customer build gallery.</h2></div><p>See how custom wheels look on real cars and finished builds.</p></div>${fboxCases.length ? `<div class="guide-grid">${fboxCases.map((item, i) => `<article class="guide-card spotlight-card reveal delay-${i % 4}"><img src="${esc(item.image_url)}" alt="${esc(item.title)}" loading="lazy"><div class="guide-label"><small>${esc(item.vehicle || item.product_name || 'F-Box build')}</small><strong>${esc(item.title)}</strong></div></article>`).join('')}</div>` : '<div class="case-empty"><strong>Customer builds are coming soon.</strong><span>See real wheel fitment and finish examples from new builds.</span></div>'}</div></section>
   <section class="section custom-ready-section" id="brands"><div class="container"><div class="custom-ready-head"><div><p class="eyebrow">For buyers who want it now</p><h2>Start with a proven design.<br><span>Make it yours.</span></h2></div><div><p>These ready-to-buy F-Box wheels stay in the catalog exactly as before. Use them as a starting point, or ask us to take the fitment and finish further.</p><a class="btn btn-dark" href="#store" data-category-link="Wheels">Browse finished wheels</a></div></div><div class="product-grid">${products.filter(p => p.category === 'Wheels').slice(0, 4).map(renderProductCard).join('')}</div></div></section>
-  <section class="section-tight"><div class="container"><div class="brand-feature"><div><p class="eyebrow" style="color:var(--lime)">F-Box brake lab</p><h2>Make the <span>stop</span> part of the build.</h2><p>From quiet street pads to six-piston ceramic kits, every braking product is presented with clearance, heat and daily-use context.</p><a class="btn btn-primary" href="#store" data-category-link="Calipers">Explore braking</a></div><div class="brand-carousel">${[['a7dd472643daf9b4.jpg', 'Ceramic Pro'], ['fe1a37ef746c28f0.jpg', 'Street 4P'], ['e78ac1cfdeae4727.jpg', 'Track Slotted'], ['f5effff1812a14eb.jpg', 'Street Blue']].map(([image, label]) => `<div class="brand-item"><img src="${ASSET + image}" alt="${label}" loading="lazy"><span>${label}</span></div>`).join('')}</div></div></div></section>
+  <section class="section-tight"><div class="container"><div class="brand-feature"><div><p class="eyebrow" style="color:var(--lime)">F-Box brake lab</p><h2>Make the <span>stop</span> part of the build.</h2><p>From quiet street pads to six-piston ceramic kits, every braking product is presented with clearance, heat and daily-use context.</p><a class="btn btn-primary" href="#store" data-category-link="Calipers">Explore braking</a></div><div class="brand-carousel">${[['a7dd472643daf9b4.jpg', 'Ceramic Pro'], ['fe1a37ef746c28f0.jpg', 'Street 4P'], ['e78ac1cfdeae4727.jpg', 'Track Slotted'], ['f5effff1812a14eb.jpg', 'Street Blue']].map(([image, label]) => `<div class="brand-item"><img src="${assetUrl(image)}" alt="${label}" loading="lazy"><span>${label}</span></div>`).join('')}</div></div></div></section>
   <section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">Verified customer feedback</p><h2>Reviews will live here.</h2></div><p>Customer experiences will appear here as new builds are completed.</p></div><div class="case-empty"><strong>Customer reviews are coming soon.</strong><span>Share your fitment experience with other drivers.</span></div></div></section>`;
 }
 
@@ -1885,16 +1987,25 @@ function customPreviewStage() {
   const pages = [];
   for (let index = 0; index < options.length; index += pageSize) pages.push(options.slice(index, index + pageSize));
   const pageCount = Math.max(1, pages.length);
-  const optionButton = option => `<button type="button" class="custom-preview-wheel-option ${option.id === item.id ? 'is-active' : ''}" data-action="home-preview-wheel" data-id="${esc(option.id)}" aria-label="Preview ${esc(homePreviewShortName(option))}" aria-pressed="${option.id === item.id}"><img src="${esc(assetUrl(option.image))}" alt="${esc(option.name)}"><span>${esc(homePreviewShortName(option))}</span></button>`;
+  const optionButton = option => `<button type="button" class="custom-preview-wheel-option ${option.id === item.id ? 'is-active' : ''}" data-action="home-preview-wheel" data-id="${esc(option.id)}" aria-label="Preview ${esc(homePreviewShortName(option))}" aria-pressed="${option.id === item.id}"><img src="${esc(assetUrl(option.image))}" alt="${esc(option.name)}" loading="lazy" decoding="async" fetchpriority="low"><span>${esc(homePreviewShortName(option))}</span></button>`;
   const pageMarkup = pages.map(page => `<div class="custom-preview-wheel-page" data-home-wheel-page>${page.map(optionButton).join('')}</div>`).join('');
   const arrows = pageCount > 1 ? `<button type="button" class="custom-preview-wheel-arrow is-prev" data-action="home-preview-prev" aria-label="Previous wheels" title="Previous wheels">${icons.arrowLeft}</button><button type="button" class="custom-preview-wheel-arrow is-next" data-action="home-preview-next" aria-label="Next wheels" title="Next wheels">${icons.arrowRight}</button>` : '';
-  return `<div class="custom-preview-stage spotlight-card reveal delay-2" data-home-preview-stage><div class="custom-preview-head"><div><span class="custom-preview-kicker">F-BOX VISUAL STUDIO</span><strong>Live fitment preview</strong><small>See the selected wheel on your car before production.</small></div><span class="custom-preview-status"><i></i> Preview included</span></div><div class="custom-preview-canvas"><div class="custom-preview-canvas-grid"></div><div class="custom-preview-canvas-meta"><span>LIVE / 01</span><span>03 ANGLES</span></div><img class="custom-preview-wheel" data-home-preview-image src="${esc(assetUrl(selectedImage))}" alt="${esc(item.name)} preview" loading="eager"><div class="custom-preview-canvas-label"><span>Selected design</span><strong data-home-preview-name>${esc(homePreviewShortName(item))}</strong><em data-home-preview-finish>${esc(item.finish || item.color || 'Custom finish')}</em></div></div><div class="custom-preview-controls"><div class="custom-preview-control-head"><div><span class="custom-preview-step-number">01</span><div><strong>Choose a wheel</strong><small>All sizes · custom fitment</small></div></div><b data-home-preview-price>${productPriceText(item)}</b></div><div class="custom-preview-wheel-selector" data-home-wheel-carousel data-home-wheel-page-count="${pageCount}" role="group" aria-label="Choose a wheel"><div class="custom-preview-wheel-selector-meta"><span>Newest to archive</span><b data-home-wheel-page-label>01 / ${String(pageCount).padStart(2, '0')}</b></div><div class="custom-preview-wheel-viewport" data-home-wheel-viewport><div class="custom-preview-wheel-track" data-home-wheel-track>${pageMarkup}</div>${arrows}</div></div><div class="custom-preview-next"><div class="custom-preview-next-copy"><span class="custom-preview-step-number">02</span><div><strong>Upload your car photo</strong><small>Generate three fitment angles with the selected wheel.</small></div></div><button type="button" class="btn btn-primary custom-preview-open" data-action="wheel-open" data-home-preview-open data-id="${esc(item.id)}" data-image="${esc(selectedImage)}"><span>Upload photo &amp; preview</span><span aria-hidden="true">↗</span></button></div></div></div>`;
+  return `<div class="custom-preview-stage spotlight-card reveal delay-2" data-home-preview-stage><div class="custom-preview-head"><div><span class="custom-preview-kicker">F-BOX VISUAL STUDIO</span><strong>Live fitment preview</strong><small>See the selected wheel on your car before production.</small></div><span class="custom-preview-status"><i></i> Preview included</span></div><div class="custom-preview-canvas"><div class="custom-preview-canvas-grid"></div><div class="custom-preview-canvas-meta"><span>LIVE / 01</span><span>03 ANGLES</span></div><img class="custom-preview-wheel" data-home-preview-image src="${esc(assetUrl(selectedImage))}" alt="${esc(item.name)} preview" loading="eager" decoding="async" fetchpriority="high"><div class="custom-preview-canvas-label"><span>Selected design</span><strong data-home-preview-name>${esc(homePreviewShortName(item))}</strong><em data-home-preview-finish>${esc(item.finish || item.color || 'Custom finish')}</em></div></div><div class="custom-preview-controls"><div class="custom-preview-control-head"><div><span class="custom-preview-step-number">01</span><div><strong>Choose a wheel</strong><small>All sizes · custom fitment</small></div></div><b data-home-preview-price>${productPriceText(item)}</b></div><div class="custom-preview-wheel-selector" data-home-wheel-carousel data-home-wheel-page-count="${pageCount}" role="group" aria-label="Choose a wheel"><div class="custom-preview-wheel-selector-meta"><span>Newest to archive</span><b data-home-wheel-page-label>01 / ${String(pageCount).padStart(2, '0')}</b></div><div class="custom-preview-wheel-viewport" data-home-wheel-viewport><div class="custom-preview-wheel-track" data-home-wheel-track>${pageMarkup}</div>${arrows}</div></div><div class="custom-preview-next"><div class="custom-preview-next-copy"><span class="custom-preview-step-number">02</span><div><strong>Upload your car photo</strong><small>Generate three fitment angles with the selected wheel.</small></div></div><button type="button" class="btn btn-primary custom-preview-open" data-action="wheel-open" data-home-preview-open data-id="${esc(item.id)}" data-image="${esc(selectedImage)}"><span>Upload photo &amp; preview</span><span aria-hidden="true">↗</span></button></div></div></div>`;
 }
 function wireHomeVisualizerBanner() {
   if (state.route.name !== 'home') return;
   const stage = document.querySelector('.custom-wheel-stage');
   if (!stage) return;
   stage.outerHTML = customPreviewStage();
+}
+function ensureExternalScript(id, src, attributes = {}) {
+  if (document.getElementById(id)) return;
+  const script = document.createElement('script');
+  script.id = id;
+  script.src = src;
+  script.async = true;
+  Object.entries(attributes).forEach(([name, value]) => script.setAttribute(name, value));
+  document.head.append(script);
 }
 function paypalHostedButtonMarkup(item) {
   if (item?.id !== paypalHostedButtonConfig.productId) return '';
@@ -1905,6 +2016,7 @@ function paypalHostedButtonMarkup(item) {
 function wirePayPalHostedButton() {
   const container = document.querySelector('[data-paypal-hosted-container]');
   if (!container || container.dataset.paypalRendered === 'true') return;
+  ensureExternalScript('fbox-paypal-hosted-sdk', paypalHostedButtonConfig.sdkUrl);
   let attempts = 0;
   const showFailure = () => {
     if (!container.isConnected) return;
@@ -1915,7 +2027,7 @@ function wirePayPalHostedButton() {
     if (!container.isConnected || container.dataset.paypalRendered === 'true') return;
     if (!window.paypal?.HostedButtons) {
       attempts += 1;
-      if (attempts < 24) window.setTimeout(mount, 250);
+      if (attempts < 80) window.setTimeout(mount, 250);
       else showFailure();
       return;
     }
@@ -1937,6 +2049,7 @@ function paypalCartButtonMarkup(item) {
 function wirePayPalCartButton() {
   const button = document.querySelector('[data-paypal-cart-button]');
   if (!button || button.dataset.paypalCartRendered === 'true') return;
+  ensureExternalScript('fbox-paypal-cart-sdk', paypalCartButtonConfig.sdkUrl, { 'data-merchant-id': paypalCartButtonConfig.merchantId });
   let attempts = 0;
   const showFailure = () => {
     if (!button.isConnected) return;
@@ -1952,14 +2065,14 @@ function wirePayPalCartButton() {
       return;
     }
     attempts += 1;
-    if (attempts < 24) window.setTimeout(waitForContent, 250);
+    if (attempts < 80) window.setTimeout(waitForContent, 250);
     else showFailure();
   };
   const mount = () => {
     if (!button.isConnected || button.dataset.paypalCartRendered === 'true') return;
     if (typeof window.cartPaypal?.Cart !== 'function') {
       attempts += 1;
-      if (attempts < 24) window.setTimeout(mount, 250);
+      if (attempts < 80) window.setTimeout(mount, 250);
       else showFailure();
       return;
     }
@@ -2591,6 +2704,7 @@ function updateVehicle(field, value) {
   if (field === 'year') { state.vehicle = value ? { year: value } : null; }
   else { v[field] = value; if (field === 'make') { delete v.model; delete v.trim; delete v.drive; } if (field === 'model') { delete v.trim; delete v.drive; } if (field === 'trim') delete v.drive; state.vehicle = v; }
   persist(); render();
+  if (state.vehicle?.trim) void loadSelectedVehicleRecord(state.vehicle);
   if (state.vehicle?.trim) window.setTimeout(() => document.querySelector('.fitment-preview')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
 }
 function updateFitmentVehicle(field, value) {
@@ -2606,6 +2720,7 @@ function updateFitmentVehicle(field, value) {
   state.vehicle = state.fitment.vehicle;
   persist();
   render();
+  if (state.fitment.vehicle?.trim) void loadSelectedVehicleRecord(state.fitment.vehicle);
 }
 function clearFilters() { state.search = ''; state.filters = { category: 'All', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' }; state.sort = 'latest'; render(); }
 async function wheelVisualizerSubmitInquiry(values) {
@@ -2718,6 +2833,7 @@ document.addEventListener('click', async event => {
   }
   if (action === 'open-fitment-lab') {
     state.fitment.vehicle = state.vehicle || state.fitment.vehicle;
+    void loadFitmentPartsContent();
     go('#fitment');
     return;
   }
@@ -3066,7 +3182,7 @@ document.addEventListener('keydown', event => {
   if (state.wheelVisualizer?.resultViewer?.open) { state.wheelVisualizer.resultViewer = null; render(); return; }
   if (state.wheelVisualizer?.open) wheelVisualizerClose();
 });
-window.addEventListener('hashchange', () => { state.menuOpen = false; state.mobileNav = false; state.modal = null; state.reviewLimit = 3; render(); window.scrollTo({ top: 0, behavior: 'instant' }); trackPageView(); });
+window.addEventListener('hashchange', () => { state.menuOpen = false; state.mobileNav = false; state.modal = null; state.reviewLimit = 3; render(); if (state.route.name === 'fitment') void loadFitmentPartsContent(); window.scrollTo({ top: 0, behavior: 'instant' }); trackPageView(); });
 window.addEventListener('languagechange', () => {
   if (state.localeMode !== 'auto') return;
   const nextLocale = browserLocale();
@@ -3081,6 +3197,8 @@ detectLocaleByIp();
 checkMallBackend();
 loadMallCatalog();
 loadFBoxContent();
+void loadSelectedVehicleRecord(state.vehicle);
+if (state.route.name === 'fitment') void loadFitmentPartsContent();
 loadBlogContent();
 loadFBoxSettings();
 void loadAccountInfo();
