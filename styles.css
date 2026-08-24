@@ -519,10 +519,13 @@ paypal-cart-button { display: block; min-height: 46px; width: 100%; }
 @media (max-width: 430px) {
   .header-main { grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
   .header-actions { min-width: 0; gap: 0; }
-  .header-action { padding-right: 4px; padding-left: 4px; }
+  .header-action { width: 32px; padding-right: 0; padding-left: 0; }
+  .header-action[data-action="cart"] { width: 48px; }
   .locale-control { min-width: 0; }
-  .locale-select { width: 96px; max-width: 96px; padding-right: 5px; padding-left: 5px; font-size: 10px; }
-  .brand { font-size: 20px; }
+  .locale-select { width: 88px; max-width: 88px; min-width: 0; overflow: hidden; padding-right: 4px; padding-left: 4px; font-size: 10px; text-overflow: ellipsis; }
+  .hamburger { width: 34px; height: 34px; }
+  .brand { gap: 7px; min-width: 0; font-size: 18px; }
+  .brand-mark { width: 26px; height: 26px; }
   .hero h1 { font-size: 70px; }
   .fitment-card { grid-template-columns: 1fr; }
   .fitment-card .fitment-selects { grid-template-columns: 1fr; }
@@ -552,7 +555,7 @@ paypal-cart-button { display: block; min-height: 46px; width: 100%; }
 .custom-wheel-hero::before { position: absolute; inset: 0; content: ''; opacity: .34; background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px); background-size: 56px 56px; mask-image: linear-gradient(90deg, #000, transparent 82%); }
 .custom-wheel-hero::after { position: absolute; right: 16%; bottom: -180px; width: 520px; height: 520px; content: ''; border: 1px solid rgba(200,255,47,.22); border-radius: 50%; box-shadow: 0 0 0 32px rgba(200,255,47,.05), 0 0 0 64px rgba(200,255,47,.03); }
 .custom-wheel-hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.03fr) minmax(390px, .97fr); align-items: center; gap: clamp(36px, 7vw, 110px); min-height: 690px; padding-top: 76px; padding-bottom: 58px; }
-.custom-wheel-copy { max-width: 720px; }
+.custom-wheel-copy { max-width: 720px; min-width: 0; }
 .custom-kicker { display: flex; align-items: center; gap: 11px; margin: 0 0 23px; color: var(--lime); font-size: 11px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }
 .custom-kicker::before { width: 36px; height: 2px; content: ''; background: var(--lime); }
 .custom-kicker span { color: rgba(255,255,255,.42); font-weight: 700; letter-spacing: .11em; }
@@ -728,6 +731,8 @@ paypal-cart-button { display: block; min-height: 46px; width: 100%; }
   .custom-wheel-hero-grid { grid-template-columns: 1fr; min-height: auto; padding-top: 62px; padding-bottom: 36px; }
   .custom-wheel-copy h1 { font-size: clamp(72px, 20vw, 110px); }
   .custom-hero-sub { max-width: 600px; font-size: 13px; }
+  .custom-hero-actions { display: grid; grid-template-columns: 1fr; }
+  .custom-hero-actions .btn { width: 100%; min-width: 0; padding-right: 12px; padding-left: 12px; line-height: 1.25; text-align: center; white-space: normal; }
   .custom-wheel-stage { min-height: 380px; }
   .custom-wheel-stage img { width: 100%; height: 100%; }
   .custom-preview-stage { min-height: 0; }

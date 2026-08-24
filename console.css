@@ -13,8 +13,8 @@
   --console-blue: #6ea8fe;
 }
 
-.console-auth { max-width: 460px; margin: 8vh auto 40px; }
-.console-login h2 { margin: 0 0 10px; font-size: 26px; letter-spacing: -0.03em; }
+.console-auth { width: 100%; max-width: 460px; min-width: 0; margin: 8vh auto 40px; }
+.console-login h2 { max-width: 100%; margin: 0 0 10px; overflow-wrap: anywhere; font-size: 26px; letter-spacing: 0; }
 .console-login-note { margin: 0 0 22px; color: var(--console-muted); font-size: 13px; line-height: 1.6; }
 .console-login form { display: grid; gap: 14px; }
 
@@ -182,6 +182,7 @@
 .console-table td strong { white-space: normal; }
 
 @media (max-width: 700px) {
+  .console-auth { margin-top: 32px; }
   .blog-form-grid { grid-template-columns: 1fr; }
   .blog-form .field-wide { grid-column: auto; }
   .blog-editor-head { flex-direction: column; }
@@ -193,6 +194,19 @@
   .visualizer-image-viewer-panel { max-height: calc(100vh - 16px); border-radius: 10px; }
   .visualizer-image-viewer-stage { flex: 1; padding: 6px; }
   .visualizer-image-viewer-stage img { max-height: calc(100vh - 120px); }
+}
+
+@media (max-width: 600px) {
+  .console-shell { margin: 14px 0 32px; border-radius: 12px; }
+  .console-side { max-width: 100%; }
+  .console-nav { min-width: max-content; }
+  .console-top { align-items: flex-start; flex-direction: column; padding: 14px; }
+  .console-top-actions { justify-content: space-between; width: 100%; }
+  .console-view { padding: 14px; }
+  .panel-grid { grid-template-columns: 1fr; }
+  .console-card { padding: 14px; }
+  .visualizer-job-meta { grid-template-columns: 1fr; }
+  .visualizer-job-images { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 900px) {
