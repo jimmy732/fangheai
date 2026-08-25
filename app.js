@@ -3404,6 +3404,26 @@ function fitmentVehicleIsComplete(vehicle = state.fitment.vehicle || {}) {
   return fitmentVehicleMissingFields(vehicle).length === 0;
 }
 
+function scheduleFitmentVehicleMissingFocus() {
+  const focusMissingField = () => {
+    const form = document.querySelector('[data-form="fitment-wizard"]');
+    const firstMissing = form?.querySelector('[data-required-missing="true"]');
+    const error = form?.querySelector('.fitment-flow-error');
+    if (!firstMissing || !error) return;
+    const active = document.activeElement;
+    const canRestore = !active
+      || active === document.body
+      || active === document.documentElement
+      || active === firstMissing
+      || active.matches?.('[data-action="fitment-wizard-next"]');
+    if (!canRestore) return;
+    firstMissing.focus({ preventScroll: true });
+    firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+  requestAnimationFrame(focusMissingField);
+  [120, 480, 1200].forEach(delay => window.setTimeout(focusMissingField, delay));
+}
+
 function captureFitmentVehicle(form = document.querySelector('[data-form="fitment-wizard"]')) {
   const container = form?.querySelector('[data-fitment-vehicle]');
   if (!container) return state.fitment.vehicle || null;
@@ -5997,11 +6017,7 @@ function fitmentWizardAdvance(delta = 1) {
   if (delta > 0 && flow.step === 2 && !fitmentVehicleIsComplete(vehicle)) {
     state.fitment.flow = { ...flow, error: fitmentVehicleMissingMessage(vehicle) };
     render();
-    requestAnimationFrame(() => {
-      const firstMissing = document.querySelector('[data-form="fitment-wizard"] [data-required-missing="true"]');
-      firstMissing?.focus({ preventScroll: true });
-      firstMissing?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
+    scheduleFitmentVehicleMissingFocus();
     return;
   }
   state.fitment.flow = { ...flow, step: Math.min(5, Math.max(1, flow.step + delta)), panel: '', error: '' };
