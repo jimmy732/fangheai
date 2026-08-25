@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>F-Box Admin · Visualizer Route</title>
-  <link rel="stylesheet" href="./console.css">
+  <link rel="stylesheet" href="/console.css">
   <style>
     :root { color-scheme: dark; --ink:#080a0e; --panel:#11151b; --panel-2:#171d25; --line:rgba(255,255,255,.12); --muted:#89939e; --lime:#c8ff1a; --lav:#a98cff; --danger:#ff8d8d; --ok:#7de3b0; }
     * { box-sizing:border-box; }
@@ -55,6 +55,18 @@
     .notice b { color:var(--lime); }
     .notice code { color:#fff; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
     footer { width:min(1060px, calc(100% - 40px)); margin:0 auto; padding:0 0 36px; color:#66717d; font-size:11px; }
+    body.fitment-console-page main { width:min(1680px, calc(100% - 32px)); padding:24px 0 48px; }
+    body.fitment-console-page main > :not(#console-auth):not(#console-app) { display:none !important; }
+    body.fitment-console-page footer { display:none; }
+    body.fitment-console-page .topbar .back { color:#fff; }
+    body.fitment-console-page .console-shell { min-height:calc(100vh - 132px); margin:0; }
+    body.fitment-console-page .console-nav-item:not([data-view="fitment"]) { display:none; }
+    body.site-assets-console-page main { width:min(1680px, calc(100% - 32px)); padding:24px 0 48px; }
+    body.site-assets-console-page main > :not(#console-auth):not(#console-app) { display:none !important; }
+    body.site-assets-console-page footer { display:none; }
+    body.site-assets-console-page .topbar .back { color:#fff; }
+    body.site-assets-console-page .console-shell { min-height:calc(100vh - 132px); margin:0; }
+    body.site-assets-console-page .console-nav-item:not([data-view="site-assets"]) { display:none; }
     @media (max-width:760px) { main { width:calc(100% - 24px); padding-top:32px; } .topbar { align-items:flex-start; flex-direction:column; } h1 { max-width:100%; overflow-wrap:anywhere; font-size:clamp(38px,12vw,58px); letter-spacing:0; } .console-auth { width:100%; max-width:none; margin:0 auto 36px; } .console-login.panel { min-width:0; overflow:hidden; padding:18px; } .console-login h2 { max-width:100%; overflow-wrap:anywhere; font-size:clamp(22px,7vw,26px); line-height:1.12; letter-spacing:0; } .status-grid, .form-grid { grid-template-columns:1fr; } .field-wide { grid-column:auto; } .panel-head { flex-direction:column; } .actions { align-items:stretch; flex-direction:column; } .actions .btn { width:100%; } }
   </style>
 </head>
@@ -84,6 +96,7 @@
             <button class="console-nav-item" data-view="reviews">评价管理</button>
             <button class="console-nav-item" data-view="blog">博客管理</button>
             <button class="console-nav-item" data-view="fitment">适配实验室</button>
+            <button class="console-nav-item" data-view="site-assets">店铺装修图片</button>
             <button class="console-nav-item" data-view="visualizer">效果图配置</button>
           </nav>
           <div class="console-side-foot"><span id="console-operator"></span><button class="console-logout" id="console-logout">退出登录</button></div>
@@ -123,7 +136,7 @@
   </main>
   <footer>Fanghe Overseas Intelligent Technology Co., Ltd. · F-Box Visual Studio · local operator surface</footer>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-  <script type="module" src="./console.js"></script>
+  <script type="module" src="/console.js"></script>
   <script>
     const $ = selector => document.querySelector(selector);
     const message = (text, kind = '') => { const el = $('#message'); el.textContent = text; el.className = `message ${kind}`; };

@@ -2,8 +2,40 @@
 // moderation. Runs alongside the visualizer-route admin page; talks only to
 // the same-origin F-Box backend.
 
+const fitmentConsolePage = ['/admin/fitment-lab', '/admin/fitment-lab/'].includes(location.pathname);
+const siteAssetsConsolePage = ['/admin/site-assets', '/admin/site-assets/'].includes(location.pathname);
+const initialConsoleView = siteAssetsConsolePage ? 'site-assets' : fitmentConsolePage ? 'fitment' : 'dashboard';
+
+function storedAdminToken() {
+  const consoleToken = localStorage.getItem('fbox-console-token') || '';
+  if (consoleToken) return consoleToken;
+  try {
+    const modernSession = JSON.parse(localStorage.getItem('user') || '{}');
+    return String(modernSession?.userInfo?.token || '');
+  } catch {
+    return '';
+  }
+}
+
+if (fitmentConsolePage) {
+  document.body.classList.add('fitment-console-page');
+  document.title = 'F-Box Admin · 轮毂定制计算器';
+  const back = document.querySelector('.topbar .back');
+  if (back) { back.href = '/admin/#/fbox/overview'; back.textContent = '返回 F-Box 管理后台'; }
+  const brand = document.querySelector('.topbar .brand');
+  if (brand) brand.href = '/admin/#/fbox/overview';
+}
+if (siteAssetsConsolePage) {
+  document.body.classList.add('site-assets-console-page');
+  document.title = 'F-Box Admin · 店铺装修图片';
+  const back = document.querySelector('.topbar .back');
+  if (back) { back.href = '/admin/#/fbox/overview'; back.textContent = '返回 F-Box 管理后台'; }
+  const brand = document.querySelector('.topbar .brand');
+  if (brand) brand.href = '/admin/#/fbox/overview';
+}
+
 const state = {
-  token: localStorage.getItem('fbox-console-token') || '',
+  token: storedAdminToken(),
   view: 'dashboard',
   range: '30d',
   dashboard: null,
@@ -19,6 +51,12 @@ const state = {
   fitmentEditingId: '',
   fitmentResult: null,
   fitmentCheckPayload: null,
+  fitmentVehicleReference: null,
+  fitmentVehicleReferenceLoading: false,
+  fitmentVehicleReferenceError: '',
+  siteAssets: [],
+  siteAssetsMeta: null,
+  siteAssetNotice: '',
   visualizerJobs: [],
   visualizerViewer: null
 };
@@ -29,6 +67,7 @@ const viewTitles = {
   reviews: '评价管理',
   blog: '博客管理',
   fitment: '适配实验室',
+  'site-assets': '店铺装修图片',
   visualizer: '效果图配置'
 };
 
@@ -100,6 +139,7 @@ async function renderView() {
   if (state.view === 'reviews') return renderReviews();
   if (state.view === 'blog') return renderBlog();
   if (state.view === 'fitment') return renderFitment();
+  if (state.view === 'site-assets') return renderSiteAssets();
   if (state.view === 'visualizer') return renderVisualizer();
 }
 
@@ -409,22 +449,67 @@ function fitmentPartEditorMarkup(part = {}) {
 }
 
 function fitmentAdminAxleMarkup(axle, label) {
-  const field = (name, fieldLabel, help = '', placeholder = '') => `<label><span>${fieldLabel}</span>${help ? `<small class="fitment-admin-help">${help}</small>` : ''}<input name="${axle}_${name}" placeholder="${placeholder}"></label>`;
-  const fields = [
-    field('diameter', '轮毂直径（英寸）', '填写轮圈胎唇座直径，不是轮胎外径。'),
-    field('width', '轮毂宽度（英寸）', '填写轮毂图纸上的胎唇座宽度。'),
-    field('offset', 'ET / 偏距（毫米）', '填写安装面偏距；正 ET 会让轮毂向车内移动。'),
-    field('pcd', 'PCD', '填写孔数 × 孔距圆直径，例如 5x112。', '5x112'),
-    field('center_bore', '中心孔（毫米）', '填写轮毂中心孔；小于车辆轴头就无法安装。'),
-    field('spacer_mm', '垫片厚度（毫米）', '填写实际安装的垫片厚度，它会同时改变内外间隙。', '0'),
-    field('inner_clearance_mm', '轮毂内桶到避震筒（毫米）', '量轮毂内桶到避震筒或弹簧座的最小距离。'),
-    field('spoke_clearance_mm', '辐条背面到卡钳（毫米）', '量辐条背面到卡钳最高点；有模板时优先使用刹车模板。'),
-    field('camber_deg', '倾角（度）', '负值表示轮胎上端向车内倾。', '-2.0'),
-    field('toe_deg', '前束（度）', '降低车身后按四轮定位单填写该轴总前束。', '0.00'),
-    field('fender_clearance_mm', '轮胎肩部到轮眉内缘（毫米）', '前轴打满方向时，量轮胎肩部到轮眉内缘的最小距离。'),
-    field('compression_clearance_mm', '完全压缩最小间隙（毫米）', '悬挂完全压缩并受载时，量轮胎、轮眉、避震和轮毂内桶的最小间隙。')
-  ].join(' ');
-  return `<div class="fitment-admin-axle"><h4>${label}</h4><div class="fitment-admin-check-grid">${fields}<label><span>轮胎安装风格</span><small class="fitment-admin-help">标准或拉伸会改变胎唇和轮眉间隙，请填写实际安装方式。</small><select name="${axle}_tire_fitment_style"><option value="">未说明</option><option value="standard">标准安装</option><option value="mild-stretch">轻度拉伸</option><option value="aggressive-stretch">激进拉伸</option></select></label><label class="field-wide"><span>轮胎规格</span><small class="fitment-admin-help">填写当前轮胎规格，它决定滚动直径和胎壁位置。</small><input name="${axle}_tire" placeholder="255/35R19"></label></div></div>`;
+  const field = (name, fieldLabel, help = '', placeholder = '', options = {}) => `<label class="${options.wide ? 'field-wide' : ''}"><span>${fieldLabel}</span>${help ? `<small class="fitment-admin-help">${help}</small>` : ''}<input name="${name}" ${options.type ? `type="${options.type}"` : ''} ${options.step ? `step="${options.step}"` : ''} placeholder="${placeholder}"></label>`;
+  const currentFields = [
+    field(`current_${axle}_diameter`, '当前轮毂直径（英寸）', '读取现车轮毂标识或可靠订单。', '18', { type: 'number', step: '0.5' }),
+    field(`current_${axle}_width`, '当前轮毂宽度（英寸）', '胎唇座宽度，例如 8.5J 填 8.5。', '8.5', { type: 'number', step: '0.5' }),
+    field(`current_${axle}_offset`, '当前 ET（毫米）', '当前轮毂安装面偏距。', '35', { type: 'number', step: '0.1' }),
+    field(`current_${axle}_spacer_mm`, '当前垫片（毫米）', '没有垫片填 0。', '0', { type: 'number', step: '0.1' }),
+    field(`current_${axle}_tire`, '当前轮胎规格', '用于计算滚动直径和胎肩位置。', '255/35R19', { wide: true })
+  ].join('');
+  const targetFields = [
+    field(`${axle}_diameter`, '目标轮毂直径（英寸）', '客户希望的胎唇座直径。', '19', { type: 'number', step: '0.5' }),
+    field(`${axle}_width`, '目标轮毂宽度（英寸）', '可先填店家经验规格，系统会按间隙修正。', '9', { type: 'number', step: '0.5' }),
+    field(`${axle}_offset`, '候选 ET（毫米，可留空）', '留空时由当前基准和实测间隙反算。', '38', { type: 'number', step: '0.1' }),
+    field(`${axle}_pcd`, '目标 PCD', '孔数 × 孔距圆直径，例如 5x112。', '5x112'),
+    field(`${axle}_center_bore`, '目标中心孔（毫米）', '不得小于车辆轴头；最终按图纸加工。', '66.6', { type: 'number', step: '0.1' }),
+    field(`${axle}_spacer_mm`, '目标垫片（毫米）', '量产方案尽量不依赖垫片；没有填 0。', '0', { type: 'number', step: '0.1' })
+  ].join('');
+  const clearanceFields = [
+    field(`${axle}_inner_clearance_mm`, '当前轮毂内桶到避震最小间隙（毫米）', '量内桶、轮胎内侧到避震筒或弹簧座的最小值。', '20', { type: 'number', step: '0.1' }),
+    field(`${axle}_spoke_clearance_mm`, '当前辐条背面到卡钳最小间隙（毫米）', '模板优先；手量时记录卡钳最高点。', '6', { type: 'number', step: '0.1' }),
+    field(`${axle}_fender_clearance_mm`, '当前轮胎肩部到轮眉最小间隙（毫米）', axle === 'front' ? '打满左右方向并受载后取最小值。' : '车辆受载后取轮胎到轮眉最小值。', '18', { type: 'number', step: '0.1' }),
+    field(`${axle}_compression_clearance_mm`, '当前完全压缩最小间隙（毫米）', '悬挂压缩到可用行程末端，取轮胎、轮眉、避震和内桶最小值。', '24', { type: 'number', step: '0.1' }),
+    field(`${axle}_camber_deg`, '当前倾角（度）', '按四轮定位单填写；负值表示上端向内。', '-1.5', { type: 'number', step: '0.01' }),
+    field(`${axle}_toe_deg`, '当前该轴总前束（度）', '按四轮定位单填写，不能用肉眼估算。', '0.00', { type: 'number', step: '0.01' })
+  ].join('');
+  const tireFields = [
+    field(`${axle}_tire`, '目标轮胎规格', '宽度 / 扁平比 / 轮圈，例如 255/35R19。', '255/35R19'),
+    field(`${axle}_tire_maker`, '轮胎品牌', '用于核对厂商批准轮圈宽度。', 'Michelin'),
+    field(`${axle}_tire_model`, '轮胎型号', '必须对应具体花纹系列。', 'Pilot Sport 4 S'),
+    field(`${axle}_tire_load_index`, '载重指数', '按车型轴荷和轮胎目录核对。', '96'),
+    field(`${axle}_tire_speed_rating`, '速度级别', '例如 Y、W、V。', 'Y'),
+    field(`${axle}_tire_rim_min`, '厂商允许轮圈宽度下限（英寸）', '来自该尺寸轮胎技术目录。', '8.5', { type: 'number', step: '0.5' }),
+    field(`${axle}_tire_rim_max`, '厂商允许轮圈宽度上限（英寸）', '来自同一轮胎技术目录。', '10', { type: 'number', step: '0.5' })
+  ].join('');
+  return `<div class="fitment-admin-axle"><h4>${label}</h4><section class="fitment-admin-subgroup"><h5>01 当前安装基准</h5><div class="fitment-admin-check-grid">${currentFields}</div></section><section class="fitment-admin-subgroup"><h5>02 客户目标 / 店家候选规格</h5><div class="fitment-admin-check-grid">${targetFields}</div></section><section class="fitment-admin-subgroup"><h5>03 现车实测间隙</h5><div class="fitment-admin-check-grid">${clearanceFields}</div></section><section class="fitment-admin-subgroup"><h5>04 目标轮胎许可</h5><div class="fitment-admin-check-grid">${tireFields}<label><span>轮胎安装方式</span><small class="fitment-admin-help">标准安装优先；拉伸安装必须另外动态复测。</small><select name="${axle}_tire_fitment_style"><option value="standard">标准安装</option><option value="mild-stretch">轻度拉伸</option><option value="aggressive-stretch">激进拉伸</option></select></label></div></section></div>`;
+}
+
+function fitmentAdminInstallationMarkup() {
+  const checks = [
+    ['caliper', '辐条到卡钳间隙已复检'],
+    ['suspension', '内桶 / 轮胎到避震间隙已复检'],
+    ['steering_lock', '左右打满方向间隙已复检'],
+    ['full_travel', '悬挂完整有效行程已复检'],
+    ['fender_loaded', '受载后的轮眉间隙已复检'],
+    ['road_test', '四轮定位和路试已完成']
+  ].map(([key, label]) => `<label><input type="checkbox" name="installation_check_${key}"><span>${label}</span></label>`).join('');
+  return `<details class="fitment-admin-installation"><summary>记录安装后的真实结果（可选）</summary><div class="fitment-admin-form-grid"><label>安装结果<select name="installation_outcome"><option value="candidate">仅候选 / 尚未安装</option><option value="installed_clear">安装并复检无干涉</option><option value="installed_after_correction">修正规格后安装成功</option><option value="interference_found">发现干涉 / 待修正</option></select></label><label>安装日期<input type="date" name="installation_date"></label><label>安装人员 / 工单号<input name="installation_reference" placeholder="Alex / WO-024"></label><label class="field-wide">安装后备注<input name="installation_note" placeholder="记录最终垫片、定位、轮胎或干涉修正"></label></div><fieldset class="fitment-admin-installation-checks"><legend>安装后六项复检</legend>${checks}</fieldset></details>`;
+}
+
+function fitmentAdminVehicleReferenceMarkup() {
+  const data = state.fitmentVehicleReference;
+  if (state.fitmentVehicleReferenceLoading) return `<section id="fitment-admin-vehicle-reference" class="fitment-admin-vehicle-reference is-loading"><strong>正在查询车型参考…</strong></section>`;
+  if (state.fitmentVehicleReferenceError) return `<section id="fitment-admin-vehicle-reference" class="fitment-admin-vehicle-reference is-error"><strong>车型参考查询失败</strong><p>${esc(state.fitmentVehicleReferenceError)}</p></section>`;
+  if (!data) return `<section id="fitment-admin-vehicle-reference" class="fitment-admin-vehicle-reference is-empty"><strong>车型参数参考</strong><p>填写年份、品牌和车型后点击“查询车型参考”，系统会显示已有的 PCD、中心孔、原厂轮毂、ET、轮胎和刹车基线。</p></section>`;
+  const exact = data.exact_record || null;
+  const platform = data.platform_reference || null;
+  if (!exact && !platform) return `<section id="fitment-admin-vehicle-reference" class="fitment-admin-vehicle-reference is-empty"><strong>没有匹配记录</strong><p>请用 VIN、准确配置、当前轮毂标识和实车测量继续建档，也可在车型库新增人工核验记录。</p></section>`;
+  const specs = exact?.oem_wheel_specs || {};
+  const verified = exact?.spec_status === 'verified';
+  const wheelSpec = [specs.diameter && specs.width ? `${specs.diameter} × ${specs.width}J` : specs.diameter ? `${specs.diameter} in` : '', specs.offset ? `ET ${specs.offset}` : '', specs.tire || ''].filter(Boolean).join(' · ') || platform?.wheel_target_not_approved || '—';
+  const source = [...new Set([exact?.spec_source || specs.source || '', platform?.source_limitations || ''].filter(Boolean))].join(' · ') || 'F-Box reference library';
+  return `<section id="fitment-admin-vehicle-reference" class="fitment-admin-vehicle-reference ${verified ? 'is-verified' : ''}"><header><div><small>车型参数参考</small><strong>${esc(exact ? [exact.year, exact.make, exact.model, exact.trim, exact.drive].filter(Boolean).join(' ') : platform.platform)}</strong></div><span>${verified ? '准确车型已核验' : '参考值 · 不自动批准'}</span></header><dl><div><dt>PCD</dt><dd>${esc(specs.pcd || platform?.pcd || '—')}</dd></div><div><dt>中心孔</dt><dd>${esc(specs.center_bore || platform?.center_bore_mm || '—')}${specs.center_bore || platform?.center_bore_mm ? ' mm' : ''}</dd></div><div><dt>原厂 / 常见轮毂与轮胎</dt><dd>${esc(wheelSpec)}</dd></div><div><dt>刹车基线</dt><dd>${esc(platform?.oem_brake_baseline || exact?.notes || '—')}</dd></div></dl><footer><span>来源：${esc(source)}</span>${platform?.source_url ? `<a href="${esc(platform.source_url)}" target="_blank" rel="noreferrer">查看来源</a>` : ''}</footer><p>只有“准确车型已核验”的 PCD / 中心孔记录可参与硬校验；ET、轮宽、轮胎和刹车间隙仍按当前配置与实测计算。</p></section>`;
 }
 
 function fitmentCheckFormMarkup() {
@@ -433,21 +518,36 @@ function fitmentCheckFormMarkup() {
   const padParts = state.fitmentParts.filter(part => part.type === 'pad' && part.status === 'active');
   const suspensionParts = state.fitmentParts.filter(part => part.type === 'suspension' && part.status === 'active');
   const options = parts => `<option value="">未选择</option><option value="oem">原厂（按准确配置核对）</option>${parts.map(part => `<option value="${esc(part.id)}">${esc(`${part.brand} ${part.model}`)}</option>`).join('')}`;
-  return `<div class="console-card fitment-check-panel"><div class="fitment-admin-head"><div><h3>手动帮客户适配</h3><p class="card-note">后台可以直接输入没有收录的车型和测量值；已知品牌型号会进入同一套规则引擎。</p></div></div><form id="fitment-admin-check-form" class="fitment-admin-form"><div class="fitment-admin-form-grid"><label>年份<input name="year" type="number" placeholder="2021"></label><label>品牌<input name="make" placeholder="BMW"></label><label>车型<input name="model" placeholder="M3"></label><label>配置<input name="trim" placeholder="Competition"></label><label>驱动<input name="drive" placeholder="AWD / RWD"></label><label>用途<select name="usage"><option value="street">日常街道</option><option value="spirited">激烈驾驶</option><option value="show">展示 / 低趴</option><option value="track">赛道</option></select></label><label>前刹车 / 卡钳<select name="front_brake_id">${options(brakeParts)}</select></label><label>后刹车 / 卡钳<select name="rear_brake_id">${options(brakeParts)}</select></label><label>前刹车盘<select name="front_rotor_id">${options(rotorParts)}</select></label><label>后刹车盘<select name="rear_rotor_id">${options(rotorParts)}</select></label><label>前刹车片<select name="front_pad_id">${options(padParts)}</select></label><label>后刹车片<select name="rear_pad_id">${options(padParts)}</select></label><label>避震 / 绞牙<select name="suspension_id">${options(suspensionParts)}</select></label><label>当前降低高度 (mm)<input name="ride_height_drop_mm" type="number" step="1" min="0" placeholder="0"></label></div><div class="fitment-admin-axles">${fitmentAdminAxleMarkup('front', '前轴轮毂 + 轮胎')}${fitmentAdminAxleMarkup('rear', '后轴轮毂 + 轮胎')}</div><div class="actions"><button class="console-btn is-primary" type="submit">运行适配检查</button></div><p class="message" id="fitment-check-message" role="status"></p></form>${state.fitmentResult ? fitmentAdminResultMarkup(state.fitmentResult) : ''}</div>`;
+  return `<div class="console-card fitment-check-panel"><div class="fitment-admin-head"><div><h3>客户定制轮毂方案计算</h3><p class="card-note">输入店家熟悉的候选规格和现车测量，系统给出修正后的前后轴方案；计算结果仍需模板、复测和具名工程批准后才能生产锁定。</p></div></div><form id="fitment-admin-check-form" class="fitment-admin-form"><div class="fitment-admin-form-grid"><label>年份<input name="year" type="number" placeholder="2021"></label><label>品牌<input name="make" placeholder="BMW"></label><label>车型<input name="model" placeholder="M3"></label><label>配置<input name="trim" placeholder="Competition"></label><label>驱动<input name="drive" placeholder="AWD / RWD"></label><label>使用场景<select name="usage"><option value="street">日常街道</option><option value="spirited">激烈驾驶</option><option value="show">展示 / 低趴</option><option value="track">赛道</option></select></label><label>适配目标<select name="fitment_goal"><option value="oem_safe">原厂安全取向</option><option value="flush_street">齐边街道取向</option><option value="performance">性能 / 赛道取向</option><option value="show">展示 / 低趴取向</option></select></label><label>姿态状态<select name="stance_profile"><option value="oem">原厂车高</option><option value="lowered">降低车身</option><option value="static-low">静态低趴</option><option value="air">气动避震</option></select></label><label>当前降低高度 (mm)<input name="ride_height_drop_mm" type="number" step="1" min="0" placeholder="0"></label><label>经验规格来源<select name="calibration_basis"><option value="current_vehicle_measured">本车实测</option><option value="same_vehicle_successful_install">同配置成功安装</option><option value="manufacturer_drawing">厂商图纸 / 车型目录</option><option value="shop_experience">店家经验候选</option></select></label><label class="field-wide">成功案例 / 校准依据<input name="calibration_reference" placeholder="例如：工单 024，同车型同卡钳，19x9 ET38，复测无干涉"></label><label>前刹车 / 卡钳<select name="front_brake_id">${options(brakeParts)}</select></label><label>后刹车 / 卡钳<select name="rear_brake_id">${options(brakeParts)}</select></label><label>前刹车盘<select name="front_rotor_id">${options(rotorParts)}</select></label><label>后刹车盘<select name="rear_rotor_id">${options(rotorParts)}</select></label><label>前刹车片<select name="front_pad_id">${options(padParts)}</select></label><label>后刹车片<select name="rear_pad_id">${options(padParts)}</select></label><label>避震 / 绞牙<select name="suspension_id">${options(suspensionParts)}</select></label></div>${fitmentAdminVehicleReferenceMarkup()}${fitmentAdminInstallationMarkup()}<div class="fitment-admin-axles">${fitmentAdminAxleMarkup('front', '前轴定制方案')}${fitmentAdminAxleMarkup('rear', '后轴定制方案')}</div><div class="actions"><button class="console-btn" type="button" data-fitment-reference>查询车型参考</button><button class="console-btn is-primary" type="submit">计算并生成定制规格</button></div><p class="message" id="fitment-check-message" role="status"></p></form>${state.fitmentResult ? fitmentAdminResultMarkup(state.fitmentResult) : ''}</div>`;
 }
 
 function fitmentAdminResultMarkup(result) {
-  const status = result?.status || 'needs_review';
-  const statusText = status === 'pass' ? '已通过' : status === 'conflict' ? '有冲突' : '需要测量';
+  const stage = result?.solution?.stage || 'measurement_required';
+  const stageLabels = { identity_required: '车型身份待核验', measurement_required: '已计算 · 需要补测', correction_required: '已给出修正方案', engineering_ready: '工程资料已齐', production_locked: '生产规格已锁定' };
+  const status = result?.solution?.production_release ? 'pass' : result?.status === 'conflict' || stage === 'correction_required' ? 'conflict' : 'needs_review';
+  const statusText = stageLabels[stage] || '需要复核';
   const messages = [...(result?.issues || []), ...(result?.warnings || []), ...(result?.missing || [])];
   const baseline = result?.research_baseline;
   const axles = ['front', 'rear'].map(axle => {
     const item = result?.axles?.[axle] || {};
     const recommendation = item.recommendation || {};
-    return `<div class="fitment-admin-result-axle"><strong>${axle === 'front' ? '前轴' : '后轴'}</strong><span>PCD ${esc(recommendation.pcd || '待确认')}</span><span>直径 ${recommendation.diameter_min_in ? `${esc(recommendation.diameter_min_in)} in 起` : '待确认'}</span><span>ET ${recommendation.et_estimate_range ? esc(recommendation.et_estimate_range.join(' ~ ')) : '待确认'}</span></div>`;
+    const geometry = item.geometry || {};
+    const target = geometry.target_wheel || {};
+    const diameter = target.diameter_in ?? recommendation.diameter_in;
+    const width = target.width_in ?? recommendation.width_in;
+    const et = target.et_mm ?? recommendation.et_mm;
+    const etRange = geometry.feasible_et_range_mm || recommendation.et_estimate_range;
+    const tire = target.tire_size || recommendation.tire_size || '待确认';
+    const spec = diameter && width && Number.isFinite(Number(et)) ? `${diameter} × ${width}J · ET${et}` : '缺少当前基准或目标尺寸';
+    const metric = (label, value, suffix = ' mm') => `<span><small>${label}</small><b>${Number.isFinite(Number(value)) ? `${esc(value)}${suffix}` : '待测'}</b></span>`;
+    return `<div class="fitment-admin-result-axle"><div class="fitment-admin-axle-spec"><small>${axle === 'front' ? '前轴最终建议' : '后轴最终建议'}</small><strong>${esc(spec)}</strong><em>${esc(tire)}</em></div><span><small>PCD / 加工中心孔</small><b>${esc(recommendation.pcd || '待确认')} / ${recommendation.center_bore_mm ? `${esc(recommendation.center_bore_mm)} mm` : '待确认'}</b></span><span><small>可用 ET 范围</small><b>${etRange?.length === 2 ? `ET ${esc(etRange[0])}–${esc(etRange[1])}` : '待测'}</b></span>${metric('预计内侧剩余', geometry.predicted_inner_clearance_mm)}${metric('预计轮眉剩余', geometry.predicted_outer_clearance_mm)}${metric('预计完全压缩剩余', geometry.predicted_full_compression_clearance_mm)}${metric('滚动直径变化', geometry.rolling_diameter_delta_percent, '%')}</div>`;
   }).join('');
   const baselineMarkup = baseline ? `<div class="fitment-admin-research"><strong>研究平台基线（仅参考，不是批准值）</strong><span>${esc(baseline.platform)} · PCD ${esc(baseline.pcd || '—')} · CB ${baseline.center_bore_mm ? `${esc(baseline.center_bore_mm)} mm` : '—'}</span><small>${esc(baseline.wheel_target_not_approved || '')}</small></div>` : '';
-  return `<div class="fitment-admin-result"><div class="fitment-admin-result-head"><strong>检查结果</strong><span class="fitment-admin-status fitment-admin-status-${status}">${statusText}</span></div>${baselineMarkup}<div class="fitment-admin-result-grid">${axles}</div>${messages.length ? `<ul>${messages.slice(0, 14).map(message => `<li>${esc(message)}</li>`).join('')}</ul>` : '<p class="fitment-result-clear">目前已知规则没有冲突，继续由工程人员确认最终轮毂图纸。</p>'}<div class="actions"><button class="console-btn is-primary" type="button" data-fitment-save-case>保存为客户适配案例</button></div></div>`;
+  const corrections = result?.solution?.corrections || [];
+  const confirmations = result?.solution?.required_confirmations || [];
+  const lockMarkup = `<div class="fitment-admin-lock ${result?.solution?.production_release ? 'is-locked' : ''}"><strong>${result?.solution?.production_release ? '生产规格已锁定' : '当前仍不是生产批准'}</strong><span>${esc(result?.solution?.production_lock_reason || '需要完成全部测量、模板和工程图纸批准。')}</span>${confirmations.length ? `<small>还需完成 ${confirmations.length} 项证据：${confirmations.slice(0, 6).map(esc).join('、')}</small>` : ''}</div>`;
+  const correctionMarkup = corrections.length ? `<div class="fitment-admin-corrections"><strong>系统已修正 ${corrections.length} 项</strong>${corrections.map(item => `<span>${item.axle === 'front' ? '前轴' : '后轴'} ${esc(item.field)}：${esc(item.entered ?? '未填')} → ${esc(item.recommended ?? '待确认')}</span>`).join('')}</div>` : '';
+  return `<div class="fitment-admin-result"><div class="fitment-admin-result-head"><strong>客户定制规格方案</strong><span class="fitment-admin-status fitment-admin-status-${status}">${statusText}</span></div>${baselineMarkup}<div class="fitment-admin-result-grid">${axles}</div>${lockMarkup}${correctionMarkup}${messages.length ? `<details class="fitment-admin-diagnostics"><summary>查看 ${messages.length} 条工程证据与复核说明</summary><ul>${messages.slice(0, 20).map(message => `<li>${esc(message)}</li>`).join('')}</ul></details>` : '<p class="fitment-result-clear">已知输入没有冲突；最终仍需将所选款式图纸与刹车模板叠加确认。</p>'}<div class="actions"><button class="console-btn is-primary" type="button" data-fitment-save-case>保存为客户适配案例</button></div></div>`;
 }
 
 async function renderFitment() {
@@ -480,7 +580,10 @@ function fitmentPartListMarkup(parts) {
 function fitmentAdminPayload(form) {
   const values = Object.fromEntries(new FormData(form).entries());
   const axle = name => ({ diameter: values[`${name}_diameter`], width: values[`${name}_width`], offset: values[`${name}_offset`], pcd: values[`${name}_pcd`], center_bore: values[`${name}_center_bore`], spacer_mm: values[`${name}_spacer_mm`], inner_clearance_mm: values[`${name}_inner_clearance_mm`], spoke_clearance_mm: values[`${name}_spoke_clearance_mm`], camber_deg: values[`${name}_camber_deg`], toe_deg: values[`${name}_toe_deg`], fender_clearance_mm: values[`${name}_fender_clearance_mm`], compression_clearance_mm: values[`${name}_compression_clearance_mm`], tire_fitment_style: values[`${name}_tire_fitment_style`] });
-  return { values, payload: { locale: 'zh-CN', vehicle: { year: values.year, make: values.make, model: values.model, trim: values.trim, drive: values.drive }, usage: values.usage, stance_profile: values.stance_profile || (values.usage === 'show' ? 'static-low' : Number(values.ride_height_drop_mm || 0) > 0 ? 'lowered' : 'oem'), front_brake_id: values.front_brake_id, rear_brake_id: values.rear_brake_id, front_rotor_id: values.front_rotor_id, rear_rotor_id: values.rear_rotor_id, front_pad_id: values.front_pad_id, rear_pad_id: values.rear_pad_id, suspension_id: values.suspension_id, suspension: { ride_height_drop_mm: values.ride_height_drop_mm }, wheels: { front: axle('front'), rear: axle('rear') }, tires: { front: values.front_tire, rear: values.rear_tire } } };
+  const currentAxle = name => ({ diameter: values[`current_${name}_diameter`], width: values[`current_${name}_width`], offset: values[`current_${name}_offset`], spacer_mm: values[`current_${name}_spacer_mm`] });
+  const tire = name => ({ size: values[`${name}_tire`], manufacturer: values[`${name}_tire_maker`], model: values[`${name}_tire_model`], load_index: values[`${name}_tire_load_index`], speed_rating: values[`${name}_tire_speed_rating`], approved_rim_min_in: values[`${name}_tire_rim_min`], approved_rim_max_in: values[`${name}_tire_rim_max`] });
+  const installationChecks = Object.fromEntries(['caliper', 'suspension', 'steering_lock', 'full_travel', 'fender_loaded', 'road_test'].map(key => [key, values[`installation_check_${key}`] === 'on']));
+  return { values, payload: { locale: 'zh-CN', vehicle: { year: values.year, make: values.make, model: values.model, trim: values.trim, drive: values.drive }, usage: values.usage, fitment_goal: values.fitment_goal, calibration: { basis: values.calibration_basis, reference: values.calibration_reference, installation: { outcome: values.installation_outcome, installed_at: values.installation_date, reference: values.installation_reference, note: values.installation_note, checks: installationChecks } }, stance_profile: values.stance_profile || (values.usage === 'show' ? 'static-low' : Number(values.ride_height_drop_mm || 0) > 0 ? 'lowered' : 'oem'), front_brake_id: values.front_brake_id, rear_brake_id: values.rear_brake_id, front_rotor_id: values.front_rotor_id, rear_rotor_id: values.rear_rotor_id, front_pad_id: values.front_pad_id, rear_pad_id: values.rear_pad_id, suspension_id: values.suspension_id, suspension: { ride_height_drop_mm: values.ride_height_drop_mm }, current_setup: { wheels: { front: currentAxle('front'), rear: currentAxle('rear') }, tires: { front: { size: values.current_front_tire }, rear: { size: values.current_rear_tire } } }, wheels: { front: axle('front'), rear: axle('rear') }, tires: { front: tire('front'), rear: tire('rear') } } };
 }
 
 function wireFitmentView() {
@@ -507,6 +610,29 @@ function wireFitmentView() {
     delete payload.id;
     try { await api(values.id ? `/api/fbox-ops/fitment/parts/${encodeURIComponent(values.id)}` : '/api/fbox-ops/fitment/parts', { method: values.id ? 'PUT' : 'POST', body: JSON.stringify(payload) }); state.fitmentEditingId = ''; await renderFitment(); } catch (error) { message.textContent = error.message; message.className = 'message error'; }
   });
+  el('[data-fitment-reference]')?.addEventListener('click', async () => {
+    const form = el('#fitment-admin-check-form');
+    const values = Object.fromEntries(new FormData(form).entries());
+    if (!values.year || !values.make || !values.model) {
+      state.fitmentVehicleReferenceError = '请先填写年份、品牌和车型。';
+      el('#fitment-admin-vehicle-reference')?.replaceWith(document.createRange().createContextualFragment(fitmentAdminVehicleReferenceMarkup()));
+      return;
+    }
+    state.fitmentVehicleReferenceLoading = true;
+    state.fitmentVehicleReferenceError = '';
+    el('#fitment-admin-vehicle-reference')?.replaceWith(document.createRange().createContextualFragment(fitmentAdminVehicleReferenceMarkup()));
+    const params = new URLSearchParams({ year: values.year, make: values.make, model: values.model, trim: values.trim || '', drive: values.drive || '' });
+    try {
+      const response = await api(`/api/fbox-content/fitment/vehicle-reference?${params}`);
+      state.fitmentVehicleReference = response.data || response;
+    } catch (error) {
+      state.fitmentVehicleReference = null;
+      state.fitmentVehicleReferenceError = error.message;
+    } finally {
+      state.fitmentVehicleReferenceLoading = false;
+      el('#fitment-admin-vehicle-reference')?.replaceWith(document.createRange().createContextualFragment(fitmentAdminVehicleReferenceMarkup()));
+    }
+  });
   el('#fitment-admin-check-form')?.addEventListener('submit', async event => {
     event.preventDefault();
     const { values, payload } = fitmentAdminPayload(event.currentTarget);
@@ -518,6 +644,103 @@ function wireFitmentView() {
     if (!state.fitmentResult) return;
     try { await api('/api/fbox-ops/fitment/cases', { method: 'POST', body: JSON.stringify({ vehicle: state.fitmentCheckPayload?.vehicle || state.fitmentResult.vehicle || {}, part_ids: (state.fitmentResult.selected_parts || []).map(part => part.id), request: state.fitmentCheckPayload || {}, result: state.fitmentResult, status: 'open' }) }); state.fitmentCaseMessage = '适配案例已保存。'; renderFitment(); } catch (error) { window.alert(error.message); }
   });
+}
+
+// -------------------------------------------------------------- site assets
+function fileSizeLabel(value) {
+  const bytes = Number(value || 0);
+  if (!bytes) return '—';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
+
+function siteAssetCard(asset) {
+  const dimensions = asset.width && asset.height ? `${asset.width} × ${asset.height}` : '等待上传';
+  const updated = asset.updated_at ? new Date(asset.updated_at).toLocaleString('zh-CN') : '暂无文件';
+  return `<article class="site-asset-card" data-site-asset-card="${esc(asset.id)}">
+    <div class="site-asset-preview ${asset.status !== 'ready' ? 'is-missing' : ''}">
+      ${asset.url ? `<img src="${esc(asset.url)}" alt="${esc(asset.label)}" loading="lazy">` : '<span>当前图片缺失</span>'}
+      <b>${esc(asset.output_format || 'WebP')}</b>
+    </div>
+    <div class="site-asset-body">
+      <div class="site-asset-title"><div><small>${esc(asset.group)}</small><h3>${esc(asset.label)}</h3></div><span class="chip ${asset.status === 'ready' ? 'chip-approved' : 'chip-hidden'}">${asset.status === 'ready' ? '使用中' : '缺失'}</span></div>
+      <p>${esc(asset.usage)}</p>
+      <dl class="site-asset-meta"><div><dt>当前尺寸</dt><dd>${esc(dimensions)}</dd></div><div><dt>文件大小</dt><dd>${esc(fileSizeLabel(asset.bytes))}</dd></div><div><dt>建议比例</dt><dd>${esc(asset.ratio)}</dd></div><div><dt>更新时间</dt><dd>${esc(updated)}</dd></div></dl>
+      <div class="site-asset-file"><code>${esc(asset.file)}</code><span>上传 PNG / JPG / WebP，后台自动输出 WebP</span></div>
+      <label class="site-asset-upload"><input type="file" accept="image/png,image/jpeg,image/webp" data-site-asset-upload="${esc(asset.id)}"><span>上传并替换</span><small>最大 14MB · 保留透明通道</small></label>
+      <p class="site-asset-message" data-site-asset-message="${esc(asset.id)}" role="status"></p>
+    </div>
+  </article>`;
+}
+
+function siteAssetsMarkup(assets, meta = {}) {
+  const groups = [...new Set(assets.map(asset => asset.group))];
+  const notice = state.siteAssetNotice ? `<div class="site-assets-notice">${esc(state.siteAssetNotice)}</div>` : '';
+  return `<div class="site-assets-head"><div><p class="eyebrow">STOREFRONT ASSET MANAGER</p><h3>店铺装修图片</h3><p class="card-note">前台使用的 Logo、赛事、工厂和车型图片都在这里预览并逐张替换。上传 PNG、JPG 或 WebP 后会自动转换为当前网站使用的 WebP 格式。</p></div><div class="site-assets-summary"><span><b>${num(assets.length)}</b>图片位置</span><span><b>${num(groups.length)}</b>页面分组</span><a class="console-btn" href="/" target="_blank" rel="noopener">打开前台 ↗</a></div></div>${notice}<div class="site-assets-guide"><strong>替换规则</strong><span>${esc(meta.conversion || '上传后自动转换为 WebP。')}</span><span>图片地址保持不变，前台刷新后自动重新验证缓存。</span><span>替换前会在本地运行目录保留一份原图备份。</span></div>${groups.map(group => `<section class="site-assets-group"><header><div><span>${esc(group)}</span><strong>${assets.filter(asset => asset.group === group).length} 张</strong></div></header><div class="site-assets-grid">${assets.filter(asset => asset.group === group).map(siteAssetCard).join('')}</div></section>`).join('')}`;
+}
+
+function readUploadAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('读取图片失败，请重新选择。'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function wireSiteAssetsView() {
+  document.querySelectorAll('[data-site-asset-upload]').forEach(input => input.addEventListener('change', async event => {
+    const inputElement = event.currentTarget;
+    const file = inputElement.files?.[0];
+    const id = inputElement.dataset.siteAssetUpload;
+    const card = document.querySelector(`[data-site-asset-card="${CSS.escape(id)}"]`);
+    const message = document.querySelector(`[data-site-asset-message="${CSS.escape(id)}"]`);
+    if (!file || !card || !message) return;
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+      message.textContent = '请选择 PNG、JPG 或 WebP 图片。';
+      message.className = 'site-asset-message is-error';
+      return;
+    }
+    const maxBytes = Number(state.siteAssetsMeta?.max_upload_bytes || 14 * 1024 * 1024);
+    if (file.size > maxBytes) {
+      message.textContent = `图片不能超过 ${fileSizeLabel(maxBytes)}。`;
+      message.className = 'site-asset-message is-error';
+      return;
+    }
+    card.classList.add('is-uploading');
+    inputElement.disabled = true;
+    message.textContent = `正在转换并替换 ${file.name}…`;
+    message.className = 'site-asset-message';
+    try {
+      const dataUrl = await readUploadAsDataUrl(file);
+      const payload = await api(`/api/fbox-assets/site/${encodeURIComponent(id)}`, {
+        method: 'POST',
+        body: JSON.stringify({ data_url: dataUrl, original_name: file.name })
+      });
+      state.siteAssetNotice = `${payload.data?.label || '装修图片'}已替换：${payload.data?.width || 0} × ${payload.data?.height || 0}，输出 WebP ${fileSizeLabel(payload.data?.converted_bytes)}。`;
+      await renderSiteAssets();
+    } catch (error) {
+      card.classList.remove('is-uploading');
+      inputElement.disabled = false;
+      message.textContent = error.message;
+      message.className = 'site-asset-message is-error';
+    }
+  }));
+}
+
+async function renderSiteAssets() {
+  const root = el('#console-view');
+  root.innerHTML = '<div class="console-loading">正在读取店铺装修图片…</div>';
+  try {
+    const payload = await api('/api/fbox-assets/site');
+    state.siteAssets = Array.isArray(payload.data) ? payload.data : [];
+    state.siteAssetsMeta = payload.meta || {};
+    root.innerHTML = siteAssetsMarkup(state.siteAssets, state.siteAssetsMeta);
+    wireSiteAssetsView();
+  } catch (error) {
+    root.innerHTML = `<div class="console-error">${esc(error.message)}</div>`;
+  }
 }
 
 // --------------------------------------------------------------- visualizer
@@ -600,7 +823,7 @@ el('#console-login-form')?.addEventListener('submit', async event => {
     localStorage.setItem('fbox-console-token', state.token);
     messageEl.textContent = '';
     showApp();
-    setView('dashboard');
+    setView(initialConsoleView);
   } catch (error) {
     messageEl.textContent = error.message;
     messageEl.className = 'message error';
@@ -614,7 +837,8 @@ el('#console-logout')?.addEventListener('click', async () => {
   try { await api('/api/fbox-auth/logout', { method: 'POST' }); } catch { /* best-effort */ }
   state.token = '';
   localStorage.removeItem('fbox-console-token');
+  localStorage.removeItem('user');
   showAuth();
 });
 
-ensureSession().then(ok => { if (ok) setView('dashboard'); });
+ensureSession().then(ok => { if (ok) setView(initialConsoleView); });
