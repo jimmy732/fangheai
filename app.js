@@ -353,6 +353,31 @@ Object.entries(siteChromeTranslations).forEach(([locale, values]) => {
   Object.assign(localeDictionaries[locale], Object.fromEntries(siteChromeTranslationKeys.map((key, index) => [key, values[index] || key])));
 });
 
+const engineeringChromeTranslations = {
+  en: 'Engineering',
+  'zh-CN': '工程技术',
+  'zh-TW': '工程技術',
+  ja: 'エンジニアリング',
+  ko: '엔지니어링',
+  de: 'Technik',
+  fr: 'Ingénierie',
+  es: 'Ingeniería',
+  it: 'Ingegneria',
+  'pt-BR': 'Engenharia',
+  ru: 'Инженерия',
+  ar: 'الهندسة',
+  nl: 'Engineering',
+  tr: 'Mühendislik',
+  pl: 'Inżynieria',
+  vi: 'Kỹ thuật',
+  th: 'วิศวกรรม',
+  id: 'Rekayasa',
+  hi: 'इंजीनियरिंग'
+};
+Object.entries(engineeringChromeTranslations).forEach(([locale, value]) => {
+  if (localeDictionaries[locale]) localeDictionaries[locale].Engineering = value;
+});
+
 const homeIntroTranslationKeys = [
   'CIRUI FORGED · OFFICIAL GLOBAL SITE',
   'Forged at the source.',
@@ -417,6 +442,33 @@ const homeIntroTranslations = {
 Object.entries(homeIntroTranslations).forEach(([locale, values]) => {
   if (!localeDictionaries[locale]) return;
   Object.assign(localeDictionaries[locale], Object.fromEntries(homeIntroTranslationKeys.map((key, index) => [key, values[index] || key])));
+});
+
+const premiumHeroTranslationKeys = ['Forged for your', 'exact vehicle.'];
+const premiumHeroTranslations = {
+  'zh-CN': ['为你的座驾而锻造', '精准适配。'],
+  'zh-TW': ['為你的座駕而鍛造', '精準適配。'],
+  ja: ['あなたの愛車のために鍛造', '完全適合。'],
+  ko: ['당신의 차량을 위해 단조', '정밀 맞춤.'],
+  de: ['Für Ihr Fahrzeug geschmiedet', 'Exakt angepasst.'],
+  fr: ['Forgées pour votre véhicule', 'Ajustement exact.'],
+  es: ['Forjadas para tu vehículo', 'Ajuste exacto.'],
+  it: ['Forgiati per la tua auto', 'Fitment esatto.'],
+  'pt-BR': ['Forjadas para o seu carro', 'Encaixe exato.'],
+  ru: ['Выкованы для вашего авто', 'Точная посадка.'],
+  ar: ['مطروقة لسيارتك', 'ملاءمة دقيقة.'],
+  nl: ['Gesmeed voor uw auto', 'Exact passend.'],
+  tr: ['Aracınız için dövüldü', 'Tam uyum.'],
+  pl: ['Kute dla Twojego auta', 'Dokładne dopasowanie.'],
+  vi: ['Rèn cho chính chiếc xe của bạn', 'Lắp chuẩn tuyệt đối.'],
+  th: ['ฟอร์จเพื่อรถของคุณ', 'ติดตั้งตรงรุ่น'],
+  id: ['Ditempa untuk mobil Anda', 'Pas secara presisi.'],
+  hi: ['आपकी कार के लिए फोर्ज्ड', 'सटीक फिटमेंट।']
+};
+
+Object.entries(premiumHeroTranslations).forEach(([locale, values]) => {
+  if (!localeDictionaries[locale]) return;
+  Object.assign(localeDictionaries[locale], Object.fromEntries(premiumHeroTranslationKeys.map((key, index) => [key, values[index] || key])));
 });
 
 const visualStudioTranslationKeys = [
@@ -4177,7 +4229,8 @@ function partnerAttributionBar() {
 function header() {
   const active = state.route.name === 'store' ? 'SHOP' : state.route.name === 'about' ? 'ABOUT' : ['blog', 'blog-post'].includes(state.route.name) ? 'JOURNAL' : ['fitment', 'fitment-result', 'fitment-share'].includes(state.route.name) ? 'FITMENT' : state.route.name === 'account' ? 'ACCOUNT' : '';
   const localeValue = state.localeMode === 'manual' ? state.locale : 'auto';
-  return `<div class="announcement">${uiLabel('CIRUI source factory')} · <span>${uiLabel('DDP delivery available')}</span> · ${uiLabel('Target production + transport in about 30 business days')}</div>${partnerAttributionBar()}
+  const attribution = partnerAttributionBar();
+  return `<div class="global-header-stack${attribution ? ' has-partner-attribution' : ''}"><div class="announcement">${uiLabel('CIRUI source factory')} · <span>${uiLabel('DDP delivery available')}</span> · ${uiLabel('Target production + transport in about 30 business days')}</div>${attribution}
   <header class="site-header">
     <div class="container header-main">
       <a class="brand cerui-brand" href="#home" aria-label="CIRUI Forged"><img src="${assetUrl('cerui/cerui-logo-black-v1.webp')}" alt="CIRUI Forged 策锐锻造"><span><strong>CIRUI FORGED</strong><small>FORCARBOX · GLOBAL</small></span></a>
@@ -4186,28 +4239,30 @@ function header() {
         <button class="header-action ${active === 'ACCOUNT' ? 'is-active' : ''}" data-action="account">${icons.user}<span>${state.account?.username ? esc(state.account.username) : uiLabel('My Account')}</span></button>
         <button class="header-action" data-action="cart">${icons.cart}<span>${uiLabel('Cart')}</span><b class="cart-count">${cartCount()}</b></button>
         <label class="locale-control"><span>${uiLabel('Language')}</span><select class="locale-select" data-locale aria-label="${esc(uiLabel('Language selection'))}"><option value="auto" ${localeValue === 'auto' ? 'selected' : ''}>Auto · ${localeLabel(state.locale)}</option>${localeOptions.map(([code, label]) => `<option value="${code}" ${localeValue === code ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
-        <button class="hamburger" data-action="mobile-nav" aria-label="${esc(uiLabel('Open navigation'))}">${icons.menu}</button>
+        <button class="hamburger ${state.mobileNav ? 'is-open' : ''}" data-action="mobile-nav" aria-expanded="${state.mobileNav}" aria-controls="primary-navigation" aria-label="${esc(uiLabel(state.mobileNav ? 'Close' : 'Open navigation'))}">${state.mobileNav ? icons.close : icons.menu}</button>
       </div>
     </div>
-    <div class="nav-row ${state.mobileNav ? 'is-open' : ''}">
+    <div class="nav-row ${state.mobileNav ? 'is-open' : ''}" id="primary-navigation">
       <div class="container nav-inner">
         <nav class="nav-links">
-          <button class="nav-link ${active === 'SHOP' ? 'is-active' : ''}" data-action="mega">${uiLabel('Shop')} ${icons.chevron}</button>
+          <div class="nav-shop">
+            <button class="nav-link nav-shop-toggle ${active === 'SHOP' ? 'is-active' : ''}" data-action="mega" aria-expanded="${state.menuOpen}" aria-controls="shop-catalog-menu"><span>${uiLabel('Shop')}</span><span class="nav-shop-toggle-visual" aria-hidden="true"><span class="nav-shop-mobile-symbol">${state.menuOpen ? '−' : '+'}</span><span class="nav-shop-desktop-chevron">${icons.chevron}</span></span></button>
+            ${state.menuOpen ? megaMenu() : ''}
+          </div>
           <a class="nav-link ${active === 'FITMENT' ? 'is-active' : ''}" href="/fitment-lab" data-app-path>${uiLabel('Fitment Lab')}</a>
           <a class="nav-link" href="#home#vehicles">${uiLabel('Shop by vehicle')}</a>
           <a class="nav-link ${active === 'ABOUT' ? 'is-active' : ''}" href="#about">${uiLabel('About CIRUI')}</a>
-          <a class="nav-link" href="#home#motorsport">${uiLabel('Motorsport')}</a>
+          <a class="nav-link" href="#home#engineering">${uiLabel('Engineering')}</a>
           <a class="nav-link ${active === 'JOURNAL' ? 'is-active' : ''}" href="#blog">${uiLabel('Journal')}</a>
         </nav>
         <div class="nav-meta"><span>${uiLabel('Fitment help')}</span><a href="tel:${company.tel}">${company.phone}</a></div>
       </div>
     </div>
-    ${state.menuOpen ? megaMenu() : ''}
-  </header>`;
+  </header></div>`;
 }
 function megaMenu() {
   const groups = [['Forged wheel catalog', ['Wheels', 'Custom vehicle series', '1-piece forged', '2-piece forged', 'SUV & off-road']], ['Fitment tools', ['Shop by vehicle', 'Fitment guide', 'Brake clearance', 'Vehicle photo preview', 'Wheel offset guide']], ['Custom direction', ['Street builds', 'Show cars', 'Track setups', 'Dealer programs', 'Custom center caps']], ['CIRUI service', ['Meet the factory', 'DDP delivery', 'Track my order', 'Wholesale program', 'Fitment support']]];
-  return `<div class="mega-menu"><div class="container mega-grid">${groups.map(([title, links]) => `<div class="mega-col"><h3>${title}</h3>${links.map(link => link === 'Track my order' ? `<a href="#home" data-action="orders">${link}</a>` : ['Fitment guide', 'Brake clearance', 'Fitment support'].includes(link) ? `<a href="#fitment" data-action="open-fitment-lab">${link}</a>` : `<a href="#store" data-category-link="${esc(link.includes('Wheels') ? 'Wheels' : link.includes('Calipers') ? 'Calipers' : link.includes('Rotors') ? 'Rotors' : link.includes('Pads') ? 'Brake Pads' : 'All')}">${link}</a>`).join('')}</div>`).join('')}</div></div>`;
+  return `<div class="mega-menu" id="shop-catalog-menu" aria-label="${esc(uiLabel('Shop'))}"><div class="container mega-grid">${groups.map(([title, links]) => `<div class="mega-col"><h3>${title}</h3>${links.map(link => link === 'Track my order' ? `<a href="#home" data-action="orders">${link}</a>` : ['Fitment guide', 'Brake clearance', 'Fitment support'].includes(link) ? `<a href="#fitment" data-action="open-fitment-lab">${link}</a>` : `<a href="#store" data-category-link="${esc(link.includes('Wheels') ? 'Wheels' : link.includes('Calipers') ? 'Calipers' : link.includes('Rotors') ? 'Rotors' : link.includes('Pads') ? 'Brake Pads' : 'All')}">${link}</a>`).join('')}</div>`).join('')}</div></div>`;
 }
 
 function fitmentProducts() {
@@ -4258,6 +4313,109 @@ function ceruiHomePage() {
   <section class="section cerui-ready"><div class="container"><div class="cerui-section-head"><div><p class="cerui-overline"><span></span>READY DESIGN DIRECTIONS</p><h2>Choose a starting point.<br><em>Then make it yours.</em></h2></div><div><p>The existing wheel catalog, product pages, quoting flow and car-photo visualizer stay intact.</p><a class="btn btn-dark" href="#store" data-category-link="Wheels">Browse all forged wheels</a></div></div><div class="product-grid">${products.filter(item => item.category === 'Wheels' && !String(item.id).startsWith('cerui-')).slice(0, 4).map(renderProductCard).join('')}</div></div></section>
   <section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">Customer feedback</p><h2>Reviews are coming soon.</h2></div><p>See what drivers say after their wheels are on the car.</p></div></div></section>
   <section class="section" id="gallery"><div class="container"><div class="section-heading"><div><p class="eyebrow">Customer cars</p><h2>Customer builds are loading.</h2></div></div></div></section>
+  </main>`;
+}
+
+function premiumGlobalHomePage() {
+  const process = [
+    ['01', 'Exact vehicle fitment', 'Compatibility is the high-risk part of buying wheels online. Start with the exact platform so the wheel drawing can account for the hub, brakes, suspension, tire envelope and intended use.'],
+    ['02', 'Custom forged design', 'Diameter, width, PCD, ET, CB and brake clearance.'],
+    ['03', 'Factory production', 'Design · forge · machine · finish'],
+    ['04', 'DDP delivery support', 'Clearer landed delivery for global buyers']
+  ];
+  const factoryProof = [
+    ['cerui-factory-line-v1.webp', 'Factory production', 'Source wheel factory'],
+    ['cerui-factory-machining-v1.webp', 'Made to your numbers', 'Design · forge · machine · finish'],
+    ['cerui-factory-finished-v1.webp', 'Preview before production', 'Real production, machining and finished inventory.']
+  ];
+  const featuredWheels = products
+    .filter(item => item.category === 'Wheels' && !String(item.id).startsWith('cerui-'))
+    .slice(0, 4);
+  return `<main class="cerui-home premium-global-home">
+    <section class="premium-hero" id="home" aria-labelledby="premium-hero-title">
+      <video class="premium-hero-video" autoplay muted loop playsinline preload="auto" poster="${assetUrl('domestic/videos/cerui-global-hero-hd-montage-poster.webp')}" aria-hidden="true">
+        <source media="(max-width: 720px)" src="${assetUrl('domestic/videos/cerui-global-hero-hd-montage-720p30-web.mp4')}" type="video/mp4">
+        <source src="${assetUrl('domestic/videos/cerui-global-hero-hd-montage-1080p30-web.mp4')}" type="video/mp4">
+      </video>
+      <div class="premium-hero-shade" aria-hidden="true"></div>
+      <div class="container premium-hero-inner">
+        <div class="premium-hero-copy reveal">
+          <p class="premium-kicker"><span></span>${uiLabel('CIRUI FORGED · OFFICIAL GLOBAL SITE')}</p>
+          <h1 id="premium-hero-title">${uiLabel('Forged for your')}<br><em>${uiLabel('exact vehicle.')}</em></h1>
+          <p>${uiLabel('Forcarbox is the official overseas website of CIRUI Forged — a source wheel factory turning your exact vehicle, stance and finish into a production-ready forged wheel.')}</p>
+          <div class="premium-hero-actions">
+            <a class="btn btn-primary" href="/fitment-lab" data-app-path>${uiLabel('Build my exact fitment')}</a>
+            <a class="btn btn-light" href="#store" data-category-link="Wheels">${uiLabel('All wheel directions')}</a>
+          </div>
+        </div>
+        <div class="premium-hero-index" aria-hidden="true"><span>01</span><b>CIRUI / GLOBAL</b><small>${uiLabel('Design · forge · machine · finish')}</small></div>
+      </div>
+      <a class="premium-scroll-cue" href="#custom-build"><span>${uiLabel('FITMENT FIRST')}</span>${icons.chevron}</a>
+    </section>
+
+    <section class="premium-proof" aria-label="${esc(uiLabel('CIRUI source factory'))}">
+      <div class="container premium-proof-grid">
+        <article><span>01</span><div><strong>${uiLabel('Source wheel factory')}</strong><small>${uiLabel('Design · forge · machine · finish')}</small></div></article>
+        <article><span>02</span><div><strong>${uiLabel('Exact vehicle fitment')}</strong><small>${uiLabel('Diameter, width, PCD, ET, CB and brake clearance.')}</small></div></article>
+        <article><span>03</span><div><strong>${uiLabel('3-angle preview')}</strong><small>${uiLabel('See it on your car before production')}</small></div></article>
+        <article><span>04</span><div><strong>${uiLabel('DDP available')}</strong><small>${uiLabel('Clearer landed delivery for global buyers')}</small></div></article>
+      </div>
+    </section>
+
+    <section class="premium-fitment section" id="custom-build">
+      <div class="container premium-fitment-grid">
+        <div class="premium-section-copy">
+          <p class="premium-kicker"><span></span>${uiLabel('FITMENT FIRST')}</p>
+          <h2>${uiLabel('Start with the car.')}<br><em>${uiLabel('Not a generic wheel.')}</em></h2>
+          <p>${uiLabel('Compatibility is the high-risk part of buying wheels online. Start with the exact platform so the wheel drawing can account for the hub, brakes, suspension, tire envelope and intended use.')}</p>
+          <div class="premium-spec-list"><span>${uiLabel('PCD + center bore')}</span><span>${uiLabel('Front + rear ET')}</span><span>${uiLabel('Caliper clearance')}</span><span>${uiLabel('Street + show + track')}</span></div>
+        </div>
+        <div class="premium-fitment-panel">
+          <div class="premium-panel-head"><span>${uiLabel('01 / Vehicle brief')}</span><strong>${uiLabel('Tell CIRUI what you drive.')}</strong><small>${uiLabel('The existing fitment calculator remains the engineering core of the site.')}</small></div>
+          <div class="fitment-card custom-fitment-card">${vehicleSelector('hero')}<button class="btn btn-primary" data-action="open-fitment-lab">${uiLabel('Open fitment lab')}</button></div>
+          ${fitmentPreview()}
+        </div>
+      </div>
+    </section>
+
+    <section class="premium-products section" id="vehicles">
+      <div class="container">
+        <div class="premium-section-head">
+          <div><p class="premium-kicker"><span></span>${uiLabel('Custom forged design')}</p><h2>${uiLabel('Made to your numbers')}<br><em>${uiLabel('Preview before production')}</em></h2></div>
+          <div><p>${uiLabel('Diameter, width, PCD, ET, CB and brake clearance.')}</p><a class="btn btn-dark" href="#store" data-category-link="Wheels">${uiLabel('All wheel directions')}</a></div>
+        </div>
+        <div class="product-grid premium-product-grid">${featuredWheels.map(renderProductCard).join('')}</div>
+      </div>
+    </section>
+
+    <section class="premium-engineering section" id="engineering">
+      <div class="container premium-engineering-grid">
+        <div class="premium-engineering-copy">
+          <p class="premium-kicker"><span></span>${uiLabel('Source wheel factory')}</p>
+          <h2>${uiLabel('Factory production')}<br><em>${uiLabel('Made to your numbers')}</em></h2>
+          <p>${uiLabel('Real production, machining and finished inventory.')}</p>
+          <ul><li><strong>${uiLabel('Custom forged design')}</strong><span>${uiLabel('Made to your numbers')}</span></li><li><strong>${uiLabel('Design · forge · machine · finish')}</strong><span>${uiLabel('Diameter, width, PCD, ET, CB and brake clearance.')}</span></li><li><strong>${uiLabel('Preview before production')}</strong><span>${uiLabel('See it on your car before production')}</span></li></ul>
+          <a class="btn btn-primary" href="#about">${uiLabel('Meet the factory')}</a>
+        </div>
+        <div class="premium-engineering-media">${factoryProof.map(([image, title, meta], index) => `<figure class="${index === 0 ? 'is-primary' : ''}"><img src="${assetUrl(`cerui/${image}`)}" alt="${esc(`CIRUI ${uiLabel(title)}`)}" loading="lazy" decoding="async"><figcaption><span>0${index + 1}</span><div><strong>${uiLabel(title)}</strong><small>${uiLabel(meta)}</small></div></figcaption></figure>`).join('')}</div>
+      </div>
+    </section>
+
+    <div class="premium-evidence-grid">
+      <section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">${uiLabel('Customer feedback')}</p><h2>${uiLabel('Product reviews')}</h2></div><p>${uiLabel('See it on your car before production')}</p></div></div></section>
+      <section class="section" id="gallery"><div class="container"><div class="section-heading"><div><p class="eyebrow">${uiLabel('Customer feedback')}</p><h2>${uiLabel('Preview before production')}</h2></div></div></div></section>
+    </div>
+
+    <section class="premium-delivery section" id="delivery">
+      <div class="container">
+        <div class="premium-section-head">
+          <div><p class="premium-kicker"><span></span>${uiLabel('DDP delivery support')}</p><h2>${uiLabel('About 30 business days')}<br><em>${uiLabel('DDP available')}</em></h2></div>
+          <p>${uiLabel('Target production + delivery timing, confirmed per destination.')}</p>
+        </div>
+        <div class="premium-process-grid">${process.map(([number, title, copy]) => `<article><span>${number}</span><h3>${uiLabel(title)}</h3><p>${uiLabel(copy)}</p></article>`).join('')}</div>
+        <div class="premium-final-cta"><div><span>${uiLabel('FITMENT FIRST')}</span><strong>${uiLabel('Fitted to your car.')}</strong></div><a class="btn btn-light" href="/fitment-lab" data-app-path>${uiLabel('Build my exact fitment')}</a></div>
+      </div>
+    </section>
   </main>`;
 }
 
@@ -4708,7 +4866,7 @@ function productPage(item) {
   const specs = [['Brand', item.brand], ['Model', item.name], ['Part number', item.part], ['Finish', item.color], ['Available sizes', productSizeNote(item)], ['Material', item.material], ['Weight', item.weight], ['Fitment', item.meta]];
   const minimumNote = productMinimumOrderText(item);
   const startingPriceNote = hasStartingPrice(item) ? [uiLabel('The starting price is per wheel.', 'The starting price is per wheel.'), minimumNote, productMinimumOrderSummary(item)].filter(Boolean).join(' ') : '';
-  return `<div class="detail-wrap"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><a href="#store">${uiLabel(item.category)}</a><span>/</span><span>${item.name}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, i) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${item.id}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(item.name)} view ${i + 1}"></button>`).join('')}</div><div class="main-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(image)}" alt="${esc(item.name)} ${esc(item.finish)}"></div></div><div><div class="detail-kicker">${uiLabel(item.category)} · ${item.brand}</div><h1 class="detail-title">${item.name}<br><span style="color:var(--lavender)">${productMetaText(item)}</span></h1><div class="detail-rating">${stars(item.rating)} <a href="#reviews">${item.rating} · ${formatUiLabel('{count} ratings', { count: item.reviews })}</a></div><div class="detail-price">${productPriceText(item)} <small>${uiLabel(hasStartingPrice(item) ? 'starting price / wheel' : 'each')}</small></div><div class="detail-set">${hasStartingPrice(item) ? `${uiLabel('Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.')}${startingPriceNote ? `<br><strong class="minimum-order-note">${startingPriceNote}</strong>` : ''}` : `${money(item.price * 4)} set of four · ${item.oldPrice ? `was ${money(item.oldPrice)} each` : 'build pricing available'}`}</div><div class="financing-note">Pay over time with CIRUI financing. Starting at ${money(Math.max(18, Math.round(item.price / 12)))}/month with approved credit.</div><div class="detail-form"><div><label class="field-label">Check vehicle fitment</label>${vehicleSelector('detail')}</div><div><label class="field-label">Finish</label><div class="finish-options"><button class="finish-option is-active">${item.color}</button><button class="finish-option">Satin Black</button><button class="finish-option">Bronze Machined</button></div></div><div><label class="field-label">Delivery estimate</label><div class="ship-note">${icons.truck}<span>Free delivery to the lower 48 · Aug 19–Aug 21<br>Enter a postcode for an exact estimate.</span></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="add" data-id="${item.id}">Add to cart</button><button class="btn btn-dark" data-action="buy-now" data-id="${item.id}">Buy it now</button></div></div>${paypalHostedButtonMarkup(item)}${paypalCartButtonMarkup(item)}</div></div><div class="specs">${specs.map(([label, value]) => `<div class="spec"><span>${uiLabel(label)}</span><strong>${esc(uiLabel(value))}</strong></div>`).join('')}</div><section class="detail-section" id="reviews"><div class="section-heading"><div><p class="eyebrow">Customer proof</p><h2>Product reviews</h2></div><button class="btn btn-outline" data-action="write-review">Write a review</button></div><div class="reviews-layout"><div class="review-score"><strong>${item.rating}</strong>${stars(item.rating)}<p>${formatUiLabel(item.reviews === 1 ? '{count} review for this product' : '{count} reviews for this product', { count: item.reviews })}</p><div class="review-bars"><div class="review-bar"><span>5★</span><i class="bar-track"><i style="width:94%"></i></i><span>94%</span></div><div class="review-bar"><span>4★</span><i class="bar-track"><i style="width:5%"></i></i><span>5%</span></div><div class="review-bar"><span>3★</span><i class="bar-track"><i style="width:1%"></i></i><span>1%</span></div></div></div><div class="review-list">${reviews.slice(0, state.reviewLimit).map(renderReview).join('')}${state.reviewLimit < reviews.length ? `<button class="btn btn-outline" data-action="load-reviews">Load more reviews</button>` : ''}</div></div></section><section class="detail-section"><div class="section-heading"><div><p class="eyebrow">Keep building</p><h2>${uiLabel(`Related ${item.category}`)}</h2></div><a class="btn btn-dark" href="#store">Shop all</a></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section></div></div>`;
+  return `<div class="detail-wrap"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><a href="#store">${uiLabel(item.category)}</a><span>/</span><span>${item.name}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, i) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${item.id}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(item.name)} view ${i + 1}"></button>`).join('')}</div><div class="main-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(image)}" alt="${esc(item.name)} ${esc(item.finish)}"></div></div><div class="detail-purchase"><div class="detail-kicker">${uiLabel(item.category)} · ${item.brand}</div><h1 class="detail-title">${item.name}</h1><p class="detail-fitment-meta">${productMetaText(item)}</p><div class="detail-rating">${stars(item.rating)} <a href="#reviews">${item.rating} · ${formatUiLabel('{count} ratings', { count: item.reviews })}</a></div><div class="detail-price">${productPriceText(item)} <small>${uiLabel(hasStartingPrice(item) ? 'starting price / wheel' : 'each')}</small></div><div class="detail-set">${hasStartingPrice(item) ? `${uiLabel('Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.')}${startingPriceNote ? `<br><strong class="minimum-order-note">${startingPriceNote}</strong>` : ''}` : `${money(item.price * 4)} set of four · ${item.oldPrice ? `was ${money(item.oldPrice)} each` : 'build pricing available'}`}</div><div class="financing-note">Pay over time with CIRUI financing. Starting at ${money(Math.max(18, Math.round(item.price / 12)))}/month with approved credit.</div><div class="detail-form"><div><label class="field-label">Check vehicle fitment</label>${vehicleSelector('detail')}</div><div><label class="field-label">Finish</label><div class="finish-options"><button class="finish-option is-active">${item.color}</button><button class="finish-option">Satin Black</button><button class="finish-option">Bronze Machined</button></div></div><div><label class="field-label">Delivery estimate</label><div class="ship-note">${icons.truck}<span>Free delivery to the lower 48 · Aug 19–Aug 21<br>Enter a postcode for an exact estimate.</span></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="add" data-id="${item.id}">Add to cart</button><button class="btn btn-dark" data-action="buy-now" data-id="${item.id}">Buy it now</button></div></div>${paypalHostedButtonMarkup(item)}${paypalCartButtonMarkup(item)}</div></div><div class="specs">${specs.map(([label, value]) => `<div class="spec"><span>${uiLabel(label)}</span><strong>${esc(uiLabel(value))}</strong></div>`).join('')}</div><section class="detail-section" id="reviews"><div class="section-heading"><div><p class="eyebrow">Customer proof</p><h2>Product reviews</h2></div><button class="btn btn-outline" data-action="write-review">Write a review</button></div><div class="reviews-layout"><div class="review-score"><strong>${item.rating}</strong>${stars(item.rating)}<p>${formatUiLabel(item.reviews === 1 ? '{count} review for this product' : '{count} reviews for this product', { count: item.reviews })}</p><div class="review-bars"><div class="review-bar"><span>5★</span><i class="bar-track"><i style="width:94%"></i></i><span>94%</span></div><div class="review-bar"><span>4★</span><i class="bar-track"><i style="width:5%"></i></i><span>5%</span></div><div class="review-bar"><span>3★</span><i class="bar-track"><i style="width:1%"></i></i><span>1%</span></div></div></div><div class="review-list">${reviews.slice(0, state.reviewLimit).map(renderReview).join('')}${state.reviewLimit < reviews.length ? `<button class="btn btn-outline" data-action="load-reviews">Load more reviews</button>` : ''}</div></div></section><section class="detail-section"><div class="section-heading"><div><p class="eyebrow">Keep building</p><h2>${uiLabel(`Related ${item.category}`)}</h2></div><a class="btn btn-dark" href="#store">Shop all</a></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section></div></div>`;
 }
 
 function cartPage() {
@@ -5084,7 +5242,7 @@ async function captureReturnedPayPalPayment() {
 }
 function footer() {
   const whatsapp = generalWhatsAppContext();
-  return `<footer class="footer cerui-footer"><div class="container"><div class="footer-top"><div class="cerui-footer-brand"><a class="brand" href="#home"><img src="${assetUrl('cerui/cerui-logo-black-v1.webp')}" alt="CIRUI Forged 策锐锻造"><span><strong>CIRUI FORGED</strong><small>${uiLabel('FORCARBOX · OFFICIAL GLOBAL SITE')}</small></span></a><p class="footer-slogan">${uiLabel('Factory-direct custom forged wheels built around the exact vehicle, fitment and finish.')}</p><div class="company-meta"><strong>${company.legalName}</strong><a href="tel:${company.tel}">${company.phone}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">WhatsApp · ${company.whatsapp}</a></div></div><div class="footer-grid"><div class="footer-col"><h3>${uiLabel('Forged wheels')}</h3><a href="#home#vehicles">${uiLabel('Shop by vehicle')}</a><a href="#store" data-category-link="Wheels">${uiLabel('All wheel directions')}</a><a href="/fitment-lab" data-app-path>${uiLabel('Custom fitment')}</a><a href="#home#motorsport">${uiLabel('Motorsport')}</a></div><div class="footer-col"><h3>${uiLabel('Tools')}</h3><a href="/fitment-lab" data-app-path>${uiLabel('Fitment Lab')}</a><a href="#product/cerui-bmw-forged-fitment">${uiLabel('Vehicle photo preview')}</a><a href="#blog">${uiLabel('Fitment journal')}</a><a href="#home#resources">${uiLabel('Customer feedback')}</a></div><div class="footer-col"><h3>${uiLabel('Factory + delivery')}</h3><a href="#about">${uiLabel('About CIRUI')}</a><a href="#about">${uiLabel('Manufacturing')}</a><a href="#about">${uiLabel('DDP delivery')}</a><a href="tel:${company.tel}">${uiLabel('Contact')} · ${company.phone}</a></div><div class="footer-col"><h3>${uiLabel('Orders + partners')}</h3><a href="#home" data-action="orders">${uiLabel('Track order')}</a><a href="#account">${uiLabel('My account')}</a><a href="#about">${uiLabel('Wholesale program')}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">${uiLabel('WhatsApp fitment help')}</a></div></div></div><div class="cerui-footer-disclaimer">${uiLabel('Vehicle manufacturer names are used only to identify compatibility. CIRUI Forged is not affiliated with or endorsed by those vehicle manufacturers.')}</div><div class="footer-bottom"><span>© 2026 ${company.legalName} · CIRUI Forged / Forcarbox</span><span>${uiLabel('Terms · Privacy · CCPA')}</span></div></div></footer>`;
+  return `<footer class="footer cerui-footer"><div class="container"><div class="footer-top"><div class="cerui-footer-brand"><a class="brand" href="#home"><img src="${assetUrl('cerui/cerui-logo-black-v1.webp')}" alt="CIRUI Forged 策锐锻造"><span><strong>CIRUI FORGED</strong><small>${uiLabel('FORCARBOX · OFFICIAL GLOBAL SITE')}</small></span></a><p class="footer-slogan">${uiLabel('Factory-direct custom forged wheels built around the exact vehicle, fitment and finish.')}</p><div class="company-meta"><strong>${company.legalName}</strong><a href="tel:${company.tel}">${company.phone}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">WhatsApp · ${company.whatsapp}</a></div></div><div class="footer-grid"><div class="footer-col"><h3>${uiLabel('Forged wheels')}</h3><a href="#home#vehicles">${uiLabel('Shop by vehicle')}</a><a href="#store" data-category-link="Wheels">${uiLabel('All wheel directions')}</a><a href="/fitment-lab" data-app-path>${uiLabel('Custom fitment')}</a><a href="#home#engineering">${uiLabel('Engineering')}</a></div><div class="footer-col"><h3>${uiLabel('Tools')}</h3><a href="/fitment-lab" data-app-path>${uiLabel('Fitment Lab')}</a><a href="#product/cerui-bmw-forged-fitment">${uiLabel('Vehicle photo preview')}</a><a href="#blog">${uiLabel('Fitment journal')}</a><a href="#home#resources">${uiLabel('Customer feedback')}</a></div><div class="footer-col"><h3>${uiLabel('Factory + delivery')}</h3><a href="#about">${uiLabel('About CIRUI')}</a><a href="#about">${uiLabel('Manufacturing')}</a><a href="#about">${uiLabel('DDP delivery')}</a><a href="tel:${company.tel}">${uiLabel('Contact')} · ${company.phone}</a></div><div class="footer-col"><h3>${uiLabel('Orders + partners')}</h3><a href="#home" data-action="orders">${uiLabel('Track order')}</a><a href="#account">${uiLabel('My account')}</a><a href="#about">${uiLabel('Wholesale program')}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">${uiLabel('WhatsApp fitment help')}</a></div></div></div><div class="cerui-footer-disclaimer">${uiLabel('Vehicle manufacturer names are used only to identify compatibility. CIRUI Forged is not affiliated with or endorsed by those vehicle manufacturers.')}</div><div class="footer-bottom"><span>© 2026 ${company.legalName} · CIRUI Forged / Forcarbox</span><span>${uiLabel('Terms · Privacy · CCPA')}</span></div></div></footer>`;
 }
 
 function localizedDynamicChineseText(value = '') {
@@ -5418,10 +5576,10 @@ function syncRouteDocumentTitle() {
 function render() {
   state.route = getRoute();
   syncRouteDocumentTitle();
-  const page = state.route.name === 'home' ? ceruiHomePage() : state.route.name === 'about' ? ceruiAboutPage() : state.route.name === 'fitment' ? fitmentPage() : state.route.name === 'fitment-result' ? fitmentResultPage() : state.route.name === 'fitment-share' ? fitmentSharePage() : state.route.name === 'account' ? accountPage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : state.route.name === 'blog' ? blogPage() : state.route.name === 'blog-post' ? blogArticlePage(state.blogPosts.find(post => post.slug === state.route.slug)) : productPage(product(state.route.id));
+  const page = state.route.name === 'home' ? premiumGlobalHomePage() : state.route.name === 'about' ? ceruiAboutPage() : state.route.name === 'fitment' ? fitmentPage() : state.route.name === 'fitment-result' ? fitmentResultPage() : state.route.name === 'fitment-share' ? fitmentSharePage() : state.route.name === 'account' ? accountPage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : state.route.name === 'blog' ? blogPage() : state.route.name === 'blog-post' ? blogArticlePage(state.blogPosts.find(post => post.slug === state.route.slug)) : productPage(product(state.route.id));
   const pageWithReviews = state.route.name === 'home' ? page.replace(/<section class="section" id="resources">[\s\S]*?<\/section>/, homeReviewSection()) : page;
   const pageWithPhotoReviews = state.route.name === 'home' ? pageWithReviews.replace(/<section class="section" id="gallery">[\s\S]*?<\/section>/, homePhotoReviewGallery()) : pageWithReviews;
-  const pageWithJournal = state.route.name === 'home' ? `${pageWithPhotoReviews}${blogHomeSection()}` : pageWithPhotoReviews;
+  const pageWithJournal = pageWithPhotoReviews;
   const appRoot = document.querySelector('#app');
   const existingHostedContainer = appRoot.querySelector('[data-paypal-hosted-container]');
   appRoot.innerHTML = `${header()}${pageWithJournal}${footer()}${chat()}${whatsappFab()}${state.cookie ? `<div class="cookie-banner"><span>${uiLabel('By using CIRUI, you agree to our cookie policy and fitment analytics.')}</span><button data-action="dismiss-cookie">${uiLabel('Dismiss')}</button></div>` : ''}${modal()}${wheelVisualizerModal()}${wheelVisualizerImageViewer()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
@@ -6050,6 +6208,11 @@ function applyFitmentProposal(proposal = {}) {
 }
 
 document.addEventListener('click', async event => {
+  const menuNavigationLink = event.target.closest('.nav-row a, .mega-menu a');
+  if (menuNavigationLink) {
+    state.mobileNav = false;
+    state.menuOpen = false;
+  }
   const appPath = event.target.closest('a[data-app-path]');
   if (appPath) {
     event.preventDefault();
@@ -6129,7 +6292,12 @@ document.addEventListener('click', async event => {
   if (action === 'fitment-open-concept') { state.modal = { type: 'fitment-concept' }; render(); return; }
   if (action === 'blog-filter') { state.blogCategory = target.dataset.blogCategory || 'All'; render(); return; }
   if (action === 'mega') { state.menuOpen = !state.menuOpen; render(); return; }
-  if (action === 'mobile-nav') { state.mobileNav = !state.mobileNav; render(); return; }
+  if (action === 'mobile-nav') {
+    state.mobileNav = !state.mobileNav;
+    if (!state.mobileNav) state.menuOpen = false;
+    render();
+    return;
+  }
   if (action === 'cart') { go('#cart'); return; }
   if (action === 'account') { if (state.mallToken && state.account) goPath('/account'); else { state.modal = { type: 'account', mode: 'login' }; render(); } return; }
   if (action === 'account-logout') { await mallLogout(); state.modal = null; if (state.route.name === 'account') goPath('/'); else render(); setToast('Signed out. Your local cart stays on this device.'); return; }

@@ -1,5 +1,10 @@
 .fbox-server*.log
 server-restart*.log
+server-premium-*.log
 work/
 node_modules/
 local-test-runtime*/
+qa/
+video-production/
+assets/domestic/videos/cerui-global-hero-expo-race-*-repaired-web.mp4
+assets/domestic/videos/cerui-global-hero-hd-montage-poster.jpg

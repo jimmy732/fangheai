@@ -29,6 +29,7 @@ const contentTypes = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.webp': 'image/webp',
+  '.mp4': 'video/mp4',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
   '.ico': 'image/x-icon'
@@ -45,7 +46,7 @@ function staticCacheControl(filePath, useAdmin) {
   if (filePath.includes(`${path.sep}assets${path.sep}cerui${path.sep}`)) return 'no-cache';
   if (useAdmin && /-[a-zA-Z0-9_-]{8,}\./.test(path.basename(filePath))) return 'public, max-age=31536000, immutable';
   if (['.js', '.css', '.json'].includes(extension)) return 'no-cache';
-  if (['.png', '.jpg', '.jpeg', '.webp', '.svg', '.ico', '.woff', '.woff2'].includes(extension)) return 'public, max-age=86400, stale-while-revalidate=604800';
+  if (['.png', '.jpg', '.jpeg', '.webp', '.mp4', '.svg', '.ico', '.woff', '.woff2'].includes(extension)) return 'public, max-age=86400, stale-while-revalidate=604800';
   return 'public, max-age=300, stale-while-revalidate=86400';
 }
 
@@ -88,9 +89,31 @@ function serveStatic(req, res, pathname) {
       'Last-Modified': stat.mtime.toUTCString(),
       ETag: etag
     };
-    if (req.headers['if-none-match'] === etag) {
+    if (extension === '.mp4') headers['Accept-Ranges'] = 'bytes';
+    if (!req.headers.range && req.headers['if-none-match'] === etag) {
       res.writeHead(304, headers);
       return res.end();
+    }
+    if (extension === '.mp4' && req.headers.range) {
+      const match = /^bytes=(\d*)-(\d*)$/.exec(String(req.headers.range));
+      if (!match) {
+        res.writeHead(416, { ...headers, 'Content-Range': `bytes */${stat.size}` });
+        return res.end();
+      }
+      const start = match[1] ? Number(match[1]) : 0;
+      const end = match[2] ? Math.min(Number(match[2]), stat.size - 1) : stat.size - 1;
+      if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || start > end || start >= stat.size) {
+        res.writeHead(416, { ...headers, 'Content-Range': `bytes */${stat.size}` });
+        return res.end();
+      }
+      res.writeHead(206, {
+        ...headers,
+        'Content-Range': `bytes ${start}-${end}/${stat.size}`,
+        'Content-Length': end - start + 1
+      });
+      if (req.method === 'HEAD') return res.end();
+      fs.createReadStream(filePath, { start, end }).pipe(res);
+      return;
     }
     if (req.method === 'HEAD') {
       res.writeHead(200, { ...headers, 'Content-Length': stat.size });
