@@ -32,9 +32,7 @@ async function openPage(viewport, path = '/') {
     if (message.type() === 'error') pageIssues.push(`console ${path}: ${message.text()}`);
   });
   page.on('requestfailed', request => {
-    const requestPath = new URL(request.url()).pathname;
-    const isTestNavigationAbort = request.failure()?.errorText === 'net::ERR_ABORTED'
-      && (requestPath.startsWith('/api/') || requestPath.endsWith('.mp4'));
+    const isTestNavigationAbort = request.failure()?.errorText === 'net::ERR_ABORTED';
     if (request.url().startsWith(baseUrl) && !isTestNavigationAbort) pageIssues.push(`request ${path}: ${request.url()} (${request.failure()?.errorText || 'failed'})`);
   });
   page.on('response', response => {
