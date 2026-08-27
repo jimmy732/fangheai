@@ -4334,8 +4334,8 @@ function premiumGlobalHomePage() {
   return `<main class="cerui-home premium-global-home">
     <section class="premium-hero" id="home" aria-labelledby="premium-hero-title">
       <video class="premium-hero-video" autoplay muted loop playsinline preload="auto" poster="${assetUrl('domestic/videos/cerui-global-hero-hd-montage-poster.webp')}" aria-hidden="true">
-        <source media="(max-width: 720px)" src="${assetUrl('domestic/videos/cerui-global-hero-hd-montage-720p30-web.mp4')}" type="video/mp4">
-        <source src="${assetUrl('domestic/videos/cerui-global-hero-hd-montage-1080p30-web.mp4')}" type="video/mp4">
+        <source media="(max-width: 720px)" src="${assetUrl('domestic/videos/cerui-global-hero-hd-montage-720p30-web.mp4?v=20260827-stream-v2')}" type="video/mp4">
+        <source src="${assetUrl('domestic/videos/cerui-global-hero-hd-montage-1080p30-web.mp4?v=20260827-stream-v2')}" type="video/mp4">
       </video>
       <div class="premium-hero-shade" aria-hidden="true"></div>
       <div class="container premium-hero-inner">
