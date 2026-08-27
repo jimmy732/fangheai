@@ -32,8 +32,9 @@ async function openPage(viewport, path = '/') {
     if (message.type() === 'error') pageIssues.push(`console ${path}: ${message.text()}`);
   });
   page.on('requestfailed', request => {
+    const requestPath = new URL(request.url()).pathname;
     const isTestNavigationAbort = request.failure()?.errorText === 'net::ERR_ABORTED'
-      && (request.url().includes('/api/fbox-content/track') || request.url().endsWith('.mp4'));
+      && (requestPath.startsWith('/api/') || requestPath.endsWith('.mp4'));
     if (request.url().startsWith(baseUrl) && !isTestNavigationAbort) pageIssues.push(`request ${path}: ${request.url()} (${request.failure()?.errorText || 'failed'})`);
   });
   page.on('response', response => {

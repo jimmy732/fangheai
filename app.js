@@ -5588,8 +5588,10 @@ function render() {
   const nextHostedContainer = nextRoot.querySelector('[data-paypal-hosted-container]');
   if (existingHostedContainer && nextHostedContainer) nextHostedContainer.replaceWith(existingHostedContainer);
   const nextHeroVideo = nextRoot.querySelector('.premium-hero-video');
-  if (existingHeroVideo && nextHeroVideo) nextHeroVideo.replaceWith(existingHeroVideo);
+  const preservedHeroVideo = Boolean(existingHeroVideo && nextHeroVideo);
+  if (preservedHeroVideo) nextHeroVideo.replaceWith(existingHeroVideo);
   appRoot.replaceChildren(...nextRoot.childNodes);
+  if (preservedHeroVideo && existingHeroVideo.paused) void existingHeroVideo.play().catch(() => {});
   syncFitmentEntryStatus();
   wireProductGallery();
   wireStartingPrices();
