@@ -5582,10 +5582,15 @@ function render() {
   const pageWithJournal = pageWithPhotoReviews;
   const appRoot = document.querySelector('#app');
   const existingHostedContainer = appRoot.querySelector('[data-paypal-hosted-container]');
-  appRoot.innerHTML = `${header()}${pageWithJournal}${footer()}${chat()}${whatsappFab()}${state.cookie ? `<div class="cookie-banner"><span>${uiLabel('By using CIRUI, you agree to our cookie policy and fitment analytics.')}</span><button data-action="dismiss-cookie">${uiLabel('Dismiss')}</button></div>` : ''}${modal()}${wheelVisualizerModal()}${wheelVisualizerImageViewer()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
-  syncFitmentEntryStatus();
-  const nextHostedContainer = appRoot.querySelector('[data-paypal-hosted-container]');
+  const existingHeroVideo = appRoot.querySelector('.premium-hero-video');
+  const nextRoot = document.createElement('div');
+  nextRoot.innerHTML = `${header()}${pageWithJournal}${footer()}${chat()}${whatsappFab()}${state.cookie ? `<div class="cookie-banner"><span>${uiLabel('By using CIRUI, you agree to our cookie policy and fitment analytics.')}</span><button data-action="dismiss-cookie">${uiLabel('Dismiss')}</button></div>` : ''}${modal()}${wheelVisualizerModal()}${wheelVisualizerImageViewer()}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}`;
+  const nextHostedContainer = nextRoot.querySelector('[data-paypal-hosted-container]');
   if (existingHostedContainer && nextHostedContainer) nextHostedContainer.replaceWith(existingHostedContainer);
+  const nextHeroVideo = nextRoot.querySelector('.premium-hero-video');
+  if (existingHeroVideo && nextHeroVideo) nextHeroVideo.replaceWith(existingHeroVideo);
+  appRoot.replaceChildren(...nextRoot.childNodes);
+  syncFitmentEntryStatus();
   wireProductGallery();
   wireStartingPrices();
   wireProductReviews();
