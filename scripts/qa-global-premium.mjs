@@ -185,10 +185,12 @@ try {
   await store.locator('.product-card [data-action="wishlist"]').first().click();
   await store.waitForTimeout(180);
   check('wishlist interaction remains', await store.locator('.product-card [data-action="wishlist"]').first().evaluate(button => button.classList.contains('is-saved')));
+  // The public catalog is now entirely forged-wheel RFQ inventory. Exercise
+  // the retained list behavior with the first visible public direction.
   await store.locator('.product-card [data-action="add"]').first().click();
   await store.waitForTimeout(250);
   const updatedCartCount = Number(await store.locator('.cart-count').innerText());
-  check('add-to-cart interaction remains', updatedCartCount === initialCartCount + 1, `${initialCartCount} -> ${updatedCartCount}`);
+  check('add-to-RFQ interaction remains', updatedCartCount === initialCartCount + 1, `${initialCartCount} -> ${updatedCartCount}`);
   await store.locator('.product-card a[href^="#product/"]').first().click();
   await store.waitForTimeout(300);
   check('product detail route remains', /#product\//.test(store.url()) && await store.locator('.wheel-visualizer-entry').count() === 1, store.url());
@@ -258,17 +260,17 @@ try {
   const megaMenuBox = await partnerDesktop.locator('.mega-menu').boundingBox();
   check('shop mega menu opens below the complete header stack', Boolean(megaMenuBox && megaMenuBox.y >= partnerDesktopLayout.header.bottom - 1), JSON.stringify(megaMenuBox));
   await partnerDesktop.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
-  await partnerDesktop.locator('.nav-row a[href="#home#engineering"]').click();
-  await partnerDesktop.waitForTimeout(1400);
-  check('engineering navigation reaches its homepage section', await partnerDesktop.evaluate(() => Math.abs(document.getElementById('engineering')?.getBoundingClientRect().top || 9999) < 80));
+  await partnerDesktop.locator('.nav-row a[href="#custom"]').click();
+  await partnerDesktop.waitForTimeout(300);
+  check('customization navigation reaches its functional page', partnerDesktop.url().includes('#custom') && await partnerDesktop.locator('.customization-page').count() === 1, partnerDesktop.url());
   await partnerDesktop.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' });
-  await partnerDesktop.locator('[data-action="account"]').click();
+  await partnerDesktop.locator('.header-action[data-action="account"]').click();
   await partnerDesktop.waitForTimeout(150);
   check('account control opens the login workflow', await partnerDesktop.locator('[data-form="account"]').count() === 1);
   await partnerDesktop.locator('.overlay .modal-close').click();
-  await partnerDesktop.locator('[data-action="cart"]').click();
+  await partnerDesktop.locator('.header-action[data-action="cart"]').click();
   await partnerDesktop.waitForTimeout(180);
-  check('cart control remains usable with partner attribution', partnerDesktop.url().includes('#cart') && await partnerDesktop.locator('.cart-page, .cart-empty').count() > 0, partnerDesktop.url());
+  check('RFQ control remains usable with partner attribution', partnerDesktop.url().includes('#cart') && await partnerDesktop.locator('.cart-page, .cart-empty').count() > 0, partnerDesktop.url());
   await partnerDesktop.close();
 
   const partnerMobile = await openPage({ width: 390, height: 844 });
@@ -343,8 +345,14 @@ try {
   visitedFitmentSteps.push(5);
   check('fitment-first calculator traverses all five steps', visitedFitmentSteps.join(',') === '1,2,3,4,5', visitedFitmentSteps.join(','));
   check('desktop calculator modal has no horizontal overflow', await fitmentEndToEnd.evaluate(() => document.documentElement.scrollWidth === document.documentElement.clientWidth && document.querySelector('.fitment-flow-modal')?.scrollWidth === document.querySelector('.fitment-flow-modal')?.clientWidth));
+  const fitmentResponsePromise = fitmentEndToEnd.waitForResponse(response => response.url().includes('/api/fbox-content/fitment/check'), { timeout: 15_000 }).catch(() => null);
   await fitmentEndToEnd.locator('[data-form="fitment-wizard"] button[type="submit"]').click();
-  await fitmentEndToEnd.waitForURL('**/fitment-lab/result', { timeout: 6000 });
+  const fitmentResponse = await fitmentResponsePromise;
+  await fitmentEndToEnd.waitForURL('**/fitment-lab/result', { timeout: 15_000 }).catch(async error => {
+    const responseBody = fitmentResponse ? await fitmentResponse.text().catch(() => '') : '';
+    const visibleError = await fitmentEndToEnd.locator('.fitment-flow-error').allTextContents();
+    throw new Error(`${error.message}\nFitment response: ${fitmentResponse?.status() || 'none'} ${responseBody}\nVisible errors: ${JSON.stringify(visibleError)}`);
+  });
   check('fitment calculator submits and renders proposals', await fitmentEndToEnd.locator('.fitment-result-page').count() === 1 && await fitmentEndToEnd.locator('.fitment-flow-error').count() === 0, fitmentEndToEnd.url());
   await fitmentEndToEnd.screenshot({ path: join(outputDir, 'fitment-end-to-end-final.png'), fullPage: false });
   await fitmentEndToEnd.close();

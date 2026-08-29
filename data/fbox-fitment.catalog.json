@@ -1,6 +1,6 @@
 {
-  "catalog_version": "2026-08-24.2-research-import",
-  "checked_at": "2026-08-24",
+  "catalog_version": "2026-08-29.1-brake-family-supplement",
+  "checked_at": "2026-08-29",
   "source_policy": "Manufacturer catalogues, application tables and the supplied 2026-08-22 research workbook are stored as evidence. Family-level records are searchable but cannot auto-approve a custom wheel until the exact vehicle, part number, brake/wheel clearance template and dynamic measurements are verified.",
   "groups": [
     {
@@ -17996,6 +17996,431 @@
           ],
           "status": "active",
           "notes": "Imported from the supplied research workbook. Range text is retained as evidence; no range is converted into a guessed exact wheel size."
+        }
+      ]
+    },
+    {
+      "brand": "Brembo",
+      "type": "caliper",
+      "axle": "universal",
+      "source_label": "Brembo current GT and PISTA kit family guide",
+      "source_url": "https://www.brembo.com/en/solutions/news/guide-choice-gt-kit",
+      "source_refs": [
+        {
+          "label": "Brembo guide to GT kit families",
+          "url": "https://www.brembo.com/en/solutions/news/guide-choice-gt-kit",
+          "kind": "manufacturer-product",
+          "evidence": "Brembo identifies the current GT A, M, BM, S and R families and their 4/6/8-piston variants."
+        },
+        {
+          "label": "Brembo GT A6 kit",
+          "url": "https://www.brembo.com/en/solutions/for-your-car/gt-a6-kit",
+          "kind": "manufacturer-product",
+          "evidence": "Official GT A6 product-family page."
+        },
+        {
+          "label": "Brembo GT M6 kit",
+          "url": "https://www.brembo.com/en/solutions/for-your-car/gt-m6-kit",
+          "kind": "manufacturer-product",
+          "evidence": "Official GT M6 product-family page."
+        },
+        {
+          "label": "Brembo GT BM6 kit",
+          "url": "https://www.brembo.com/en/solutions/for-your-car/gt-bm6-kit",
+          "kind": "manufacturer-product",
+          "evidence": "Official GT BM6 product-family page; Brembo states a six-piston caliper and discs up to 410 x 36 mm."
+        },
+        {
+          "label": "Brembo GT S6 kit",
+          "url": "https://www.brembo.com/en/solutions/for-your-car/gt-s6-kit",
+          "kind": "manufacturer-product",
+          "evidence": "Official GT S6 product-family page."
+        },
+        {
+          "label": "Brembo GT R6 kit",
+          "url": "https://www.brembo.com/en/solutions/for-your-car/gt-r6-kit",
+          "kind": "manufacturer-product",
+          "evidence": "Official GT R6 product-family page."
+        },
+        {
+          "label": "Brembo PISTA FF6 kit",
+          "url": "https://www.brembo.com/en/solutions/for-your-car/pista-ff6-kit",
+          "kind": "manufacturer-product",
+          "evidence": "Official PISTA FF6 product-family page."
+        }
+      ],
+      "confidence": "source-listed",
+      "verification_status": "source_catalog",
+      "parameter_scope": "family",
+      "clearance_template_required": true,
+      "auto_match_enabled": false,
+      "base_specs": {
+        "mount_type": "radial",
+        "manufacturer_family_index": true
+      },
+      "notes": "These are family-level lookup records, not vehicle applications. GT6 and F40 are included as search aliases used by customers and shops; neither alias is sufficient to approve wheel clearance. Confirm the complete kit/caliper part number and use the Brembo application drawing or 1:1 template.",
+      "models": [
+        {
+          "id": "catalog-brembo-gt6-market-alias",
+          "model": "GT6 · 6-piston umbrella alias",
+          "part_number": "GT6",
+          "specs": {
+            "caliper_pistons": 6,
+            "official_identifier_status": "market umbrella alias",
+            "search_aliases": ["GT6", "GT 6", "Gran Turismo 6", "GT A6", "GT M6", "GT BM6", "GT S6", "GT R6"]
+          },
+          "review_reasons": [
+            "GT6 is not one unique Brembo part number; identify whether the installed caliper is GT A6, M6, BM6, S6, R6 or another six-piston application.",
+            "Rotor diameter/thickness and caliper envelope remain unknown until the exact kit or caliper code is supplied."
+          ],
+          "notes": "Search aid for the common GT6 shorthand. Do not treat this alias as an exact part or verified brake envelope."
+        },
+        {
+          "id": "catalog-brembo-f40-market-alias",
+          "model": "F40 · market alias / exact code required",
+          "part_number": "F40",
+          "specs": {
+            "official_identifier_status": "unresolved market alias",
+            "search_aliases": ["F40", "Brembo F40", "布雷博 F40"]
+          },
+          "review_reasons": [
+            "F40 alone does not identify one current Brembo aftermarket caliper or kit in the official family guide.",
+            "Do not infer piston count, rotor size, thickness, wheel diameter or caliper envelope from this shorthand."
+          ],
+          "notes": "Selectable so an operator can record the customer's wording. Photograph the casting/label and enter the complete Brembo part or kit number before calculation approval."
+        },
+        {
+          "id": "catalog-brembo-gt-a4-current-family",
+          "model": "GT | A4",
+          "part_number": "GT A4",
+          "specs": { "caliper_pistons": 4, "search_aliases": ["GTA4", "GT A4"] }
+        },
+        {
+          "id": "catalog-brembo-gt-a6-current-family",
+          "model": "GT | A6",
+          "part_number": "GT A6",
+          "source_url": "https://www.brembo.com/en/solutions/for-your-car/gt-a6-kit",
+          "specs": { "caliper_pistons": 6, "search_aliases": ["GTA6", "GT A6", "GT6"] }
+        },
+        {
+          "id": "catalog-brembo-gt-a8-current-family",
+          "model": "GT | A8",
+          "part_number": "GT A8",
+          "specs": { "caliper_pistons": 8, "search_aliases": ["GTA8", "GT A8"] }
+        },
+        {
+          "id": "catalog-brembo-gt-m4-current-family",
+          "model": "GT | M4",
+          "part_number": "GT M4",
+          "specs": { "caliper_pistons": 4, "search_aliases": ["GTM4", "GT M4"] }
+        },
+        {
+          "id": "catalog-brembo-gt-m6-current-family",
+          "model": "GT | M6",
+          "part_number": "GT M6",
+          "source_url": "https://www.brembo.com/en/solutions/for-your-car/gt-m6-kit",
+          "specs": { "caliper_pistons": 6, "search_aliases": ["GTM6", "GT M6", "GT6"] }
+        },
+        {
+          "id": "catalog-brembo-gt-bm4-current-family",
+          "model": "GT | BM4",
+          "part_number": "GT BM4",
+          "specs": { "caliper_pistons": 4, "search_aliases": ["GTBM4", "GT BM4"] }
+        },
+        {
+          "id": "catalog-brembo-gt-bm6-current-family",
+          "model": "GT | BM6",
+          "part_number": "GT BM6",
+          "source_url": "https://www.brembo.com/en/solutions/for-your-car/gt-bm6-kit",
+          "specs": {
+            "caliper_pistons": 6,
+            "max_disc_diameter_mm": 410,
+            "max_disc_thickness_mm": 36,
+            "search_aliases": ["GTBM6", "GT BM6", "GT6"]
+          }
+        },
+        {
+          "id": "catalog-brembo-gt-bm8-current-family",
+          "model": "GT | BM8",
+          "part_number": "GT BM8",
+          "specs": { "caliper_pistons": 8, "search_aliases": ["GTBM8", "GT BM8"] }
+        },
+        {
+          "id": "catalog-brembo-gt-s4-current-family",
+          "model": "GT | S4",
+          "part_number": "GT S4",
+          "specs": { "caliper_pistons": 4, "search_aliases": ["GTS4", "GT S4"] }
+        },
+        {
+          "id": "catalog-brembo-gt-s6-current-family",
+          "model": "GT | S6",
+          "part_number": "GT S6",
+          "source_url": "https://www.brembo.com/en/solutions/for-your-car/gt-s6-kit",
+          "specs": { "caliper_pistons": 6, "search_aliases": ["GTS6", "GT S6", "GT6"] }
+        },
+        {
+          "id": "catalog-brembo-gt-r4-current-family",
+          "model": "GT | R4",
+          "part_number": "GT R4",
+          "specs": { "caliper_pistons": 4, "search_aliases": ["GTR4", "GT R4"] }
+        },
+        {
+          "id": "catalog-brembo-gt-r6-current-family",
+          "model": "GT | R6",
+          "part_number": "GT R6",
+          "source_url": "https://www.brembo.com/en/solutions/for-your-car/gt-r6-kit",
+          "specs": { "caliper_pistons": 6, "search_aliases": ["GTR6", "GT R6", "GT-R6", "GT6"] }
+        },
+        {
+          "id": "catalog-brembo-pista-ff6-current-family",
+          "model": "PISTA | FF6",
+          "part_number": "PISTA FF6",
+          "source_url": "https://www.brembo.com/en/solutions/for-your-car/pista-ff6-kit",
+          "specs": { "caliper_pistons": 6, "search_aliases": ["FF6", "PISTA FF6"] }
+        }
+      ]
+    },
+    {
+      "brand": "AP Racing",
+      "type": "caliper",
+      "axle": "universal",
+      "source_label": "AP Racing PRO 5000 R range",
+      "source_url": "https://apracing.com/race-car/brake-calipers/pro-5000-r-range",
+      "source_refs": [
+        {
+          "label": "AP Racing PRO 5000 R range",
+          "url": "https://apracing.com/race-car/brake-calipers/pro-5000-r-range",
+          "kind": "manufacturer-product",
+          "evidence": "Official family page lists current 4- and 6-piston model numbers, mounting centres and selected piston areas."
+        }
+      ],
+      "confidence": "source-listed",
+      "verification_status": "source_catalog",
+      "parameter_scope": "family",
+      "clearance_template_required": true,
+      "auto_match_enabled": false,
+      "base_specs": { "mount_type": "radial" },
+      "notes": "PRO 5000 R variants have dimensional differences. Use the exact left/right suffix and AP Racing installation drawing before approving wheel clearance.",
+      "models": [
+        {
+          "id": "catalog-ap-racing-cp9446-pro5000r",
+          "model": "CP9446 Pro 5000 R",
+          "part_number": "CP9446",
+          "axle": "front",
+          "specs": { "caliper_pistons": 4, "mount_centres_mm": 180 }
+        },
+        {
+          "id": "catalog-ap-racing-cp9448-pro5000r",
+          "model": "CP9448 Pro 5000 R",
+          "part_number": "CP9448",
+          "axle": "front",
+          "specs": { "caliper_pistons": 4, "mount_centres_mm": 152, "piston_area_cm2": 49.4 }
+        },
+        {
+          "id": "catalog-ap-racing-cp9449-pro5000r",
+          "model": "CP9449 Pro 5000 R",
+          "part_number": "CP9449",
+          "axle": "rear",
+          "specs": { "caliper_pistons": 4, "mount_centres_mm": 152, "piston_area_cm2": 30.9 }
+        },
+        {
+          "id": "catalog-ap-racing-cp9450-pro5000r",
+          "model": "CP9450 Pro 5000 R",
+          "part_number": "CP9450",
+          "axle": "rear",
+          "specs": { "caliper_pistons": 4, "mount_centres_mm": 152, "piston_area_cm2": 27.2 }
+        },
+        {
+          "id": "catalog-ap-racing-cp9451-pro5000r",
+          "model": "CP9451 Pro 5000 R",
+          "part_number": "CP9451",
+          "axle": "rear",
+          "specs": { "caliper_pistons": 4, "mount_centres_mm": 152, "piston_area_cm2": 22.8 }
+        },
+        {
+          "id": "catalog-ap-racing-cp9665-pro5000r",
+          "model": "CP9665 Pro 5000 R",
+          "part_number": "CP9665",
+          "axle": "front",
+          "specs": { "caliper_pistons": 6, "mount_centres_mm": 210, "pad_thickness_mm": 25 }
+        },
+        {
+          "id": "catalog-ap-racing-cp9668-pro5000r",
+          "model": "CP9668 Pro 5000 R",
+          "part_number": "CP9668",
+          "axle": "front",
+          "specs": { "caliper_pistons": 6, "mount_centres_mm": 180, "pad_thickness_mm": 25 }
+        }
+      ]
+    },
+    {
+      "brand": "ENDLESS",
+      "type": "caliper",
+      "axle": "universal",
+      "source_label": "ENDLESS official current brake caliper line-up",
+      "source_url": "https://www.endless-sport.co.jp/products/brake_caliper/index.html",
+      "source_refs": [
+        {
+          "label": "ENDLESS brake caliper line-up",
+          "url": "https://www.endless-sport.co.jp/products/brake_caliper/index.html",
+          "kind": "manufacturer-product",
+          "evidence": "Official current family index with piston count and supported rotor-diameter ranges."
+        },
+        {
+          "label": "ENDLESS RacingMONO6 EVO",
+          "url": "https://endless-sport.co.jp/products/brake_caliper/index_RacingMONO6EVO.html",
+          "kind": "manufacturer-product",
+          "evidence": "Official dimensions, weight, wheel-size starting point and rotor range."
+        },
+        {
+          "label": "ENDLESS RacingMONO6GT NARROW for BMW",
+          "url": "https://endless-sport.co.jp/products/brake_caliper/index_RacingMONO6GT_NARROW_BMW.html",
+          "kind": "manufacturer-product",
+          "evidence": "Official dimensions, weight, wheel-size starting point and rotor range."
+        },
+        {
+          "label": "ENDLESS RacingMONO2",
+          "url": "https://www.endless-sport.co.jp/products/brake_caliper/index_RacingMONO2.html",
+          "kind": "manufacturer-product",
+          "evidence": "Official dimensions, weight, wheel-size starting point and rotor range."
+        }
+      ],
+      "confidence": "source-listed",
+      "verification_status": "source_catalog",
+      "parameter_scope": "family",
+      "clearance_template_required": true,
+      "auto_match_enabled": false,
+      "notes": "ENDLESS states that listed wheel sizes depend on wheel brand, wheel size and kit contents. Treat minimum wheel diameter as a starting point and check the exact paper pattern/template.",
+      "models": [
+        {
+          "id": "catalog-endless-racingmono6-evo-current",
+          "model": "RacingMONO6 EVO",
+          "part_number": "RacingMONO6 EVO",
+          "axle": "front",
+          "source_url": "https://endless-sport.co.jp/products/brake_caliper/index_RacingMONO6EVO.html",
+          "specs": {
+            "caliper_pistons": 6,
+            "weight_kg": 3.1,
+            "min_wheel_diameter_in": 19,
+            "min_disc_diameter_mm": 370,
+            "max_disc_diameter_mm": 420,
+            "caliper_dimensions_mm": "177 D x 86 H x 336 W"
+          }
+        },
+        {
+          "id": "catalog-endless-racingmono6gt-narrow-bmw-current",
+          "model": "RacingMONO6GT NARROW for BMW",
+          "part_number": "RacingMONO6GT NARROW BMW",
+          "axle": "front",
+          "source_url": "https://endless-sport.co.jp/products/brake_caliper/index_RacingMONO6GT_NARROW_BMW.html",
+          "specs": {
+            "caliper_pistons": 6,
+            "weight_kg": 3.39,
+            "min_wheel_diameter_in": 19,
+            "min_disc_diameter_mm": 380,
+            "max_disc_diameter_mm": 400,
+            "caliper_dimensions_mm": "183.7 D x 71.3 H x 315 W"
+          }
+        },
+        {
+          "id": "catalog-endless-racingmono6-ta-current",
+          "model": "RacingMONO6 TA",
+          "part_number": "RacingMONO6 TA",
+          "axle": "front",
+          "specs": { "caliper_pistons": 6, "min_disc_diameter_mm": 355, "max_disc_diameter_mm": 400 }
+        },
+        {
+          "id": "catalog-endless-racingmono4-ta-current",
+          "model": "RacingMONO4 TA",
+          "part_number": "RacingMONO4 TA",
+          "axle": "front",
+          "specs": { "caliper_pistons": 4, "min_disc_diameter_mm": 300, "max_disc_diameter_mm": 355 }
+        },
+        {
+          "id": "catalog-endless-racingmono2-current",
+          "model": "RacingMONO2",
+          "part_number": "RacingMONO2",
+          "axle": "front",
+          "source_url": "https://www.endless-sport.co.jp/products/brake_caliper/index_RacingMONO2.html",
+          "specs": {
+            "caliper_pistons": 2,
+            "weight_kg": 1.685,
+            "min_wheel_diameter_in": 15,
+            "min_disc_diameter_mm": 280,
+            "max_disc_diameter_mm": 332,
+            "caliper_dimensions_mm": "146 D x 65.8 H x 240 W"
+          }
+        },
+        {
+          "id": "catalog-endless-racingmono2-ta-current",
+          "model": "RacingMONO2 TA",
+          "part_number": "RacingMONO2 TA",
+          "axle": "front",
+          "specs": { "caliper_pistons": 2, "min_disc_diameter_mm": 280, "max_disc_diameter_mm": 332 }
+        },
+        {
+          "id": "catalog-endless-racingbig4-current",
+          "model": "RacingBIG4",
+          "part_number": "RacingBIG4",
+          "axle": "rear",
+          "specs": { "caliper_pistons": 4, "min_disc_diameter_mm": 355, "max_disc_diameter_mm": 370 }
+        },
+        {
+          "id": "catalog-endless-racing4-current",
+          "model": "Racing4",
+          "part_number": "Racing4",
+          "axle": "rear",
+          "specs": { "caliper_pistons": 4, "rotor_diameter_mm": 332 }
+        },
+        {
+          "id": "catalog-endless-s4r-current",
+          "model": "S4r",
+          "part_number": "S4r",
+          "axle": "rear",
+          "specs": { "caliper_pistons": 4, "min_disc_diameter_mm": 280, "max_disc_diameter_mm": 332 }
+        }
+      ]
+    },
+    {
+      "brand": "Akebono",
+      "type": "caliper",
+      "axle": "universal",
+      "source_label": "Akebono high-performance original-equipment brakes",
+      "source_url": "https://www.akebono-brake.com/english/product_technology/product/highperformance/",
+      "source_refs": [
+        {
+          "label": "Akebono brakes for high-performance cars",
+          "url": "https://www.akebono-brake.com/english/product_technology/product/highperformance/",
+          "kind": "manufacturer-product",
+          "evidence": "Akebono confirms opposed-piston 6-pot and 10-pot calipers for high-performance production vehicles."
+        },
+        {
+          "label": "Akebono OEM brake products",
+          "url": "https://www.akebonobrakes.com/oem",
+          "kind": "manufacturer-product",
+          "evidence": "Akebono confirms front and rear original-equipment caliper product coverage."
+        }
+      ],
+      "confidence": "source-listed",
+      "verification_status": "source_catalog",
+      "parameter_scope": "family",
+      "clearance_template_required": true,
+      "auto_match_enabled": false,
+      "notes": "These are OEM high-performance families, not universal aftermarket kits. Akebono does not publish a universal wheel-clearance envelope on the cited family page; identify the exact vehicle and OE caliper part number.",
+      "models": [
+        {
+          "id": "catalog-akebono-high-performance-oem-6pot",
+          "model": "High-Performance OEM 6-pot",
+          "part_number": "Akebono OEM 6-pot",
+          "specs": { "caliper_pistons": 6, "application_scope": "vehicle-specific original equipment" },
+          "review_reasons": ["Exact vehicle and OE caliper part number are required; no universal rotor or wheel-clearance dimensions are claimed."]
+        },
+        {
+          "id": "catalog-akebono-high-performance-oem-10pot",
+          "model": "High-Performance OEM 10-pot",
+          "part_number": "Akebono OEM 10-pot",
+          "specs": { "caliper_pistons": 10, "application_scope": "vehicle-specific original equipment" },
+          "review_reasons": ["Exact vehicle and OE caliper part number are required; no universal rotor or wheel-clearance dimensions are claimed."]
         }
       ]
     }

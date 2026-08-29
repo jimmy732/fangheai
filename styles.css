@@ -1864,6 +1864,26 @@ paypal-cart-button { display: block; min-height: 46px; width: 100%; }
 .fitment-flow-style-current > b svg { width: 13px; height: 13px; }
 .fitment-flow-style-image { display: grid; width: 76px; height: 68px; place-items: center; overflow: hidden; background: #edf2f1; }
 .fitment-flow-style-image img { width: 100%; height: 100%; object-fit: contain; }
+.fitment-style-catalog { margin-bottom: 13px; overflow: hidden; border: 1px solid #d5dfde; border-radius: 6px; background: #fff; }
+.fitment-style-catalog > header { display: flex; align-items: end; justify-content: space-between; gap: 22px; padding: 14px 15px; border-bottom: 1px solid #dce4e3; background: #f8faf9; }
+.fitment-style-catalog > header > div:first-child { display: grid; gap: 3px; min-width: 0; }
+.fitment-style-catalog > header small { color: var(--lavender); font-size: 8px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+.fitment-style-catalog > header strong { color: var(--ink); font-size: 13px; }
+.fitment-style-catalog > header span { color: #758187; font-size: 9px; }
+.fitment-style-filter { display: inline-flex; flex: 0 0 auto; gap: 3px; padding: 3px; border: 1px solid #d6dfde; background: #eef3f2; }
+.fitment-style-filter button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 33px; padding: 7px 10px; color: #5e6c72; border: 0; background: transparent; font: inherit; font-size: 9px; font-weight: 850; cursor: pointer; }
+.fitment-style-filter button:hover { color: #111820; background: #fff; }
+.fitment-style-filter button:focus-visible { outline: 2px solid #111820; outline-offset: 1px; }
+.fitment-style-filter button.is-active { color: #fff; background: #111820; }
+.fitment-style-filter button b { display: inline-grid; min-width: 19px; height: 19px; place-items: center; padding: 0 5px; color: inherit; border-radius: 10px; background: rgba(255,255,255,.16); font: 900 8px/1 ui-monospace, monospace; }
+.fitment-style-filter button:not(.is-active) b { background: #fff; }
+.fitment-style-catalog > .fitment-flow-wheel-grid { padding: 12px; }
+.fitment-style-catalog > footer { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 54px; padding: 10px 12px 10px 15px; border-top: 1px solid #dce4e3; background: #f8faf9; }
+.fitment-style-catalog > footer > span { display: grid; gap: 3px; color: #59686f; font-size: 9px; font-weight: 800; }
+.fitment-style-catalog > footer > span small { max-width: 620px; color: #89949a; font-size: 8px; font-weight: 500; line-height: 1.4; }
+.fitment-style-catalog > footer .btn { flex: 0 0 auto; min-height: 34px; padding: 8px 12px; font-size: 9px; }
+.fitment-style-catalog > footer .btn svg { width: 12px; height: 12px; transition: transform .18s ease; }
+.fitment-style-catalog.is-expanded > footer .btn svg { transform: rotate(180deg); }
 .fitment-flow-wheel-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
 .fitment-flow-wheel { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 3px 9px; min-width: 0; align-items: center; padding: 8px; color: #111820; border: 1px solid #d5dfde; border-radius: 5px; background: #fff; text-align: left; cursor: pointer; }
 .fitment-flow-wheel > span { grid-row: 1 / span 2; display: grid; width: 54px; height: 54px; place-items: center; overflow: hidden; background: #eef3f2; }
@@ -2069,6 +2089,10 @@ paypal-cart-button { display: block; min-height: 46px; width: 100%; }
   .fitment-flow-section-head .btn { width: 100%; }
   .fitment-flow-axle-tabs { position: sticky; z-index: 2; top: -20px; width: 100%; grid-template-columns: repeat(2, 1fr); margin-bottom: 8px; box-shadow: 0 7px 18px rgba(20,32,37,.08); }
   .fitment-flow-wheel-grid { grid-template-columns: 1fr 1fr; }
+  .fitment-style-catalog > header, .fitment-style-catalog > footer { align-items: stretch; flex-direction: column; }
+  .fitment-style-filter { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; box-sizing: border-box; }
+  .fitment-style-filter button { min-width: 0; padding-right: 5px; padding-left: 5px; }
+  .fitment-style-catalog > footer .btn { width: 100%; justify-content: center; }
   .fitment-flow-wheel { grid-template-columns: 42px minmax(0, 1fr); }
   .fitment-flow-wheel > span { width: 42px; height: 42px; }
   .fitment-flow-style-current { grid-template-columns: 62px minmax(0, 1fr); }

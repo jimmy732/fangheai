@@ -61,8 +61,43 @@ function buildVehicleCatalog() {
 }
 const vehicles = buildVehicleCatalog();
 let years = Object.keys(vehicles).sort((a, b) => b - a);
+const vehicleCatalogCollator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
+const vehicleCatalogSort = values => [...new Set(values)].sort(vehicleCatalogCollator.compare);
+let vehicleDirectoryMeta = null;
+let vehicleDirectoryRequest = null;
 let expandedVehicleIdentityRecords = [];
 let expandedVehicleIdentityRequest = null;
+
+function mergeVehicleDirectory(payload = {}) {
+  const directoryYears = payload?.years && typeof payload.years === 'object' ? payload.years : {};
+  Object.entries(directoryYears).forEach(([year, makes]) => {
+    if (!makes || typeof makes !== 'object') return;
+    vehicles[year] ||= {};
+    Object.entries(makes).forEach(([make, models]) => {
+      if (!models || typeof models !== 'object') return;
+      vehicles[year][make] ||= {};
+      Object.entries(models).forEach(([model, trims]) => {
+        const existing = Array.isArray(vehicles[year][make][model]) ? vehicles[year][make][model] : [];
+        vehicles[year][make][model] = vehicleCatalogSort([...existing, ...(Array.isArray(trims) ? trims.map(String) : [])]);
+      });
+    });
+  });
+  vehicleDirectoryMeta = payload?.stats || null;
+  years = Object.keys(vehicles).sort((a, b) => Number(b) - Number(a));
+}
+
+function loadVehicleDirectory() {
+  if (vehicleDirectoryRequest) return vehicleDirectoryRequest;
+  vehicleDirectoryRequest = fetch('/data/fbox-vehicle-directory.json', { cache: 'no-cache', headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(20_000) })
+    .then(response => response.ok ? response.json() : Promise.reject(new Error('Vehicle directory unavailable')))
+    .then(payload => {
+      mergeVehicleDirectory(payload);
+      renderBackgroundUpdate();
+      return payload;
+    })
+    .catch(() => undefined);
+  return vehicleDirectoryRequest;
+}
 
 function mergeExpandedVehicleIdentity(records = []) {
   expandedVehicleIdentityRecords = records.map(record => ({
@@ -351,6 +386,66 @@ const siteChromeTranslations = {
 Object.entries(siteChromeTranslations).forEach(([locale, values]) => {
   if (!localeDictionaries[locale]) return;
   Object.assign(localeDictionaries[locale], Object.fromEntries(siteChromeTranslationKeys.map((key, index) => [key, values[index] || key])));
+});
+
+// Keep the complete navigation usable without waiting for the public machine-
+// translation fallback. These labels are part of the interaction chrome, so
+// they must switch immediately and remain available when a visitor is offline.
+const navigationChromeTranslationKeys = [
+  'Automatic',
+  'Close navigation',
+  'Customization',
+  'Factory',
+  'Trade & DDP',
+  'RFQ list',
+  'Forged wheel catalog',
+  'Wheel construction',
+  'All forged wheels',
+  'Monoblock forged',
+  '2-piece forged',
+  'Aero & floating',
+  'SUV & off-road',
+  'Fitment tools',
+  'Vehicle fitment',
+  'Brake clearance',
+  'Vehicle photo visualizer',
+  'Offset & stance calculator',
+  'Finishes & colors',
+  'Lip profiles',
+  'Center caps',
+  'Hardware options',
+  'Factory & trade',
+  'Meet the factory',
+  'DDP Europe & North America',
+  'Dealer & wholesale',
+  'Track my order',
+  'Open RFQ list'
+];
+
+const navigationChromeTranslations = {
+  'zh-CN': '自动|关闭导航|定制选项|工厂|外贸与 DDP|询价清单|锻造轮毂目录|轮毂结构|全部锻造轮毂|单片式锻造|双片式锻造|空气动力学与悬浮式|SUV 与越野|适配工具|车辆适配|刹车间隙|车辆照片效果预览|ET 与姿态计算器|表面处理与颜色|轮唇造型|中心盖|螺丝配件选项|工厂与外贸|了解工厂|欧洲与北美 DDP|经销与批发|查询我的订单|打开询价清单'.split('|'),
+  'zh-TW': '自動|關閉導覽|客製選項|工廠|外貿與 DDP|詢價清單|鍛造輪圈目錄|輪圈結構|全部鍛造輪圈|單片式鍛造|雙片式鍛造|空氣動力學與懸浮式|SUV 與越野|適配工具|車輛適配|煞車間隙|車輛照片效果預覽|ET 與姿態計算器|表面處理與顏色|輪唇造型|中心蓋|螺絲配件選項|工廠與外貿|了解工廠|歐洲與北美 DDP|經銷與批發|查詢我的訂單|開啟詢價清單'.split('|'),
+  ja: '自動|ナビゲーションを閉じる|カスタマイズ|工場|取引・DDP|見積依頼リスト|鍛造ホイールカタログ|ホイール構造|すべての鍛造ホイール|1ピース鍛造|2ピース鍛造|エアロ＆フローティング|SUV・オフロード|フィットメントツール|車両フィットメント|ブレーキクリアランス|車両写真シミュレーター|オフセット＆スタンス計算|仕上げ・カラー|リムプロファイル|センターキャップ|ハードウェアオプション|工場・取引|工場について|欧州・北米 DDP|ディーラー・卸売|注文を追跡|見積依頼リストを開く'.split('|'),
+  ko: '자동|탐색 메뉴 닫기|커스터마이징|공장|무역 및 DDP|견적 요청 목록|단조 휠 카탈로그|휠 구조|모든 단조 휠|모노블록 단조|2피스 단조|에어로 및 플로팅|SUV 및 오프로드|핏먼트 도구|차량 핏먼트|브레이크 간극|차량 사진 시뮬레이터|오프셋 및 스탠스 계산기|마감 및 색상|립 프로파일|센터 캡|하드웨어 옵션|공장 및 무역|공장 소개|유럽 및 북미 DDP|딜러 및 도매|주문 조회|견적 요청 목록 열기'.split('|'),
+  de: 'Automatisch|Navigation schließen|Individualisierung|Werk|Handel & DDP|Angebotsliste|Schmiederad-Katalog|Radkonstruktion|Alle Schmiederäder|Monoblock geschmiedet|2-teilig geschmiedet|Aero & Floating|SUV & Offroad|Fitment-Werkzeuge|Fahrzeug-Fitment|Bremsfreigängigkeit|Vorschau am Fahrzeugfoto|Offset- & Stance-Rechner|Oberflächen & Farben|Felgenbettprofile|Nabenkappen|Hardware-Optionen|Werk & Handel|Werk kennenlernen|DDP Europa & Nordamerika|Händler & Großhandel|Meine Bestellung verfolgen|Angebotsliste öffnen'.split('|'),
+  fr: 'Automatique|Fermer la navigation|Personnalisation|Usine|Commerce & DDP|Liste de devis|Catalogue de jantes forgées|Construction de la jante|Toutes les jantes forgées|Forgée monobloc|Forgée en 2 parties|Aéro & flottante|SUV & tout-terrain|Outils de compatibilité|Compatibilité véhicule|Dégagement des freins|Simulateur sur photo du véhicule|Calculateur de déport & stance|Finitions & couleurs|Profils de bord|Cabochons centraux|Options de visserie|Usine & commerce|Découvrir l’usine|DDP Europe & Amérique du Nord|Revendeurs & grossistes|Suivre ma commande|Ouvrir la liste de devis'.split('|'),
+  es: 'Automático|Cerrar navegación|Personalización|Fábrica|Comercio y DDP|Lista de cotización|Catálogo de llantas forjadas|Construcción de la llanta|Todas las llantas forjadas|Forjada monobloque|Forjada de 2 piezas|Aero y flotante|SUV y todoterreno|Herramientas de ajuste|Ajuste del vehículo|Espacio para frenos|Simulador en foto del vehículo|Calculadora de offset y postura|Acabados y colores|Perfiles de aro|Tapas centrales|Opciones de tornillería|Fábrica y comercio|Conocer la fábrica|DDP Europa y Norteamérica|Distribuidores y mayoristas|Seguir mi pedido|Abrir lista de cotización'.split('|'),
+  it: 'Automatico|Chiudi navigazione|Personalizzazione|Fabbrica|Commercio e DDP|Lista preventivo|Catalogo cerchi forgiati|Costruzione del cerchio|Tutti i cerchi forgiati|Forgiato monoblocco|Forgiato 2 pezzi|Aero e flottante|SUV e fuoristrada|Strumenti di compatibilità|Compatibilità veicolo|Spazio freni|Simulatore su foto veicolo|Calcolatore offset e stance|Finiture e colori|Profili del canale|Coprimozzi|Opzioni hardware|Fabbrica e commercio|Scopri la fabbrica|DDP Europa e Nord America|Rivenditori e ingrosso|Traccia il mio ordine|Apri lista preventivo'.split('|'),
+  'pt-BR': 'Automático|Fechar navegação|Personalização|Fábrica|Comércio e DDP|Lista de cotação|Catálogo de rodas forjadas|Construção da roda|Todas as rodas forjadas|Forjada monobloco|Forjada de 2 peças|Aero e flutuante|SUV e off-road|Ferramentas de compatibilidade|Compatibilidade do veículo|Espaço para freios|Simulador na foto do veículo|Calculadora de offset e postura|Acabamentos e cores|Perfis de borda|Calotas centrais|Opções de ferragens|Fábrica e comércio|Conheça a fábrica|DDP Europa e América do Norte|Revendedores e atacado|Rastrear meu pedido|Abrir lista de cotação'.split('|'),
+  ru: 'Автоматически|Закрыть навигацию|Индивидуальная настройка|Завод|Торговля и DDP|Список запросов цены|Каталог кованых дисков|Конструкция диска|Все кованые диски|Моноблочные кованые|Двухсоставные кованые|Аэро и плавающие|SUV и бездорожье|Инструменты фитмента|Подбор по автомобилю|Зазор тормозов|Визуализация на фото автомобиля|Калькулятор вылета и посадки|Отделки и цвета|Профили обода|Центральные колпачки|Варианты крепежа|Завод и торговля|Познакомиться с заводом|DDP Европа и Северная Америка|Дилеры и опт|Отследить мой заказ|Открыть список запросов'.split('|'),
+  ar: 'تلقائي|إغلاق التنقل|التخصيص|المصنع|التجارة وDDP|قائمة طلبات الأسعار|كتالوج العجلات المطروقة|بنية العجلة|جميع العجلات المطروقة|مطروقة أحادية القطعة|مطروقة من قطعتين|ديناميكية هوائية وعائمة|SUV والطرق الوعرة|أدوات التوافق|توافق السيارة|خلوص الفرامل|معاينة على صورة السيارة|حاسبة الإزاحة والوقفة|التشطيبات والألوان|أشكال الحافة|أغطية المركز|خيارات المكونات|المصنع والتجارة|تعرّف على المصنع|DDP لأوروبا وأمريكا الشمالية|الوكلاء والجملة|تتبع طلبي|فتح قائمة طلبات الأسعار'.split('|'),
+  nl: 'Automatisch|Navigatie sluiten|Maatwerk|Fabriek|Handel & DDP|Offertelijst|Catalogus gesmede wielen|Wielconstructie|Alle gesmede wielen|Monoblock gesmeed|2-delig gesmeed|Aero & floating|SUV & offroad|Fitmenttools|Voertuigfitment|Remspeling|Voorbeeld op voertuigfoto|Offset- & stancecalculator|Afwerkingen & kleuren|Velgrandprofielen|Naafdoppen|Hardwareopties|Fabriek & handel|Bekijk de fabriek|DDP Europa & Noord-Amerika|Dealers & groothandel|Mijn bestelling volgen|Offertelijst openen'.split('|'),
+  tr: 'Otomatik|Navigasyonu kapat|Özelleştirme|Fabrika|Ticaret ve DDP|Teklif listesi|Dövme jant kataloğu|Jant yapısı|Tüm dövme jantlar|Monoblok dövme|2 parçalı dövme|Aero ve yüzer|SUV ve arazi|Uyum araçları|Araç uyumu|Fren boşluğu|Araç fotoğrafı önizleyici|Ofset ve duruş hesaplayıcı|Kaplamalar ve renkler|Dudak profilleri|Orta kapaklar|Donanım seçenekleri|Fabrika ve ticaret|Fabrikayı tanıyın|Avrupa ve Kuzey Amerika DDP|Bayi ve toptan satış|Siparişimi takip et|Teklif listesini aç'.split('|'),
+  pl: 'Automatycznie|Zamknij nawigację|Personalizacja|Fabryka|Handel i DDP|Lista zapytań|Katalog kutych felg|Konstrukcja felgi|Wszystkie kute felgi|Kute monoblokowe|Kute 2-częściowe|Aero i pływające|SUV i off-road|Narzędzia dopasowania|Dopasowanie pojazdu|Prześwit hamulców|Podgląd na zdjęciu pojazdu|Kalkulator odsadzenia i stance|Wykończenia i kolory|Profile rantu|Dekielki centralne|Opcje osprzętu|Fabryka i handel|Poznaj fabrykę|DDP Europa i Ameryka Północna|Dealerzy i hurt|Śledź moje zamówienie|Otwórz listę zapytań'.split('|'),
+  vi: 'Tự động|Đóng điều hướng|Tùy chỉnh|Nhà máy|Thương mại & DDP|Danh sách báo giá|Danh mục mâm rèn|Kết cấu mâm|Tất cả mâm rèn|Mâm rèn nguyên khối|Mâm rèn 2 mảnh|Khí động học & nổi|SUV & địa hình|Công cụ tương thích|Tương thích xe|Khoảng hở phanh|Xem trước trên ảnh xe|Bộ tính offset & dáng xe|Bề mặt & màu sắc|Kiểu vành mâm|Nắp chụp tâm|Tùy chọn phụ kiện|Nhà máy & thương mại|Khám phá nhà máy|DDP Châu Âu & Bắc Mỹ|Đại lý & bán sỉ|Theo dõi đơn hàng|Mở danh sách báo giá'.split('|'),
+  th: 'อัตโนมัติ|ปิดเมนูนำทาง|การปรับแต่ง|โรงงาน|การค้าและ DDP|รายการขอใบเสนอราคา|แค็ตตาล็อกล้อฟอร์จ|โครงสร้างล้อ|ล้อฟอร์จทั้งหมด|ฟอร์จชิ้นเดียว|ฟอร์จ 2 ชิ้น|แอโรและแบบลอย|SUV และออฟโรด|เครื่องมือความเข้ากันได้|ความเข้ากันได้ของรถ|ระยะห่างเบรก|ตัวอย่างบนภาพรถ|เครื่องคำนวณออฟเซ็ตและสแตนซ์|งานผิวและสี|รูปแบบขอบล้อ|ฝาครอบดุมกลาง|ตัวเลือกฮาร์ดแวร์|โรงงานและการค้า|รู้จักโรงงาน|DDP ยุโรปและอเมริกาเหนือ|ตัวแทนจำหน่ายและขายส่ง|ติดตามคำสั่งซื้อของฉัน|เปิดรายการขอใบเสนอราคา'.split('|'),
+  id: 'Otomatis|Tutup navigasi|Kustomisasi|Pabrik|Perdagangan & DDP|Daftar penawaran|Katalog velg forged|Konstruksi velg|Semua velg forged|Forged monoblok|Forged 2 bagian|Aero & floating|SUV & off-road|Alat fitment|Fitment kendaraan|Jarak bebas rem|Pratinjau pada foto kendaraan|Kalkulator offset & stance|Finishing & warna|Profil bibir velg|Tutup tengah|Opsi hardware|Pabrik & perdagangan|Kenali pabrik|DDP Eropa & Amerika Utara|Dealer & grosir|Lacak pesanan saya|Buka daftar penawaran'.split('|'),
+  hi: 'स्वचालित|नेविगेशन बंद करें|कस्टमाइज़ेशन|फैक्ट्री|व्यापार और DDP|कोटेशन सूची|फोर्ज्ड व्हील कैटलॉग|व्हील संरचना|सभी फोर्ज्ड व्हील|मोनोब्लॉक फोर्ज्ड|2-पीस फोर्ज्ड|एयरो और फ्लोटिंग|SUV और ऑफ-रोड|फिटमेंट टूल|वाहन फिटमेंट|ब्रेक क्लियरेंस|वाहन फोटो प्रीव्यू|ऑफसेट और स्टांस कैलकुलेटर|फिनिश और रंग|लिप प्रोफाइल|सेंटर कैप|हार्डवेयर विकल्प|फैक्ट्री और व्यापार|फैक्ट्री देखें|यूरोप और उत्तरी अमेरिका DDP|डीलर और थोक|मेरा ऑर्डर ट्रैक करें|कोटेशन सूची खोलें'.split('|')
+};
+
+Object.entries(navigationChromeTranslations).forEach(([locale, values]) => {
+  if (!localeDictionaries[locale]) return;
+  Object.assign(localeDictionaries[locale], Object.fromEntries(navigationChromeTranslationKeys.map((key, index) => [key, values[index] || key])));
 });
 
 const engineeringChromeTranslations = {
@@ -843,6 +938,16 @@ const workshopChineseTranslations = {
   'Use a short internal reference. Customer contact details are requested only when a quote is sent.': '使用简短的内部标记；只有发送报价时才收集客户联系方式。',
   'Project name': '项目名称',
   'Customer reference': '客户内部标记',
+  'Example: C43 street setup': '示例：C43 街道方案',
+  'Example: Chris / ticket 024': '示例：Chris / 工单 024',
+  'Example: Alex / work order 024': '示例：Alex / 工单 024',
+  'Example: 2022 C43, same brakes, 19x9 ET38': '示例：2022 款 C43、同款刹车、19x9 ET38',
+  'Calculate automatically': '由系统自动计算',
+  'Calculated from vehicle': '根据车辆数据计算',
+  'Measured minimum': '输入实测最小值',
+  'Template / measured gap': '输入模板或实测间隙',
+  'Loaded suspension gap': '输入带载悬挂间隙',
+  'Describe installed parts, ride height and known measurements…': '请描述已安装部件、车高和已知实测数据…',
   'Customer sales route': '客户成交方式',
   'Shop controls the sale': '由店家主导成交',
   'CIRUI collects payment for the shop': 'CIRUI 为店家代收款',
@@ -1361,6 +1466,38 @@ const fitmentFlowChineseTranslations = {
   'Select the starting direction.': '选择这次定制的起点。',
   'Pick an existing CIRUI style or upload one reference image. The style still needs its final spoke and barrel drawing check.': '选择现有 CIRUI 款式或上传一张参考图。最终仍需检查该款式的辐条和内桶图纸。',
   'Selected wheel style': '已选轮毂款式',
+  'CIRUI wheel catalog': 'CIRUI 轮毂目录',
+  'Browse every available wheel': '浏览全部可选轮毂',
+  '{count} wheel designs available': '共 {count} 款轮毂',
+  'Filter by construction': '按结构筛选',
+  'Search the wheel catalog': '搜索轮毂目录',
+  'Search wheel name or series': '搜索轮毂名称或系列',
+  'All wheels': '全部轮毂',
+  'One-piece forged': '单片锻造',
+  'Two-piece forged': '双片锻造',
+  'Every available design': '全部可选设计',
+  'Lightweight single-piece construction': '轻量一体式结构',
+  'Separate center and barrel': '独立轮心与轮辋结构',
+  'Matching designs': '匹配款式',
+  'Your current direction': '当前选择方向',
+  'Selection status': '选择状态',
+  'Required before continuing': '继续前必须选择',
+  'Wheel selected': '已选轮毂',
+  'Select design': '选择款式',
+  'Selected design': '已选款式',
+  'No wheels match this search.': '没有找到符合条件的轮毂。',
+  'Try another name or clear the current filters.': '请尝试其他名称，或清除当前筛选条件。',
+  'Clear search': '清除搜索',
+  'Scroll inside the catalog to see every matching design.': '可在目录内继续滚动，浏览全部匹配款式。',
+  'Or bring your own direction': '或者上传你的设计方向',
+  'Upload image': '上传图片',
+  'All': '全部',
+  'Monoblock': '单片式',
+  '2-piece': '双片式',
+  'Show preview only': '收起，仅显示预览',
+  'View all {count} wheels': '查看全部 {count} 款轮毂',
+  'Showing {visible} of {total}': '当前显示 {visible} / {total}',
+  'Unconfirmed constructions remain in All until drawing review.': '结构待确认的款式暂时仅保留在“全部”中，最终以图纸审核为准。',
   'Choose this style': '选择这个款式',
   'Selected': '已选择',
   'Upload a reference style': '上传参考款式',
@@ -1513,7 +1650,76 @@ const fitmentFlowChineseTranslations = {
   'Vehicle data required': '需要车型资料',
   'No missing inputs were identified.': '暂未发现需要补充的输入。',
   'Open the marked step': '前往补充',
-  'AI parameter lookup is temporarily unavailable. You can continue by entering the known data manually.': 'AI 参数查询暂时不可用，你仍可手动填写已知数据继续。'
+  'AI parameter lookup is temporarily unavailable. You can continue by entering the known data manually.': 'AI 参数查询暂时不可用，你仍可手动填写已知数据继续。',
+  'Official identity lookup': '官方车辆身份查询',
+  'Decode vehicle by VIN': '使用 VIN 识别车辆',
+  "Enter the vehicle's 17-character VIN to retrieve its manufacturer-submitted identity.": '输入车辆的 17 位 VIN，查询制造商提交的车辆身份信息。',
+  '17-character VIN': '17 位 VIN',
+  'Decode VIN': '查询 VIN',
+  'Checking official vehicle record…': '正在查询官方车辆记录…',
+  'Vehicle found via NHTSA': '已通过 NHTSA 找到车辆',
+  'Review the decoded trim and drive before continuing.': '继续前请核对识别出的配置版本和驱动形式。',
+  'NHTSA vPIC covers vehicles sold or imported into the United States most completely.': 'NHTSA vPIC 对在美国销售或进口的车型覆盖最完整。',
+  'VIN lookup does not provide wheel fitment, factory options, accident history, mileage or ownership.': 'VIN 查询不提供轮毂适配、原厂选装、事故、里程或车主历史。',
+  'Enter a valid 17-character VIN. Letters I, O and Q are not used.': '请输入有效的 17 位 VIN；VIN 不使用字母 I、O 和 Q。',
+  'Official vehicle service unavailable. You can continue by entering the vehicle manually.': '官方车辆查询服务暂时不可用，你可以手动填写车型继续。',
+  'VIN lookup failed.': 'VIN 查询失败',
+  'Too many VIN checks. Please wait before trying again.': 'VIN 查询次数过多，请稍后再试。',
+  'No exact vehicle record was returned. Enter the vehicle manually and review the VIN.': '未返回准确车辆记录，请核对 VIN 或手动填写车型。',
+  'Partial record — review every field.': '当前记录不完整，请逐项核对。',
+  'Engine': '发动机',
+  'cyl': '缸',
+  'Built in': '生产国家 / 地区',
+  'Front wheel diameter': '原厂前轮直径',
+  'Rear wheel diameter': '原厂后轮直径',
+  'Number of wheels': '车轮数量',
+  'Track width': '轮距',
+  'Manufacturer-reported wheel data': '制造商申报的轮毂数据：',
+  'Diameter only; PCD, width, ET, center bore and factory option package still require an exact OEM or physical check.': '仅代表轮毂直径；PCD、宽度、ET、中心孔和原厂选装包仍需通过准确原厂资料或实车检查确认。',
+  'No manufacturer wheel fields were submitted for this VIN.': '该 VIN 没有制造商申报的轮毂字段。',
+  'Continue with the exact trim, OEM build record and physical wheel measurements.': '请继续结合准确配置版本、原厂配置记录和实车轮毂测量数据。',
+  'Choose suspension': '选择避震',
+  'Choose installed component': '选择已安装部件',
+  'Factory component recorded': '已记录原厂部件',
+  'AI candidate recorded — verify the exact kit before production': '已记录 AI 识别系列 · 生产前复核准确套件',
+  'Catalog component selected': '已选择资料库部件',
+  'Search by model or part number': '按型号或料号搜索',
+  'piston': '活塞',
+  'Series reference': '系列资料',
+  'Verified application': '已验证应用',
+  'Suggested': '建议候选',
+  'Catalog': '资料库',
+  'Search model, series or part number': '搜索型号、系列或料号',
+  'Clear': '清空',
+  'Enter at least two characters to search the component catalog.': '输入至少 2 个字符搜索部件资料库。',
+  'Selected. Search only if this component needs to be changed.': '已选定；仅在需要更换该部件时搜索。',
+  'No matching component. Keep the workshop note and add the exact code later.': '没有匹配部件；可保留车间备注，稍后补充准确编号。',
+  'Recognized parts recorded': '识别部件已记录',
+  'Confirm the recognized component families': '确认 AI 识别的部件系列',
+  '{count} measurements remain; production evidence can be added later.': '还需 {count} 项实测；生产资料可稍后补充。',
+  '{count} component candidates are ready to confirm.': '已有 {count} 个部件候选待确认。',
+  'Continue to measurements': '继续录入实测',
+  'Confirm matches': '确认识别结果',
+  'Production verification — add later': '生产复核资料 · 可稍后补充',
+  'production checks': '项生产复核',
+  'Component candidates': '部件候选',
+  'Exact manufacturer kit code': '厂家准确套件编号',
+  'Optional now — required only before production approval': '现在可不填 · 仅生产批准前需要',
+  'Enter the marking on the caliper, rotor or kit label': '填写卡钳、刹车盘或套件铭牌上的编号',
+  'Recognized from workshop notes': '来自车间备注识别',
+  'The recognized description is already saved. Add an exact code or template only when preparing the production drawing.': '已自动保存识别描述；准备生产图纸时再补准确编号或模板。',
+  'Installed hardware': '当前已安装部件',
+  'Confirm the parts, not the same text twice.': '确认部件，不必重复填写同一句话。',
+  'AI candidates are recorded when you confirm them. Search only when a suggestion needs correction.': '确认后会直接记录 AI 候选；只有识别不准确时才需要搜索更换。',
+  'Rotors, suspension and ride height': '刹车盘、避震与车身高度',
+  'Open only when these parts or measurements changed.': '仅在这些部件或数据有变化时展开。',
+  'Use the measured drop; leave blank for factory height.': '填写实测降低量；原厂高度可留空。',
+  'Confirm the installed hardware.': '确认当前已安装部件。',
+  'AI identifies a component family; the workshop confirms the record. Exact codes and templates are collected later for production approval.': 'AI 先识别部件系列，由车行确认记录；准确编号与模板留到生产批准前补充。',
+  'Workshop note used for this lookup': '本次查询使用的车间备注',
+  'Edit and search again': '编辑并重新查询',
+  'AI intake completed': 'AI 识别已完成',
+  'View or edit analysis': '查看或修改分析'
 };
 Object.assign(localeDictionaries['zh-CN'], fitmentFlowChineseTranslations);
 Object.assign(localeDictionaries['zh-TW'], Object.fromEntries(Object.entries(fitmentFlowChineseTranslations).map(([key, value]) => [key, traditionalizeFitmentText(value)])));
@@ -1972,6 +2178,299 @@ const publicSiteChineseTranslations = {
 Object.assign(localeDictionaries['zh-CN'], publicSiteChineseTranslations);
 Object.assign(localeDictionaries['zh-TW'], Object.fromEntries(Object.entries(publicSiteChineseTranslations).map(([key, value]) => [key, traditionalizeFitmentText(value)])));
 
+// Product copy is profile-driven so every newly uploaded custom wheel receives
+// the same complete locale coverage without maintaining translations per SKU.
+const productCatalogTranslationKeys = [
+  'Wheels',
+  'New',
+  'No verified reviews yet',
+  'Full Custom Wheel',
+  'Full Custom Forged Wheel',
+  'Floating Custom Forged Wheel',
+  'Full-size custom forged wheel - Diameter / width / PCD / ET / CB built to order',
+  'All sizes supported - custom diameter, width and fitment',
+  'Made to order - every size, fitment and finish customized by CIRUI',
+  'Forged Aluminum Alloy',
+  'Custom finish',
+  'Availability managed by CIRUI',
+  'starting price / wheel',
+  'Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.',
+  'From',
+  '/ ea'
+];
+const productCatalogTranslations = {
+  'zh-CN': ['轮毂', '新品', '暂无已验证评价', '全尺寸定制轮毂', '全尺寸定制锻造轮毂', '悬浮式定制锻造轮毂', '全尺寸定制锻造轮毂 - 直径 / 宽度 / PCD / ET / 中心孔按需生产', '支持全尺寸 - 直径、宽度与适配参数均可定制', '按单生产 - 每个尺寸、适配参数与表面处理均由 CIRUI 定制', '锻造铝合金', '定制表面处理', '供货状态由 CIRUI 管理', '单只轮毂起售价', '确认适配、表面处理、PCD、中心孔与 ET 后提供最终报价。', '起', '/ 只'],
+  'zh-TW': ['輪圈', '新品', '暫無已驗證評價', '全尺寸訂製輪圈', '全尺寸訂製鍛造輪圈', '懸浮式訂製鍛造輪圈', '全尺寸訂製鍛造輪圈 - 直徑 / 寬度 / PCD / ET / 中心孔按需生產', '支援全尺寸 - 直徑、寬度與適配參數均可訂製', '按單生產 - 每個尺寸、適配參數與表面處理均由 CIRUI 訂製', '鍛造鋁合金', '訂製表面處理', '供貨狀態由 CIRUI 管理', '單只輪圈起售價', '確認適配、表面處理、PCD、中心孔與 ET 後提供最終報價。', '起', '/ 只'],
+  ja: ['ホイール', '新商品', '確認済みレビューはまだありません', 'フルサイズ・カスタムホイール', 'フルカスタム鍛造ホイール', 'フローティング・カスタム鍛造ホイール', 'フルサイズ対応の鍛造ホイール - 直径 / 幅 / PCD / ET / ハブ径を受注製作', '全サイズ対応 - 直径、幅、フィットメントをカスタム可能', '受注生産 - サイズ、フィットメント、仕上げをすべて CIRUI がカスタム', '鍛造アルミ合金', 'カスタム仕上げ', '在庫・供給状況は CIRUI が管理', 'ホイール1本の開始価格', 'フィットメント、仕上げ、PCD、ハブ径、ET の確認後に最終見積りをご案内します。', '〜', '/ 本'],
+  ko: ['휠', '신제품', '검증된 리뷰가 아직 없습니다', '전체 사이즈 커스텀 휠', '풀 커스텀 단조 휠', '플로팅 커스텀 단조 휠', '전체 사이즈 커스텀 단조 휠 - 직경 / 폭 / PCD / ET / 센터보어 주문 제작', '전체 사이즈 지원 - 직경, 폭, 핏먼트 맞춤 제작', '주문 제작 - 모든 사이즈, 핏먼트, 마감을 CIRUI가 맞춤 제작', '단조 알루미늄 합금', '커스텀 마감', '공급 상태는 CIRUI에서 관리', '휠 1개 시작가', '핏먼트, 마감, PCD, 센터보어, ET 확인 후 최종 견적을 제공합니다.', '부터', '/ 개'],
+  de: ['Felgen', 'Neu', 'Noch keine verifizierten Bewertungen', 'Vollständig maßgefertigte Felge', 'Vollständig maßgefertigte Schmiedefelge', 'Schwebende maßgefertigte Schmiedefelge', 'Schmiedefelge in allen Größen - Durchmesser / Breite / PCD / ET / Nabenbohrung nach Maß', 'Alle Größen verfügbar - Durchmesser, Breite und Passform nach Maß', 'Auftragsfertigung - Größe, Passform und Finish werden von CIRUI individuell gefertigt', 'Geschmiedete Aluminiumlegierung', 'Individuelles Finish', 'Verfügbarkeit wird von CIRUI verwaltet', 'Startpreis pro Felge', 'Der Endpreis wird nach Bestätigung von Passform, Finish, PCD, Nabenbohrung und ET angeboten.', 'Ab', '/ Stk.'],
+  fr: ['Jantes', 'Nouveau', 'Aucun avis vérifié pour le moment', 'Jante entièrement sur mesure', 'Jante forgée entièrement sur mesure', 'Jante forgée flottante sur mesure', 'Jante forgée toutes dimensions - diamètre / largeur / entraxe / ET / alésage sur mesure', 'Toutes dimensions disponibles - diamètre, largeur et montage sur mesure', 'Fabrication à la commande - chaque dimension, montage et finition est personnalisé par CIRUI', 'Alliage d’aluminium forgé', 'Finition personnalisée', 'Disponibilité gérée par CIRUI', 'Prix de départ par jante', 'Le prix final est établi après confirmation du montage, de la finition, de l’entraxe, de l’alésage et de l’ET.', 'À partir de', '/ unité'],
+  es: ['Llantas', 'Nuevo', 'Todavía no hay reseñas verificadas', 'Llanta totalmente personalizada', 'Llanta forjada totalmente personalizada', 'Llanta forjada flotante personalizada', 'Llanta forjada en todas las medidas - diámetro / ancho / PCD / ET / buje bajo pedido', 'Todas las medidas disponibles - diámetro, ancho y ajuste personalizados', 'Fabricación bajo pedido - CIRUI personaliza cada medida, ajuste y acabado', 'Aleación de aluminio forjado', 'Acabado personalizado', 'Disponibilidad gestionada por CIRUI', 'Precio inicial por llanta', 'El precio final se cotiza tras confirmar ajuste, acabado, PCD, diámetro de buje y ET.', 'Desde', '/ unidad'],
+  it: ['Cerchi', 'Nuovo', 'Non ci sono ancora recensioni verificate', 'Cerchio completamente personalizzato', 'Cerchio forgiato completamente personalizzato', 'Cerchio forgiato flottante personalizzato', 'Cerchio forgiato in tutte le misure - diametro / larghezza / PCD / ET / foro centrale su ordinazione', 'Tutte le misure disponibili - diametro, larghezza e fitment personalizzati', 'Produzione su ordinazione - CIRUI personalizza ogni misura, fitment e finitura', 'Lega di alluminio forgiato', 'Finitura personalizzata', 'Disponibilità gestita da CIRUI', 'Prezzo di partenza per cerchio', 'Il prezzo finale viene quotato dopo la conferma di fitment, finitura, PCD, foro centrale ed ET.', 'Da', '/ pz.'],
+  'pt-BR': ['Rodas', 'Novo', 'Ainda não há avaliações verificadas', 'Roda totalmente personalizada', 'Roda forjada totalmente personalizada', 'Roda forjada flutuante personalizada', 'Roda forjada em todas as medidas - diâmetro / largura / PCD / ET / furo central sob encomenda', 'Todas as medidas disponíveis - diâmetro, largura e encaixe personalizados', 'Produção sob encomenda - cada medida, encaixe e acabamento é personalizado pela CIRUI', 'Liga de alumínio forjado', 'Acabamento personalizado', 'Disponibilidade gerenciada pela CIRUI', 'Preço inicial por roda', 'O preço final é cotado após a confirmação do encaixe, acabamento, PCD, furo central e ET.', 'A partir de', '/ un.'],
+  ru: ['Диски', 'Новинка', 'Проверенных отзывов пока нет', 'Полностью индивидуальный диск', 'Полностью индивидуальный кованый диск', 'Плавающий индивидуальный кованый диск', 'Кованый диск любых размеров - диаметр / ширина / PCD / ET / ЦО на заказ', 'Все размеры доступны - индивидуальные диаметр, ширина и параметры установки', 'Производство под заказ - CIRUI настраивает каждый размер, посадку и отделку', 'Кованый алюминиевый сплав', 'Индивидуальная отделка', 'Доступность контролируется CIRUI', 'Начальная цена за диск', 'Окончательная цена рассчитывается после подтверждения посадки, отделки, PCD, ЦО и ET.', 'От', '/ шт.'],
+  ar: ['جنوط', 'جديد', 'لا توجد تقييمات موثقة بعد', 'جنط مخصص بالكامل', 'جنط مطروق مخصص بالكامل', 'جنط مطروق عائم مخصص', 'جنط مطروق بجميع المقاسات - القطر / العرض / PCD / ET / فتحة المركز حسب الطلب', 'جميع المقاسات متاحة - تخصيص القطر والعرض والملاءمة', 'تصنيع حسب الطلب - تخصص CIRUI كل مقاس وملاءمة وتشطيب', 'سبيكة ألمنيوم مطروقة', 'تشطيب مخصص', 'تدير CIRUI حالة التوفر', 'السعر الابتدائي للجنط', 'يُحدد السعر النهائي بعد تأكيد الملاءمة والتشطيب وPCD وفتحة المركز وET.', 'ابتداءً من', '/ قطعة'],
+  nl: ['Velgen', 'Nieuw', 'Nog geen geverifieerde beoordelingen', 'Volledig op maat gemaakte velg', 'Volledig op maat gemaakte gesmede velg', 'Zwevende gesmede maatwerkvelg', 'Gesmede velg in alle maten - diameter / breedte / PCD / ET / naafboring op maat', 'Alle maten leverbaar - diameter, breedte en passing op maat', 'Op bestelling gemaakt - elke maat, passing en afwerking wordt door CIRUI aangepast', 'Gesmede aluminiumlegering', 'Afwerking op maat', 'Beschikbaarheid beheerd door CIRUI', 'Vanafprijs per velg', 'De definitieve prijs volgt na bevestiging van passing, afwerking, PCD, naafboring en ET.', 'Vanaf', '/ stuk'],
+  tr: ['Jantlar', 'Yeni', 'Henüz doğrulanmış yorum yok', 'Tam ölçü özel jant', 'Tam özel dövme jant', 'Yüzer özel dövme jant', 'Tüm ölçülerde özel dövme jant - çap / genişlik / PCD / ET / göbek deliği siparişe göre', 'Tüm ölçüler desteklenir - çap, genişlik ve uyum özel üretim', 'Sipariş üzerine üretim - her ölçü, uyum ve kaplama CIRUI tarafından özelleştirilir', 'Dövme alüminyum alaşım', 'Özel kaplama', 'Stok durumu CIRUI tarafından yönetilir', 'Jant başına başlangıç fiyatı', 'Nihai fiyat; uyum, kaplama, PCD, göbek deliği ve ET onaylandıktan sonra verilir.', 'Başlangıç', '/ adet'],
+  pl: ['Felgi', 'Nowość', 'Brak zweryfikowanych opinii', 'W pełni niestandardowa felga', 'W pełni niestandardowa felga kuta', 'Pływająca niestandardowa felga kuta', 'Kuta felga we wszystkich rozmiarach - średnica / szerokość / PCD / ET / otwór centrujący na zamówienie', 'Wszystkie rozmiary dostępne - średnica, szerokość i dopasowanie na zamówienie', 'Produkcja na zamówienie - CIRUI dostosowuje każdy rozmiar, dopasowanie i wykończenie', 'Kuty stop aluminium', 'Wykończenie niestandardowe', 'Dostępnością zarządza CIRUI', 'Cena początkowa za felgę', 'Cena końcowa jest ustalana po potwierdzeniu dopasowania, wykończenia, PCD, otworu centrującego i ET.', 'Od', '/ szt.'],
+  vi: ['Mâm xe', 'Mới', 'Chưa có đánh giá đã xác minh', 'Mâm xe tùy chỉnh toàn bộ kích thước', 'Mâm rèn tùy chỉnh hoàn toàn', 'Mâm rèn nổi tùy chỉnh', 'Mâm rèn đủ mọi kích thước - đường kính / chiều rộng / PCD / ET / lỗ tâm đặt làm', 'Hỗ trợ mọi kích thước - tùy chỉnh đường kính, chiều rộng và thông số lắp', 'Sản xuất theo đơn - mọi kích thước, thông số lắp và hoàn thiện đều do CIRUI tùy chỉnh', 'Hợp kim nhôm rèn', 'Hoàn thiện tùy chỉnh', 'Tình trạng hàng do CIRUI quản lý', 'Giá khởi điểm mỗi mâm', 'Giá cuối cùng được báo sau khi xác nhận thông số lắp, hoàn thiện, PCD, lỗ tâm và ET.', 'Từ', '/ chiếc'],
+  th: ['ล้อ', 'ใหม่', 'ยังไม่มีรีวิวที่ยืนยันแล้ว', 'ล้อสั่งทำครบทุกขนาด', 'ล้อฟอร์จสั่งทำเต็มรูปแบบ', 'ล้อฟอร์จแบบลอยสั่งทำ', 'ล้อฟอร์จครบทุกขนาด - เส้นผ่านศูนย์กลาง / ความกว้าง / PCD / ET / รูดุม สั่งผลิต', 'รองรับทุกขนาด - ปรับเส้นผ่านศูนย์กลาง ความกว้าง และฟิตเมนต์ได้', 'ผลิตตามสั่ง - CIRUI ปรับทุกขนาด ฟิตเมนต์ และสีผิว', 'อะลูมิเนียมอัลลอยฟอร์จ', 'สีผิวสั่งทำ', 'CIRUI เป็นผู้จัดการสถานะสินค้า', 'ราคาเริ่มต้นต่อล้อ', 'ราคาสุดท้ายจะเสนอหลังยืนยันฟิตเมนต์ สีผิว PCD รูดุม และ ET', 'เริ่มต้น', '/ ชิ้น'],
+  id: ['Velg', 'Baru', 'Belum ada ulasan terverifikasi', 'Velg kustom semua ukuran', 'Velg forged kustom penuh', 'Velg forged floating kustom', 'Velg forged semua ukuran - diameter / lebar / PCD / ET / center bore dibuat sesuai pesanan', 'Mendukung semua ukuran - diameter, lebar, dan fitment dapat dikustom', 'Dibuat sesuai pesanan - setiap ukuran, fitment, dan finishing dikustom oleh CIRUI', 'Paduan aluminium forged', 'Finishing kustom', 'Ketersediaan dikelola oleh CIRUI', 'Harga awal per velg', 'Harga akhir dikutip setelah fitment, finishing, PCD, center bore, dan ET dikonfirmasi.', 'Mulai', '/ buah'],
+  hi: ['व्हील', 'नया', 'अभी कोई सत्यापित समीक्षा नहीं', 'पूरी तरह कस्टम व्हील', 'पूरी तरह कस्टम फोर्ज्ड व्हील', 'फ्लोटिंग कस्टम फोर्ज्ड व्हील', 'सभी आकारों में कस्टम फोर्ज्ड व्हील - डायामीटर / चौड़ाई / PCD / ET / सेंटर बोर ऑर्डर पर', 'सभी आकार उपलब्ध - डायामीटर, चौड़ाई और फिटमेंट कस्टम', 'ऑर्डर पर निर्माण - हर आकार, फिटमेंट और फिनिश CIRUI द्वारा कस्टम', 'फोर्ज्ड एल्युमिनियम मिश्रधातु', 'कस्टम फिनिश', 'उपलब्धता CIRUI द्वारा प्रबंधित', 'प्रति व्हील शुरुआती कीमत', 'फिटमेंट, फिनिश, PCD, सेंटर बोर और ET की पुष्टि के बाद अंतिम कीमत दी जाती है।', 'से', '/ इकाई']
+};
+Object.entries(productCatalogTranslations).forEach(([locale, values]) => {
+  if (!localeDictionaries[locale]) localeDictionaries[locale] = {};
+  productCatalogTranslationKeys.forEach((key, index) => {
+    localeDictionaries[locale][key] = values[index] || key;
+  });
+});
+
+const exportWorkflowZhCN = {
+  'RFQ list': '询价清单',
+  'Open RFQ list': '打开询价清单',
+  'Forged wheel catalog': '锻造轮毂目录',
+  'All forged wheels': '全部锻造轮毂',
+  'Monoblock forged': '单片式锻造',
+  '2-piece forged': '双片式锻造',
+  'Aero & floating': '空气动力学与悬浮式',
+  'SUV & off-road': 'SUV 与越野',
+  'CIRUI FORGED CATALOG': 'CIRUI 锻造轮毂目录',
+  'Choose the design. We build the exact specification.': '选择款式，准确规格由我们完成。',
+  'Every public wheel below is a made-to-order forged direction. Vehicle, brake package, finish and destination are confirmed before the production drawing is released.': '以下公开款式均为按单生产的锻造轮毂方向。车辆、刹车套件、表面处理与目的地确认后，才会出具生产图纸。',
+  'ONE-PIECE CONSTRUCTION': '单片式结构',
+  'Monoblock forged wheels.': '单片式锻造轮毂。',
+  'Single-piece forged directions for performance, road and luxury builds. Final load target, profile and fitment remain vehicle-specific.': '面向性能、公路与豪华车型的单片锻造方向；最终载荷、轮面与适配参数仍按具体车辆确定。',
+  'MODULAR CONSTRUCTION': '模块化结构',
+  '2-piece forged wheels.': '双片式锻造轮毂。',
+  'Separate center and barrel/lip directions for deeper profiles and more finish combinations. Visible classifications are verified again on the approved drawing.': '轮心与轮辋/唇边可分开设计，以获得更深轮面和更多表面组合；页面分类仍会在确认图纸中再次核实。',
+  'AERO DESIGN COLLECTION': '空气动力学设计系列',
+  'Aero and floating-cap directions.': '空气动力学与悬浮中心盖方向。',
+  'Full-face, turbine and floating-cap ideas for modern luxury and EV builds. The base construction is confirmed during engineering review.': '适用于现代豪华车与电动车的满盘、涡轮与悬浮盖设计；基础结构在工程审核中确认。',
+  'LOAD-LED APPLICATIONS': '以载荷为核心的应用',
+  'SUV and off-road directions.': 'SUV 与越野轮毂方向。',
+  'Wheel directions organized around vehicle load, tire envelope and terrain use. Beadlock-style appearance never replaces the final engineering specification.': '围绕车辆载荷、轮胎包络与路况用途整理；防脱圈外观不能替代最终工程规格。',
+  'Find the right starting design': '找到合适的起始款式',
+  'Filters change the visible catalog immediately. Final fitment is engineered after the RFQ.': '筛选会立即改变可见目录；最终适配在收到询价后进行工程确认。',
+  'Search designs': '搜索款式',
+  'Model code, spoke style or finish': '型号、辐条风格或表面处理',
+  'Construction': '结构',
+  'Application': '用途',
+  'All uses': '全部用途',
+  'Performance': '性能',
+  'Luxury': '豪华',
+  'Heritage': '经典',
+  'Street': '街道',
+  'Aero Disc': '空气动力学满盘',
+  'Deep Lip': '深唇',
+  'Off Road': '越野',
+  'Vehicle fitment': '车型适配',
+  'Attach vehicle': '关联车辆',
+  'DDP available': '支持 DDP 完税到门',
+  'Europe and North America · final quote by country and postcode': '欧洲与北美 · 按国家和邮编确认最终报价',
+  'Reset': '重置',
+  'Reset catalog': '重置商品目录',
+  'Catalog order': '目录顺序',
+  'Reference price: low to high': '参考价：从低到高',
+  'Reference price: high to low': '参考价：从高到低',
+  'Monoblock': '单片式',
+  '2-piece': '双片式',
+  'Confirm with drawing': '以图纸确认为准',
+  'Confirmed specification': '已确认规格',
+  'Classified from supplied views': '依据所提供视图分类',
+  'Engineering confirmation required': '需要工程确认',
+  'MOQ': '起订量',
+  'DDP quote available · Europe & North America': '支持 DDP 报价 · 欧洲与北美',
+  'reference / wheel': '参考价 / 只',
+  'Made to order': '按单生产',
+  'View details': '查看详情',
+  'Add to RFQ': '加入询价清单',
+  'Request quote now': '立即询价',
+  'Minimum order: 4 wheels.': '最低起订量：4 只轮毂。',
+  'This item is not part of the public forged wheel catalog.': '该商品不在公开锻造轮毂目录中。',
+  'Browse current CIRUI forged directions or send a custom reference through the RFQ.': '浏览当前 CIRUI 锻造款式，或通过询价表提交自定义参考。',
+  'Open forged wheel catalog': '打开锻造轮毂目录',
+  'Model code': '型号代码',
+  'Design direction': '设计方向',
+  'Classification': '分类依据',
+  'Minimum order': '最低起订量',
+  'Available sizes': '可定制尺寸',
+  'Material': '材料',
+  'Load target': '载荷目标',
+  'DDP regions': 'DDP 区域',
+  'Made to order for the exact vehicle': '按准确车型定制生产',
+  'Final price follows the confirmed vehicle, drawing, finish, quantity and delivery destination.': '最终价格以确认后的车型、图纸、表面处理、数量和目的地为准。',
+  'Attach vehicle context': '关联车辆信息',
+  'Run full fitment check': '进行完整适配检查',
+  'Customization': '定制选项',
+  'Custom finish': '定制表面处理',
+  'Center cap': '中心盖',
+  'Hardware / lip': '螺丝 / 唇边',
+  'Review all finish and detail options': '查看全部表面与细节选项',
+  'Europe and North America': '欧洲与北美',
+  'Quoted by destination country and postcode. Final landed price is confirmed in the RFQ.': '按目的国家和邮编报价，最终到岸完税价在询价中确认。',
+  'RELATED DIRECTIONS': '相关款式',
+  'More forged wheel starting points.': '更多锻造轮毂起始方向。',
+  'View full catalog': '查看完整目录',
+  'BUILT AROUND YOUR BRIEF': '围绕您的需求打造',
+  'One wheel direction. Your exact finish and detail.': '同一款式，按您的表面处理与细节精准定制。',
+  'Choose the design first. CIRUI then combines construction, vehicle data, finish, cap, hardware and lip into one production drawing and one RFQ.': '先选择款式，CIRUI 再把结构、车辆数据、表面处理、中心盖、螺丝与唇边整合到一份生产图纸和询价中。',
+  'Choose a wheel': '选择轮毂',
+  'Request a custom quote': '申请定制报价',
+  'Finishes & colors': '表面处理与颜色',
+  'Brushed, polished, satin, gloss, tinted clear and custom color directions are quoted against the selected wheel and use case.': '拉丝、抛光、缎面、亮面、着色透明漆与定制颜色，会结合所选轮毂和用途报价。',
+  'Lip profiles': '唇边造型',
+  'Flat, stepped and deep-lip directions depend on construction, brake package, offset and the approved wheel drawing.': '平唇、阶梯唇和深唇取决于结构、刹车套件、偏距和已确认图纸。',
+  'Center caps': '中心盖',
+  'Standard CIRUI caps, custom logo artwork and floating-cap directions are treated as product options, not separate empty products.': 'CIRUI 标准盖、定制 Logo 图案与悬浮盖均作为轮毂选项处理，不再作为空白独立商品。',
+  'Hardware options': '螺丝选项',
+  'Visible or concealed hardware is available only where the selected construction supports it. Material and finish are confirmed in the quote.': '仅在所选结构支持时提供外露或隐藏螺丝；材料与表面处理在报价中确认。',
+  'HOW IT BECOMES A REAL ORDER': '如何形成真实订单',
+  'Design choice → fitment → options → approved drawing.': '选择款式 → 车型适配 → 定制选项 → 确认图纸。',
+  'Select a wheel direction': '选择轮毂方向',
+  'Attach the exact vehicle': '关联准确车型',
+  'Specify finish and details': '指定表面与细节',
+  'Approve the production drawing': '确认生产图纸',
+  'EXPORT SUPPORT': '出口支持',
+  'Trade & DDP': '外贸合作与 DDP',
+  'DDP available across Europe and North America.': '欧洲与北美均可提供 DDP 完税到门。',
+  'CIRUI can quote the wheel set and duty-paid delivery together. The confirmed country, postcode, specification and shipment determine the final landed quotation.': 'CIRUI 可将轮毂与完税到门运输合并报价；最终到岸报价由确认后的国家、邮编、规格与运输方案决定。',
+  'Request a DDP quote': '申请 DDP 报价',
+  'Dealer / wholesale inquiry': '经销商 / 批发询价',
+  '4 wheels per design': '每款 4 只起订',
+  'Mixed specifications, staggered sets and larger trade quantities are reviewed in the RFQ.': '混合规格、前后配与更大批发数量会在询价中审核。',
+  'Production': '生产',
+  'Target production and transport is about 30 business days; the final drawing, finish and destination control the confirmed timing.': '生产与运输目标约 30 个工作日；确认周期以最终图纸、表面处理与目的地为准。',
+  'Europe + North America': '欧洲 + 北美',
+  'Final duty-paid delivery is quoted by destination country and postcode. It is not a universal fixed shipping price.': '完税到门价格按目的国家和邮编核算，并非统一固定运费。',
+  'B2B': '企业合作',
+  'Dealer & distributor support': '经销商与分销商支持',
+  'Attach company, volume, target market and recurring fitment needs for a trade quotation.': '提交公司、数量、目标市场与常用适配需求，以获取外贸报价。',
+  'QUOTE FLOW': '报价流程',
+  'One brief from wheel choice to landed quote.': '从款式选择到到岸报价，只需一份需求表。',
+  'Add one or more wheel directions to the RFQ list.': '将一个或多个轮毂方向加入询价清单。',
+  'Enter vehicle, quantity, finish, country and postcode.': '填写车型、数量、表面处理、国家和邮编。',
+  'CIRUI reviews construction, fitment, production and DDP route.': 'CIRUI 审核结构、适配、生产与 DDP 路线。',
+  'You receive the final specification and quotation for approval.': '您将收到最终规格与报价并进行确认。',
+  'Browse forged wheels': '浏览锻造轮毂',
+  'Choose at least one wheel direction, then open the RFQ.': '请先选择至少一个轮毂方向，再打开询价表。',
+  'Open RFQ': '打开询价表',
+  'Track an existing order': '查询现有订单',
+  'YOUR CUSTOM WHEEL BRIEF': '您的定制轮毂需求',
+  'Request for quotation': '提交询价',
+  'Collect multiple wheel directions, set quantities, then send one vehicle and destination brief to CIRUI.': '可收集多个轮毂方向、设置数量，再一次性向 CIRUI 提交车型与目的地需求。',
+  'Add more wheels': '添加更多轮毂',
+  'Custom fitment and finish': '定制适配与表面处理',
+  'Remove': '移除',
+  'Quantity': '数量',
+  'Reference': '参考',
+  'Final quote after review': '审核后提供最终报价',
+  'The RFQ is not a checkout.': '询价表不是在线结算。',
+  'CIRUI confirms construction, fitment, finish, production time and DDP delivery before any final order or payment.': '在最终下单或付款前，CIRUI 会确认结构、适配、表面处理、生产周期和 DDP 配送。',
+  'QUOTE INPUTS': '报价信息',
+  'Ready to send?': '可以提交了吗？',
+  'wheel direction': '个轮毂方向',
+  'wheel directions': '个轮毂方向',
+  'total wheels': '只轮毂',
+  'Vehicle pending': '待填写车辆',
+  'Complete RFQ brief': '完善询价信息',
+  'Check fitment first': '先检查适配',
+  'Country and postcode are required for a DDP quotation. No fixed duty-paid price is promised before review.': 'DDP 报价必须提供国家和邮编；审核前不会承诺固定完税价格。',
+  'Your RFQ list is empty.': '询价清单为空。',
+  'Add one or more forged wheel directions. CIRUI will combine them with your vehicle, finish, quantity and destination in one quotation request.': '添加一个或多个锻造轮毂方向，CIRUI 会把车型、表面处理、数量和目的地整合到同一份询价中。',
+  'CUSTOM FORGED WHEEL RFQ': '定制锻造轮毂询价',
+  'Complete the quotation brief.': '完善报价需求。',
+  'CIRUI will confirm the engineering specification and DDP route before issuing the final price.': 'CIRUI 会在给出最终价格前确认工程规格与 DDP 路线。',
+  'design': '个款式',
+  'designs': '个款式',
+  'Buyer and contact': '采购方与联系方式',
+  'Name': '姓名',
+  'Email': '邮箱',
+  'Phone / WhatsApp': '电话 / WhatsApp',
+  'Company': '公司',
+  'Buyer type': '采购类型',
+  'Private buyer': '个人买家',
+  'Dealer / tuning shop': '经销商 / 改装店',
+  'Distributor': '分销商',
+  'Vehicle and wheel brief': '车辆与轮毂需求',
+  'Vehicle': '车辆',
+  'Preferred finish': '期望表面处理',
+  'Quantity note': '数量说明',
+  'Destination and DDP': '目的地与 DDP',
+  'Country': '国家',
+  'ZIP / postcode': '邮编',
+  'Request DDP quotation': '申请 DDP 报价',
+  'Available across Europe and North America; final route and landed price require destination review.': '欧洲与北美均可提供；最终路线与到岸价格需按目的地审核。',
+  'Notes': '补充说明',
+  'Brake package, suspension, target stance, logo cap, finish reference or trade volume.': '刹车套件、悬挂、目标姿态、Logo 中心盖、表面参考或批发数量。',
+  'Keep editing later': '稍后继续填写',
+  'Send RFQ to CIRUI': '向 CIRUI 提交询价',
+  'Sending RFQ…': '正在提交询价…',
+  'Close': '关闭',
+  'DDP Europe & North America': '欧洲与北美 DDP',
+  'Finishes, caps & hardware': '表面、中心盖与螺丝',
+  'MOQ & lead time': '起订量与交期',
+  'Dealer & wholesale': '经销与批发'
+};
+
+Object.assign(localeDictionaries['zh-CN'], exportWorkflowZhCN);
+const exportTraditionalCharacters = { '锻': '鍛', '轮': '輪', '毂': '轂', '车': '車', '辆': '輛', '选': '選', '择': '擇', '图': '圖', '纸': '紙', '询': '詢', '价': '價', '单': '單', '产': '產', '处': '處', '览': '覽', '与': '與', '为': '為', '认': '認', '确': '確', '发': '發', '东': '東', '业': '業', '个': '個', '数': '數', '经': '經', '销': '銷', '商': '商', '设': '設', '计': '計', '验': '驗', '证': '證', '审': '審', '测': '測', '试': '試', '开': '開', '关': '關', '闭': '閉', '时': '時', '间': '間', '规': '規', '格': '格', '载': '載', '将': '將', '这': '這', '后': '後', '应': '應', '仅': '僅', '显': '顯', '条': '條', '来': '來', '现': '現', '过': '過', '还': '還', '总': '總', '统': '統', '万': '萬', '邮': '郵', '务': '務', '项': '項', '边': '邊', '类': '類', '围': '圍', '内': '內', '并': '並', '该': '該', '离': '離', '备': '備', '门': '門', '复': '複', '买': '買', '卖': '賣', '参': '參', '标': '標', '写': '寫', '况': '況', '继': '繼', '续': '續', '订': '訂', '据': '據', '从': '從', '额': '額', '满': '滿', '构': '構', '块': '塊', '层': '層', '组': '組', '术': '術', '电': '電', '动': '動', '统': '統', '实': '實', '绩': '績', '导': '導', '别': '別', '么': '麼', '缓': '緩', '临': '臨', '适': '適' };
+Object.assign(localeDictionaries['zh-TW'], Object.fromEntries(Object.entries(exportWorkflowZhCN).map(([key, value]) => [key, value.replace(/[\u3400-\u9fff]/g, character => exportTraditionalCharacters[character] || character)])));
+
+// The export workflow adds a few overlapping Chinese labels. Re-apply the
+// reviewed navigation glossary last so Simplified and Traditional Chinese use
+// the intended menu terminology consistently.
+Object.entries(siteChromeTranslations).forEach(([locale, values]) => {
+  if (!localeDictionaries[locale]) return;
+  Object.assign(localeDictionaries[locale], Object.fromEntries(siteChromeTranslationKeys.map((key, index) => [key, values[index] || key])));
+});
+Object.entries(navigationChromeTranslations).forEach(([locale, values]) => {
+  if (!localeDictionaries[locale]) return;
+  Object.assign(localeDictionaries[locale], Object.fromEntries(navigationChromeTranslationKeys.map((key, index) => [key, values[index] || key])));
+});
+
+// Input guidance must switch immediately with the UI language. These strings
+// are kept locally because workflow modals can open after the initial page
+// translation pass and should never depend on an external translation call.
+const fitmentPlaceholderTranslationKeys = [
+  'Example: C43 street setup',
+  'Example: Chris / ticket 024',
+  'Example: Alex / work order 024',
+  'Example: 2022 C43, same brakes, 19x9 ET38',
+  'Calculate automatically',
+  'Calculated from vehicle',
+  'Measured minimum',
+  'Template / measured gap',
+  'Loaded suspension gap',
+  'Describe installed parts, ride height and known measurements…',
+  'Exact trim / variant',
+  'Chassis code, e.g. F30',
+  'Pending measurements',
+  'Model or part number',
+  'Record rubbing, corrections, final spacer, alignment or tire changes.'
+];
+const fitmentPlaceholderTranslations = {
+  ja: ['例：C43 ストリート仕様', '例：Chris / チケット 024', '例：Alex / 作業指示書 024', '例：2022 C43、同じブレーキ、19x9 ET38', '自動計算', '車両データから計算', '実測最小値', 'テンプレート / 実測クリアランス', '荷重時サスペンションクリアランス', '装着部品、車高、既知の実測値を入力…', '正確なグレード / バリエーション', 'シャシーコード（例：F30）', '測定待ち', 'モデルまたは部品番号', '干渉、修正、最終スペーサー、アライメントまたはタイヤ変更を記録してください。'],
+  ko: ['예: C43 스트리트 셋업', '예: Chris / 티켓 024', '예: Alex / 작업 지시서 024', '예: 2022 C43, 동일 브레이크, 19x9 ET38', '자동 계산', '차량 데이터로 계산', '실측 최솟값', '템플릿 / 실측 간격', '하중 상태 서스펜션 간격', '장착 부품, 차고 및 알고 있는 실측값을 입력…', '정확한 트림 / 버전', '샤시 코드(예: F30)', '측정 대기', '모델 또는 부품 번호', '간섭, 수정, 최종 스페이서, 얼라인먼트 또는 타이어 변경을 기록하세요.'],
+  de: ['Beispiel: C43 Straßen-Setup', 'Beispiel: Chris / Ticket 024', 'Beispiel: Alex / Auftrag 024', 'Beispiel: 2022 C43, gleiche Bremsen, 19x9 ET38', 'Automatisch berechnen', 'Aus Fahrzeugdaten berechnet', 'Gemessener Mindestwert', 'Schablone / gemessener Abstand', 'Abstand bei belastetem Fahrwerk', 'Montierte Teile, Fahrzeughöhe und bekannte Messwerte beschreiben…', 'Exakte Ausstattung / Variante', 'Fahrgestellcode, z. B. F30', 'Messwerte ausstehend', 'Modell oder Teilenummer', 'Schleifen, Korrekturen, finalen Distanzring, Achsvermessung oder Reifenänderungen dokumentieren.'],
+  fr: ['Exemple : configuration route C43', 'Exemple : Chris / ticket 024', 'Exemple : Alex / ordre 024', 'Exemple : C43 2022, mêmes freins, 19x9 ET38', 'Calcul automatique', 'Calculé à partir du véhicule', 'Minimum mesuré', 'Gabarit / jeu mesuré', 'Jeu de suspension en charge', 'Décrivez les pièces montées, la hauteur et les mesures connues…', 'Finition / variante exacte', 'Code châssis, ex. F30', 'Mesures en attente', 'Modèle ou référence de pièce', 'Notez les frottements, corrections, cales finales, réglages de géométrie ou changements de pneus.'],
+  es: ['Ejemplo: configuración de calle C43', 'Ejemplo: Chris / ticket 024', 'Ejemplo: Alex / orden 024', 'Ejemplo: C43 2022, mismos frenos, 19x9 ET38', 'Calcular automáticamente', 'Calculado a partir del vehículo', 'Mínimo medido', 'Plantilla / holgura medida', 'Holgura de suspensión con carga', 'Describe las piezas instaladas, la altura y las medidas conocidas…', 'Acabado / variante exactos', 'Código de chasis, p. ej. F30', 'Medidas pendientes', 'Modelo o número de pieza', 'Registra roces, correcciones, separador final, alineación o cambios de neumáticos.'],
+  it: ['Esempio: configurazione stradale C43', 'Esempio: Chris / ticket 024', 'Esempio: Alex / ordine 024', 'Esempio: C43 2022, stessi freni, 19x9 ET38', 'Calcola automaticamente', 'Calcolato dai dati del veicolo', 'Minimo misurato', 'Dima / distanza misurata', 'Distanza sospensione sotto carico', 'Descrivi componenti installati, altezza e misure note…', 'Allestimento / variante esatti', 'Codice telaio, es. F30', 'Misure in attesa', 'Modello o codice ricambio', 'Registra sfregamenti, correzioni, distanziale finale, allineamento o modifiche agli pneumatici.'],
+  'pt-BR': ['Exemplo: configuração de rua C43', 'Exemplo: Chris / chamado 024', 'Exemplo: Alex / ordem 024', 'Exemplo: C43 2022, mesmos freios, 19x9 ET38', 'Calcular automaticamente', 'Calculado a partir do veículo', 'Mínimo medido', 'Gabarito / folga medida', 'Folga da suspensão com carga', 'Descreva as peças instaladas, altura e medidas conhecidas…', 'Versão / acabamento exatos', 'Código do chassi, ex.: F30', 'Medições pendentes', 'Modelo ou número da peça', 'Registre atritos, correções, espaçador final, alinhamento ou alterações de pneus.'],
+  ru: ['Пример: дорожная настройка C43', 'Пример: Chris / заявка 024', 'Пример: Alex / заказ-наряд 024', 'Пример: C43 2022, те же тормоза, 19x9 ET38', 'Рассчитать автоматически', 'Рассчитано по данным автомобиля', 'Измеренный минимум', 'Шаблон / измеренный зазор', 'Зазор подвески под нагрузкой', 'Опишите установленные детали, высоту и известные измерения…', 'Точная комплектация / версия', 'Код шасси, напр. F30', 'Ожидаются измерения', 'Модель или номер детали', 'Запишите касания, коррекции, итоговые проставки, развал-схождение или замены шин.'],
+  ar: ['مثال: إعداد C43 للطريق', 'مثال: Chris / تذكرة 024', 'مثال: Alex / أمر عمل 024', 'مثال: C43 2022، نفس المكابح، 19x9 ET38', 'حساب تلقائي', 'محسوب من بيانات المركبة', 'الحد الأدنى المقاس', 'قالب / خلوص مقاس', 'خلوص التعليق تحت الحمل', 'صف القطع المركبة وارتفاع المركبة والقياسات المعروفة…', 'الفئة / الإصدار الدقيق', 'رمز الهيكل، مثل F30', 'القياسات معلقة', 'الطراز أو رقم القطعة', 'سجل الاحتكاك، والتصحيحات، والفاصل النهائي، والمحاذاة أو تغييرات الإطارات.'],
+  nl: ['Voorbeeld: C43-straatsetup', 'Voorbeeld: Chris / ticket 024', 'Voorbeeld: Alex / werkorder 024', 'Voorbeeld: C43 uit 2022, dezelfde remmen, 19x9 ET38', 'Automatisch berekenen', 'Berekend op basis van voertuiggegevens', 'Gemeten minimum', 'Sjabloon / gemeten speling', 'Speling van belaste ophanging', 'Beschrijf gemonteerde onderdelen, rijhoogte en bekende metingen…', 'Exacte uitvoering / variant', 'Chassiscode, bijv. F30', 'Metingen in afwachting', 'Model- of onderdeelnummer', 'Noteer aanlopen, correcties, definitieve spacer, uitlijning of bandenwijzigingen.'],
+  tr: ['Örnek: C43 cadde ayarı', 'Örnek: Chris / talep 024', 'Örnek: Alex / iş emri 024', 'Örnek: 2022 C43, aynı frenler, 19x9 ET38', 'Otomatik hesapla', 'Araç verilerinden hesaplandı', 'Ölçülen minimum', 'Şablon / ölçülen boşluk', 'Yük altında süspansiyon boşluğu', 'Takılı parçaları, sürüş yüksekliğini ve bilinen ölçümleri açıklayın…', 'Tam donanım / varyant', 'Şasi kodu, örn. F30', 'Ölçümler bekleniyor', 'Model veya parça numarası', 'Sürtme, düzeltme, son spacer, hizalama veya lastik değişikliklerini kaydedin.'],
+  pl: ['Przykład: ustawienie uliczne C43', 'Przykład: Chris / zgłoszenie 024', 'Przykład: Alex / zlecenie 024', 'Przykład: C43 2022, te same hamulce, 19x9 ET38', 'Oblicz automatycznie', 'Obliczono z danych pojazdu', 'Zmierzona wartość minimalna', 'Szablon / zmierzony luz', 'Luz zawieszenia pod obciążeniem', 'Opisz zamontowane części, wysokość i znane pomiary…', 'Dokładna wersja / wariant', 'Kod podwozia, np. F30', 'Oczekujące pomiary', 'Model lub numer części', 'Zapisz ocieranie, korekty, końcowy dystans, geometrię lub zmiany opon.'],
+  vi: ['Ví dụ: thiết lập đường phố C43', 'Ví dụ: Chris / phiếu 024', 'Ví dụ: Alex / lệnh việc 024', 'Ví dụ: C43 2022, cùng bộ phanh, 19x9 ET38', 'Tự động tính', 'Tính từ dữ liệu xe', 'Giá trị tối thiểu đã đo', 'Mẫu / khe hở đã đo', 'Khe hở hệ thống treo khi có tải', 'Mô tả phụ tùng đã lắp, chiều cao và các số đo đã biết…', 'Phiên bản / biến thể chính xác', 'Mã khung gầm, ví dụ F30', 'Đang chờ đo', 'Mẫu hoặc mã phụ tùng', 'Ghi lại cọ xát, hiệu chỉnh, spacer cuối, cân chỉnh hoặc thay đổi lốp.'],
+  th: ['ตัวอย่าง: การตั้งค่า C43 สำหรับถนน', 'ตัวอย่าง: Chris / ทิกเก็ต 024', 'ตัวอย่าง: Alex / ใบงาน 024', 'ตัวอย่าง: C43 ปี 2022, เบรกชุดเดิม, 19x9 ET38', 'คำนวณอัตโนมัติ', 'คำนวณจากข้อมูลรถ', 'ค่าต่ำสุดที่วัดได้', 'แม่แบบ / ระยะห่างที่วัดได้', 'ระยะห่างช่วงล่างเมื่อรับน้ำหนัก', 'อธิบายชิ้นส่วนที่ติดตั้ง ความสูงรถ และค่าวัดที่ทราบ…', 'รุ่นย่อย / รุ่นที่แน่นอน', 'รหัสแชสซี เช่น F30', 'รอการวัด', 'รุ่นหรือหมายเลขชิ้นส่วน', 'บันทึกการเสียดสี การแก้ไข สเปเซอร์สุดท้าย การตั้งศูนย์ หรือการเปลี่ยนยาง'],
+  id: ['Contoh: setelan jalan C43', 'Contoh: Chris / tiket 024', 'Contoh: Alex / perintah kerja 024', 'Contoh: C43 2022, rem yang sama, 19x9 ET38', 'Hitung otomatis', 'Dihitung dari data kendaraan', 'Nilai minimum terukur', 'Templat / celah terukur', 'Celah suspensi saat berbeban', 'Jelaskan komponen terpasang, tinggi kendaraan, dan pengukuran yang diketahui…', 'Varian / trim yang tepat', 'Kode sasis, mis. F30', 'Pengukuran tertunda', 'Model atau nomor komponen', 'Catat gesekan, koreksi, spacer akhir, alignment, atau perubahan ban.'],
+  hi: ['उदाहरण: C43 स्ट्रीट सेटअप', 'उदाहरण: Chris / टिकट 024', 'उदाहरण: Alex / वर्क ऑर्डर 024', 'उदाहरण: 2022 C43, समान ब्रेक, 19x9 ET38', 'स्वचालित गणना', 'वाहन डेटा से गणना', 'मापा गया न्यूनतम', 'टेम्पलेट / मापा गया क्लियरेंस', 'लोड पर सस्पेंशन क्लियरेंस', 'लगे हुए पार्ट्स, राइड हाइट और ज्ञात माप बताएँ…', 'सटीक ट्रिम / वेरिएंट', 'चेसिस कोड, जैसे F30', 'माप लंबित', 'मॉडल या पार्ट नंबर', 'रबिंग, सुधार, अंतिम स्पेसर, एलाइनमेंट या टायर बदलाव दर्ज करें।']
+};
+Object.entries(fitmentPlaceholderTranslations).forEach(([locale, values]) => {
+  if (!localeDictionaries[locale]) return;
+  Object.assign(localeDictionaries[locale], Object.fromEntries(fitmentPlaceholderTranslationKeys.map((key, index) => [key, values[index] || key])));
+});
+
 function uiLabel(key, fallback = key) {
   return localeDictionaries[state.locale]?.[key] || fallback;
 }
@@ -2067,7 +2566,7 @@ const state = {
   toast: '',
   search: '',
   vehicle: JSON.parse(localStorage.getItem('fbox-vehicle') || 'null'),
-  filters: { category: 'All', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' },
+  filters: { category: 'Wheels', collection: 'all', application: 'all', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' },
   sort: 'latest',
   wishlist: JSON.parse(localStorage.getItem('fbox-wishlist') || '[]'),
   cart: JSON.parse(localStorage.getItem('fbox-cart') || '[]'),
@@ -2082,6 +2581,9 @@ const state = {
   account: null,
   catalogLoaded: false,
   checkoutForm: JSON.parse(localStorage.getItem('fbox-checkout-form') || '{}'),
+  rfq: { status: 'idle', id: '', error: '', draft: readLocalJson('cirui-rfq-draft', {}) },
+  customSection: 'overview',
+  catalogNotice: '',
   lastOrder: null,
   backend: { portal: 'testing', admin: 'testing', checked: false, checking: false },
   fboxVehicleRecords: [],
@@ -2107,9 +2609,11 @@ const state = {
     resultStale: false,
     selectedPackageId: localStorage.getItem('fbox-fitment-package') || '',
     styleReference: null,
+    styleCatalog: { filter: 'all', expanded: false, query: '' },
     flow: { mode: '', step: 1, axle: 'front', panel: '', error: '' },
     ai: { loading: false, error: '', result: null, applied: false, missingFields: [] },
-    reference: { key: '', loading: false, error: '', data: null }
+    reference: { key: '', loading: false, error: '', data: null },
+    vinLookup: { loading: false, error: '', data: null, queriedVin: '' }
   },
   workshop: {
     profile: readLocalJson('fbox-workshop-profile', { shop_name: '', advisor_name: '', email: '', phone: '', location: '' }),
@@ -2133,16 +2637,19 @@ if (state.workshop.referral?.expires_at && Number(state.workshop.referral.expire
 }
 
 function getRoute() {
+  // Dedicated application paths take precedence over stale hashes. Without
+  // this, /fitment-lab#home rendered the homepage while the URL still claimed
+  // to be the Fitment Lab, and every subsequent language render repeated the
+  // mismatch.
+  const pathName = location.pathname.replace(/\/$/, '') || '/';
+  const buildMatch = pathName.match(/^\/build\/([^/]+)$/);
+  const caseMatch = pathName.match(/^\/fitment-cases\/([^/]+)$/);
+  if (buildMatch || caseMatch) return { name: 'fitment-share', token: decodeURIComponent((buildMatch || caseMatch)[1]), publicCase: Boolean(caseMatch) };
+  if (pathName === '/fitment-lab') return { name: 'fitment' };
+  if (pathName === '/fitment-lab/result') return { name: 'fitment-result' };
+  if (pathName === '/account') return { name: 'account' };
+
   const rawHash = location.hash.replace(/^#/, '');
-  if (!rawHash) {
-    const pathName = location.pathname.replace(/\/$/, '') || '/';
-    const buildMatch = pathName.match(/^\/build\/([^/]+)$/);
-    const caseMatch = pathName.match(/^\/fitment-cases\/([^/]+)$/);
-    if (buildMatch || caseMatch) return { name: 'fitment-share', token: decodeURIComponent((buildMatch || caseMatch)[1]), publicCase: Boolean(caseMatch) };
-    if (pathName === '/fitment-lab') return { name: 'fitment' };
-    if (pathName === '/fitment-lab/result') return { name: 'fitment-result' };
-    if (pathName === '/account') return { name: 'account' };
-  }
   const raw = rawHash || 'home';
   const [path] = raw.split('?');
   if (path.startsWith('product/')) return { name: 'product', id: path.split('/')[1] };
@@ -2150,7 +2657,7 @@ function getRoute() {
   if (path.startsWith('fitment-share/')) return { name: 'fitment-share', token: decodeURIComponent(path.slice('fitment-share/'.length)) };
   if (path === 'blog') return { name: 'blog' };
   if (path === 'fitment-result') return { name: 'fitment-result' };
-  if (path === 'store' || path === 'cart' || path === 'home' || path === 'about' || path === 'fitment' || path === 'account') return { name: path };
+  if (path === 'store' || path === 'cart' || path === 'home' || path === 'about' || path === 'custom' || path === 'trade' || path === 'fitment' || path === 'account') return { name: path };
   return { name: 'home' };
 }
 function esc(value = '') { return String(value).replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
@@ -2198,11 +2705,34 @@ document.addEventListener('error', event => {
 }, true);
 function money(value) { return `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; }
 function stars(rating) { return Number(rating) > 0 ? `<span class="stars" aria-label="${esc(formatUiLabel('{rating} out of 5', { rating }))}">★★★★★</span>` : `<span class="rating-empty">${uiLabel('No verified reviews yet')}</span>`; }
+function productTranslationProfile(item) {
+  const explicit = String(item?.translation_profile || '').trim();
+  if (explicit) return explicit;
+  return String(item?.category || '').toLowerCase() === 'wheels' ? 'custom-wheel' : 'catalog-item';
+}
+function productNameText(item) {
+  const name = String(item?.catalog_display_name || item?.name || '').trim();
+  if (!name || productTranslationProfile(item) !== 'custom-wheel') return name;
+  const suffixes = ['Floating Custom Forged Wheel', 'Full Custom Forged Wheel', 'Full Custom Wheel'];
+  const matched = suffixes.find(suffix => name.toLowerCase().endsWith(` - ${suffix.toLowerCase()}`));
+  return matched ? `${name.slice(0, -(matched.length + 3))} - ${uiLabel(matched)}` : name;
+}
+function productCategoryText(item) { return uiLabel(String(item?.category || '')); }
+function productFinishText(item) { return uiLabel(String(item?.finish || item?.color || (productTranslationProfile(item) === 'custom-wheel' ? 'Custom finish' : ''))); }
+function productMaterialText(item) { return uiLabel(String(item?.material || (productTranslationProfile(item) === 'custom-wheel' ? 'Forged Aluminum Alloy' : ''))); }
+function productDealText(item) {
+  const fallback = productTranslationProfile(item) === 'custom-wheel'
+    ? 'Made to order - every size, fitment and finish customized by CIRUI'
+    : 'Availability managed by CIRUI';
+  return uiLabel(String(item?.deal || fallback));
+}
 function productSizeNote(item) { return item?.size_note || (item?.category === 'Wheels' ? 'All sizes supported - custom diameter, width and fitment' : 'All sizes supported - custom fitment built to order'); }
 function productMetaText(item) {
-  const meta = String(item?.meta || '').trim();
+  const profile = productTranslationProfile(item);
+  const meta = String(item?.meta || (profile === 'custom-wheel' ? 'Full-size custom forged wheel - Diameter / width / PCD / ET / CB built to order' : '')).trim();
   const note = productSizeNote(item);
-  return /all sizes supported|all diameters/i.test(meta) ? uiLabel(meta) : [uiLabel(meta), uiLabel(note)].filter(Boolean).join(' · ');
+  const translated = /all sizes supported|all diameters/i.test(meta) ? [uiLabel(meta)] : [uiLabel(meta), uiLabel(note)];
+  return [...new Set(translated.filter(Boolean))].join(' · ');
 }
 function productGallery(item) {
   const stored = Array.isArray(item?.images) ? item.images.map(image => typeof image === 'string' ? image : image?.url).filter(Boolean) : [];
@@ -2218,7 +2748,7 @@ function productPriceText(item) {
 }
 function productMinimumQuantity(item) {
   const configured = Number(item?.minimum_quantity || 0);
-  const fallback = item?.id === paypalCartButtonConfig.productId ? 4 : 1;
+  const fallback = item?.category === 'Wheels' && (item?.price_mode === 'from' || item?.visualizer_enabled) ? 4 : 1;
   return Math.max(fallback, configured || 0);
 }
 function productMinimumOrderText(item) {
@@ -2236,9 +2766,9 @@ function productMinimumOrderSummary(item) {
 function product(id) { return products.find(item => item.id === id) || products[0]; }
 function homeWheelProducts() {
   const fallbackRank = ['fbox-rse', 'fbox-sv100', 'fbox-apex-split-spoke', 'fbox-vanta-10', 'fbox-meridian-multi-spoke', 'fbox-halo-20-spoke'];
-  return products
+  return publicForgedProducts()
     .map((item, index) => ({ item, index }))
-    .filter(({ item }) => item?.category === 'Wheels' && item.image && item.status !== 'draft' && item.status !== 'archived')
+    .filter(({ item }) => item.image)
     .sort((left, right) => {
       const a = left.item;
       const b = right.item;
@@ -2266,7 +2796,16 @@ function homePreviewProduct() {
 function homePreviewShortName(item) { return String(item?.name || 'CIRUI wheel').replace(/^CIRUI\s+/i, '').split(' - ')[0]; }
 function persist() { localStorage.setItem('fbox-cart', JSON.stringify(state.cart)); localStorage.setItem('fbox-wishlist', JSON.stringify(state.wishlist)); if (state.vehicle) localStorage.setItem('fbox-vehicle', JSON.stringify(state.vehicle)); }
 function setToast(message) { state.toast = message; render(); window.clearTimeout(setToast.timer); setToast.timer = window.setTimeout(() => { state.toast = ''; render(); }, 2800); }
-function go(hash) { state.modal = null; location.hash = hash; }
+function go(hash) {
+  const normalizedHash = `#${String(hash || 'home').replace(/^#/, '')}`;
+  state.modal = null;
+  state.menuOpen = false;
+  state.mobileNav = false;
+  history.pushState({}, '', `/${normalizedHash}`);
+  render();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  trackPageView();
+}
 function goPath(path) {
   state.modal = null;
   history.pushState({}, '', path);
@@ -2277,7 +2816,12 @@ function goPath(path) {
   window.scrollTo({ top: 0, behavior: 'instant' });
   trackPageView();
 }
-function cartCount() { return state.cart.reduce((sum, item) => sum + item.qty, 0); }
+function cartCount() {
+  return state.cart.filter(row => {
+    const item = product(row.id);
+    return item?.category === 'Wheels' && item.public_scope !== false && !item.vehicle_label;
+  }).length;
+}
 function cartTotal() { return state.cart.reduce((sum, item) => sum + item.qty * product(item.id).price, 0); }
 function cartMinimumIssue() {
   return state.cart.map(row => ({ row, item: product(row.id) })).find(({ row, item }) => row.qty < productMinimumQuantity(item)) || null;
@@ -3205,13 +3749,11 @@ async function loadMallCatalog() {
     }));
     const merged = [
       ...detailed,
-      ...ceruiVehicleProducts.filter(local => !detailed.some(item => item.id === local.id)),
-      ...localCustomProductFallback.filter(local => !detailed.some(item => item.id === local.id) && !ceruiVehicleProducts.some(item => item.id === local.id))
+      ...localCustomProductFallback.filter(local => !detailed.some(item => item.id === local.id))
     ];
     products = applyProductReviewStats(merged);
     state.catalogLoaded = true;
     renderBackgroundUpdate();
-    if (state.mallToken) await loadMallCart();
   } catch (error) {
     state.catalogLoaded = false;
     state.backend.portal = 'testing';
@@ -3270,8 +3812,8 @@ async function createMallOrder(values) {
 function selectOptions(values, selected = '', placeholder = 'Select') { return `<option value="">${placeholder}</option>${values.map(value => `<option value="${esc(value)}" ${String(value) === String(selected) ? 'selected' : ''}>${esc(value)}</option>`).join('')}`; }
 function vehicleSelector(prefix = 'vehicle') {
   const v = state.vehicle || {};
-  const makes = v.year && vehicles[v.year] ? Object.keys(vehicles[v.year]) : [];
-  const models = v.year && v.make && vehicles[v.year]?.[v.make] ? Object.keys(vehicles[v.year][v.make]) : [];
+  const makes = v.year && vehicles[v.year] ? vehicleCatalogSort(Object.keys(vehicles[v.year])) : [];
+  const models = v.year && v.make && vehicles[v.year]?.[v.make] ? vehicleCatalogSort(Object.keys(vehicles[v.year][v.make])) : [];
   const trims = v.year && v.make && v.model && vehicles[v.year]?.[v.make]?.[v.model] ? vehicles[v.year][v.make][v.model] : [];
   return `<div class="fitment-selects" data-vehicle-prefix="${prefix}">
     <select class="fitment-select" data-field="year">${selectOptions(years, v.year, 'Year')}</select>
@@ -3284,8 +3826,8 @@ function vehicleSelector(prefix = 'vehicle') {
 
 function fitmentVehicleSelector() {
   const v = state.fitment.vehicle || {};
-  const makes = v.year && vehicles[v.year] ? Object.keys(vehicles[v.year]) : [];
-  const models = v.year && v.make && vehicles[v.year]?.[v.make] ? Object.keys(vehicles[v.year][v.make]) : [];
+  const makes = v.year && vehicles[v.year] ? vehicleCatalogSort(Object.keys(vehicles[v.year])) : [];
+  const models = v.year && v.make && vehicles[v.year]?.[v.make] ? vehicleCatalogSort(Object.keys(vehicles[v.year][v.make])) : [];
   const trims = v.year && v.make && v.model ? vehicles[v.year]?.[v.make]?.[v.model] || [] : [];
   const identityMatches = expandedVehicleIdentityRecords.filter(record => record.brand === v.make && record.series === v.model && Number(v.year) >= record.year_start && Number(v.year) <= record.year_end);
   const chassisHints = [...new Set(identityMatches.map(record => record.generation_or_chassis).filter(Boolean))];
@@ -3306,6 +3848,147 @@ function fitmentVehicleSelector() {
     <select class="fitment-select" data-fitment-field="market" ${v.model ? '' : 'disabled'}>${fitmentSelectOptions(markets, v.market, 'Market')}</select>
     <p class="fitment-vehicle-integrity">${uiLabel('Use the exact trim, chassis and market shown on the VIN/build record. Suggested trims are search aids, not verified fitment facts.')}</p>
   </div>`;
+}
+
+function fitmentVinValue(value = '') {
+  return String(value || '').toUpperCase().replace(/[\s-]+/g, '').slice(0, 17);
+}
+
+function fitmentVinIsValid(value = '') {
+  return /^[A-HJ-NPR-Z0-9]{17}$/.test(fitmentVinValue(value));
+}
+
+function fitmentCatalogIdentity(values = [], value = '') {
+  const normalized = candidate => String(candidate || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const target = normalized(value);
+  return values.find(candidate => normalized(candidate) === target) || String(value || '').trim();
+}
+
+function fitmentDecodedDrive(value = '') {
+  const normalized = String(value || '').toLowerCase();
+  if (/all.?wheel|\bawd\b/.test(normalized)) return 'AWD';
+  if (/front.?wheel|\bfwd\b/.test(normalized)) return 'FWD';
+  if (/rear.?wheel|\brwd\b/.test(normalized)) return 'RWD';
+  if (/4.?wheel|4x4|\b4wd\b/.test(normalized)) return '4WD';
+  return '';
+}
+
+function fitmentDecodedBodyStyle(value = '') {
+  const normalized = String(value || '').toLowerCase();
+  if (/sport utility|utility vehicle|crossover|\bsuv\b/.test(normalized)) return 'SUV';
+  if (/pickup|truck/.test(normalized)) return 'Truck';
+  if (/hatchback/.test(normalized)) return 'Hatchback';
+  if (/wagon/.test(normalized)) return 'Wagon';
+  if (/roadster|convertible|cabriolet/.test(normalized)) return 'Roadster';
+  if (/coupe/.test(normalized)) return 'Coupe';
+  if (/sedan|saloon/.test(normalized)) return 'Sedan';
+  return value ? 'Other' : '';
+}
+
+function fitmentVinLookupMarkup() {
+  const lookup = state.fitment.vinLookup || {};
+  const data = lookup.data;
+  const vehicle = data?.vehicle || {};
+  const label = [vehicle.year, vehicle.make, vehicle.model, vehicle.trim || vehicle.series].filter(Boolean).join(' ');
+  const displacement = Number(vehicle.engine?.displacement_l);
+  const engine = [Number.isFinite(displacement) && displacement > 0 ? `${displacement.toFixed(1)} L` : '', vehicle.engine?.cylinders ? `${vehicle.engine.cylinders} ${uiLabel('cyl')}` : '', vehicle.engine?.fuel_type].filter(Boolean).join(' · ');
+  const oemWheels = vehicle.oem_wheels || {};
+  const wheelFacts = [
+    [uiLabel('Front wheel diameter'), oemWheels.front_diameter_in ? `${oemWheels.front_diameter_in} in` : ''],
+    [uiLabel('Rear wheel diameter'), oemWheels.rear_diameter_in ? `${oemWheels.rear_diameter_in} in` : ''],
+    [uiLabel('Number of wheels'), oemWheels.number_of_wheels],
+    [uiLabel('Track width'), oemWheels.track_width_in ? `${oemWheels.track_width_in} in` : '']
+  ].filter(([, value]) => value);
+  const facts = [[uiLabel('Body style'), vehicle.body_style], [uiLabel('Drive'), vehicle.drive], [uiLabel('Engine'), engine], [uiLabel('Built in'), vehicle.plant_country], ...wheelFacts].filter(([, value]) => value);
+  const wheelNotice = data ? (wheelFacts.length
+    ? `<p class="fitment-vin-wheel-note is-found"><b>${uiLabel('Manufacturer-reported wheel data')}</b> ${uiLabel('Diameter only; PCD, width, ET, center bore and factory option package still require an exact OEM or physical check.')}</p>`
+    : `<p class="fitment-vin-wheel-note"><b>${uiLabel('No manufacturer wheel fields were submitted for this VIN.')}</b> ${uiLabel('Continue with the exact trim, OEM build record and physical wheel measurements.')}</p>`) : '';
+  const status = lookup.loading
+    ? `<div class="fitment-vin-status is-loading" role="status"><span class="wheel-progress"><i></i></span><strong>${uiLabel('Checking official vehicle record…')}</strong></div>`
+    : lookup.error
+      ? `<div class="fitment-vin-status is-error" role="alert"><span>${icons.shield}</span><div><strong>${uiLabel('VIN lookup failed.')}</strong><p>${esc(lookup.error)}</p></div></div>`
+      : data
+        ? `<div class="fitment-vin-status is-success" role="status"><span>${icons.shield}</span><div><small>${uiLabel('Vehicle found via NHTSA')}</small><strong>${esc(label)}</strong><p>${uiLabel('Review the decoded trim and drive before continuing.')}</p>${facts.length ? `<dl>${facts.map(([key, value]) => `<div><dt>${key}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>` : ''}${wheelNotice}${data.warnings?.length ? `<p class="fitment-vin-warning">${uiLabel('Partial record — review every field.')}</p>` : ''}</div><a href="${esc(data.source_url || 'https://vpic.nhtsa.dot.gov/api/Home/Index')}" target="_blank" rel="noreferrer"><small>${uiLabel('Source')}</small><b>NHTSA vPIC</b></a></div>`
+        : '';
+  return `<section class="fitment-vin-lookup"><div class="fitment-vin-lookup-head"><span>${icons.shield}</span><div><small>${uiLabel('Official identity lookup')}</small><h3>${uiLabel('Decode vehicle by VIN')}</h3><p>${uiLabel("Enter the vehicle's 17-character VIN to retrieve its manufacturer-submitted identity.")}</p></div></div><div class="fitment-vin-controls"><label><span>${uiLabel('17-character VIN')}</span><input name="vin_reference" data-fitment-vin-input value="${fitmentDraftValue('vin_reference')}" maxlength="17" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="1HGCM82633A004352" aria-describedby="fitment-vin-help"></label><button type="button" class="btn btn-primary" data-action="fitment-vin-decode" ${lookup.loading ? 'disabled' : ''}>${lookup.loading ? uiLabel('Checking official vehicle record…') : uiLabel('Decode VIN')} ${icons.arrowRight}</button></div><p id="fitment-vin-help" class="fitment-vin-help">${uiLabel('NHTSA vPIC covers vehicles sold or imported into the United States most completely.')} ${uiLabel('VIN lookup does not provide wheel fitment, factory options, accident history, mileage or ownership.')}</p>${status}</section>`;
+}
+
+function fitmentVinErrorMessage(status = 0, detail = '') {
+  if (status === 400) return uiLabel('Enter a valid 17-character VIN. Letters I, O and Q are not used.');
+  if (status === 429) return uiLabel('Too many VIN checks. Please wait before trying again.');
+  if (status === 422) return uiLabel('No exact vehicle record was returned. Enter the vehicle manually and review the VIN.');
+  if (status >= 500) return uiLabel('Official vehicle service unavailable. You can continue by entering the vehicle manually.');
+  return detail || uiLabel('VIN lookup failed.');
+}
+
+async function decodeFitmentVin() {
+  const form = document.querySelector('[data-form="fitment-wizard"]');
+  if (!form) return;
+  captureFitmentDraft(form);
+  const vin = fitmentVinValue(form.elements.namedItem('vin_reference')?.value || state.fitment.draft?.vin_reference);
+  state.fitment.draft = { ...(state.fitment.draft || {}), vin_reference: vin };
+  localStorage.setItem('fbox-fitment-draft', JSON.stringify(state.fitment.draft));
+  if (!fitmentVinIsValid(vin)) {
+    state.fitment.vinLookup = { loading: false, error: uiLabel('Enter a valid 17-character VIN. Letters I, O and Q are not used.'), data: null, queriedVin: vin };
+    render();
+    requestAnimationFrame(() => document.querySelector('[data-fitment-vin-input]')?.focus());
+    return;
+  }
+
+  state.fitment.vinLookup = { loading: true, error: '', data: null, queriedVin: vin };
+  render();
+  try {
+    const response = await fetch('/api/fbox-store/vehicle/vin-decode', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vin }),
+      signal: AbortSignal.timeout(15_000)
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw Object.assign(new Error(payload.detail || 'VIN lookup failed.'), { status: response.status });
+    const data = payload.data || payload;
+    const decoded = data.vehicle || {};
+    const year = String(decoded.year || '').trim();
+    const makes = year && vehicles[year] ? Object.keys(vehicles[year]) : [];
+    const make = fitmentCatalogIdentity(makes, decoded.make);
+    const models = year && make && vehicles[year]?.[make] ? Object.keys(vehicles[year][make]) : [];
+    const model = fitmentCatalogIdentity(models, decoded.model);
+    const trim = String(decoded.trim || decoded.series_2 || decoded.series || '').trim();
+    if (year && make && model) {
+      vehicles[year] ||= {};
+      vehicles[year][make] ||= {};
+      vehicles[year][make][model] ||= [];
+      if (trim && !vehicles[year][make][model].includes(trim)) vehicles[year][make][model].push(trim);
+      years = Object.keys(vehicles).sort((a, b) => Number(b) - Number(a));
+    }
+    data.vehicle = { ...decoded, year, make, model, trim };
+    const current = state.fitment.vehicle || {};
+    const vehicle = { ...current };
+    if (year) vehicle.year = year;
+    if (make) vehicle.make = make;
+    if (model) vehicle.model = model;
+    if (trim) vehicle.trim = trim;
+    const drive = fitmentDecodedDrive(decoded.drive);
+    if (drive) vehicle.drive = drive;
+    const bodyStyle = fitmentDecodedBodyStyle(decoded.body_style);
+    if (bodyStyle) vehicle.body_style = bodyStyle;
+    vehicle.vin_reference = vin;
+    vehicle.vin_source = 'NHTSA vPIC';
+    state.fitment.vehicle = vehicle;
+    state.vehicle = vehicle;
+    state.fitment.resultStale = Boolean(state.fitment.result);
+    state.fitment.draft = { ...(state.fitment.draft || {}), vin_reference: vin, vin_decode_source: 'NHTSA vPIC' };
+    state.fitment.vinLookup = { loading: false, error: '', data, queriedVin: vin };
+    localStorage.setItem('fbox-fitment-draft', JSON.stringify(state.fitment.draft));
+    persist();
+    render();
+    void loadFitmentVehicleReference(vehicle);
+  } catch (error) {
+    const status = Number(error?.status || 0);
+    const timeout = error?.name === 'TimeoutError';
+    state.fitment.vinLookup = { loading: false, error: fitmentVinErrorMessage(timeout ? 504 : status, error?.message), data: null, queriedVin: vin };
+    render();
+  }
 }
 
 function fitmentVehicleReferenceMarkup() {
@@ -3366,6 +4049,65 @@ function fitmentPartOptions(type, selected = '', axle = '') {
   const oemId = 'oem';
   const oemLabel = type === 'suspension' ? 'Factory original suspension / exact trim' : `Factory original ${type} / exact trim`;
   return `<option value="" data-translate-option>${esc(uiLabel(label, label))}</option><option value="${oemId}" data-translate-option ${String(selected) === oemId ? 'selected' : ''}>${esc(uiLabel('Factory original / exact trim', oemLabel))}</option>${records.map(part => `<option value="${esc(part.id)}" ${String(part.id) === String(selected) ? 'selected' : ''}>${esc(`${part.brand} ${part.model}${part.part_number ? ` · ${part.part_number}` : ''}`)}</option>`).join('')}`;
+}
+
+function fitmentPartPickerRecords(type = 'brake') {
+  const types = type === 'brake' ? ['brake', 'caliper'] : [type];
+  return state.fitment.parts.filter(part => types.includes(part.type) && part.status === 'active');
+}
+
+function fitmentPartRecord(id = '') {
+  return state.fitment.parts.find(part => String(part.id) === String(id)) || null;
+}
+
+function fitmentPartSearchText(part = {}) {
+  const aliases = Array.isArray(part.specs?.search_aliases) ? part.specs.search_aliases : [];
+  return [part.brand, part.model, part.part_number, ...aliases].filter(Boolean).join(' ').toLowerCase();
+}
+
+function fitmentPartDisplayModel(part = {}) {
+  const model = String(part.model || '').trim();
+  const partNumber = String(part.part_number || '').trim();
+  if (partNumber && /alias|umbrella|exact code required/i.test(model)) return partNumber;
+  return model || partNumber;
+}
+
+function fitmentPartLabel(part = null, type = 'brake') {
+  if (!part) return uiLabel(type === 'suspension' ? 'Choose suspension' : 'Choose installed component');
+  const model = fitmentPartDisplayModel(part);
+  const partNumber = String(part.part_number || '').trim();
+  return [part.brand, model, partNumber && partNumber.toLowerCase() !== model.toLowerCase() ? `· ${partNumber}` : ''].filter(Boolean).join(' ');
+}
+
+function fitmentPartPickerMarkup({ name, type, label, selected = '' } = {}) {
+  const records = fitmentPartPickerRecords(type);
+  const aiMatch = (state.fitment.ai?.result?.matched_parts || []).find(item => item.id_field === name);
+  const selectedPart = fitmentPartRecord(selected) || (selected && String(aiMatch?.selected?.id || '') === String(selected) ? aiMatch?.selected || null : null);
+  const recommendedIds = new Set([selected, aiMatch?.selected?.id, ...(aiMatch?.alternatives || []).map(item => item.id)].filter(Boolean).map(String));
+  const ordered = [...records].sort((left, right) => {
+    const priority = Number(recommendedIds.has(String(right.id))) - Number(recommendedIds.has(String(left.id)));
+    return priority || fitmentPartLabel(left, type).localeCompare(fitmentPartLabel(right, type), state.locale || 'en', { numeric: true, sensitivity: 'base' });
+  });
+  const recommendationCount = ordered.filter(part => recommendedIds.has(String(part.id))).length;
+  const oemSelected = String(selected) === 'oem';
+  const currentLabel = oemSelected ? uiLabel('Factory original / exact trim') : fitmentPartLabel(selectedPart, type);
+  const currentStatus = oemSelected
+    ? uiLabel('Factory component recorded')
+    : selectedPart
+      ? (aiMatch?.selected?.id === selectedPart.id ? uiLabel('AI candidate recorded — verify the exact kit before production') : uiLabel('Catalog component selected'))
+      : uiLabel('Search by model or part number');
+  const option = part => {
+    const recommended = recommendedIds.has(String(part.id));
+    const selectedOption = String(part.id) === String(selected);
+    const showRecommended = recommended && !selected;
+    const specs = [
+      part.specs?.caliper_pistons ? `${part.specs.caliper_pistons} ${uiLabel('piston')}` : '',
+      part.specs?.rotor_diameter_mm ? `Ø${part.specs.rotor_diameter_mm} mm` : '',
+      part.verification_status ? uiLabel(part.verification_status === 'source_catalog' ? 'Series reference' : 'Verified application') : ''
+    ].filter(Boolean).join(' · ');
+    return `<button type='button' class='fitment-part-option ${recommended ? 'is-recommended' : ''} ${selectedOption ? 'is-selected' : ''}' data-action='fitment-part-select' data-field='${esc(name)}' data-id='${esc(part.id)}' data-part-search-text='${esc(fitmentPartSearchText(part))}' data-recommended='${recommended}' ${showRecommended ? '' : 'hidden'} role='option' aria-selected='${selectedOption}'><span>${recommended ? uiLabel('Suggested') : uiLabel('Catalog')}</span><div><strong>${esc([part.brand, fitmentPartDisplayModel(part)].filter(Boolean).join(' '))}</strong><small>${esc(part.part_number || specs || uiLabel('Series reference'))}</small></div><em>${esc(specs)}</em>${icons.arrowRight}</button>`;
+  };
+  return `<section class='fitment-part-picker ${fitmentAiMissingRecord(name) ? 'fitment-required-missing' : ''}' data-fitment-part-picker data-field='${esc(name)}' data-selected='${selected ? 'true' : 'false'}'><input type='hidden' name='${esc(name)}' value='${esc(selected)}'><header><span>${label}</span>${selected ? `<button type='button' data-action='fitment-part-clear' data-field='${esc(name)}'>${uiLabel('Clear')}</button>` : ''}</header><div class='fitment-part-current ${selected ? 'is-selected' : ''}'><span>${selected ? icons.shield : icons.search}</span><div><strong data-part-current-label>${esc(currentLabel)}</strong><small data-part-current-status>${esc(currentStatus)}</small></div></div><label class='fitment-part-search'>${icons.search}<input type='search' data-fitment-part-search placeholder='${esc(uiLabel('Search model, series or part number'))}' autocomplete='off' aria-label='${esc(uiLabel('Search model, series or part number'))}'></label><div class='fitment-part-results' role='listbox'>${ordered.map(option).join('')}<p class='fitment-part-empty' ${(recommendationCount && !selected) ? 'hidden' : ''}>${uiLabel(selected ? 'Selected. Search only if this component needs to be changed.' : 'Enter at least two characters to search the component catalog.')}</p></div>${fitmentAiFieldHint(name)}</section>`;
 }
 
 function fitmentDraftValue(key) {
@@ -3485,6 +4227,9 @@ function captureFitmentVehicle(form = document.querySelector('[data-form="fitmen
     const value = String(control?.value || '').trim();
     if (value) nextVehicle[field] = value;
   });
+  const vinReference = fitmentVinValue(form.elements.namedItem('vin_reference')?.value || state.fitment.draft?.vin_reference);
+  if (vinReference) nextVehicle.vin_reference = vinReference;
+  if (state.fitment.vinLookup?.data && state.fitment.vinLookup.queriedVin === vinReference) nextVehicle.vin_source = 'NHTSA vPIC';
   state.fitment.vehicle = Object.keys(nextVehicle).length ? nextVehicle : null;
   state.vehicle = state.fitment.vehicle;
   persist();
@@ -3641,19 +4386,19 @@ function fitmentAxleForm(axle, label) {
       <div class="fitment-input-grid">
         <label><span>${uiLabel('Target diameter (in)')}</span><small class="fitment-field-help">${uiLabel('Rim bead-seat diameter, not tire outside diameter.')}</small><input name="${prefix}_diameter" type="number" step="0.1" min="12" max="30" value="${fitmentDraftValue(`${prefix}_diameter`)}" placeholder="19"></label>
         <label><span>${uiLabel('Target width (in)')}</span><small class="fitment-field-help">${uiLabel('Bead-seat width from the wheel drawing.')}</small><input name="${prefix}_width" type="number" step="0.1" min="4" max="16" value="${fitmentDraftValue(`${prefix}_width`)}" placeholder="9.0"></label>
-        <label><span>${uiLabel('Requested ET (optional)')}</span><small class="fitment-field-help">${uiLabel('Leave blank to calculate; positive ET moves the wheel inward.')}</small><input name="${prefix}_offset" type="number" step="0.1" value="${fitmentDraftValue(`${prefix}_offset`)}" placeholder="Calculate"></label>
+        <label><span>${uiLabel('Requested ET (optional)')}</span><small class="fitment-field-help">${uiLabel('Leave blank to calculate; positive ET moves the wheel inward.')}</small><input name="${prefix}_offset" type="number" step="0.1" value="${fitmentDraftValue(`${prefix}_offset`)}" placeholder="${esc(uiLabel('Calculate automatically'))}"></label>
         <label><span>PCD</span><small class="fitment-field-help">${uiLabel('Number of holes × pitch-circle diameter, e.g. 5x112.')}</small><input name="${prefix}_pcd" value="${fitmentDraftValue(`${prefix}_pcd`)}" placeholder="5x112"></label>
-        <label><span>${uiLabel('Center bore (mm)')}</span><small class="fitment-field-help">${uiLabel('Custom machining must match the verified vehicle hub.')}</small><input name="${prefix}_center_bore" type="number" step="0.1" value="${fitmentDraftValue(`${prefix}_center_bore`)}" placeholder="Calculated from vehicle"></label>
+        <label><span>${uiLabel('Center bore (mm)')}</span><small class="fitment-field-help">${uiLabel('Custom machining must match the verified vehicle hub.')}</small><input name="${prefix}_center_bore" type="number" step="0.1" value="${fitmentDraftValue(`${prefix}_center_bore`)}" placeholder="${esc(uiLabel('Calculated from vehicle'))}"></label>
         <label><span>${uiLabel('Final spacer (normally 0 mm)')}</span><small class="fitment-field-help">${uiLabel('A custom ET should normally remove the need for a spacer.')}</small><input name="${prefix}_spacer_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_spacer_mm`)}" placeholder="0"></label>
       </div>
     </section>
     <section class="fitment-axle-group">
       <div class="fitment-axle-group-head"><h4>${uiLabel('Measured current clearances')}</h4><p>${uiLabel('Measure the current installed setup. The calculator projects the remaining clearance after the new wheel and tire move.')}</p></div>
       <div class="fitment-input-grid">
-        <label><span>${uiLabel('Wheel barrel to strut clearance (mm)')}</span><small class="fitment-field-help">${uiLabel('Current wheel barrel to strut or spring perch; use the smallest gap.')}</small><input name="${prefix}_inner_clearance_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_inner_clearance_mm`)}" placeholder="Measured minimum"></label>
-        <label><span>${uiLabel('Spoke back to caliper clearance (mm)')}</span><small class="fitment-field-help">${uiLabel('Current spoke back to the caliper highest point; the final wheel still needs its 1:1 template.')}</small><input name="${prefix}_spoke_clearance_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_spoke_clearance_mm`)}" placeholder="Template / measured gap"></label>
-        <label><span>${uiLabel('Tire shoulder to fender clearance (mm)')}</span><small class="fitment-field-help">${uiLabel('Current tire shoulder to the inner fender lip at steering lock or axle load.')}</small><input name="${prefix}_fender_clearance_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_fender_clearance_mm`)}" placeholder="Measured minimum"></label>
-        <label><span>${uiLabel('Full-compression minimum clearance (mm)')}</span><small class="fitment-field-help">${uiLabel('Current minimum through usable suspension travel, with steering lock where applicable.')}</small><input name="${prefix}_compression_clearance_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_compression_clearance_mm`)}" placeholder="Loaded suspension gap"></label>
+        <label><span>${uiLabel('Wheel barrel to strut clearance (mm)')}</span><small class="fitment-field-help">${uiLabel('Current wheel barrel to strut or spring perch; use the smallest gap.')}</small><input name="${prefix}_inner_clearance_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_inner_clearance_mm`)}" placeholder="${esc(uiLabel('Measured minimum'))}"></label>
+        <label><span>${uiLabel('Spoke back to caliper clearance (mm)')}</span><small class="fitment-field-help">${uiLabel('Current spoke back to the caliper highest point; the final wheel still needs its 1:1 template.')}</small><input name="${prefix}_spoke_clearance_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_spoke_clearance_mm`)}" placeholder="${esc(uiLabel('Template / measured gap'))}"></label>
+        <label><span>${uiLabel('Tire shoulder to fender clearance (mm)')}</span><small class="fitment-field-help">${uiLabel('Current tire shoulder to the inner fender lip at steering lock or axle load.')}</small><input name="${prefix}_fender_clearance_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_fender_clearance_mm`)}" placeholder="${esc(uiLabel('Measured minimum'))}"></label>
+        <label><span>${uiLabel('Full-compression minimum clearance (mm)')}</span><small class="fitment-field-help">${uiLabel('Current minimum through usable suspension travel, with steering lock where applicable.')}</small><input name="${prefix}_compression_clearance_mm" type="number" step="0.5" min="0" value="${fitmentDraftValue(`${prefix}_compression_clearance_mm`)}" placeholder="${esc(uiLabel('Loaded suspension gap'))}"></label>
         <label><span>${uiLabel('Camber (deg)')}</span><small class="fitment-field-help">${uiLabel('Use the current alignment printout; negative means the top leans inward.')}</small><input name="${prefix}_camber_deg" type="number" step="0.1" value="${fitmentDraftValue(`${prefix}_camber_deg`)}" placeholder="-2.0"></label>
         <label><span>${uiLabel('Toe (deg)')}</span><small class="fitment-field-help">${uiLabel('Use total toe for this axle from the current alignment printout.')}</small><input name="${prefix}_toe_deg" type="number" step="0.01" value="${fitmentDraftValue(`${prefix}_toe_deg`)}" placeholder="0.00"></label>
       </div>
@@ -3818,10 +4563,10 @@ function fitmentLegacyPage() {
   const stanceControl = `<label class="fitment-inline-control"><span>${uiLabel('Current stance / ride-height profile')}</span><select name="stance_profile" data-translate-options><option value="oem" ${stanceProfile === 'oem' ? 'selected' : ''} data-translate-option>${uiLabel('Factory original / exact trim')}</option><option value="lowered" ${stanceProfile === 'lowered' ? 'selected' : ''} data-translate-option>${uiLabel('Lowered street')}</option><option value="static-low" ${stanceProfile === 'static-low' ? 'selected' : ''} data-translate-option>${uiLabel('Static low / stance')}</option><option value="air-low" ${stanceProfile === 'air-low' ? 'selected' : ''} data-translate-option>${uiLabel('Air suspension low')}</option><option value="track" ${stanceProfile === 'track' ? 'selected' : ''} data-translate-option>${uiLabel('Track alignment')}</option></select></label>`;
   const goalControl = `<label class="fitment-inline-control"><span>${uiLabel('Desired installed result')}</span><select name="fitment_goal" data-translate-options><option value="oem_safe" ${fitmentGoal === 'oem_safe' ? 'selected' : ''}>${uiLabel('OEM-safe street')}</option><option value="flush_street" ${fitmentGoal === 'flush_street' ? 'selected' : ''}>${uiLabel('Flush street')}</option><option value="performance" ${fitmentGoal === 'performance' ? 'selected' : ''}>${uiLabel('Performance / track')}</option><option value="show" ${fitmentGoal === 'show' ? 'selected' : ''}>${uiLabel('Show / low stance')}</option></select></label>`;
   const qualifiedMarkup = qualifiedCalibrations.length ? `<div class="fitment-qualified-records"><div><strong>${uiLabel('Qualified shop records for this exact vehicle')}</strong><small>${uiLabel('Only records with calculated geometry and all six post-install checks appear here. They still pass through the current vehicle calculator.')}</small></div>${qualifiedCalibrations.map(item => `<article><span><b>${esc(item.title || uiLabel('New customer build'))}</b><small>${esc(workshopCalibrationProjectSpec(item))}</small></span><button type="button" class="btn btn-outline btn-small" data-action="workshop-use-calibration" data-token="${esc(item.share_token)}">${uiLabel('Use as candidate')}</button></article>`).join('')}</div>` : '';
-  const installationMarkup = `<details class="fitment-installation-record" ${installationOutcome !== 'candidate' ? 'open' : ''}><summary><span><b>${uiLabel('Installation feedback record')}</b><small>${uiLabel('Save what actually happened after installation')}</small></span>${icons.chevron}</summary><div class="fitment-installation-body"><p>${uiLabel('This optional record turns workshop experience into reusable evidence without treating memory as an automatic approval.')}</p><div class="fitment-form-inline"><label><span>${uiLabel('Installation outcome')}</span><select name="installation_outcome"><option value="candidate" ${installationOutcome === 'candidate' ? 'selected' : ''}>${uiLabel('Candidate only / not installed')}</option><option value="installed_clear" ${installationOutcome === 'installed_clear' ? 'selected' : ''}>${uiLabel('Installed and verified clear')}</option><option value="installed_after_correction" ${installationOutcome === 'installed_after_correction' ? 'selected' : ''}>${uiLabel('Installed after specification correction')}</option><option value="interference_found" ${installationOutcome === 'interference_found' ? 'selected' : ''}>${uiLabel('Interference found / needs revision')}</option></select></label><label><span>${uiLabel('Install date')}</span><input name="installation_date" type="date" value="${fitmentDraftValue('installation_date')}"></label><label><span>${uiLabel('Installer / work order')}</span><input name="installation_reference" value="${fitmentDraftValue('installation_reference')}" placeholder="Alex / WO-024"></label><label><span>${uiLabel('Post-install note')}</span><input name="installation_note" value="${fitmentDraftValue('installation_note')}" placeholder="${esc(uiLabel('Record rubbing, corrections, final spacer, alignment or tire changes.'))}"></label></div><fieldset class="fitment-installation-checks"><legend>${uiLabel('Post-install checks')}</legend><label><input type="checkbox" name="installation_check_caliper" ${installationChecked('caliper')}><span>${uiLabel('Spoke-to-caliper clearance checked')}</span></label><label><input type="checkbox" name="installation_check_suspension" ${installationChecked('suspension')}><span>${uiLabel('Barrel/tire-to-suspension clearance checked')}</span></label><label><input type="checkbox" name="installation_check_steering_lock" ${installationChecked('steering_lock')}><span>${uiLabel('Steering lock clearance checked')}</span></label><label><input type="checkbox" name="installation_check_full_travel" ${installationChecked('full_travel')}><span>${uiLabel('Full suspension travel checked')}</span></label><label><input type="checkbox" name="installation_check_fender_loaded" ${installationChecked('fender_loaded')}><span>${uiLabel('Loaded fender clearance checked')}</span></label><label><input type="checkbox" name="installation_check_road_test" ${installationChecked('road_test')}><span>${uiLabel('Alignment and road test completed')}</span></label></fieldset></div></details>`;
+  const installationMarkup = `<details class="fitment-installation-record" ${installationOutcome !== 'candidate' ? 'open' : ''}><summary><span><b>${uiLabel('Installation feedback record')}</b><small>${uiLabel('Save what actually happened after installation')}</small></span>${icons.chevron}</summary><div class="fitment-installation-body"><p>${uiLabel('This optional record turns workshop experience into reusable evidence without treating memory as an automatic approval.')}</p><div class="fitment-form-inline"><label><span>${uiLabel('Installation outcome')}</span><select name="installation_outcome"><option value="candidate" ${installationOutcome === 'candidate' ? 'selected' : ''}>${uiLabel('Candidate only / not installed')}</option><option value="installed_clear" ${installationOutcome === 'installed_clear' ? 'selected' : ''}>${uiLabel('Installed and verified clear')}</option><option value="installed_after_correction" ${installationOutcome === 'installed_after_correction' ? 'selected' : ''}>${uiLabel('Installed after specification correction')}</option><option value="interference_found" ${installationOutcome === 'interference_found' ? 'selected' : ''}>${uiLabel('Interference found / needs revision')}</option></select></label><label><span>${uiLabel('Install date')}</span><input name="installation_date" type="date" value="${fitmentDraftValue('installation_date')}"></label><label><span>${uiLabel('Installer / work order')}</span><input name="installation_reference" value="${fitmentDraftValue('installation_reference')}" placeholder="${esc(uiLabel('Example: Alex / work order 024'))}"></label><label><span>${uiLabel('Post-install note')}</span><input name="installation_note" value="${fitmentDraftValue('installation_note')}" placeholder="${esc(uiLabel('Record rubbing, corrections, final spacer, alignment or tire changes.'))}"></label></div><fieldset class="fitment-installation-checks"><legend>${uiLabel('Post-install checks')}</legend><label><input type="checkbox" name="installation_check_caliper" ${installationChecked('caliper')}><span>${uiLabel('Spoke-to-caliper clearance checked')}</span></label><label><input type="checkbox" name="installation_check_suspension" ${installationChecked('suspension')}><span>${uiLabel('Barrel/tire-to-suspension clearance checked')}</span></label><label><input type="checkbox" name="installation_check_steering_lock" ${installationChecked('steering_lock')}><span>${uiLabel('Steering lock clearance checked')}</span></label><label><input type="checkbox" name="installation_check_full_travel" ${installationChecked('full_travel')}><span>${uiLabel('Full suspension travel checked')}</span></label><label><input type="checkbox" name="installation_check_fender_loaded" ${installationChecked('fender_loaded')}><span>${uiLabel('Loaded fender clearance checked')}</span></label><label><input type="checkbox" name="installation_check_road_test" ${installationChecked('road_test')}><span>${uiLabel('Alignment and road test completed')}</span></label></fieldset></div></details>`;
   const calibrationMarkup = `<section class="fitment-form-section fitment-calibration-section"><div class="fitment-section-head"><div><span class="fitment-section-kicker">${uiLabel('Shop calibration')}</span><h2>${uiLabel('Start from what your shop already knows.')}</h2></div><p>${uiLabel('Enter a familiar successful specification as the candidate. CIRUI keeps its source, then checks and corrects it against this customer vehicle.')}</p></div>${qualifiedMarkup}<div class="fitment-form-inline"><label><span>${uiLabel('Candidate specification source')}</span><select name="calibration_basis"><option value="current_vehicle_measured" ${calibrationBasis === 'current_vehicle_measured' ? 'selected' : ''}>${uiLabel('Measured on this vehicle')}</option><option value="same_vehicle_successful_install" ${calibrationBasis === 'same_vehicle_successful_install' ? 'selected' : ''}>${uiLabel('Previous successful install on matching vehicle')}</option><option value="manufacturer_drawing" ${calibrationBasis === 'manufacturer_drawing' ? 'selected' : ''}>${uiLabel('Manufacturer drawing / application')}</option><option value="shop_experience" ${calibrationBasis === 'shop_experience' ? 'selected' : ''}>${uiLabel('Shop experience candidate')}</option></select></label><label><span>${uiLabel('Reference build / calibration note')}</span><input name="calibration_reference" value="${fitmentDraftValue('calibration_reference')}" placeholder="${esc(uiLabel('Example: 2022 C43, same brakes, installed 19x9 ET38 without spacer'))}"></label></div><div class="fitment-inline-note">${uiLabel('Experience is useful as a starting point. Production lock still follows the exact vehicle, current modifications, tire approval and measured clearance.')}</div>${installationMarkup}</section>`;
   const libraryNote = `${state.fitment.loaded ? `${state.fitment.parts.length} ${uiLabel('active component profiles loaded', 'active component profiles loaded')}. ${uiLabel('Exact brake templates and measurements are still reviewed by a specialist.', 'Exact brake templates and measurements are still reviewed by a specialist.')}` : uiLabel('Loading the component library. You can still enter the vehicle and measurements manually.', 'Loading the component library. You can still enter the vehicle and measurements manually.')} ${stanceControl}`;
-  return `<main class="fitment-lab-page workshop-lab-page"><div class="container"><section class="fitment-lab-intro workshop-lab-intro"><div><p class="custom-kicker">${uiLabel('CIRUI Workshop Lab')} <span>${uiLabel('Free workspace for tuning shops')}</span></p><h1>${uiLabel('Custom wheel fitment calculator.')}</h1><p>${uiLabel('Start from a shop-proven candidate, calibrate it against the customer vehicle, and save the complete modification record for the next visit.')}</p></div><div class="fitment-lab-facts"><span><strong>${uiLabel('Calculate')}</strong><small>${uiLabel('Turn experience into a checked specification')}</small></span><span><strong>${uiLabel('Archive')}</strong><small>${uiLabel('Keep every customer revision')}</small></span><span><strong>${uiLabel('Share')}</strong><small>${uiLabel('One protected customer link')}</small></span></div></section><div class="workshop-layout workshop-tool-layout"><div class="workshop-main">${state.account ? workshopProjectBarMarkup() : workshopGuestBarMarkup()}<form class="fitment-lab-form" data-form="fitment-check"><section class="fitment-form-section workshop-project-fields"><div class="fitment-section-head"><div><span class="fitment-section-kicker">${uiLabel('Customer modification record')}</span><h2>${uiLabel('Name this customer build.')}</h2></div><p>${uiLabel('Every save creates a new revision, so the shop can reopen the vehicle history later.')}</p></div><div class="fitment-form-inline"><label><span>${uiLabel('Project name')}</span><input name="project_title" value="${esc(draft.project_title || project.title || '')}" placeholder="C43 street setup"></label><label><span>${uiLabel('Customer reference')}</span><input name="customer_reference" value="${esc(draft.customer_reference || project.customer_reference || '')}" placeholder="Chris / ticket 024"></label></div>${state.account ? workshopChannelFieldsMarkup(project) : ''}</section><section class="fitment-form-section"><div class="fitment-section-head"><div><span class="fitment-section-kicker">${uiLabel('01 / Vehicle')}</span><h2>${uiLabel('Start with the exact platform.')}</h2></div><p>${uiLabel('Trim and drive can change the original wheel, brake and clearance baseline.')}</p></div>${fitmentVehicleSelector()}<div class="fitment-form-inline"><label><span>${uiLabel('How will you use it?')}</span><select name="usage" data-translate-options><option value="street" ${draft.usage === 'street' ? 'selected' : ''}>${uiLabel('Daily street')}</option><option value="spirited" ${draft.usage === 'spirited' ? 'selected' : ''}>${uiLabel('Spirited road')}</option><option value="show" ${draft.usage === 'show' ? 'selected' : ''}>${uiLabel('Show / stance')}</option><option value="track" ${draft.usage === 'track' ? 'selected' : ''}>${uiLabel('Track / competition')}</option></select></label><label><span>${uiLabel('Current ride-height drop (mm)')}</span><input name="ride_height_drop_mm" type="number" step="1" min="0" value="${fitmentDraftValue('ride_height_drop_mm')}" placeholder="0"></label>${stanceControl}${goalControl}</div></section>${calibrationMarkup}<section class="fitment-form-section"><div class="fitment-section-head"><div><span class="fitment-section-kicker">${uiLabel('Parts library')}</span><h2>${uiLabel('Tell us what is already on the car.')}</h2></div><p>${uiLabel('Known brand and part numbers make the first-pass recommendation much sharper. The library is editable by CIRUI staff.')}</p></div><div class="fitment-parts-grid"><label><span>${uiLabel('Front brake kit / caliper')}</span><select name="front_brake_id">${fitmentPartOptions('brake', draft.front_brake_id)}</select></label><label><span>${uiLabel('Rear brake kit / caliper')}</span><select name="rear_brake_id">${fitmentPartOptions('brake', draft.rear_brake_id)}</select></label><label><span>${uiLabel('Front brake rotor')}</span><select name="front_rotor_id">${fitmentPartOptions('rotor', draft.front_rotor_id)}</select></label><label><span>${uiLabel('Rear brake rotor')}</span><select name="rear_rotor_id">${fitmentPartOptions('rotor', draft.rear_rotor_id)}</select></label><label><span>${uiLabel('Front brake pad')}</span><select name="front_pad_id">${fitmentPartOptions('pad', draft.front_pad_id)}</select></label><label><span>${uiLabel('Rear brake pad')}</span><select name="rear_pad_id">${fitmentPartOptions('pad', draft.rear_pad_id)}</select></label><label><span>${uiLabel('Suspension / coilover')}</span><select name="suspension_id">${fitmentPartOptions('suspension', selectedSuspension)}</select></label></div><div class="fitment-inline-note">${libraryNote}</div></section>${fitmentAxleForm('front', 'Front axle')}${fitmentAxleForm('rear', 'Rear axle')}<div class="fitment-submit-row"><div><strong>${uiLabel('Calculate the custom specification')}</strong><span>${uiLabel('The result gives a corrected plan first, then asks only for evidence still needed to production-lock it.')}</span></div><button class="btn btn-primary" type="submit" ${state.fitment.submitting ? 'disabled' : ''}>${state.fitment.submitting ? uiLabel('Calculating…') : uiLabel('Calculate specification')} ${icons.chevron}</button></div>${state.fitment.error ? `<p class="fitment-form-error">${esc(state.fitment.error)}</p>` : ''}</form>${state.fitment.result ? `${fitmentResultMarkup(state.fitment.result)}${workshopDecisionHub(project)}` : ''}<section class="fitment-lab-note"><div><p class="eyebrow">${uiLabel('Production lock')}</p><h2>${uiLabel('Calculated first. Signed off last.')}</h2></div><p>${uiLabel('The calculator resolves the wheel and tire geometry. A 100% installation commitment is shown only after the exact vehicle, component templates, dynamic measurements and named CIRUI drawing approval are attached to the saved revision.')}</p></section></div></div></div></main>`;
+  return `<main class="fitment-lab-page workshop-lab-page"><div class="container"><section class="fitment-lab-intro workshop-lab-intro"><div><p class="custom-kicker">${uiLabel('CIRUI Workshop Lab')} <span>${uiLabel('Free workspace for tuning shops')}</span></p><h1>${uiLabel('Custom wheel fitment calculator.')}</h1><p>${uiLabel('Start from a shop-proven candidate, calibrate it against the customer vehicle, and save the complete modification record for the next visit.')}</p></div><div class="fitment-lab-facts"><span><strong>${uiLabel('Calculate')}</strong><small>${uiLabel('Turn experience into a checked specification')}</small></span><span><strong>${uiLabel('Archive')}</strong><small>${uiLabel('Keep every customer revision')}</small></span><span><strong>${uiLabel('Share')}</strong><small>${uiLabel('One protected customer link')}</small></span></div></section><div class="workshop-layout workshop-tool-layout"><div class="workshop-main">${state.account ? workshopProjectBarMarkup() : workshopGuestBarMarkup()}<form class="fitment-lab-form" data-form="fitment-check"><section class="fitment-form-section workshop-project-fields"><div class="fitment-section-head"><div><span class="fitment-section-kicker">${uiLabel('Customer modification record')}</span><h2>${uiLabel('Name this customer build.')}</h2></div><p>${uiLabel('Every save creates a new revision, so the shop can reopen the vehicle history later.')}</p></div><div class="fitment-form-inline"><label><span>${uiLabel('Project name')}</span><input name="project_title" value="${esc(draft.project_title || project.title || '')}" placeholder="${esc(uiLabel('Example: C43 street setup'))}"></label><label><span>${uiLabel('Customer reference')}</span><input name="customer_reference" value="${esc(draft.customer_reference || project.customer_reference || '')}" placeholder="${esc(uiLabel('Example: Chris / ticket 024'))}"></label></div>${state.account ? workshopChannelFieldsMarkup(project) : ''}</section><section class="fitment-form-section"><div class="fitment-section-head"><div><span class="fitment-section-kicker">${uiLabel('01 / Vehicle')}</span><h2>${uiLabel('Start with the exact platform.')}</h2></div><p>${uiLabel('Trim and drive can change the original wheel, brake and clearance baseline.')}</p></div>${fitmentVehicleSelector()}<div class="fitment-form-inline"><label><span>${uiLabel('How will you use it?')}</span><select name="usage" data-translate-options><option value="street" ${draft.usage === 'street' ? 'selected' : ''}>${uiLabel('Daily street')}</option><option value="spirited" ${draft.usage === 'spirited' ? 'selected' : ''}>${uiLabel('Spirited road')}</option><option value="show" ${draft.usage === 'show' ? 'selected' : ''}>${uiLabel('Show / stance')}</option><option value="track" ${draft.usage === 'track' ? 'selected' : ''}>${uiLabel('Track / competition')}</option></select></label><label><span>${uiLabel('Current ride-height drop (mm)')}</span><input name="ride_height_drop_mm" type="number" step="1" min="0" value="${fitmentDraftValue('ride_height_drop_mm')}" placeholder="0"></label>${stanceControl}${goalControl}</div></section>${calibrationMarkup}<section class="fitment-form-section"><div class="fitment-section-head"><div><span class="fitment-section-kicker">${uiLabel('Parts library')}</span><h2>${uiLabel('Tell us what is already on the car.')}</h2></div><p>${uiLabel('Known brand and part numbers make the first-pass recommendation much sharper. The library is editable by CIRUI staff.')}</p></div><div class="fitment-parts-grid"><label><span>${uiLabel('Front brake kit / caliper')}</span><select name="front_brake_id">${fitmentPartOptions('brake', draft.front_brake_id)}</select></label><label><span>${uiLabel('Rear brake kit / caliper')}</span><select name="rear_brake_id">${fitmentPartOptions('brake', draft.rear_brake_id)}</select></label><label><span>${uiLabel('Front brake rotor')}</span><select name="front_rotor_id">${fitmentPartOptions('rotor', draft.front_rotor_id)}</select></label><label><span>${uiLabel('Rear brake rotor')}</span><select name="rear_rotor_id">${fitmentPartOptions('rotor', draft.rear_rotor_id)}</select></label><label><span>${uiLabel('Front brake pad')}</span><select name="front_pad_id">${fitmentPartOptions('pad', draft.front_pad_id)}</select></label><label><span>${uiLabel('Rear brake pad')}</span><select name="rear_pad_id">${fitmentPartOptions('pad', draft.rear_pad_id)}</select></label><label><span>${uiLabel('Suspension / coilover')}</span><select name="suspension_id">${fitmentPartOptions('suspension', selectedSuspension)}</select></label></div><div class="fitment-inline-note">${libraryNote}</div></section>${fitmentAxleForm('front', 'Front axle')}${fitmentAxleForm('rear', 'Rear axle')}<div class="fitment-submit-row"><div><strong>${uiLabel('Calculate the custom specification')}</strong><span>${uiLabel('The result gives a corrected plan first, then asks only for evidence still needed to production-lock it.')}</span></div><button class="btn btn-primary" type="submit" ${state.fitment.submitting ? 'disabled' : ''}>${state.fitment.submitting ? uiLabel('Calculating…') : uiLabel('Calculate specification')} ${icons.chevron}</button></div>${state.fitment.error ? `<p class="fitment-form-error">${esc(state.fitment.error)}</p>` : ''}</form>${state.fitment.result ? `${fitmentResultMarkup(state.fitment.result)}${workshopDecisionHub(project)}` : ''}<section class="fitment-lab-note"><div><p class="eyebrow">${uiLabel('Production lock')}</p><h2>${uiLabel('Calculated first. Signed off last.')}</h2></div><p>${uiLabel('The calculator resolves the wheel and tire geometry. A 100% installation commitment is shown only after the exact vehicle, component templates, dynamic measurements and named CIRUI drawing approval are attached to the saved revision.')}</p></section></div></div></div></main>`;
 }
 
 function fitmentFlowState() {
@@ -3833,6 +4578,28 @@ function fitmentFlowState() {
     panel: flow.panel || '',
     error: flow.error || ''
   };
+}
+
+function scrollFitmentFlowTo(element, { block = 'nearest', behavior = 'auto', padding = 16 } = {}) {
+  if (!element) return;
+  const scroller = element.closest('.fitment-flow-scroll') || document.querySelector('.fitment-flow-scroll');
+  if (!scroller) return;
+  const modal = scroller.closest('.fitment-flow-modal');
+  if (modal) modal.scrollTop = 0;
+  const scrollerRect = scroller.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
+  const elementTop = elementRect.top - scrollerRect.top + scroller.scrollTop;
+  const elementBottom = elementTop + elementRect.height;
+  let nextTop = scroller.scrollTop;
+  if (block === 'start') nextTop = elementTop - padding;
+  else if (block === 'end') nextTop = elementBottom - scroller.clientHeight + padding;
+  else if (elementTop < scroller.scrollTop + padding) nextTop = elementTop - padding;
+  else if (elementBottom > scroller.scrollTop + scroller.clientHeight - padding) nextTop = elementBottom - scroller.clientHeight + padding;
+  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  scroller.scrollTo({
+    top: Math.max(0, Math.min(nextTop, scroller.scrollHeight - scroller.clientHeight)),
+    behavior: reducedMotion ? 'auto' : behavior
+  });
 }
 
 function fitmentWorkflowModeLabel(mode = '') {
@@ -3847,8 +4614,51 @@ function fitmentSelectedStyle() {
 function fitmentStylePickerMarkup() {
   const selected = fitmentSelectedStyle();
   const reference = state.fitment.styleReference;
-  const wheels = homeWheelProducts().slice(0, 8);
-  return `<div class="fitment-flow-style-current ${selected || reference ? '' : 'is-empty'}">${selected ? `<span class="fitment-flow-style-image"><img src="${assetUrl(selected.image)}" alt="${esc(selected.name)}"></span><div><small>${uiLabel('Selected wheel style')}</small><strong>${esc(homePreviewShortName(selected))}</strong><span>${esc(selected.finish || selected.color || uiLabel('Custom finish'))}</span></div><b>${icons.shield} ${uiLabel('Selected')}</b>` : reference ? `<span class="fitment-flow-style-image"><img src="${esc(reference.url)}" alt="${esc(reference.name)}"></span><div><small>${uiLabel('Reference image selected')}</small><strong>${esc(reference.name)}</strong><span>${uiLabel('Style drawing check')}</span></div><b>${icons.image} ${uiLabel('Selected')}</b>` : `<div><small>${uiLabel('Selected wheel style')}</small><strong>${uiLabel('Choose a wheel')}</strong><span>${uiLabel('Pick an existing CIRUI style or upload one reference image. The style still needs its final spoke and barrel drawing check.')}</span></div>`}</div><div class="fitment-flow-wheel-grid">${wheels.map(item => `<button type="button" class="fitment-flow-wheel ${selected?.id === item.id ? 'is-selected' : ''}" data-action="fitment-select-style" data-id="${esc(item.id)}" aria-pressed="${selected?.id === item.id}"><span><img src="${assetUrl(item.image)}" alt="${esc(item.name)}" loading="lazy"></span><strong>${esc(homePreviewShortName(item))}</strong><small>${selected?.id === item.id ? uiLabel('Selected') : uiLabel('Choose this style')}</small></button>`).join('')}</div><label class="fitment-flow-reference"><input type="file" data-fitment-style-upload accept="image/jpeg,image/png,image/webp"><span>${icons.image}</span><div><strong>${uiLabel('Upload a reference style')}</strong><small>${uiLabel('JPG, PNG or WebP. Used as a design direction, not as dimensional evidence.')}</small></div></label>`;
+  const catalogState = state.fitment.styleCatalog || { filter: 'all', expanded: false, query: '' };
+  const filter = ['all', 'monoblock', 'two-piece'].includes(catalogState.filter) ? catalogState.filter : 'all';
+  const query = String(catalogState.query || '').trim();
+  const normalizedQuery = query.toLocaleLowerCase();
+  const allWheels = homeWheelProducts();
+  const constructionWheels = allWheels.filter(item => filter === 'all' || item.construction === filter);
+  const filteredWheels = constructionWheels.filter(item => !normalizedQuery || [item.name, item.catalog_display_name, item.part, item.design_family, item.finish, item.color]
+    .some(value => String(value || '').toLocaleLowerCase().includes(normalizedQuery)));
+  const expanded = Boolean(catalogState.expanded || query);
+  const wheels = expanded ? filteredWheels : filteredWheels.slice(0, 8);
+  const counts = {
+    all: allWheels.length,
+    monoblock: allWheels.filter(item => item.construction === 'monoblock').length,
+    'two-piece': allWheels.filter(item => item.construction === 'two-piece').length
+  };
+  const filters = [
+    { key: 'all', label: 'All wheels', copy: 'Every available design', code: 'ALL' },
+    { key: 'monoblock', label: 'One-piece forged', copy: 'Lightweight single-piece construction', code: '1PC' },
+    { key: 'two-piece', label: 'Two-piece forged', copy: 'Separate center and barrel', code: '2PC' }
+  ];
+  const toggleLabel = catalogState.expanded ? uiLabel('Show preview only') : formatUiLabel('View all {count} wheels', { count: filteredWheels.length });
+  const selectionMarkup = selected
+    ? `<div class="fitment-style-selection-index">01</div><span class="fitment-flow-style-image"><img src="${assetUrl(selected.image)}" alt="${esc(selected.name)}"></span><div class="fitment-style-selection-copy"><small>${uiLabel('Your current direction')}</small><strong>${esc(homePreviewShortName(selected))}</strong><span>${esc(productFinishText(selected))} · ${uiLabel(productConstructionLabel(selected))}</span></div><div class="fitment-style-selection-state"><small>${uiLabel('Selection status')}</small><strong>${icons.shield} ${uiLabel('Wheel selected')}</strong></div>`
+    : reference
+      ? `<div class="fitment-style-selection-index">01</div><span class="fitment-flow-style-image"><img src="${esc(reference.url)}" alt="${esc(reference.name)}"></span><div class="fitment-style-selection-copy"><small>${uiLabel('Your current direction')}</small><strong>${esc(reference.name)}</strong><span>${uiLabel('Style drawing check')}</span></div><div class="fitment-style-selection-state"><small>${uiLabel('Selection status')}</small><strong>${icons.image} ${uiLabel('Reference image selected')}</strong></div>`
+      : `<div class="fitment-style-selection-index">01</div><span class="fitment-style-selection-placeholder">${icons.image}</span><div class="fitment-style-selection-copy"><small>${uiLabel('Your current direction')}</small><strong>${uiLabel('Choose a wheel')}</strong><span>${uiLabel('Pick an existing CIRUI style or upload one reference image. The style still needs its final spoke and barrel drawing check.')}</span></div><div class="fitment-style-selection-state is-required"><small>${uiLabel('Selection status')}</small><strong>${uiLabel('Required before continuing')}</strong></div>`;
+  const cardMarkup = wheels.map((item, index) => {
+    const isSelected = selected?.id === item.id;
+    const construction = uiLabel(productConstructionLabel(item));
+    return `<button type="button" class="fitment-flow-wheel ${isSelected ? 'is-selected' : ''}" data-action="fitment-select-style" data-id="${esc(item.id)}" data-construction="${esc(item.construction || 'unknown')}" aria-label="${esc(`${uiLabel('Select design')}: ${homePreviewShortName(item)}`)}" aria-pressed="${isSelected}"><span class="fitment-flow-wheel-media"><small>${construction}</small><img src="${assetUrl(item.image)}" alt="${esc(item.name)}" loading="${expanded && index < 12 ? 'eager' : 'lazy'}"><b>${icons.shield}</b></span><span class="fitment-flow-wheel-copy"><em>${esc(item.part || 'CIRUI FORGED')}</em><strong>${esc(homePreviewShortName(item))}</strong><small>${esc(productFinishText(item))}</small><span><b>${esc(productPriceText(item))}</b><i>${isSelected ? uiLabel('Selected design') : uiLabel('Select design')} ${icons.arrowRight}</i></span></span></button>`;
+  }).join('');
+  return `<div class="fitment-flow-style-current ${selected || reference ? '' : 'is-empty'}">${selectionMarkup}</div><section class="fitment-style-catalog ${expanded ? 'is-expanded' : ''}" data-fitment-style-catalog data-filter="${filter}" data-total="${filteredWheels.length}" data-visible="${wheels.length}"><header><div><small>${uiLabel('CIRUI wheel catalog')}</small><strong>${uiLabel('Browse every available wheel')}</strong><span>${formatUiLabel('{count} wheel designs available', { count: allWheels.length })}</span></div><b>${uiLabel('Matching designs')} <span>${filteredWheels.length}</span></b></header><div class="fitment-style-tools"><div class="fitment-style-search" role="search">${icons.search}<input type="search" data-fitment-style-search value="${esc(query)}" aria-label="${esc(uiLabel('Search the wheel catalog'))}" placeholder="${esc(uiLabel('Search wheel name or series'))}">${query ? `<button type="button" data-action="fitment-style-search-clear" aria-label="${esc(uiLabel('Clear search'))}">${icons.close}</button>` : ''}</div><div class="fitment-style-filter" role="group" aria-label="${esc(uiLabel('Filter by construction'))}">${filters.map(item => `<button type="button" class="${filter === item.key ? 'is-active' : ''}" data-action="fitment-style-filter" data-filter="${item.key}" aria-pressed="${filter === item.key}"><span>${item.code}</span><span><strong>${uiLabel(item.label)}</strong><small>${uiLabel(item.copy)}</small></span><b>${counts[item.key]}</b></button>`).join('')}</div></div><div class="fitment-style-results-head"><span><small>${uiLabel('Matching designs')}</small><strong>${formatUiLabel('Showing {visible} of {total}', { visible: wheels.length, total: filteredWheels.length })}</strong></span>${expanded && filteredWheels.length > 8 ? `<small>${uiLabel('Scroll inside the catalog to see every matching design.')}</small>` : ''}</div>${wheels.length ? `<div class="fitment-flow-wheel-grid">${cardMarkup}</div>` : `<div class="fitment-style-empty">${icons.search}<strong>${uiLabel('No wheels match this search.')}</strong><span>${uiLabel('Try another name or clear the current filters.')}</span><button type="button" class="btn btn-outline" data-action="fitment-style-search-clear">${uiLabel('Clear search')}</button></div>`}<footer><span><b>${formatUiLabel('Showing {visible} of {total}', { visible: wheels.length, total: filteredWheels.length })}</b>${filter === 'all' && counts.all > counts.monoblock + counts['two-piece'] ? `<small>${uiLabel('Unconfirmed constructions remain in All until drawing review.')}</small>` : ''}</span><div>${query ? `<button type="button" class="btn btn-outline" data-action="fitment-style-search-clear">${uiLabel('Clear search')}</button>` : ''}${filteredWheels.length > 8 ? `<button type="button" class="btn btn-dark" data-action="fitment-style-toggle" aria-expanded="${catalogState.expanded}">${toggleLabel} ${icons.chevron}</button>` : ''}</div></footer></section><div class="fitment-flow-reference-head"><span>${uiLabel('Or bring your own direction')}</span></div><label class="fitment-flow-reference"><input type="file" data-fitment-style-upload accept="image/jpeg,image/png,image/webp"><span>${icons.image}</span><div><strong>${uiLabel('Upload a reference style')}</strong><small>${uiLabel('JPG, PNG or WebP. Used as a design direction, not as dimensional evidence.')}</small></div><b>${uiLabel('Upload image')} ${icons.arrowRight}</b></label>`;
+}
+
+function fitmentStyleInlineSummaryMarkup() {
+  const selected = fitmentSelectedStyle();
+  const reference = state.fitment.styleReference;
+  if (!selected && !reference) return '';
+  const image = selected ? assetUrl(selected.image) : reference.url;
+  const name = selected ? homePreviewShortName(selected) : reference.name;
+  const detail = selected
+    ? `${selected.part || 'CIRUI FORGED'} · ${uiLabel(productConstructionLabel(selected))}`
+    : uiLabel('Reference image selected');
+  const status = selected ? uiLabel('Wheel selected') : uiLabel('Reference image selected');
+  return `<div class="fitment-style-inline-summary" data-fitment-selected-style aria-live="polite"><span>${uiLabel('Selected design')}</span><div><span><img src="${esc(image)}" alt="${esc(name)}" loading="eager" decoding="async" fetchpriority="high"></span><p><strong>${esc(name)}</strong><small>${esc(detail)}</small></p><b aria-label="${esc(status)}">${icons.shield}</b></div></div>`;
 }
 
 function fitmentAiFieldLabel(key = '') {
@@ -3901,7 +4711,12 @@ function fitmentAiFieldLabel(key = '') {
 
 function fitmentAiMissingRecord(name = '') {
   if (!state.fitment.ai?.applied) return null;
-  return (state.fitment.ai?.missingFields || []).find(item => item.name === name) || null;
+  return (state.fitment.ai?.missingFields || []).find(item => item.name === name && item.blocking !== false) || null;
+}
+
+function fitmentAiProductionRecord(name = '') {
+  if (!state.fitment.ai?.applied) return null;
+  return (state.fitment.ai?.missingFields || []).find(item => item.name === name && item.blocking === false) || null;
 }
 
 function fitmentAiFieldClass(name = '') {
@@ -3968,8 +4783,22 @@ function fitmentAiNotesMarkup() {
   const missingFields = Array.isArray(result?.missing_fields) ? result.missing_fields : [];
   const questions = Array.isArray(result?.questions) ? result.questions : [];
   const cautions = Array.isArray(result?.cautions) ? result.cautions : [];
-  const resultMarkup = result ? `<div class="fitment-ai-result" aria-live="polite"><div class="fitment-ai-result-head"><span>${icons.search}</span><div><small>${uiLabel('AI parameter lookup')}</small><strong>${esc(result.summary || uiLabel('Calculation inputs found'))}</strong></div><b>${matchedCount} ${uiLabel('Matched component data')}</b></div><div class="fitment-ai-facts"><h4>${uiLabel('Calculation inputs found')}</h4>${facts.length ? `<dl>${facts.map(([key, value]) => `<div><dt>${esc(fitmentAiFieldLabel(key))}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>` : `<p>${uiLabel('No explicit hardware facts were found yet.')}</p>`}</div>${matches.length ? `<section class="fitment-ai-matches"><h4>${uiLabel('Matched component data')}</h4><div>${matches.map(fitmentAiMatchedPartMarkup).join('')}</div></section>` : ''}${result.reference_plan ? fitmentAiReferenceMarkup(result.reference_plan) : ''}<div class="fitment-ai-next"><section><h4>${uiLabel('What to complete next')}</h4>${questions.length ? `<ol>${questions.map(item => `<li>${esc(item)}</li>`).join('')}</ol>` : `<p>${uiLabel('No missing inputs were identified.')}</p>`}</section>${cautions.length ? `<section class="is-caution"><h4>${uiLabel('Evidence to collect')}</h4><ul>${cautions.map(item => `<li>${esc(item)}</li>`).join('')}</ul></section>` : ''}</div><footer class="fitment-ai-apply"><div><strong>${ai.applied ? uiLabel('Applied to calculator') : uiLabel('One-click apply and continue precise custom-wheel calculation')}</strong><span>${ai.applied ? uiLabel('Confirmed values were filled. Fields still needed are marked in red.') : `${missingFields.length} ${uiLabel('Complete this field')}`}</span></div><button type="button" class="btn btn-primary" data-action="fitment-ai-apply">${ai.applied ? icons.shield : icons.spark} ${ai.applied ? uiLabel('Applied to calculator') : uiLabel('One-click apply and continue precise custom-wheel calculation')} ${icons.arrowRight}</button></footer></div>` : '';
-  return `<section class="fitment-ai-intake"><div class="fitment-ai-intake-head"><span>${icons.spark}</span><div><small>${uiLabel('AI parameter lookup')}</small><h3>${uiLabel('Describe the vehicle changes. AI will look up the related parameters.')}</h3><p>${uiLabel('Enter the installed brake, rotor, suspension, ride height or measurements you know. AI will match the vehicle and component library, then prepare a wheel-size starting point for the calculator.')}</p></div></div><label><span>${uiLabel('Installed parts and measurement notes')}</span><textarea name="modification_notes" rows="4" placeholder="KW V3 coilovers, front Brembo GT 6-piston kit, 380 mm rotor, ride height lowered 25 mm…">${fitmentDraftValue('modification_notes')}</textarea></label><div class="fitment-ai-intake-actions"><p>${icons.shield} ${uiLabel('AI looks up reference data and fills confirmed inputs. Final width, ET and tire are calculated from the remaining measurements.')}</p><button type="button" class="btn btn-dark" data-action="fitment-ai-interpret" ${ai.loading ? 'disabled' : ''}>${icons.search} ${ai.loading ? uiLabel('Searching vehicle and component data…') : uiLabel('Search parameters with AI')}</button></div>${ai.error ? `<p class="fitment-ai-error">${esc(ai.error)}</p>` : ''}${resultMarkup}</section>`;
+  const blockingFields = missingFields.filter(item => item.blocking !== false);
+  const productionFields = missingFields.filter(item => item.blocking === false);
+  const priorityQuestions = questions.filter(item => !/part number|料号|料號|kit code|套件.*编号|套件.*編號/i.test(item));
+  const nextQuestion = priorityQuestions[0] || blockingFields[0]?.reason || uiLabel('No missing inputs were identified.');
+  const factsMarkup = `<section class="fitment-ai-facts"><header><h4>${uiLabel('Calculation inputs found')}</h4><b>${facts.length}</b></header>${facts.length ? `<dl>${facts.map(([key, value]) => `<div><dt>${esc(fitmentAiFieldLabel(key))}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>` : `<p>${uiLabel('No explicit hardware facts were found yet.')}</p>`}</section>`;
+  const nextMarkup = `<section class="fitment-ai-next"><header><div><small>${uiLabel('What to complete next')}</small><strong>${esc(nextQuestion)}</strong></div><b>${blockingFields.length}</b></header>${priorityQuestions.length > 1 ? `<ol>${priorityQuestions.slice(1).map(item => `<li>${esc(item)}</li>`).join('')}</ol>` : ''}<footer class="fitment-ai-apply"><div><strong>${ai.applied ? uiLabel('Recognized parts recorded') : uiLabel('Confirm the recognized component families')}</strong><span>${ai.applied ? formatUiLabel('{count} measurements remain; production evidence can be added later.', { count: blockingFields.length }) : formatUiLabel('{count} component candidates are ready to confirm.', { count: matchedCount })}</span></div><button type="button" class="btn btn-primary btn-small" data-action="fitment-ai-apply">${icons.shield}<span>${ai.applied ? uiLabel('Continue to measurements') : uiLabel('Confirm matches')}</span>${icons.arrowRight}</button></footer></section>`;
+  const technicalMarkup = matches.length || result?.reference_plan ? `<details class="fitment-ai-technical"><summary><span>${icons.shield}</span><div><strong>${uiLabel('Matched component data')}</strong><small>${matchedCount} ${uiLabel('Matched component data')} · ${uiLabel('Wheel calculation starting point')}</small></div><b>${icons.chevron}</b></summary><div class="fitment-ai-technical-body">${matches.length ? `<section class="fitment-ai-matches"><h4>${uiLabel('Matched component data')}</h4><div>${matches.map(fitmentAiMatchedPartMarkup).join('')}</div></section>` : ''}${result?.reference_plan ? fitmentAiReferenceMarkup(result.reference_plan) : ''}</div></details>` : '';
+  const evidenceItems = [...productionFields.map(item => item.reason || item.prompt).filter(Boolean), ...cautions];
+  const evidenceMarkup = evidenceItems.length ? `<details class="fitment-ai-evidence"><summary><span>${icons.shield}</span><div><strong>${uiLabel('Production verification — add later')}</strong><small>${productionFields.length} ${uiLabel('production checks')}</small></div><b>${icons.chevron}</b></summary><ul>${[...new Set(evidenceItems)].map(item => `<li>${esc(item)}</li>`).join('')}</ul></details>` : '';
+  const resultMarkup = result ? `<div class="fitment-ai-result" aria-live="polite"><div class="fitment-ai-result-head"><span>${icons.search}</span><div><small>${uiLabel('AI parameter lookup')}</small><strong>${esc(result.summary || uiLabel('Calculation inputs found'))}</strong></div><b><span>${matchedCount}</span>${uiLabel('Component candidates')}</b></div><div class="fitment-ai-priority">${factsMarkup}${nextMarkup}</div>${technicalMarkup}${evidenceMarkup}</div>` : '';
+  const intakeHead = `<div class='fitment-ai-intake-head'><span>${icons.spark}</span><div><small>${uiLabel('AI parameter lookup')}</small><h3>${uiLabel('Describe the vehicle changes. AI will look up the related parameters.')}</h3><p>${uiLabel('Enter the installed brake, rotor, suspension, ride height or measurements you know. AI will match the vehicle and component library, then prepare a wheel-size starting point for the calculator.')}</p></div></div>`;
+  const intakeFields = `<label><span>${uiLabel('Installed parts and measurement notes')}</span><textarea name='modification_notes' rows='4' placeholder='${esc(uiLabel('Describe installed parts, ride height and known measurements…'))}'>${fitmentDraftValue('modification_notes')}</textarea></label><div class='fitment-ai-intake-actions'><p>${icons.shield} ${uiLabel('AI looks up reference data and fills confirmed inputs. Final width, ET and tire are calculated from the remaining measurements.')}</p><button type='button' class='btn btn-dark fitment-ai-lookup-button ${ai.loading ? 'is-loading' : ''}' data-action='fitment-ai-interpret' aria-busy='${ai.loading}' ${ai.loading ? 'disabled' : ''}>${ai.loading ? '<span class="fitment-ai-spinner" aria-hidden="true"><i></i></span>' : icons.search}<span>${ai.loading ? uiLabel('Searching vehicle and component data…') : uiLabel('Search parameters with AI')}</span></button></div>${ai.error ? `<p class='fitment-ai-error'>${esc(ai.error)}</p>` : ''}`;
+  const editorMarkup = result ? `<details class='fitment-ai-query-editor'><summary><span>${icons.search}</span><div><strong>${uiLabel('Workshop note used for this lookup')}</strong><small>${esc(String(state.fitment.draft?.modification_notes || '').slice(0, 120))}</small></div><b>${uiLabel('Edit and search again')}</b></summary><div>${intakeFields}</div></details>` : intakeFields;
+  const intakeBody = `${intakeHead}${editorMarkup}${resultMarkup}`;
+  if (ai.applied) return `<details class='fitment-ai-intake is-applied'><summary class='fitment-ai-applied-summary'><span>${icons.shield}</span><div><small>${uiLabel('AI intake completed')}</small><strong>${esc(result?.summary || uiLabel('Recognized parts recorded'))}</strong></div><b>${uiLabel('View or edit analysis')}</b></summary><div class='fitment-ai-intake-body'>${intakeBody}</div></details>`;
+  return `<section class='fitment-ai-intake'>${intakeBody}</section>`;
 }
 
 function fitmentAxleTabsMarkup(activeAxle = 'front') {
@@ -3990,15 +4819,44 @@ function fitmentTargetFields(axle = 'front') {
 }
 
 function fitmentAiComponentDetailsMarkup() {
-  const row = (key, label, placeholder) => `<div class="fitment-ai-component-row"><label><span>${label}</span><input name="${key}_detail" value="${fitmentDraftValue(`${key}_detail`)}" placeholder="${esc(placeholder)}"></label><label${fitmentAiFieldClass(`${key}_part_number`)}><span>${uiLabel('Model or part number')}</span><input name="${key}_part_number" value="${fitmentDraftValue(`${key}_part_number`)}" placeholder="${esc(uiLabel('Model or part number'))}">${fitmentAiFieldHint(`${key}_part_number`)}</label></div>`;
-  return `<details class="fitment-flow-advanced fitment-ai-component-details" ${state.fitment.ai?.applied ? 'open' : ''}><summary><span>${icons.chevron}</span><div><strong>${uiLabel('Component model / part number details')}</strong><small>${uiLabel('AI lookup is a starting point, not installation approval. Exact component drawings and physical clearance remain required before production.')}</small></div></summary><div>${row('front_brake', uiLabel('Front caliper description'), 'Brembo GT 6-piston')}${row('rear_brake', uiLabel('Rear caliper description'), 'Brembo GT 4-piston')}${row('front_rotor', uiLabel('Front rotor description'), '380 x 34 mm')}${row('rear_rotor', uiLabel('Rear rotor description'), '355 x 28 mm')}${row('suspension', uiLabel('Suspension description'), 'KW Variant 3')}</div></details>`;
+  const definitions = [
+    ['front_brake', 'front_brake_id', uiLabel('Front brake kit / caliper')],
+    ['rear_brake', 'rear_brake_id', uiLabel('Rear brake kit / caliper')],
+    ['front_rotor', 'front_rotor_id', uiLabel('Front brake rotor')],
+    ['rear_rotor', 'rear_rotor_id', uiLabel('Rear brake rotor')],
+    ['suspension', 'suspension_id', uiLabel('Suspension / coilover')]
+  ];
+  const draft = state.fitment.draft || {};
+  const rows = definitions.map(([key, idField, label]) => {
+    const detail = String(draft[`${key}_detail`] || state.fitment.ai?.result?.extracted?.[key] || '').trim();
+    const partNumber = String(draft[`${key}_part_number`] || '').trim();
+    const selected = fitmentPartRecord(draft[idField]);
+    const pending = fitmentAiProductionRecord(`${key}_part_number`);
+    if (!detail && !partNumber && !selected && !pending) return '';
+    const identity = detail || fitmentPartLabel(selected, key === 'suspension' ? 'suspension' : key.includes('rotor') ? 'rotor' : 'brake');
+    return `<article class='fitment-production-record'><input type='hidden' name='${key}_detail' value='${esc(detail)}'><div><small>${label}</small><strong>${esc(identity)}</strong><span>${selected ? esc(fitmentPartLabel(selected)) : uiLabel('Recognized from workshop notes')}</span></div><label><span>${uiLabel('Exact manufacturer kit code')}</span><small>${uiLabel('Optional now — required only before production approval')}</small><input name='${key}_part_number' value='${esc(partNumber)}' placeholder='${esc(uiLabel('Enter the marking on the caliper, rotor or kit label'))}'></label></article>`;
+  }).filter(Boolean);
+  if (!rows.length) return '';
+  return `<details class='fitment-flow-advanced fitment-ai-component-details fitment-production-details'><summary><span>${icons.chevron}</span><div><strong>${uiLabel('Production verification — add later')}</strong><small>${uiLabel('The recognized description is already saved. Add an exact code or template only when preparing the production drawing.')}</small></div><b>${rows.length}</b></summary><div>${rows.join('')}</div></details>`;
+}
+
+function fitmentInstalledPartsMarkup() {
+  const draft = state.fitment.draft || {};
+  const secondarySelected = ['front_rotor_id', 'rear_rotor_id', 'suspension_id'].filter(name => String(draft[name] || '').trim()).length;
+  const secondaryOpen = secondarySelected > 0 || ['front_rotor', 'rear_rotor', 'suspension'].some(key => state.fitment.ai?.result?.extracted?.[key]);
+  return `<section class='fitment-installed-workspace'><header><div><small>${uiLabel('Installed hardware')}</small><h3>${uiLabel('Confirm the parts, not the same text twice.')}</h3></div><p>${uiLabel('AI candidates are recorded when you confirm them. Search only when a suggestion needs correction.')}</p></header><div class='fitment-installed-primary'>${fitmentPartPickerMarkup({ name: 'front_brake_id', type: 'brake', label: uiLabel('Front brake kit / caliper'), selected: draft.front_brake_id })}${fitmentPartPickerMarkup({ name: 'rear_brake_id', type: 'brake', label: uiLabel('Rear brake kit / caliper'), selected: draft.rear_brake_id })}</div><details class='fitment-installed-secondary' ${secondaryOpen ? 'open' : ''}><summary><span>${icons.chevron}</span><div><strong>${uiLabel('Rotors, suspension and ride height')}</strong><small>${uiLabel('Open only when these parts or measurements changed.')}</small></div><b>${secondarySelected}</b></summary><div class='fitment-installed-secondary-grid'>${fitmentPartPickerMarkup({ name: 'front_rotor_id', type: 'rotor', label: uiLabel('Front brake rotor'), selected: draft.front_rotor_id })}${fitmentPartPickerMarkup({ name: 'rear_rotor_id', type: 'rotor', label: uiLabel('Rear brake rotor'), selected: draft.rear_rotor_id })}${fitmentPartPickerMarkup({ name: 'suspension_id', type: 'suspension', label: uiLabel('Suspension / coilover'), selected: draft.suspension_id })}<label${fitmentAiFieldClass('ride_height_drop_mm')}><span>${uiLabel('Current ride-height drop (mm)')}</span><small>${uiLabel('Use the measured drop; leave blank for factory height.')}</small><input name='ride_height_drop_mm' type='number' step='1' min='0' value='${fitmentDraftValue('ride_height_drop_mm')}' placeholder='0'>${fitmentAiFieldHint('ride_height_drop_mm')}</label><label><span>${uiLabel('Current stance / ride-height profile')}</span><select name='stance_profile'><option value='oem' ${draft.stance_profile === 'oem' ? 'selected' : ''}>${uiLabel('Factory original / exact trim')}</option><option value='lowered' ${draft.stance_profile === 'lowered' ? 'selected' : ''}>${uiLabel('Lowered street')}</option><option value='static-low' ${draft.stance_profile === 'static-low' ? 'selected' : ''}>${uiLabel('Static low / stance')}</option><option value='air-low' ${draft.stance_profile === 'air-low' ? 'selected' : ''}>${uiLabel('Air suspension low')}</option><option value='track' ${draft.stance_profile === 'track' ? 'selected' : ''}>${uiLabel('Track alignment')}</option></select></label></div></details></section>`;
+}
+
+function fitmentWorkshopCalibrationMarkup() {
+  const draft = state.fitment.draft || {};
+  return `<details class='fitment-flow-advanced'><summary><span>${icons.chevron}</span><div><strong>${uiLabel('Shop experience and calibration')}</strong><small>${uiLabel('Experience is useful as a starting point. Production lock still follows the exact vehicle, current modifications, tire approval and measured clearance.')}</small></div></summary><div class='fitment-flow-fields fitment-flow-fields-two'><label><span>${uiLabel('Candidate specification source')}</span><select name='calibration_basis'><option value='current_vehicle_measured' ${draft.calibration_basis === 'current_vehicle_measured' ? 'selected' : ''}>${uiLabel('Measured on this vehicle')}</option><option value='same_vehicle_successful_install' ${draft.calibration_basis === 'same_vehicle_successful_install' ? 'selected' : ''}>${uiLabel('Previous successful install on matching vehicle')}</option><option value='manufacturer_drawing' ${draft.calibration_basis === 'manufacturer_drawing' ? 'selected' : ''}>${uiLabel('Manufacturer drawing / application')}</option><option value='shop_experience' ${draft.calibration_basis === 'shop_experience' ? 'selected' : ''}>${uiLabel('Shop experience candidate')}</option></select></label><label><span>${uiLabel('Reference build / calibration note')}</span><input name='calibration_reference' value='${fitmentDraftValue('calibration_reference')}' placeholder='${esc(uiLabel('Example: 2022 C43, same brakes, 19x9 ET38'))}'></label></div></details>`;
 }
 
 function fitmentWizardStepMarkup(flow) {
   const draft = state.fitment.draft || {};
-  if (flow.step === 1) return `<div class="fitment-flow-step-copy"><small>01</small><h2>${flow.mode === 'style-first' ? uiLabel('Select the starting direction.') : uiLabel('Tell us the job and intended result.')}</h2><p>${flow.mode === 'style-first' ? uiLabel('Pick an existing CIRUI style or upload one reference image. The style still needs its final spoke and barrel drawing check.') : uiLabel('These choices control which safety margins and questions the calculator uses.')}</p></div>${flow.mode === 'style-first' ? fitmentStylePickerMarkup() : ''}<div class="fitment-flow-fields"><label><span>${uiLabel('Project name')}</span><input name="project_title" value="${esc(draft.project_title || '')}" placeholder="C43 street setup"></label><label><span>${uiLabel('Customer reference')}</span><input name="customer_reference" value="${esc(draft.customer_reference || '')}" placeholder="Chris / ticket 024"></label><label><span>${uiLabel('How will you use it?')}</span><select name="usage"><option value="street" ${draft.usage === 'street' ? 'selected' : ''}>${uiLabel('Daily street')}</option><option value="spirited" ${draft.usage === 'spirited' ? 'selected' : ''}>${uiLabel('Spirited road')}</option><option value="show" ${draft.usage === 'show' ? 'selected' : ''}>${uiLabel('Show / stance')}</option><option value="track" ${draft.usage === 'track' ? 'selected' : ''}>${uiLabel('Track / competition')}</option></select></label><label><span>${uiLabel('Desired installed result')}</span><select name="fitment_goal"><option value="oem_safe" ${draft.fitment_goal === 'oem_safe' ? 'selected' : ''}>${uiLabel('OEM-safe street')}</option><option value="flush_street" ${draft.fitment_goal === 'flush_street' ? 'selected' : ''}>${uiLabel('Flush street')}</option><option value="performance" ${draft.fitment_goal === 'performance' ? 'selected' : ''}>${uiLabel('Performance / track')}</option><option value="show" ${draft.fitment_goal === 'show' ? 'selected' : ''}>${uiLabel('Show / low stance')}</option></select></label></div>`;
-  if (flow.step === 2) return `<div class="fitment-flow-step-copy"><small>02</small><h2>${uiLabel('Identify the exact vehicle.')}</h2><p>${uiLabel('Use the VIN or manufacturer build record when trim, market or factory options are uncertain.')}</p></div>${fitmentVehicleSelector()}${fitmentVehicleReferenceMarkup()}<div class="fitment-flow-fields fitment-flow-fields-two"><label><span>${uiLabel('VIN / build reference (optional)')}</span><input name="vin_reference" value="${fitmentDraftValue('vin_reference')}" autocomplete="off" placeholder="VIN / build sheet"></label></div>`;
-  if (flow.step === 3) return `<div class="fitment-flow-step-copy"><small>03</small><h2>${uiLabel('Record what is installed now.')}</h2><p>${uiLabel('Factory parts are valid choices. Modified parts should use the exact brand, model and part number whenever possible.')}</p></div>${fitmentAiNotesMarkup()}<div class="fitment-flow-fields"><label${fitmentAiFieldClass('front_brake_id')}><span>${uiLabel('Front brake kit / caliper')}</span><select name="front_brake_id">${fitmentPartOptions('brake', draft.front_brake_id)}</select>${fitmentAiFieldHint('front_brake_id')}</label><label${fitmentAiFieldClass('rear_brake_id')}><span>${uiLabel('Rear brake kit / caliper')}</span><select name="rear_brake_id">${fitmentPartOptions('brake', draft.rear_brake_id)}</select>${fitmentAiFieldHint('rear_brake_id')}</label><label><span>${uiLabel('Front brake rotor')}</span><select name="front_rotor_id">${fitmentPartOptions('rotor', draft.front_rotor_id)}</select></label><label><span>${uiLabel('Rear brake rotor')}</span><select name="rear_rotor_id">${fitmentPartOptions('rotor', draft.rear_rotor_id)}</select></label><label${fitmentAiFieldClass('suspension_id')}><span>${uiLabel('Suspension / coilover')}</span><select name="suspension_id">${fitmentPartOptions('suspension', draft.suspension_id)}</select>${fitmentAiFieldHint('suspension_id')}</label><label${fitmentAiFieldClass('ride_height_drop_mm')}><span>${uiLabel('Current ride-height drop (mm)')}</span><input name="ride_height_drop_mm" type="number" step="1" min="0" value="${fitmentDraftValue('ride_height_drop_mm')}" placeholder="0">${fitmentAiFieldHint('ride_height_drop_mm')}</label><label><span>${uiLabel('Current stance / ride-height profile')}</span><select name="stance_profile"><option value="oem" ${draft.stance_profile === 'oem' ? 'selected' : ''}>${uiLabel('Factory original / exact trim')}</option><option value="lowered" ${draft.stance_profile === 'lowered' ? 'selected' : ''}>${uiLabel('Lowered street')}</option><option value="static-low" ${draft.stance_profile === 'static-low' ? 'selected' : ''}>${uiLabel('Static low / stance')}</option><option value="air-low" ${draft.stance_profile === 'air-low' ? 'selected' : ''}>${uiLabel('Air suspension low')}</option><option value="track" ${draft.stance_profile === 'track' ? 'selected' : ''}>${uiLabel('Track alignment')}</option></select></label></div>${fitmentAiComponentDetailsMarkup()}<details class="fitment-flow-advanced"><summary><span>${icons.chevron}</span><div><strong>${uiLabel('Shop experience and calibration')}</strong><small>${uiLabel('Experience is useful as a starting point. Production lock still follows the exact vehicle, current modifications, tire approval and measured clearance.')}</small></div></summary><div class="fitment-flow-fields fitment-flow-fields-two"><label><span>${uiLabel('Candidate specification source')}</span><select name="calibration_basis"><option value="current_vehicle_measured" ${draft.calibration_basis === 'current_vehicle_measured' ? 'selected' : ''}>${uiLabel('Measured on this vehicle')}</option><option value="same_vehicle_successful_install" ${draft.calibration_basis === 'same_vehicle_successful_install' ? 'selected' : ''}>${uiLabel('Previous successful install on matching vehicle')}</option><option value="manufacturer_drawing" ${draft.calibration_basis === 'manufacturer_drawing' ? 'selected' : ''}>${uiLabel('Manufacturer drawing / application')}</option><option value="shop_experience" ${draft.calibration_basis === 'shop_experience' ? 'selected' : ''}>${uiLabel('Shop experience candidate')}</option></select></label><label><span>${uiLabel('Reference build / calibration note')}</span><input name="calibration_reference" value="${fitmentDraftValue('calibration_reference')}" placeholder="2022 C43, same brakes, 19x9 ET38"></label></div></details>`;
+  if (flow.step === 1) return `<div class="fitment-flow-step-copy"><small>01</small><h2>${flow.mode === 'style-first' ? uiLabel('Select the starting direction.') : uiLabel('Tell us the job and intended result.')}</h2><p>${flow.mode === 'style-first' ? uiLabel('Pick an existing CIRUI style or upload one reference image. The style still needs its final spoke and barrel drawing check.') : uiLabel('These choices control which safety margins and questions the calculator uses.')}</p></div>${flow.mode === 'style-first' ? fitmentStylePickerMarkup() : ''}<div class="fitment-flow-fields" data-fitment-style-continuation><label><span>${uiLabel('Project name')}</span><input name="project_title" value="${esc(draft.project_title || '')}" placeholder="${esc(uiLabel('Example: C43 street setup'))}"></label><label><span>${uiLabel('Customer reference')}</span><input name="customer_reference" value="${esc(draft.customer_reference || '')}" placeholder="${esc(uiLabel('Example: Chris / ticket 024'))}"></label><label><span>${uiLabel('How will you use it?')}</span><select name="usage"><option value="street" ${draft.usage === 'street' ? 'selected' : ''}>${uiLabel('Daily street')}</option><option value="spirited" ${draft.usage === 'spirited' ? 'selected' : ''}>${uiLabel('Spirited road')}</option><option value="show" ${draft.usage === 'show' ? 'selected' : ''}>${uiLabel('Show / stance')}</option><option value="track" ${draft.usage === 'track' ? 'selected' : ''}>${uiLabel('Track / competition')}</option></select></label><label><span>${uiLabel('Desired installed result')}</span><select name="fitment_goal"><option value="oem_safe" ${draft.fitment_goal === 'oem_safe' ? 'selected' : ''}>${uiLabel('OEM-safe street')}</option><option value="flush_street" ${draft.fitment_goal === 'flush_street' ? 'selected' : ''}>${uiLabel('Flush street')}</option><option value="performance" ${draft.fitment_goal === 'performance' ? 'selected' : ''}>${uiLabel('Performance / track')}</option><option value="show" ${draft.fitment_goal === 'show' ? 'selected' : ''}>${uiLabel('Show / low stance')}</option></select></label>${flow.mode === 'style-first' ? fitmentStyleInlineSummaryMarkup() : ''}</div>`;
+  if (flow.step === 2) return `<div class="fitment-flow-step-copy"><small>02</small><h2>${uiLabel('Identify the exact vehicle.')}</h2><p>${uiLabel('Use the VIN or manufacturer build record when trim, market or factory options are uncertain.')}</p></div>${fitmentVehicleSelector()}${fitmentVehicleReferenceMarkup()}${fitmentVinLookupMarkup()}`;
+  if (flow.step === 3) return `<div class='fitment-flow-step-copy'><small>03</small><h2>${uiLabel('Confirm the installed hardware.')}</h2><p>${uiLabel('AI identifies a component family; the workshop confirms the record. Exact codes and templates are collected later for production approval.')}</p></div>${fitmentAiNotesMarkup()}${fitmentInstalledPartsMarkup()}${fitmentAiComponentDetailsMarkup()}${fitmentWorkshopCalibrationMarkup()}`;
   if (flow.step === 4) return `<div class="fitment-flow-step-copy"><small>04</small><h2>${uiLabel('Measure one axle at a time.')}</h2><p>${uiLabel('Switch between front and rear. Values are saved immediately while you work.')}</p></div>${fitmentCurrentMeasureFields(flow.axle)}`;
   const vehicle = state.fitment.vehicle || {};
   const vehicleLabel = [vehicle.year, vehicle.make, vehicle.model, vehicle.trim, vehicle.drive].filter(Boolean).join(' ') || uiLabel('Vehicle not selected');
@@ -4226,9 +5084,13 @@ function partnerAttributionBar() {
   return `<div class="partner-attribution"><div class="container"><div class="partner-attribution-copy"><span>${icons.shield} ${uiLabel('Partner-protected build')}</span><strong>${esc(referral.shop_name || uiLabel('CIRUI workshop partner'))}</strong><small>${uiLabel('Design, inquiry and order activity remains attributed to this shop.')}</small></div><div class="partner-attribution-actions"><a href="/build/${encodeURIComponent(referral.share_token)}" data-app-path>${uiLabel('Return to shared build')} ${icons.arrowRight}</a><button type="button" class="partner-attribution-clear" data-action="partner-referral-clear-open" title="${esc(uiLabel('Remove partner attribution'))}" aria-label="${esc(uiLabel('Remove partner attribution'))}">${icons.close}</button></div></div></div>`;
 }
 
-function header() {
-  const active = state.route.name === 'store' ? 'SHOP' : state.route.name === 'about' ? 'ABOUT' : ['blog', 'blog-post'].includes(state.route.name) ? 'JOURNAL' : ['fitment', 'fitment-result', 'fitment-share'].includes(state.route.name) ? 'FITMENT' : state.route.name === 'account' ? 'ACCOUNT' : '';
+function localeControlMarkup(className = 'locale-control') {
   const localeValue = state.localeMode === 'manual' ? state.locale : 'auto';
+  return `<label class="${esc(className)}"><span>${uiLabel('Language')}</span><select class="locale-select" data-locale aria-label="${esc(uiLabel('Language selection'))}"><option value="auto" ${localeValue === 'auto' ? 'selected' : ''}>${uiLabel('Automatic')} · ${localeLabel(state.locale)}</option>${localeOptions.map(([code, label]) => `<option value="${code}" ${localeValue === code ? 'selected' : ''}>${label}</option>`).join('')}</select></label>`;
+}
+
+function header() {
+  const active = state.route.name === 'store' ? 'SHOP' : state.route.name === 'about' ? 'ABOUT' : state.route.name === 'custom' ? 'CUSTOM' : state.route.name === 'trade' ? 'TRADE' : ['blog', 'blog-post'].includes(state.route.name) ? 'JOURNAL' : ['fitment', 'fitment-result', 'fitment-share'].includes(state.route.name) ? 'FITMENT' : state.route.name === 'account' ? 'ACCOUNT' : '';
   const attribution = partnerAttributionBar();
   return `<div class="global-header-stack${attribution ? ' has-partner-attribution' : ''}"><div class="announcement">${uiLabel('CIRUI source factory')} · <span>${uiLabel('DDP delivery available')}</span> · ${uiLabel('Target production + transport in about 30 business days')}</div>${attribution}
   <header class="site-header">
@@ -4237,32 +5099,43 @@ function header() {
       <form class="search-bar" data-form="search">${icons.search}<input name="query" value="${esc(state.search)}" placeholder="${esc(uiLabel('Search wheels, vehicle fitment, finishes...'))}" aria-label="${esc(uiLabel('Search products'))}" /></form>
       <div class="header-actions">
         <button class="header-action ${active === 'ACCOUNT' ? 'is-active' : ''}" data-action="account">${icons.user}<span>${state.account?.username ? esc(state.account.username) : uiLabel('My Account')}</span></button>
-        <button class="header-action" data-action="cart">${icons.cart}<span>${uiLabel('Cart')}</span><b class="cart-count">${cartCount()}</b></button>
-        <label class="locale-control"><span>${uiLabel('Language')}</span><select class="locale-select" data-locale aria-label="${esc(uiLabel('Language selection'))}"><option value="auto" ${localeValue === 'auto' ? 'selected' : ''}>Auto · ${localeLabel(state.locale)}</option>${localeOptions.map(([code, label]) => `<option value="${code}" ${localeValue === code ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
-        <button class="hamburger ${state.mobileNav ? 'is-open' : ''}" data-action="mobile-nav" aria-expanded="${state.mobileNav}" aria-controls="primary-navigation" aria-label="${esc(uiLabel(state.mobileNav ? 'Close' : 'Open navigation'))}">${state.mobileNav ? icons.close : icons.menu}</button>
+        <button class="header-action" data-action="cart">${icons.cart}<span>${uiLabel('RFQ list')}</span><b class="cart-count">${cartCount()}</b></button>
+        ${localeControlMarkup('locale-control desktop-locale-control')}
+        <button class="hamburger ${state.mobileNav ? 'is-open' : ''}" data-action="mobile-nav" aria-expanded="${state.mobileNav}" aria-controls="primary-navigation" aria-label="${esc(uiLabel(state.mobileNav ? 'Close navigation' : 'Open navigation'))}">${state.mobileNav ? icons.close : icons.menu}</button>
       </div>
     </div>
     <div class="nav-row ${state.mobileNav ? 'is-open' : ''}" id="primary-navigation">
       <div class="container nav-inner">
-        <nav class="nav-links">
+        <nav class="nav-links" aria-label="${esc(uiLabel('Navigation'))}">
           <div class="nav-shop">
-            <button class="nav-link nav-shop-toggle ${active === 'SHOP' ? 'is-active' : ''}" data-action="mega" aria-expanded="${state.menuOpen}" aria-controls="shop-catalog-menu"><span>${uiLabel('Shop')}</span><span class="nav-shop-toggle-visual" aria-hidden="true"><span class="nav-shop-mobile-symbol">${state.menuOpen ? '−' : '+'}</span><span class="nav-shop-desktop-chevron">${icons.chevron}</span></span></button>
+            <button class="nav-link nav-shop-toggle ${active === 'SHOP' ? 'is-active' : ''}" data-action="mega" aria-expanded="${state.menuOpen}" aria-controls="shop-catalog-menu"><span>${uiLabel('Forged wheels')}</span><span class="nav-shop-toggle-visual" aria-hidden="true"><span class="nav-shop-mobile-symbol">${state.menuOpen ? '−' : '+'}</span><span class="nav-shop-desktop-chevron">${icons.chevron}</span></span></button>
             ${state.menuOpen ? megaMenu() : ''}
           </div>
           <a class="nav-link ${active === 'FITMENT' ? 'is-active' : ''}" href="/fitment-lab" data-app-path>${uiLabel('Fitment Lab')}</a>
-          <a class="nav-link" href="#home#vehicles">${uiLabel('Shop by vehicle')}</a>
-          <a class="nav-link ${active === 'ABOUT' ? 'is-active' : ''}" href="#about">${uiLabel('About CIRUI')}</a>
-          <a class="nav-link" href="#home#engineering">${uiLabel('Engineering')}</a>
+          <a class="nav-link ${active === 'CUSTOM' ? 'is-active' : ''}" href="#custom">${uiLabel('Customization')}</a>
+          <a class="nav-link ${active === 'ABOUT' ? 'is-active' : ''}" href="#about">${uiLabel('Factory')}</a>
+          <a class="nav-link ${active === 'TRADE' ? 'is-active' : ''}" href="#trade">${uiLabel('Trade & DDP')}</a>
           <a class="nav-link ${active === 'JOURNAL' ? 'is-active' : ''}" href="#blog">${uiLabel('Journal')}</a>
         </nav>
+        <div class="mobile-nav-utilities">
+          ${localeControlMarkup('mobile-locale-control')}
+          <div class="mobile-nav-shortcuts">
+            <button type="button" class="mobile-nav-shortcut" data-action="account">${icons.user}<span>${state.account?.username ? esc(state.account.username) : uiLabel('My Account')}</span></button>
+            <button type="button" class="mobile-nav-shortcut" data-action="cart">${icons.cart}<span>${uiLabel('RFQ list')}</span><b class="mobile-rfq-count">${cartCount()}</b></button>
+          </div>
+        </div>
         <div class="nav-meta"><span>${uiLabel('Fitment help')}</span><a href="tel:${company.tel}">${company.phone}</a></div>
       </div>
     </div>
   </header></div>`;
 }
 function megaMenu() {
-  const groups = [['Forged wheel catalog', ['Wheels', 'Custom vehicle series', '1-piece forged', '2-piece forged', 'SUV & off-road']], ['Fitment tools', ['Shop by vehicle', 'Fitment guide', 'Brake clearance', 'Vehicle photo preview', 'Wheel offset guide']], ['Custom direction', ['Street builds', 'Show cars', 'Track setups', 'Dealer programs', 'Custom center caps']], ['CIRUI service', ['Meet the factory', 'DDP delivery', 'Track my order', 'Wholesale program', 'Fitment support']]];
-  return `<div class="mega-menu" id="shop-catalog-menu" aria-label="${esc(uiLabel('Shop'))}"><div class="container mega-grid">${groups.map(([title, links]) => `<div class="mega-col"><h3>${title}</h3>${links.map(link => link === 'Track my order' ? `<a href="#home" data-action="orders">${link}</a>` : ['Fitment guide', 'Brake clearance', 'Fitment support'].includes(link) ? `<a href="#fitment" data-action="open-fitment-lab">${link}</a>` : `<a href="#store" data-category-link="${esc(link.includes('Wheels') ? 'Wheels' : link.includes('Calipers') ? 'Calipers' : link.includes('Rotors') ? 'Rotors' : link.includes('Pads') ? 'Brake Pads' : 'All')}">${link}</a>`).join('')}</div>`).join('')}</div></div>`;
+  return `<div class="mega-menu" id="shop-catalog-menu" aria-label="${esc(uiLabel('Forged wheel catalog'))}"><div class="container mega-grid">
+    <div class="mega-col"><h3>${uiLabel('Wheel construction')}</h3><a href="#store" data-action="catalog-collection" data-collection="all">${uiLabel('All forged wheels')}</a><a href="#store" data-action="catalog-collection" data-collection="monoblock">${uiLabel('Monoblock forged')}</a><a href="#store" data-action="catalog-collection" data-collection="two-piece">${uiLabel('2-piece forged')}</a><a href="#store" data-action="catalog-collection" data-collection="aero-floating">${uiLabel('Aero & floating')}</a><a href="#store" data-action="catalog-collection" data-collection="suv-off-road">${uiLabel('SUV & off-road')}</a></div>
+    <div class="mega-col"><h3>${uiLabel('Fitment tools')}</h3><a href="/fitment-lab" data-action="open-fitment-lab" data-fitment-focus="vehicle">${uiLabel('Vehicle fitment')}</a><a href="/fitment-lab" data-action="open-fitment-lab" data-fitment-focus="brakes">${uiLabel('Brake clearance')}</a><a href="#store" data-action="catalog-visualizer">${uiLabel('Vehicle photo visualizer')}</a><a href="/fitment-lab" data-action="open-fitment-lab" data-fitment-focus="offset">${uiLabel('Offset & stance calculator')}</a></div>
+    <div class="mega-col"><h3>${uiLabel('Customization')}</h3><a href="#custom" data-action="custom-section" data-section="finishes">${uiLabel('Finishes & colors')}</a><a href="#custom" data-action="custom-section" data-section="lips">${uiLabel('Lip profiles')}</a><a href="#custom" data-action="custom-section" data-section="caps">${uiLabel('Center caps')}</a><a href="#custom" data-action="custom-section" data-section="hardware">${uiLabel('Hardware options')}</a></div>
+    <div class="mega-col"><h3>${uiLabel('Factory & trade')}</h3><a href="#about">${uiLabel('Meet the factory')}</a><a href="#trade">${uiLabel('DDP Europe & North America')}</a><a href="#trade" data-action="trade-rfq" data-buyer-type="dealer">${uiLabel('Dealer & wholesale')}</a><a href="#home" data-action="orders">${uiLabel('Track my order')}</a><a href="#cart" data-action="cart">${uiLabel('Open RFQ list')}</a></div>
+  </div></div>`;
 }
 
 function fitmentProducts() {
@@ -4275,7 +5148,7 @@ function fitmentProducts() {
   return preferred;
 }
 function renderFitmentProduct(item) {
-  return `<button class="fitment-product spotlight-card" data-action="quick-view" data-id="${item.id}"><span class="fitment-product-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(item.name)}"></span><span class="fitment-product-copy"><small>${item.category}</small><strong>${item.name}</strong><span>${money(item.price)} <em>· ${item.reviews ? `${item.reviews} reviews` : 'No verified reviews yet'}</em></span></span></button>`;
+  return `<button class="fitment-product spotlight-card" data-action="quick-view" data-id="${item.id}"><span class="fitment-product-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(productNameText(item))}"></span><span class="fitment-product-copy"><small>${esc(productCategoryText(item))}</small><strong>${esc(productNameText(item))}</strong><span>${productPriceText(item)} <em>· ${item.reviews ? formatUiLabel('{count} reviews', { count: item.reviews }) : uiLabel('No verified reviews yet')}</em></span></span></button>`;
 }
 function fitmentPreview() {
   if (!state.vehicle?.trim) return '';
@@ -4397,7 +5270,7 @@ function premiumGlobalHomePage() {
           <ul><li><strong>${uiLabel('Custom forged design')}</strong><span>${uiLabel('Made to your numbers')}</span></li><li><strong>${uiLabel('Design · forge · machine · finish')}</strong><span>${uiLabel('Diameter, width, PCD, ET, CB and brake clearance.')}</span></li><li><strong>${uiLabel('Preview before production')}</strong><span>${uiLabel('See it on your car before production')}</span></li></ul>
           <a class="btn btn-primary" href="#about">${uiLabel('Meet the factory')}</a>
         </div>
-        <div class="premium-engineering-media">${factoryProof.map(([image, title, meta], index) => `<figure class="${index === 0 ? 'is-primary' : ''}"><img src="${assetUrl(`cerui/${image}`)}" alt="${esc(`CIRUI ${uiLabel(title)}`)}" loading="lazy" decoding="async"><figcaption><span>0${index + 1}</span><div><strong>${uiLabel(title)}</strong><small>${uiLabel(meta)}</small></div></figcaption></figure>`).join('')}</div>
+        <div class="premium-engineering-media">${factoryProof.map(([image, title, meta], index) => `<figure class="${index === 0 ? 'is-primary' : ''}"><img src="${assetUrl(`cerui/${image}`)}" alt="${esc(`CIRUI ${uiLabel(title)}`)}" loading="eager" decoding="async" fetchpriority="low"><figcaption><span>0${index + 1}</span><div><strong>${uiLabel(title)}</strong><small>${uiLabel(meta)}</small></div></figcaption></figure>`).join('')}</div>
       </div>
     </section>
 
@@ -4525,11 +5398,81 @@ function iconForCategory(type) {
   return icons.spark;
 }
 
+const catalogCollections = {
+  all: {
+    label: 'All forged wheels',
+    eyebrow: 'CIRUI FORGED CATALOG',
+    title: 'Choose the design. We build the exact specification.',
+    copy: 'Every public wheel below is a made-to-order forged direction. Vehicle, brake package, finish and destination are confirmed before the production drawing is released.'
+  },
+  monoblock: {
+    label: 'Monoblock forged',
+    eyebrow: 'ONE-PIECE CONSTRUCTION',
+    title: 'Monoblock forged wheels.',
+    copy: 'Single-piece forged directions for performance, road and luxury builds. Final load target, profile and fitment remain vehicle-specific.'
+  },
+  'two-piece': {
+    label: '2-piece forged',
+    eyebrow: 'MODULAR CONSTRUCTION',
+    title: '2-piece forged wheels.',
+    copy: 'Separate center and barrel/lip directions for deeper profiles and more finish combinations. Visible classifications are verified again on the approved drawing.'
+  },
+  'aero-floating': {
+    label: 'Aero & floating',
+    eyebrow: 'AERO DESIGN COLLECTION',
+    title: 'Aero and floating-cap directions.',
+    copy: 'Full-face, turbine and floating-cap ideas for modern luxury and EV builds. The base construction is confirmed during engineering review.'
+  },
+  'suv-off-road': {
+    label: 'SUV & off-road',
+    eyebrow: 'LOAD-LED APPLICATIONS',
+    title: 'SUV and off-road directions.',
+    copy: 'Wheel directions organized around vehicle load, tire envelope and terrain use. Beadlock-style appearance never replaces the final engineering specification.'
+  }
+};
+
+function productConstructionLabel(item) {
+  return ({ 'monoblock': 'Monoblock', 'two-piece': '2-piece', 'unknown': 'Confirm with drawing' })[item?.construction] || 'Confirm with drawing';
+}
+function productClassificationLabel(item) {
+  return ({ confirmed: 'Confirmed specification', 'visual-inference': 'Classified from supplied views', 'needs-confirmation': 'Engineering confirmation required' })[item?.classification_status] || 'Engineering confirmation required';
+}
+function productDesignLabel(item) {
+  const value = String(item?.design_family || 'custom').replace(/-/g, ' ');
+  return value.replace(/\b\w/g, letter => letter.toUpperCase());
+}
+function publicForgedProducts() {
+  return products.filter(item => item
+    && item.category === 'Wheels'
+    && item.status !== 'draft'
+    && item.status !== 'archived'
+    && item.public_scope !== false
+    && !item.vehicle_label
+    && !String(item.id || '').startsWith('cerui-'));
+}
+function productMatchesCollection(item, collection = state.filters.collection) {
+  if (!collection || collection === 'all') return true;
+  if (collection === 'monoblock' || collection === 'two-piece') return item.construction === collection;
+  if (collection === 'aero-floating') return item.design_family === 'aero-disc' || (item.applications || []).includes('aero-floating');
+  if (collection === 'suv-off-road') return item.design_family === 'off-road' || (item.applications || []).includes('suv-off-road');
+  return true;
+}
+function setCatalogCollection(collection = 'all') {
+  state.filters.category = 'Wheels';
+  state.filters.collection = catalogCollections[collection] ? collection : 'all';
+  state.filters.application = 'all';
+  state.search = '';
+}
+
 function filterProducts() {
-  let list = products.filter(item => {
+  let list = publicForgedProducts().filter(item => {
     const f = state.filters;
     const query = state.search.trim().toLowerCase();
-    return (f.category === 'All' || item.category === f.category) && (!f.saleOnly || item.oldPrice) && (f.finish === 'All' || item.finish === f.finish) && (f.diameter === 'All' || String(item.diameter) === String(f.diameter)) && (!f.minPrice || item.price >= Number(f.minPrice)) && (!f.maxPrice || item.price <= Number(f.maxPrice)) && item.rating >= Number(f.minRating) && (!query || [item.name, item.brand, item.category, item.meta, productSizeNote(item)].join(' ').toLowerCase().includes(query));
+    const applicationMatch = !f.application || f.application === 'all' || (item.applications || []).includes(f.application) || item.design_family === f.application;
+    return productMatchesCollection(item, f.collection)
+      && applicationMatch
+      && (f.finish === 'All' || item.finish === f.finish)
+      && (!query || [item.catalog_display_name, item.name, item.brand, item.part, item.meta, item.construction, item.design_family, item.spoke_style, ...(item.applications || []), productSizeNote(item)].join(' ').toLowerCase().includes(query));
   });
   if (state.sort === 'latest') {
     list.sort((left, right) => {
@@ -4550,14 +5493,50 @@ function filterProducts() {
 }
 function renderProductCard(item) {
   const saved = state.wishlist.includes(item.id);
-  return `<article class="product-card spotlight-card reveal"><div class="product-media">${item.badge ? `<span class="product-badge ${item.badge === 'Sale' ? 'alt' : ''}">${uiLabel(item.badge)}</span>` : ''}<div class="product-actions"><button class="icon-btn ${saved ? 'is-saved' : ''}" data-action="wishlist" data-id="${item.id}" aria-label="${esc(uiLabel('Save product'))}">${icons.heart}</button><button class="icon-btn" data-action="quick-view" data-id="${item.id}" aria-label="${esc(uiLabel('Quick view'))}">${icons.eye}</button></div><img class="product-image ${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(item.name)} ${esc(item.finish)}" loading="lazy"></div><div class="product-body"><div class="product-brand">${item.brand}</div><h3 class="product-title">${item.name}</h3><div class="product-meta">${productMetaText(item)}</div><div class="rating-row">${productRatingMarkup(item)}</div><div class="product-deal">${uiLabel(item.deal || 'Availability managed by CIRUI')}</div><div class="price-row"><div><span class="price">${money(item.price)} <small>${uiLabel('/ ea')}</small></span>${item.oldPrice ? `<span class="was-price">${money(item.oldPrice)}</span>` : ''}</div><span class="muted" style="font-size:10px">${uiLabel(item.category)}</span></div><div class="product-cta"><a class="btn btn-outline btn-small" href="#product/${item.id}">${uiLabel('Details')}</a><button class="btn btn-primary btn-small" data-action="add" data-id="${item.id}">${uiLabel('Add')}</button></div></div></article>`;
+  const structureClass = item.construction === 'two-piece' ? 'is-two-piece' : item.construction === 'monoblock' ? 'is-monoblock' : 'is-pending';
+  return `<article class="product-card forged-product-card spotlight-card reveal"><div class="product-media"><span class="product-badge ${structureClass}">${uiLabel(productConstructionLabel(item))}</span><div class="product-actions"><button class="icon-btn ${saved ? 'is-saved' : ''}" data-action="wishlist" data-id="${item.id}" aria-label="${esc(uiLabel('Save product'))}">${icons.heart}</button><button class="icon-btn" data-action="quick-view" data-id="${item.id}" aria-label="${esc(uiLabel('Quick view'))}">${icons.eye}</button></div><img class="product-image ${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(productNameText(item))} ${esc(productFinishText(item))}" loading="lazy"></div><div class="product-body"><div class="product-brand">${esc(item.part || 'CIRUI FORGED')} · ${esc(productDesignLabel(item))}</div><h3 class="product-title">${esc(productNameText(item))}</h3><div class="product-meta">${uiLabel(productConstructionLabel(item))} · ${uiLabel(productDesignLabel(item))}</div><div class="catalog-proof-row"><span>${icons.shield}${uiLabel(productClassificationLabel(item))}</span><span>${uiLabel('MOQ')} ${productMinimumQuantity(item)}</span></div><div class="product-deal">${uiLabel('DDP quote available · Europe & North America')}</div><div class="price-row"><div><span class="price">${productPriceText(item)} <small>${uiLabel('reference / wheel')}</small></span></div><span class="muted" style="font-size:10px">${uiLabel('Made to order')}</span></div><div class="product-cta"><a class="btn btn-outline btn-small" href="#product/${item.id}">${uiLabel('View details')}</a><button class="btn btn-primary btn-small" data-action="add" data-id="${item.id}">${uiLabel('Add to RFQ')}</button></div></div></article>`;
 }
 
-function storePage() {
+function legacyStorePage() {
   const list = filterProducts();
   const fitmentBanner = state.vehicle?.trim ? `<div class="fitment-match-banner"><div><p class="eyebrow">Fitment context</p><strong>${esc(currentVehicleLabel())}</strong><span>Products below are shown with the selected vehicle context.</span></div><button class="btn btn-outline btn-small" data-action="change-vehicle">Change vehicle</button></div>` : '';
   return `<section class="store-hero"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>${state.filters.category === 'All' ? 'Performance parts' : state.filters.category}</span></div><h1>${state.filters.category === 'All' ? 'All performance parts' : state.filters.category}</h1><p class="muted">Fitment-first shopping for wheels, calipers, rotors and pads. Prices, stock and product status are managed by the CIRUI catalog.</p></div></section>
 <main class="container store-layout"><aside class="filter-rail"><div class="filter-head"><strong>Filter with CIRUI AI</strong><span>Describe the look or setup you want. We will narrow the catalog.</span></div><div class="filter-section"><input class="filter-input" data-filter="ai" placeholder="e.g. bronze wheels for 2020 Civic" value="${esc(state.search)}"><p class="filter-help">Try “track pads”, “19 inch black wheels”, or a car model.</p></div><div class="filter-section"><h3>Delivery estimate</h3><div class="filter-stack"><input class="filter-input" data-filter="zip" placeholder="Deliver to ZIP / postcode"><button class="btn btn-outline btn-small" data-action="save-zip">Save location</button></div></div><div class="filter-section"><h3>Search by vehicle</h3>${vehicleSelector('store')}<button class="btn btn-dark btn-small filter-apply" data-action="shop-vehicle">Apply vehicle</button></div><div class="filter-section"><h3>Product type</h3><select class="filter-select" data-filter="category">${selectOptions(['All', 'Wheels', 'Calipers', 'Rotors', 'Brake Pads'], state.filters.category, 'All parts')}</select></div><div class="filter-section"><h3>Fitment preferences</h3><label class="check-row"><input type="checkbox" data-filter="saleOnly" ${state.filters.saleOnly ? 'checked' : ''}> In-stock deals only</label><select class="filter-select" data-filter="finish">${selectOptions(['All', 'Satin Black', 'Bronze Machined', 'Gloss Black', 'Matte Bronze', 'Racing Red', 'Electric Blue', 'Black Hat', 'Ceramic'], state.filters.finish, 'All finishes')}</select></div><div class="filter-section"><h3>Wheel diameter <span>inches</span></h3><select class="filter-select" data-filter="diameter">${selectOptions(['All', '17', '18', '19', '20'], state.filters.diameter, 'Any diameter')}</select></div><div class="filter-section"><h3>Price range</h3><div class="filter-row"><input class="filter-input" data-filter="minPrice" placeholder="Min" value="${esc(state.filters.minPrice)}"><input class="filter-input" data-filter="maxPrice" placeholder="Max" value="${esc(state.filters.maxPrice)}"></div></div><div class="filter-section"><h3>Customer rating</h3><select class="filter-select" data-filter="minRating">${selectOptions(['0', '4', '4.5', '4.8'], state.filters.minRating, 'Any rating')}</select></div></aside><section class="store-main"><div class="ai-query"><span style="color:var(--lavender)">${icons.spark}</span><input data-filter="ai" placeholder="CIRUI AI: Search by vehicle, product, finish or use case" value="${esc(state.search)}"><button class="btn btn-primary btn-small" data-action="ai-filter">Search</button></div>${fitmentBanner}<div class="store-toolbar"><div class="result-count">${formatUiLabel('{count} results', { count: list.length })} <span>${state.vehicle ? `· ${formatUiLabel('fits {vehicle}', { vehicle: esc(currentVehicleLabel()) })}` : ''}</span></div><div class="toolbar-actions"><button class="btn btn-outline btn-small" data-action="clear-filters">Clear filters</button><select class="toolbar-select" data-filter="sort"><option value="latest" ${state.sort === 'latest' ? 'selected' : ''}>Newest arrivals</option><option value="price-low" ${state.sort === 'price-low' ? 'selected' : ''}>Price: low to high</option><option value="price-high" ${state.sort === 'price-high' ? 'selected' : ''}>Price: high to low</option><option value="rating" ${state.sort === 'rating' ? 'selected' : ''}>Highest rated</option></select></div></div>${list.length ? `<div class="product-grid">${list.map(renderProductCard).join('')}</div>` : `<div class="empty-state"><h2>No exact matches yet.</h2><p>Try clearing one filter or tell CIRUI what you want in the AI search.</p><button class="btn btn-primary" data-action="clear-filters">Reset catalog</button></div>`}</section></main>`;
+}
+
+function storePage() {
+  const list = filterProducts();
+  const context = catalogCollections[state.filters.collection] || catalogCollections.all;
+  const applications = [
+    ['all', 'All uses'],
+    ['performance', 'Performance'],
+    ['luxury', 'Luxury'],
+    ['heritage', 'Heritage'],
+    ['street', 'Street']
+  ];
+  const fitmentBanner = state.vehicle?.trim
+    ? `<div class="fitment-match-banner"><div><p class="eyebrow">${uiLabel('Vehicle context')}</p><strong>${esc(currentVehicleLabel())}</strong><span>${uiLabel('This vehicle will be attached to the RFQ and final fitment review.')}</span></div><button class="btn btn-outline btn-small" data-action="change-vehicle">${uiLabel('Change vehicle')}</button></div>`
+    : `<div class="catalog-fitment-prompt"><div>${icons.shield}<span><strong>${uiLabel('Do not guess the fitment.')}</strong><small>${uiLabel('Use the Fitment Lab for vehicle, offset and brake-clearance review.')}</small></span></div><button class="btn btn-dark btn-small" data-action="open-fitment-lab" data-fitment-focus="vehicle">${uiLabel('Open Fitment Lab')}</button></div>`;
+  const visualizerNotice = state.catalogNotice === 'visualizer'
+    ? `<div class="catalog-visualizer-notice">${icons.image}<div><strong>${uiLabel('Choose a wheel to preview on your car.')}</strong><span>${uiLabel('Open any design, then use the vehicle-photo visualizer on the product page.')}</span></div></div>`
+    : '';
+  return `<section class="store-hero forged-catalog-hero"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><span>${uiLabel('Forged wheel catalog')}</span></div><p class="eyebrow">${uiLabel(context.eyebrow)}</p><h1>${uiLabel(context.title)}</h1><p>${uiLabel(context.copy)}</p><div class="catalog-collection-tabs">${Object.entries(catalogCollections).map(([key, item]) => `<a href="#store" class="${state.filters.collection === key ? 'is-active' : ''}" data-action="catalog-collection" data-collection="${key}">${uiLabel(item.label)}</a>`).join('')}</div></div></section>
+  <main class="container store-layout forged-store-layout"><aside class="filter-rail forged-filter-rail"><div class="filter-head"><strong>${uiLabel('Find the right starting design')}</strong><span>${uiLabel('Filters change the visible catalog immediately. Final fitment is engineered after the RFQ.')}</span></div><div class="filter-section"><h3>${uiLabel('Search designs')}</h3><input class="filter-input" data-filter="ai" placeholder="${esc(uiLabel('Model code, spoke style or finish'))}" value="${esc(state.search)}"></div><div class="filter-section"><h3>${uiLabel('Construction')}</h3><div class="catalog-filter-buttons">${Object.entries(catalogCollections).slice(0, 3).map(([key, item]) => `<button class="${state.filters.collection === key ? 'is-active' : ''}" data-action="catalog-collection" data-collection="${key}">${uiLabel(item.label)}</button>`).join('')}</div></div><div class="filter-section"><h3>${uiLabel('Application')}</h3><select class="filter-select" data-filter="application">${applications.map(([value, label]) => `<option value="${value}" ${state.filters.application === value ? 'selected' : ''}>${uiLabel(label)}</option>`).join('')}</select></div><div class="filter-section"><h3>${uiLabel('Vehicle fitment')}</h3>${vehicleSelector('store')}<button class="btn btn-dark btn-small filter-apply" data-action="shop-vehicle">${uiLabel('Attach vehicle')}</button></div><div class="filter-section catalog-ddp-filter">${icons.truck}<div><strong>${uiLabel('DDP available')}</strong><span>${uiLabel('Europe and North America · final quote by country and postcode')}</span></div></div></aside><section class="store-main">${visualizerNotice}${fitmentBanner}<div class="store-toolbar"><div class="result-count">${formatUiLabel('{count} results', { count: list.length })}<span> · ${uiLabel(context.label)}</span></div><div class="toolbar-actions"><button class="btn btn-outline btn-small" data-action="clear-filters">${uiLabel('Reset')}</button><select class="toolbar-select" data-filter="sort"><option value="latest" ${state.sort === 'latest' ? 'selected' : ''}>${uiLabel('Catalog order')}</option><option value="price-low" ${state.sort === 'price-low' ? 'selected' : ''}>${uiLabel('Reference price: low to high')}</option><option value="price-high" ${state.sort === 'price-high' ? 'selected' : ''}>${uiLabel('Reference price: high to low')}</option></select></div></div>${list.length ? `<div class="product-grid">${list.map(renderProductCard).join('')}</div>` : `<div class="empty-state"><h2>${uiLabel('No wheel matches every filter.')}</h2><p>${uiLabel('Reset the catalog or send the design reference to CIRUI for a custom direction.')}</p><button class="btn btn-primary" data-action="clear-filters">${uiLabel('Reset catalog')}</button></div>`}</section></main>`;
+}
+
+function customizationPage() {
+  const sampleProducts = publicForgedProducts().slice(0, 3);
+  const options = [
+    ['finishes', 'Finishes & colors', 'Brushed, polished, satin, gloss, tinted clear and custom color directions are quoted against the selected wheel and use case.', ['Brushed clear', 'Satin black', 'Polished', 'Custom color']],
+    ['lips', 'Lip profiles', 'Flat, stepped and deep-lip directions depend on construction, brake package, offset and the approved wheel drawing.', ['Step lip', 'Reverse lip', 'Polished lip', 'Color-matched lip']],
+    ['caps', 'Center caps', 'Standard CIRUI caps, custom logo artwork and floating-cap directions are treated as product options, not separate empty products.', ['CIRUI cap', 'Custom artwork', 'Floating cap', 'Color matched']],
+    ['hardware', 'Hardware options', 'Visible or concealed hardware is available only where the selected construction supports it. Material and finish are confirmed in the quote.', ['Exposed hardware', 'Hidden hardware', 'Color options', 'Drawing review']]
+  ];
+  return `<main class="customization-page"><section class="customization-hero"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><span>${uiLabel('Customization')}</span></div><p class="eyebrow">${uiLabel('BUILT AROUND YOUR BRIEF')}</p><h1>${uiLabel('One wheel direction. Your exact finish and detail.')}</h1><p>${uiLabel('Choose the design first. CIRUI then combines construction, vehicle data, finish, cap, hardware and lip into one production drawing and one RFQ.')}</p><div><a class="btn btn-primary" href="#store" data-action="catalog-collection" data-collection="all">${uiLabel('Choose a wheel')}</a><button class="btn btn-outline" data-action="request-rfq">${uiLabel('Request a custom quote')}</button></div></div></section><section class="section customization-options"><div class="container"><div class="customization-option-grid">${options.map(([id, title, copy, tags]) => `<article id="custom-${id}" class="customization-option ${state.customSection === id ? 'is-highlighted' : ''}"><span>${String(options.findIndex(item => item[0] === id) + 1).padStart(2, '0')}</span><h2>${uiLabel(title)}</h2><p>${uiLabel(copy)}</p><div>${tags.map(tag => `<small>${uiLabel(tag)}</small>`).join('')}</div></article>`).join('')}</div></div></section><section class="section customization-process"><div class="container"><div><p class="eyebrow">${uiLabel('HOW IT BECOMES A REAL ORDER')}</p><h2>${uiLabel('Design choice → fitment → options → approved drawing.')}</h2></div><ol><li><b>01</b><span><strong>${uiLabel('Select a wheel direction')}</strong><small>${uiLabel('Monoblock, 2-piece, aero or off-road.')}</small></span></li><li><b>02</b><span><strong>${uiLabel('Attach the exact vehicle')}</strong><small>${uiLabel('Brake package, suspension and intended use matter.')}</small></span></li><li><b>03</b><span><strong>${uiLabel('Specify finish and details')}</strong><small>${uiLabel('Cap, hardware, lip and color are quoted together.')}</small></span></li><li><b>04</b><span><strong>${uiLabel('Approve the production drawing')}</strong><small>${uiLabel('No classification or preview replaces the final drawing.')}</small></span></li></ol></div></section>${sampleProducts.length ? `<section class="section"><div class="container"><div class="section-heading"><div><p class="eyebrow">${uiLabel('STARTING DIRECTIONS')}</p><h2>${uiLabel('Choose a wheel to customize.')}</h2></div><a class="btn btn-dark" href="#store">${uiLabel('View full catalog')}</a></div><div class="product-grid">${sampleProducts.map(renderProductCard).join('')}</div></div></section>` : ''}</main>`;
+}
+
+function tradePage() {
+  return `<main class="trade-page"><section class="trade-hero"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><span>${uiLabel('Trade & DDP')}</span></div><p class="eyebrow">${uiLabel('EXPORT SUPPORT')}</p><h1>${uiLabel('DDP available across Europe and North America.')}</h1><p>${uiLabel('CIRUI can quote the wheel set and duty-paid delivery together. The confirmed country, postcode, specification and shipment determine the final landed quotation.')}</p><div><button class="btn btn-primary" data-action="trade-rfq" data-buyer-type="retail">${uiLabel('Request a DDP quote')}</button><button class="btn btn-outline" data-action="trade-rfq" data-buyer-type="dealer">${uiLabel('Dealer / wholesale inquiry')}</button></div></div></section><section class="section trade-facts"><div class="container"><div class="trade-fact-grid"><article><span>01</span><h2>${uiLabel('MOQ')}</h2><strong>${uiLabel('4 wheels per design')}</strong><p>${uiLabel('Mixed specifications, staggered sets and larger trade quantities are reviewed in the RFQ.')}</p></article><article><span>02</span><h2>${uiLabel('Production')}</h2><strong>${uiLabel('Made to order')}</strong><p>${uiLabel('Target production and transport is about 30 business days; the final drawing, finish and destination control the confirmed timing.')}</p></article><article><span>03</span><h2>${uiLabel('DDP')}</h2><strong>${uiLabel('Europe + North America')}</strong><p>${uiLabel('Final duty-paid delivery is quoted by destination country and postcode. It is not a universal fixed shipping price.')}</p></article><article><span>04</span><h2>${uiLabel('B2B')}</h2><strong>${uiLabel('Dealer & distributor support')}</strong><p>${uiLabel('Attach company, volume, target market and recurring fitment needs for a trade quotation.')}</p></article></div></div></section><section class="trade-flow"><div class="container"><div><p class="eyebrow">${uiLabel('QUOTE FLOW')}</p><h2>${uiLabel('One brief from wheel choice to landed quote.')}</h2></div><ol><li>${uiLabel('Add one or more wheel directions to the RFQ list.')}</li><li>${uiLabel('Enter vehicle, quantity, finish, country and postcode.')}</li><li>${uiLabel('CIRUI reviews construction, fitment, production and DDP route.')}</li><li>${uiLabel('You receive the final specification and quotation for approval.')}</li></ol><div><a class="btn btn-dark" href="#store">${uiLabel('Browse forged wheels')}</a><button class="btn btn-primary" data-action="request-rfq">${uiLabel('Open RFQ')}</button><button class="btn btn-outline" data-action="orders">${uiLabel('Track an existing order')}</button></div></div></section></main>`;
 }
 
 function reviewDateLabel(value) {
@@ -4859,22 +5838,51 @@ function wirePayPalCartButton() {
   };
   window.setTimeout(mount, state.catalogLoaded && state.backend.checked ? 250 : 1000);
 }
-function productPage(item) {
+function legacyProductPage(item) {
   const gallery = productGallery(item);
   const image = state.productImage[item.id] || gallery[0] || item.image;
   const related = products.filter(p => p.category === item.category && p.id !== item.id).slice(0, 4);
-  const specs = [['Brand', item.brand], ['Model', item.name], ['Part number', item.part], ['Finish', item.color], ['Available sizes', productSizeNote(item)], ['Material', item.material], ['Weight', item.weight], ['Fitment', item.meta]];
+  const displayName = productNameText(item);
+  const specs = [['Brand', item.brand], ['Model', displayName], ['Part number', item.part], ['Finish', productFinishText(item)], ['Available sizes', uiLabel(productSizeNote(item))], ['Material', productMaterialText(item)], ['Weight', item.weight], ['Fitment', productMetaText(item)]];
   const minimumNote = productMinimumOrderText(item);
   const startingPriceNote = hasStartingPrice(item) ? [uiLabel('The starting price is per wheel.', 'The starting price is per wheel.'), minimumNote, productMinimumOrderSummary(item)].filter(Boolean).join(' ') : '';
-  return `<div class="detail-wrap"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><a href="#store">${uiLabel(item.category)}</a><span>/</span><span>${item.name}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, i) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${item.id}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(item.name)} view ${i + 1}"></button>`).join('')}</div><div class="main-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(image)}" alt="${esc(item.name)} ${esc(item.finish)}"></div></div><div class="detail-purchase"><div class="detail-kicker">${uiLabel(item.category)} · ${item.brand}</div><h1 class="detail-title">${item.name}</h1><p class="detail-fitment-meta">${productMetaText(item)}</p><div class="detail-rating">${stars(item.rating)} <a href="#reviews">${item.rating} · ${formatUiLabel('{count} ratings', { count: item.reviews })}</a></div><div class="detail-price">${productPriceText(item)} <small>${uiLabel(hasStartingPrice(item) ? 'starting price / wheel' : 'each')}</small></div><div class="detail-set">${hasStartingPrice(item) ? `${uiLabel('Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.')}${startingPriceNote ? `<br><strong class="minimum-order-note">${startingPriceNote}</strong>` : ''}` : `${money(item.price * 4)} set of four · ${item.oldPrice ? `was ${money(item.oldPrice)} each` : 'build pricing available'}`}</div><div class="financing-note">Pay over time with CIRUI financing. Starting at ${money(Math.max(18, Math.round(item.price / 12)))}/month with approved credit.</div><div class="detail-form"><div><label class="field-label">Check vehicle fitment</label>${vehicleSelector('detail')}</div><div><label class="field-label">Finish</label><div class="finish-options"><button class="finish-option is-active">${item.color}</button><button class="finish-option">Satin Black</button><button class="finish-option">Bronze Machined</button></div></div><div><label class="field-label">Delivery estimate</label><div class="ship-note">${icons.truck}<span>Free delivery to the lower 48 · Aug 19–Aug 21<br>Enter a postcode for an exact estimate.</span></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="add" data-id="${item.id}">Add to cart</button><button class="btn btn-dark" data-action="buy-now" data-id="${item.id}">Buy it now</button></div></div>${paypalHostedButtonMarkup(item)}${paypalCartButtonMarkup(item)}</div></div><div class="specs">${specs.map(([label, value]) => `<div class="spec"><span>${uiLabel(label)}</span><strong>${esc(uiLabel(value))}</strong></div>`).join('')}</div><section class="detail-section" id="reviews"><div class="section-heading"><div><p class="eyebrow">Customer proof</p><h2>Product reviews</h2></div><button class="btn btn-outline" data-action="write-review">Write a review</button></div><div class="reviews-layout"><div class="review-score"><strong>${item.rating}</strong>${stars(item.rating)}<p>${formatUiLabel(item.reviews === 1 ? '{count} review for this product' : '{count} reviews for this product', { count: item.reviews })}</p><div class="review-bars"><div class="review-bar"><span>5★</span><i class="bar-track"><i style="width:94%"></i></i><span>94%</span></div><div class="review-bar"><span>4★</span><i class="bar-track"><i style="width:5%"></i></i><span>5%</span></div><div class="review-bar"><span>3★</span><i class="bar-track"><i style="width:1%"></i></i><span>1%</span></div></div></div><div class="review-list">${reviews.slice(0, state.reviewLimit).map(renderReview).join('')}${state.reviewLimit < reviews.length ? `<button class="btn btn-outline" data-action="load-reviews">Load more reviews</button>` : ''}</div></div></section><section class="detail-section"><div class="section-heading"><div><p class="eyebrow">Keep building</p><h2>${uiLabel(`Related ${item.category}`)}</h2></div><a class="btn btn-dark" href="#store">Shop all</a></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section></div></div>`;
+  return `<div class="detail-wrap"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><a href="#store">${productCategoryText(item)}</a><span>/</span><span>${esc(displayName)}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, i) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${item.id}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(displayName)} view ${i + 1}"></button>`).join('')}</div><div class="main-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(image)}" alt="${esc(displayName)} ${esc(productFinishText(item))}"></div></div><div class="detail-purchase"><div class="detail-kicker">${productCategoryText(item)} · ${item.brand}</div><h1 class="detail-title">${esc(displayName)}</h1><p class="detail-fitment-meta">${productMetaText(item)}</p><div class="detail-rating">${stars(item.rating)} <a href="#reviews">${item.rating} · ${formatUiLabel('{count} ratings', { count: item.reviews })}</a></div><div class="detail-price">${productPriceText(item)} <small>${uiLabel(hasStartingPrice(item) ? 'starting price / wheel' : 'each')}</small></div><div class="detail-set">${hasStartingPrice(item) ? `${uiLabel('Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.')}${startingPriceNote ? `<br><strong class="minimum-order-note">${startingPriceNote}</strong>` : ''}` : `${money(item.price * 4)} set of four · ${item.oldPrice ? `was ${money(item.oldPrice)} each` : 'build pricing available'}`}</div><div class="financing-note">Pay over time with CIRUI financing. Starting at ${money(Math.max(18, Math.round(item.price / 12)))}/month with approved credit.</div><div class="detail-form"><div><label class="field-label">Check vehicle fitment</label>${vehicleSelector('detail')}</div><div><label class="field-label">Finish</label><div class="finish-options"><button class="finish-option is-active">${productFinishText(item)}</button><button class="finish-option">Satin Black</button><button class="finish-option">Bronze Machined</button></div></div><div><label class="field-label">Delivery estimate</label><div class="ship-note">${icons.truck}<span>Free delivery to the lower 48 · Aug 19–Aug 21<br>Enter a postcode for an exact estimate.</span></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="add" data-id="${item.id}">Add to cart</button><button class="btn btn-dark" data-action="buy-now" data-id="${item.id}">Buy it now</button></div></div>${paypalHostedButtonMarkup(item)}${paypalCartButtonMarkup(item)}</div></div><div class="specs">${specs.map(([label, value]) => `<div class="spec"><span>${uiLabel(label)}</span><strong>${esc(value)}</strong></div>`).join('')}</div><section class="detail-section" id="reviews"><div class="section-heading"><div><p class="eyebrow">Customer proof</p><h2>Product reviews</h2></div><button class="btn btn-outline" data-action="write-review">Write a review</button></div><div class="reviews-layout"><div class="review-score"><strong>${item.rating}</strong>${stars(item.rating)}<p>${formatUiLabel(item.reviews === 1 ? '{count} review for this product' : '{count} reviews for this product', { count: item.reviews })}</p><div class="review-bars"><div class="review-bar"><span>5★</span><i class="bar-track"><i style="width:94%"></i></i><span>94%</span></div><div class="review-bar"><span>4★</span><i class="bar-track"><i style="width:5%"></i></i><span>5%</span></div><div class="review-bar"><span>3★</span><i class="bar-track"><i style="width:1%"></i></i><span>1%</span></div></div></div><div class="review-list">${reviews.slice(0, state.reviewLimit).map(renderReview).join('')}${state.reviewLimit < reviews.length ? `<button class="btn btn-outline" data-action="load-reviews">Load more reviews</button>` : ''}</div></div></section><section class="detail-section"><div class="section-heading"><div><p class="eyebrow">Keep building</p><h2>${uiLabel(`Related ${item.category}`)}</h2></div><a class="btn btn-dark" href="#store">Shop all</a></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section></div></div>`;
 }
 
-function cartPage() {
+function productPage(item) {
+  if (!item || item.public_scope === false || item.vehicle_label || item.category !== 'Wheels') {
+    return `<main class="detail-wrap"><div class="container"><div class="empty-state"><h1>${uiLabel('This item is not part of the public forged wheel catalog.')}</h1><p>${uiLabel('Browse current CIRUI forged directions or send a custom reference through the RFQ.')}</p><a class="btn btn-primary" href="#store">${uiLabel('Open forged wheel catalog')}</a></div></div></main>`;
+  }
+  const gallery = productGallery(item);
+  const image = state.productImage[item.id] || gallery[0] || item.image;
+  const related = publicForgedProducts().filter(candidate => candidate.id !== item.id && (candidate.design_family === item.design_family || candidate.construction === item.construction)).slice(0, 4);
+  const displayName = productNameText(item);
+  const specs = [
+    ['Model code', item.part || item.id],
+    ['Construction', productConstructionLabel(item)],
+    ['Design direction', productDesignLabel(item)],
+    ['Classification', productClassificationLabel(item)],
+    ['Minimum order', `${productMinimumQuantity(item)} wheels`],
+    ['Available sizes', productSizeNote(item)],
+    ['Material', productMaterialText(item)],
+    ['Load target', item.load_rating_note || 'Confirmed against vehicle and use case'],
+    ['DDP regions', (item.ddp_regions || ['Europe', 'North America']).join(' + ')]
+  ];
+  const classificationNote = item.classification_note || 'Construction is confirmed on the approved engineering drawing before production.';
+  return `<main class="detail-wrap forged-detail"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><a href="#store">${uiLabel('Forged wheels')}</a><span>/</span><span>${esc(displayName)}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, index) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${item.id}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(displayName)} view ${index + 1}"></button>`).join('')}</div><div class="main-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(image)}" alt="${esc(displayName)} ${esc(productFinishText(item))}"><div class="detail-construction-stamp"><small>${uiLabel('Construction')}</small><strong>${uiLabel(productConstructionLabel(item))}</strong><span>${uiLabel(productClassificationLabel(item))}</span></div></div></div><div class="detail-purchase"><div class="detail-kicker">${esc(item.part || 'CIRUI FORGED')} · ${uiLabel(productDesignLabel(item))}</div><h1 class="detail-title">${esc(displayName)}</h1><p class="detail-fitment-meta">${uiLabel(productConstructionLabel(item))} · ${uiLabel('Made to order for the exact vehicle')}</p><div class="detail-classification-note">${icons.shield}<div><strong>${uiLabel(productClassificationLabel(item))}</strong><span>${uiLabel(classificationNote)}</span></div></div><div class="detail-price">${productPriceText(item)} <small>${uiLabel('reference / wheel')}</small></div><div class="detail-set">${uiLabel('Final price follows the confirmed vehicle, drawing, finish, quantity and delivery destination.')}<br><strong class="minimum-order-note">${uiLabel(productMinimumOrderText(item))}</strong></div><div class="detail-form"><div><label class="field-label">${uiLabel('Attach vehicle context')}</label>${vehicleSelector('detail')}<button class="btn btn-outline btn-small detail-fitment-button" data-action="open-fitment-lab" data-fitment-focus="vehicle">${uiLabel('Run full fitment check')}</button></div><div><label class="field-label">${uiLabel('Customization')}</label><div class="finish-options"><button class="finish-option is-active">${uiLabel('Custom finish')}</button><button class="finish-option">${uiLabel('Center cap')}</button><button class="finish-option">${uiLabel('Hardware / lip')}</button></div><a class="detail-option-link" href="#custom">${uiLabel('Review all finish and detail options')} →</a></div><div><label class="field-label">${uiLabel('DDP delivery')}</label><div class="ship-note">${icons.truck}<span><strong>${uiLabel('Europe and North America')}</strong><br>${uiLabel('Quoted by destination country and postcode. Final landed price is confirmed in the RFQ.')}</span></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="add" data-id="${item.id}">${uiLabel('Add to RFQ')}</button><button class="btn btn-dark" data-action="request-rfq" data-id="${item.id}">${uiLabel('Request quote now')}</button></div></div></div></div><div class="specs forged-specs">${specs.map(([label, value]) => `<div class="spec"><span>${uiLabel(label)}</span><strong>${esc(uiLabel(String(value || 'To confirm')))}</strong></div>`).join('')}</div>${renderProductReviewSection(item)}${related.length ? `<section class="detail-section"><div class="section-heading"><div><p class="eyebrow">${uiLabel('RELATED DIRECTIONS')}</p><h2>${uiLabel('More forged wheel starting points.')}</h2></div><a class="btn btn-dark" href="#store">${uiLabel('View full catalog')}</a></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section>` : ''}</div></main>`;
+}
+
+function legacyCartPage() {
   const total = cartTotal();
   const minimumIssue = cartMinimumIssue();
   const minimumNotice = minimumIssue ? `<p class="cart-minimum-warning">${esc(productMinimumOrderText(minimumIssue.item))} ${uiLabel('Please update the quantity before checkout.', 'Please update the quantity before checkout.')}</p>` : '';
   const checkoutDisabled = minimumIssue ? ' disabled aria-disabled="true"' : '';
-  return `<section class="cart-page"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>Shopping cart</span></div><div class="section-heading"><div><p class="eyebrow">Your saved build</p><h1 class="detail-title">Shopping cart</h1></div><a class="btn btn-outline" href="#store">Continue shopping</a></div>${state.cart.length ? `<div class="cart-layout"><div class="cart-list">${state.cart.map(item => { const p = product(item.id); const minimumText = productMinimumOrderText(p); return `<div class="cart-item"><img class="${p.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(p.image)}" alt="${esc(p.name)}"><div><h3>${p.name}</h3><p>${uiLabel(p.category)} · ${productMetaText(p)}</p>${minimumText ? `<small class="cart-minimum-note">${esc(minimumText)}</small>` : ''}<button class="btn btn-outline btn-small" data-action="remove-cart" data-id="${p.id}" style="margin-top:10px">Remove</button></div><div class="qty-control"><button data-action="qty" data-id="${p.id}" data-delta="-1">−</button><span>${item.qty}</span><button data-action="qty" data-id="${p.id}" data-delta="1">+</button></div><div class="cart-price">${money(p.price * item.qty)}</div></div>`; }).join('')}</div><aside class="summary-card"><h2>Order summary</h2><div class="summary-row"><span>Parts subtotal</span><strong>${money(total)}</strong></div><div class="summary-row"><span>Estimated delivery</span><strong>Calculated at checkout</strong></div><div class="summary-row"><span>Fitment review</span><strong style="color:var(--success)">Included</strong></div><div class="coupon"><input class="text-input" placeholder="Promo code"><button class="btn btn-outline btn-small" data-action="apply-coupon">Apply</button></div><div class="summary-row total"><span>Total</span><strong>${money(total)}</strong></div>${minimumNotice}<button class="btn btn-primary" data-action="checkout"${checkoutDisabled} style="width:100%;margin-top:12px">Continue to checkout</button><p class="filter-help">Orders are created in the CIRUI backend. Payment remains a separate PayPal step.</p></aside></div>` : `<div class="empty-cart"><h2>Your cart is ready for a build.</h2><p class="muted">Add wheels, calipers, rotors or pads and we will keep the fitment context attached.</p><a class="btn btn-primary" href="#store">Start shopping</a></div>`}</div></section>`;
+  return `<section class="cart-page"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><span>Shopping cart</span></div><div class="section-heading"><div><p class="eyebrow">Your saved build</p><h1 class="detail-title">Shopping cart</h1></div><a class="btn btn-outline" href="#store">Continue shopping</a></div>${state.cart.length ? `<div class="cart-layout"><div class="cart-list">${state.cart.map(item => { const p = product(item.id); const displayName = productNameText(p); const minimumText = productMinimumOrderText(p); return `<div class="cart-item"><img class="${p.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(p.image)}" alt="${esc(displayName)}"><div><h3>${esc(displayName)}</h3><p>${productCategoryText(p)} · ${productMetaText(p)}</p>${minimumText ? `<small class="cart-minimum-note">${esc(minimumText)}</small>` : ''}<button class="btn btn-outline btn-small" data-action="remove-cart" data-id="${p.id}" style="margin-top:10px">Remove</button></div><div class="qty-control"><button data-action="qty" data-id="${p.id}" data-delta="-1">−</button><span>${item.qty}</span><button data-action="qty" data-id="${p.id}" data-delta="1">+</button></div><div class="cart-price">${money(p.price * item.qty)}</div></div>`; }).join('')}</div><aside class="summary-card"><h2>Order summary</h2><div class="summary-row"><span>Parts subtotal</span><strong>${money(total)}</strong></div><div class="summary-row"><span>Estimated delivery</span><strong>Calculated at checkout</strong></div><div class="summary-row"><span>Fitment review</span><strong style="color:var(--success)">Included</strong></div><div class="coupon"><input class="text-input" placeholder="Promo code"><button class="btn btn-outline btn-small" data-action="apply-coupon">Apply</button></div><div class="summary-row total"><span>Total</span><strong>${money(total)}</strong></div>${minimumNotice}<button class="btn btn-primary" data-action="checkout"${checkoutDisabled} style="width:100%;margin-top:12px">Continue to checkout</button><p class="filter-help">Orders are created in the CIRUI backend. Payment remains a separate PayPal step.</p></aside></div>` : `<div class="empty-cart"><h2>Your cart is ready for a build.</h2><p class="muted">Add wheels, calipers, rotors or pads and we will keep the fitment context attached.</p><a class="btn btn-primary" href="#store">Start shopping</a></div>`}</div></section>`;
+}
+
+function cartPage() {
+  const items = state.cart.map(row => ({ row, item: product(row.id) })).filter(entry => entry.item && entry.item.public_scope !== false && entry.item.category === 'Wheels');
+  return `<main class="cart-page rfq-page"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><span>${uiLabel('RFQ list')}</span></div><div class="section-heading rfq-page-heading"><div><p class="eyebrow">${uiLabel('YOUR CUSTOM WHEEL BRIEF')}</p><h1 class="detail-title">${uiLabel('Request for quotation')}</h1><p>${uiLabel('Collect multiple wheel directions, set quantities, then send one vehicle and destination brief to CIRUI.')}</p></div><a class="btn btn-outline" href="#store">${uiLabel('Add more wheels')}</a></div>${items.length ? `<div class="cart-layout rfq-layout"><div><div class="cart-list rfq-list">${items.map(({ row, item }) => `<article class="cart-item rfq-item"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(productNameText(item))}"><div><span class="rfq-item-code">${esc(item.part || item.id)} · ${uiLabel(productConstructionLabel(item))}</span><h3>${esc(productNameText(item))}</h3><p>${uiLabel(productDesignLabel(item))} · ${uiLabel('Custom fitment and finish')}</p><small class="cart-minimum-note">${uiLabel(productMinimumOrderText(item))}</small><button class="rfq-remove" data-action="remove-cart" data-id="${item.id}">${uiLabel('Remove')}</button></div><div class="rfq-quantity"><small>${uiLabel('Quantity')}</small><div class="qty-control"><button data-action="qty" data-id="${item.id}" data-delta="-1">−</button><span>${row.qty}</span><button data-action="qty" data-id="${item.id}" data-delta="1">+</button></div></div><div class="rfq-reference-price"><small>${uiLabel('Reference')}</small><strong>${productPriceText(item)}</strong><span>${uiLabel('Final quote after review')}</span></div></article>`).join('')}</div><div class="rfq-scope-note">${icons.shield}<div><strong>${uiLabel('The RFQ is not a checkout.')}</strong><span>${uiLabel('CIRUI confirms construction, fitment, finish, production time and DDP delivery before any final order or payment.')}</span></div></div></div><aside class="summary-card rfq-summary"><p class="eyebrow">${uiLabel('QUOTE INPUTS')}</p><h2>${uiLabel('Ready to send?')}</h2><div class="rfq-summary-list"><span><b>${items.length}</b>${uiLabel(items.length === 1 ? 'wheel direction' : 'wheel directions')}</span><span><b>${items.reduce((sum, entry) => sum + entry.row.qty, 0)}</b>${uiLabel('total wheels')}</span><span><b>DDP</b>${uiLabel('Europe + North America')}</span><span><b>${state.vehicle?.trim ? '✓' : '—'}</b>${uiLabel(state.vehicle?.trim ? currentVehicleLabel() : 'Vehicle pending')}</span></div><button class="btn btn-primary" data-action="request-rfq" style="width:100%">${uiLabel('Complete RFQ brief')}</button><a class="btn btn-outline" href="/fitment-lab" data-app-path style="width:100%;margin-top:8px">${uiLabel('Check fitment first')}</a><p class="filter-help">${uiLabel('Country and postcode are required for a DDP quotation. No fixed duty-paid price is promised before review.')}</p></aside></div>` : `<div class="empty-cart rfq-empty"><h2>${uiLabel('Your RFQ list is empty.')}</h2><p class="muted">${uiLabel('Add one or more forged wheel directions. CIRUI will combine them with your vehicle, finish, quantity and destination in one quotation request.')}</p><a class="btn btn-primary" href="#store">${uiLabel('Browse forged wheels')}</a></div>`}</div></main>`;
 }
 
 function legacyWheelVisualizerResultCard(result, index, item, mode) {
@@ -5015,9 +6023,10 @@ function wheelVisualizerResultCard(result, index, item, mode) {
   const angle = wheelVisualizerAngleLabel(result.angle);
   const imageUrl = result.imageUrl || result.image_url || result.url || '';
   const context = visualizerProductContext(item);
+  const displayName = productNameText(item);
   const downloadName = wheelVisualizerDownloadName(item, angle, index);
-  const imageActions = imageUrl ? `<div class="wheel-result-actions"><button type="button" class="btn btn-outline btn-small" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(angle)}" data-product="${esc(item.name)}" data-download-name="${esc(downloadName)}">View larger <span aria-hidden="true">↗</span></button><button type="button" class="btn btn-outline btn-small" data-action="wheel-image-download" data-image-url="${esc(imageUrl)}" data-download-name="${esc(downloadName)}">${wheelVisualizerSaveLabel()} <span aria-hidden="true">↓</span></button></div>` : '';
-  return `<article class="wheel-result-card"><div class="wheel-result-media">${imageUrl ? `<button type="button" class="wheel-result-open" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(angle)}" data-product="${esc(item.name)}" data-download-name="${esc(downloadName)}" aria-label="View enlarged ${esc(angle)} preview"><img class="wheel-result-output is-ai-generated" src="${esc(imageUrl)}" alt="${esc(item.name)} on your vehicle — ${esc(angle)}" loading="lazy"><span class="wheel-result-zoom-hint">Click to enlarge</span></button>` : '<div class="wheel-result-empty">Preview unavailable</div>'}<span class="wheel-result-mode">CIRUI AI visual preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>${esc(context.resultNote)}</span>${imageActions}</div></article>`;
+  const imageActions = imageUrl ? `<div class="wheel-result-actions"><button type="button" class="btn btn-outline btn-small" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(angle)}" data-product="${esc(displayName)}" data-download-name="${esc(downloadName)}">View larger <span aria-hidden="true">↗</span></button><button type="button" class="btn btn-outline btn-small" data-action="wheel-image-download" data-image-url="${esc(imageUrl)}" data-download-name="${esc(downloadName)}">${wheelVisualizerSaveLabel()} <span aria-hidden="true">↓</span></button></div>` : '';
+  return `<article class="wheel-result-card"><div class="wheel-result-media">${imageUrl ? `<button type="button" class="wheel-result-open" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(angle)}" data-product="${esc(displayName)}" data-download-name="${esc(downloadName)}" aria-label="View enlarged ${esc(angle)} preview"><img class="wheel-result-output is-ai-generated" src="${esc(imageUrl)}" alt="${esc(displayName)} on your vehicle — ${esc(angle)}" loading="lazy"><span class="wheel-result-zoom-hint">Click to enlarge</span></button>` : '<div class="wheel-result-empty">Preview unavailable</div>'}<span class="wheel-result-mode">CIRUI AI visual preview</span></div><div class="wheel-result-copy"><strong>${esc(angle)}</strong><span>${esc(context.resultNote)}</span>${imageActions}</div></article>`;
 }
 function wheelVisualizerImageViewer() {
   const viewer = state.wheelVisualizer?.resultViewer;
@@ -5025,12 +6034,13 @@ function wheelVisualizerImageViewer() {
   return `<div class="wheel-image-viewer-overlay" data-action="wheel-image-viewer-close"><div class="wheel-image-viewer" data-wheel-image-viewer role="dialog" aria-modal="true" aria-labelledby="wheel-image-viewer-title" tabindex="-1"><header class="wheel-image-viewer-head"><div><div class="wheel-content-kicker">CIRUI preview</div><h3 id="wheel-image-viewer-title">${esc(viewer.angleLabel)}</h3><span>${esc(viewer.productName)} · click outside to close</span></div><button type="button" class="icon-btn wheel-modal-close" data-action="wheel-image-viewer-close" aria-label="Close enlarged preview">${icons.close}</button></header><div class="wheel-image-viewer-stage"><img src="${esc(viewer.imageUrl)}" alt="${esc(viewer.alt)}"></div><p class="wheel-image-viewer-mobile-note">${state.locale === 'zh-CN' ? '手机端可长按图片保存到相册。' : 'On mobile, long-press the image to save it to Photos.'}</p><div class="wheel-image-viewer-actions"><button type="button" class="btn btn-primary" data-action="wheel-image-download" data-image-url="${esc(viewer.imageUrl)}" data-download-name="${esc(viewer.downloadName)}">${wheelVisualizerSaveLabel()} <span aria-hidden="true">↓</span></button><button type="button" class="btn btn-outline" data-action="wheel-image-viewer-close">Close</button></div></div></div>`;
 }
 function wheelVisualizerInquiryContent(item, current) {
+  const displayName = productNameText(item);
   const draft = { ...wheelVisualizerInquiryDefaults(item), ...(current.inquiry?.draft || {}) };
   const vehicleLabel = state.vehicle ? currentVehicleLabel() : current.vehicleName || 'Uploaded vehicle photo';
   const resultImages = current.results.map(result => result.imageUrl || result.image_url || result.url || '').filter(Boolean);
   const error = current.inquiry?.error ? `<div class="wheel-inquiry-error" role="alert">${esc(current.inquiry.error)}</div>` : '';
   if (current.inquiry?.status === 'success') {
-    return `<div class="wheel-visualizer-content wheel-inquiry-success"><div class="wheel-success-mark">✓</div><div class="wheel-content-kicker">Inquiry received</div><h3>We have your build brief.<br><em>CIRUI will follow up.</em></h3><p class="wheel-content-lead">Your product, wheel specifications and three generated previews are now attached to inquiry <strong>${esc(current.inquiry.id || 'submitted')}</strong>. A fitment specialist will confirm clearance and final pricing with you.</p><div class="wheel-inquiry-success-meta"><span>${esc(item.name)}</span><span>${resultImages.length} preview images attached</span><span>${esc(vehicleLabel)}</span></div><div class="wheel-inquiry-actions"><button type="button" class="btn btn-outline" data-action="wheel-inquiry-results">Back to previews</button><button type="button" class="btn btn-primary" data-action="wheel-close">Close studio <span aria-hidden="true">↗</span></button></div></div>`;
+    return `<div class="wheel-visualizer-content wheel-inquiry-success"><div class="wheel-success-mark">✓</div><div class="wheel-content-kicker">Inquiry received</div><h3>We have your build brief.<br><em>CIRUI will follow up.</em></h3><p class="wheel-content-lead">Your product, wheel specifications and three generated previews are now attached to inquiry <strong>${esc(current.inquiry.id || 'submitted')}</strong>. A fitment specialist will confirm clearance and final pricing with you.</p><div class="wheel-inquiry-success-meta"><span>${esc(displayName)}</span><span>${resultImages.length} preview images attached</span><span>${esc(vehicleLabel)}</span></div><div class="wheel-inquiry-actions"><button type="button" class="btn btn-outline" data-action="wheel-inquiry-results">Back to previews</button><button type="button" class="btn btn-primary" data-action="wheel-close">Close studio <span aria-hidden="true">↗</span></button></div></div>`;
   }
   const submitting = current.inquiry?.status === 'submitting';
   return `<div class="wheel-visualizer-content wheel-inquiry-content"><div class="wheel-content-kicker">Start your fitment inquiry</div><h3>Tell us the spec.<br><em>We will confirm the build.</em></h3><p class="wheel-content-lead">Your selected product and all three generated previews will be attached. Choose the wheel data below so the CIRUI team can check the exact vehicle fitment before quoting.</p>${error}<div class="wheel-inquiry-preview-strip">${resultImages.map((imageUrl, index) => `<button type="button" class="wheel-inquiry-preview" data-action="wheel-image-viewer" data-image-url="${esc(imageUrl)}" data-angle="${esc(wheelVisualizerAngleLabel(current.results[index]?.angle))}" data-product="${esc(item.name)}" data-download-name="${esc(wheelVisualizerDownloadName(item, current.results[index]?.angle, index))}" aria-label="View preview ${index + 1}"><img src="${esc(imageUrl)}" alt="${esc(item.name)} preview ${index + 1}"></button>`).join('')}</div><form class="wheel-inquiry-form" data-form="wheel-inquiry"><section class="wheel-inquiry-section"><div><strong>Wheel data</strong><span>Required for fitment review</span></div><div class="wheel-inquiry-grid"><label><span>Diameter <b>*</b></span>${wheelInquirySelect('diameter', ['17', '18', '19', '20', '21', '22'], draft.diameter, 'diameter')}</label><label><span>Width <b>*</b></span>${wheelInquirySelect('width', ['7.0', '7.5', '8.0', '8.5', '9.0', '9.5', '10.0', '10.5', '11.0', '11.5', '12.0'], draft.width, 'width')}</label><label><span>PCD / bolt pattern <b>*</b></span>${wheelInquirySelect('pcd', ['4x100', '5x100', '5x108', '5x112', '5x114.3', '5x120', '5x127', '5x130', '5x135', '5x139.7', '5x150', '6x135', '6x139.7'], draft.pcd, 'PCD')}</label><label><span>Offset / ET <b>*</b></span>${wheelInquirySelect('offset', ['-10', '0', '+15', '+20', '+25', '+30', '+35', '+40', '+45', '+50'], draft.offset, 'offset')}</label><label><span>Center bore <b>*</b></span><input class="text-input" name="center_bore" value="${esc(draft.center_bore)}" required placeholder="e.g. 66.1 mm"></label><label><span>Quantity <b>*</b></span>${wheelInquirySelect('quantity', ['1', '2', '4'], draft.quantity, 'quantity')}</label></div></section><section class="wheel-inquiry-section"><div><strong>Contact details</strong><span>So a fitment specialist can reply</span></div><div class="wheel-inquiry-grid"><label><span>Name <b>*</b></span><input class="text-input" name="customer_name" value="${esc(draft.customer_name)}" required placeholder="Your name"></label><label><span>Email <b>*</b></span><input class="text-input" name="customer_email" type="email" value="${esc(draft.customer_email)}" required placeholder="you@example.com"></label><label><span>Phone / WhatsApp</span><input class="text-input" name="customer_phone" value="${esc(draft.customer_phone)}" placeholder="Optional"></label><label><span>Vehicle reference</span><input class="text-input" value="${esc(vehicleLabel)}" readonly></label><label class="wheel-inquiry-full"><span>Notes for CIRUI</span><textarea class="text-input" name="customer_note" rows="3" placeholder="Tell us about staggered fitment, brake clearance, finish or delivery needs.">${esc(draft.customer_note)}</textarea></label></div></section><div class="wheel-inquiry-form-actions"><button type="button" class="btn btn-outline" data-action="wheel-inquiry-results" ${submitting ? 'disabled' : ''}>Back to previews</button><button type="button" class="btn btn-outline" data-action="whatsapp-visualizer" ${submitting ? 'disabled' : ''}>${icons.whatsapp} ${uiLabel('WhatsApp fitment consultation')}</button><button type="submit" class="btn btn-primary" ${submitting ? 'disabled' : ''}>${submitting ? 'Sending inquiry…' : 'Send inquiry'} <span aria-hidden="true">↗</span></button></div></form></div>`;
@@ -5039,6 +6049,7 @@ function wheelVisualizerModalLegacy() {
   const current = state.wheelVisualizer;
   if (!current?.open) return '';
   const item = wheelVisualizerItem();
+  const displayName = productNameText(item);
   const phase = current.phase;
   const steps = [['upload', '01', 'Upload'], ['registration', '02', 'Account'], ['crop', '03', 'Frame'], ['reference', '04', 'Reference'], ['generating', '05', 'Generate'], ['results', '06', 'Results'], ['inquiry', '07', 'Inquiry']];
   const stepIndex = phase === 'error' ? 3 : Math.max(0, steps.findIndex(([key]) => key === phase));
@@ -5052,14 +6063,14 @@ function wheelVisualizerModalLegacy() {
   }
   if (phase === 'crop') content = `<div class="wheel-visualizer-content"><div class="wheel-content-kicker">Frame the reference</div><h3>Keep the whole car.<br><em>Adjust only if needed.</em></h3><p class="wheel-content-lead">Upload the photo as-is. The full image stays available, even when the car sits low in a portrait frame. Drag the image or use the controls below; a wheel only needs to be visible, not centered in a box.</p><div class="wheel-crop-stage" data-wheel-crop-stage><img data-wheel-crop-image src="${esc(current.vehicleUrl)}" alt="${esc(current.vehicleName || 'Uploaded vehicle photo')}" draggable="false" style="${wheelVisualizerCropStyle(current.crop)}"><div class="wheel-crop-guide"><span>Full photo retained · drag to frame</span></div></div><div class="wheel-crop-live-note"><strong>Live framing</strong><span>Changes update the image above.</span></div><div class="wheel-crop-controls"><label><span>Zoom</span><input type="range" min="1" max="1.6" step="0.01" value="${current.crop.zoom}" data-wheel-crop="zoom"><output data-wheel-crop-output="zoom">${Number(current.crop.zoom).toFixed(2)}×</output></label><label><span>Horizontal position</span><input type="range" min="0" max="100" step="1" value="${current.crop.x}" data-wheel-crop="x"><output data-wheel-crop-output="x">${current.crop.x}%</output></label><label><span>Vertical position</span><input type="range" min="0" max="100" step="1" value="${current.crop.y}" data-wheel-crop="y"><output data-wheel-crop-output="y">${current.crop.y}%</output></label></div><div class="wheel-crop-actions"><button class="btn btn-outline btn-small" data-action="wheel-crop-reset">Reset frame</button><button class="btn btn-primary" data-action="wheel-generate">Generate 3 angles <span aria-hidden="true">↗</span></button></div></div>`;
   if (phase === 'generating') { const referenceAsset = visualizerReferenceAsset(item, current); content = `<div class="wheel-visualizer-content wheel-generating-content" aria-live="polite"><div class="wheel-generating-orbit"><div class="wheel-generating-wheel">${referenceAsset ? `<img src="${referenceAsset}" alt="${esc(item.name)}">` : `<span class="wheel-generating-part">${esc(item.category)}</span>`}</div><span></span><span></span><span></span></div><div class="wheel-content-kicker">CIRUI visual studio</div><h3>Matching ${esc(visualizerProductContext(item).subject)} to vehicle<br><em>and checking the stance.</em></h3><p class="wheel-content-lead">We are applying only the selected ${esc(item.category.toLowerCase())} while keeping the original wheel and vehicle geometry locked.</p><div class="wheel-progress"><span></span></div><div class="wheel-generating-meta"><span>Product mask locked</span><span>3 angles requested</span><span>Officially included</span></div></div>`; }
-  if (phase === 'results') content = `<div class="wheel-visualizer-content wheel-results-content"><div class="wheel-results-head"><div><div class="wheel-content-kicker">Your preview set</div><h3>See the wheel<br><em>in its natural stance.</em></h3></div><div class="wheel-results-count"><strong>03</strong><span>angles</span></div></div><p class="wheel-content-lead">These views use ${esc(item.name)} in ${esc(item.finish)} as the wheel reference. Keep the final fitment check with the CIRUI team before production.</p><div class="wheel-results-grid">${current.results.map((result, index) => wheelVisualizerResultCard(result, index, item, current.mode)).join('')}</div><div class="wheel-results-actions"><button class="btn btn-outline" data-action="wheel-reset">Try another photo</button><button class="btn btn-outline" data-action="whatsapp-visualizer">${icons.whatsapp} ${uiLabel('WhatsApp fitment consultation')}</button><button class="btn btn-primary" data-action="wheel-inquiry-open">Start an inquiry <span aria-hidden="true">↗</span></button></div></div>`;
+  if (phase === 'results') content = `<div class="wheel-visualizer-content wheel-results-content"><div class="wheel-results-head"><div><div class="wheel-content-kicker">Your preview set</div><h3>See the wheel<br><em>in its natural stance.</em></h3></div><div class="wheel-results-count"><strong>03</strong><span>angles</span></div></div><p class="wheel-content-lead">These views use ${esc(displayName)} in ${esc(productFinishText(item))} as the wheel reference. Keep the final fitment check with the CIRUI team before production.</p><div class="wheel-results-grid">${current.results.map((result, index) => wheelVisualizerResultCard(result, index, item, current.mode)).join('')}</div><div class="wheel-results-actions"><button class="btn btn-outline" data-action="wheel-reset">Try another photo</button><button class="btn btn-outline" data-action="whatsapp-visualizer">${icons.whatsapp} ${uiLabel('WhatsApp fitment consultation')}</button><button class="btn btn-primary" data-action="wheel-inquiry-open">Start an inquiry <span aria-hidden="true">↗</span></button></div></div>`;
   if (phase === 'results' && item.category !== 'Wheels') {
     const context = visualizerProductContext(item);
     content = content.replace('See the wheel', `See the ${context.subject}`).replace('as the wheel reference', `as the ${context.subject} reference`);
   }
   if (phase === 'inquiry') content = wheelVisualizerInquiryContent(item, current);
   if (phase === 'error') content = `<div class="wheel-visualizer-content wheel-error-content" role="alert"><div class="wheel-error-mark">!</div><div class="wheel-content-kicker">Preview not ready</div><h3>We could not finish<br><em>this set of angles.</em></h3><p class="wheel-content-lead">${esc(current.error || 'Please check the image and try again.')}</p><div class="wheel-error-actions"><button class="btn btn-outline" data-action="wheel-reset">Choose another photo</button><button class="btn btn-primary" data-action="wheel-retry">Retry preview</button></div></div>`;
-  return `<div class="wheel-visualizer-overlay" data-action="wheel-close"><div class="wheel-visualizer-shell" data-wheel-modal role="dialog" aria-modal="true" aria-labelledby="wheel-visualizer-dialog-title"><header class="wheel-visualizer-header"><div><div class="wheel-visualizer-brand"><span class="wheel-brand-dot"></span> CIRUI VISUAL STUDIO</div><h2 id="wheel-visualizer-dialog-title">${esc(item.name)} <span>· ${esc(item.finish)}</span></h2></div><div class="wheel-visualizer-header-actions"><span class="wheel-included-badge">Included with your build</span><button class="icon-btn wheel-modal-close" data-action="wheel-close" aria-label="Close visual preview">${icons.close}</button></div></header><div class="wheel-visualizer-body"><aside class="wheel-step-rail"><div class="wheel-step-rail-title">Your build preview</div>${stepRail}<div class="wheel-step-rail-foot"><span>${icons.shield}</span><p>CIRUI covers the preview cost. There is no customer charge.</p></div></aside><main class="wheel-visualizer-main">${wheelVisualizerReferencePicker(item, current)}${content}</main></div></div></div>`;
+  return `<div class="wheel-visualizer-overlay" data-action="wheel-close"><div class="wheel-visualizer-shell" data-wheel-modal role="dialog" aria-modal="true" aria-labelledby="wheel-visualizer-dialog-title"><header class="wheel-visualizer-header"><div><div class="wheel-visualizer-brand"><span class="wheel-brand-dot"></span> CIRUI VISUAL STUDIO</div><h2 id="wheel-visualizer-dialog-title">${esc(displayName)} <span>· ${esc(productFinishText(item))}</span></h2></div><div class="wheel-visualizer-header-actions"><span class="wheel-included-badge">Included with your build</span><button class="icon-btn wheel-modal-close" data-action="wheel-close" aria-label="Close visual preview">${icons.close}</button></div></header><div class="wheel-visualizer-body"><aside class="wheel-step-rail"><div class="wheel-step-rail-title">Your build preview</div>${stepRail}<div class="wheel-step-rail-foot"><span>${icons.shield}</span><p>CIRUI covers the preview cost. There is no customer charge.</p></div></aside><main class="wheel-visualizer-main">${wheelVisualizerReferencePicker(item, current)}${content}</main></div></div></div>`;
 }
 function wheelVisualizerModal() {
   const current = state.wheelVisualizer;
@@ -5120,8 +6131,21 @@ function workspaceClearModalMarkup(kind = 'fitment') {
   return `<div class="overlay" data-action="close-modal"><div class="modal workspace-clear-modal" data-modal-content role="dialog" aria-modal="true" aria-labelledby="workspace-clear-title"><button class="icon-btn modal-close" data-action="close-modal" aria-label="${esc(uiLabel('Close'))}">${icons.close}</button><span class="workspace-clear-icon">${icons.shield}</span><p class="eyebrow">${fitment ? uiLabel('Current engineering file') : uiLabel('Partner-protected build')}</p><h2 id="workspace-clear-title">${title}</h2><p>${description}</p><div class="workspace-clear-safeguard">${icons.shield}<span>${safeguard}</span></div><div class="workspace-clear-actions"><button type="button" class="btn btn-outline" data-action="close-modal">${cancelLabel}</button><button type="button" class="btn workspace-clear-confirm" data-action="${confirmAction}">${confirmLabel}</button></div></div></div>`;
 }
 
+function rfqModalMarkup() {
+  const draft = state.rfq.draft || {};
+  const items = state.cart.map(row => ({ row, item: product(row.id) })).filter(entry => entry.item?.category === 'Wheels' && entry.item.public_scope !== false);
+  if (state.rfq.status === 'success') {
+    return `<div class="overlay" data-action="close-modal"><div class="modal rfq-modal rfq-success" data-modal-content role="dialog" aria-modal="true"><button class="icon-btn modal-close" data-action="close-modal" aria-label="${esc(uiLabel('Close'))}">${icons.close}</button><span class="rfq-success-mark">✓</span><p class="eyebrow">${uiLabel('RFQ RECEIVED')}</p><h2>${uiLabel('Your custom wheel brief is with CIRUI.')}</h2><p>${uiLabel('A fitment and export specialist will review the wheel directions, vehicle, finish and destination before confirming the final quotation.')}</p><div><span>${uiLabel('Inquiry reference')}</span><strong>${esc(state.rfq.id || 'Submitted')}</strong></div><button class="btn btn-primary" data-action="close-modal">${uiLabel('Continue')}</button></div></div>`;
+  }
+  const account = state.account || {};
+  const submitting = state.rfq.status === 'submitting';
+  const vehicleValue = draft.vehicle || (state.vehicle?.trim ? currentVehicleLabel() : '');
+  return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide rfq-modal" data-modal-content role="dialog" aria-modal="true" aria-labelledby="rfq-modal-title"><button class="icon-btn modal-close" data-action="close-modal" aria-label="${esc(uiLabel('Close'))}">${icons.close}</button><div class="rfq-modal-head"><div><p class="eyebrow">${uiLabel('CUSTOM FORGED WHEEL RFQ')}</p><h2 id="rfq-modal-title">${uiLabel('Complete the quotation brief.')}</h2><p>${uiLabel('CIRUI will confirm the engineering specification and DDP route before issuing the final price.')}</p></div><span><b>${items.length}</b>${uiLabel(items.length === 1 ? 'design' : 'designs')}</span></div>${state.rfq.error ? `<div class="rfq-form-error">${esc(state.rfq.error)}</div>` : ''}<div class="rfq-modal-items">${items.map(({ row, item }) => `<article><img src="${assetUrl(item.image)}" alt="${esc(productNameText(item))}"><span><strong>${esc(productNameText(item))}</strong><small>${esc(item.part || item.id)} · ${uiLabel(productConstructionLabel(item))}</small></span><b>× ${row.qty}</b></article>`).join('')}</div><form class="rfq-form" data-form="rfq"><section><h3>${uiLabel('Buyer and contact')}</h3><div class="rfq-form-grid"><label><span>${uiLabel('Name')} *</span><input class="text-input" name="customer_name" value="${esc(draft.customer_name || account.name || account.username || '')}" autocomplete="name" required></label><label><span>${uiLabel('Email')} *</span><input class="text-input" type="email" name="customer_email" value="${esc(draft.customer_email || account.email || '')}" autocomplete="email" required></label><label><span>${uiLabel('Phone / WhatsApp')}</span><input class="text-input" name="customer_phone" value="${esc(draft.customer_phone || account.telephone || '')}" autocomplete="tel"></label><label><span>${uiLabel('Company')}</span><input class="text-input" name="company" value="${esc(draft.company || account.company || '')}" autocomplete="organization"></label><label><span>${uiLabel('Buyer type')}</span><select class="filter-select" name="buyer_type"><option value="retail" ${draft.buyer_type === 'retail' || !draft.buyer_type ? 'selected' : ''}>${uiLabel('Private buyer')}</option><option value="dealer" ${draft.buyer_type === 'dealer' ? 'selected' : ''}>${uiLabel('Dealer / tuning shop')}</option><option value="distributor" ${draft.buyer_type === 'distributor' ? 'selected' : ''}>${uiLabel('Distributor')}</option></select></label></div></section><section><h3>${uiLabel('Vehicle and wheel brief')}</h3><div class="rfq-form-grid"><label class="rfq-wide"><span>${uiLabel('Vehicle')} *</span><input class="text-input" name="vehicle" value="${esc(vehicleValue)}" placeholder="2024 BMW G80 M3 / exact trim" required></label><label><span>${uiLabel('Preferred finish')}</span><input class="text-input" name="finish" value="${esc(draft.finish || '')}" placeholder="Brushed clear / satin black"></label><label><span>${uiLabel('Quantity note')}</span><input class="text-input" name="quantity_note" value="${esc(draft.quantity_note || '')}" placeholder="Staggered set / repeat volume"></label></div></section><section><h3>${uiLabel('Destination and DDP')}</h3><div class="rfq-form-grid"><label><span>${uiLabel('Country')} *</span><input class="text-input" name="country" value="${esc(draft.country || '')}" autocomplete="country-name" required></label><label><span>${uiLabel('ZIP / postcode')} *</span><input class="text-input" name="postcode" value="${esc(draft.postcode || '')}" autocomplete="postal-code" required></label><label class="rfq-ddp-choice"><input type="checkbox" name="ddp_requested" ${draft.ddp_requested === false ? '' : 'checked'}><span><strong>${uiLabel('Request DDP quotation')}</strong><small>${uiLabel('Available across Europe and North America; final route and landed price require destination review.')}</small></span></label><label class="rfq-wide"><span>${uiLabel('Notes')}</span><textarea class="text-input" name="customer_note" rows="4" placeholder="${esc(uiLabel('Brake package, suspension, target stance, logo cap, finish reference or trade volume.'))}">${esc(draft.customer_note || '')}</textarea></label></div></section><div class="rfq-form-actions"><button type="button" class="btn btn-outline" data-action="close-modal" ${submitting ? 'disabled' : ''}>${uiLabel('Keep editing later')}</button><button type="submit" class="btn btn-primary" ${submitting || !items.length ? 'disabled' : ''}>${submitting ? uiLabel('Sending RFQ…') : uiLabel('Send RFQ to CIRUI')}</button></div></form></div></div>`;
+}
+
 function modal() {
   if (!state.modal) return '';
+  if (state.modal.type === 'rfq') return rfqModalMarkup();
   if (state.modal.type === 'fitment-wizard') return fitmentWizardModalMarkup();
   if (state.modal.type === 'fitment-package') return fitmentPackageModalMarkup(state.modal.packageId);
   if (state.modal.type === 'fitment-evidence') return fitmentEvidenceModalMarkup();
@@ -5148,7 +6172,7 @@ function modal() {
     return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide workshop-history-modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal" aria-label="${esc(uiLabel('Close'))}">${icons.close}</button><p class="eyebrow">${uiLabel('Customer modification record')}</p><h2>${uiLabel('Modification history')}</h2><p>${uiLabel('Opening an older version loads it as a draft. Saving it creates a new revision and never deletes the later history.')}</p><div class="workshop-history-current"><span>${uiLabel('Current revision')}</span><strong>${String(project.revision || 1).padStart(2, '0')} · ${esc(workshopVehicleLabel(project))}</strong><small>${esc(revisionSpec(project))}</small></div><div class="workshop-history-list">${revisions.length ? revisions.map(revision => `<article><div><span>${uiLabel('Revision')} ${String(revision.revision || 1).padStart(2, '0')}</span><strong>${esc(revision.title || project.title || uiLabel('Untitled project'))}</strong><small>${esc(revisionSpec(revision))}</small><time>${esc(revision.saved_at ? new Date(revision.saved_at).toLocaleString() : '')}</time></div><button type="button" class="btn btn-outline btn-small" data-action="workshop-restore-revision" data-revision="${esc(revision.revision)}">${uiLabel('Open as new draft')}</button></article>`).join('') : `<div class="workshop-project-empty"><strong>${uiLabel('No earlier revisions yet.')}</strong><span>${uiLabel('Save after the next calibration and the previous customer setup will appear here.')}</span></div>`}</div></div></div>`;
   }
   if (!state.modal) return '';
-  if (state.modal.type === 'quick') { const item = product(state.modal.id); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Quick view</p><h2>${item.name}</h2><div class="quick-product"><img src="${assetUrl(item.image)}" alt="${esc(item.name)}"><div><div class="product-brand">${item.brand} · ${item.category}</div><div>${stars(item.rating)} <span class="muted">${item.reviews} reviews</span></div><p>${item.meta}<br>${item.deal}</p><strong style="font-size:22px">${money(item.price)} <small class="muted">/ each</small></strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">Add to cart</button></div></div></div></div>`; }
+  if (state.modal.type === 'quick') { const item = product(state.modal.id); const displayName = productNameText(item); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">${uiLabel('Quick view')}</p><h2>${esc(displayName)}</h2><div class="quick-product"><img src="${assetUrl(item.image)}" alt="${esc(displayName)}"><div><div class="product-brand">${esc(item.part || item.brand)} · ${uiLabel(productConstructionLabel(item))}</div><p>${uiLabel(productDesignLabel(item))}<br>${uiLabel(productClassificationLabel(item))}</p><strong style="font-size:22px">${productPriceText(item)} <small class="muted">${uiLabel('reference / wheel')}</small></strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">${uiLabel('Add to RFQ')}</button><a class="btn btn-outline" href="#product/${item.id}" style="width:100%;margin-top:8px">${uiLabel('View full details')}</a></div></div></div></div>`; }
   if (state.modal.type === 'account') { const register = state.modal.mode === 'register'; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">CIRUI account</p><h2>${register ? 'Create your build account.' : 'Save your build.'}</h2><p>${register ? 'Save fitment builds, wishlist, addresses and orders. Dealers: add your company so we can quote wholesale.' : 'Sign in to sync your cart, wishlist and orders with the CIRUI service.'}</p><form class="modal-form" data-form="account" data-mode="${register ? 'register' : 'login'}"><input class="text-input" name="username" placeholder="Username" autocomplete="username" required><input class="text-input" name="password" type="password" placeholder="Password (6+ characters)" autocomplete="${register ? 'new-password' : 'current-password'}" minlength="6" required>${register ? '<input class="text-input" name="email" type="email" autocomplete="email" placeholder="Email (for quotes & order updates)" required><input class="text-input" name="telephone" autocomplete="tel" placeholder="Phone / WhatsApp (optional)"><input class="text-input" name="company" autocomplete="organization" placeholder="Company (dealers & distributors)">' : ''}<button class="btn btn-primary">${register ? 'Create account & sign in' : 'Sign in'}</button><button class="btn btn-outline" type="button" data-action="${register ? 'account-login' : 'account-register'}">${register ? 'I already have an account' : 'Create a new account'}</button></form></div></div>`; }
   if (state.modal.type === 'orders') return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">CIRUI account</p><h2>Track my orders.</h2><p>订单状态来自 CIRUI 自有订单服务；发货后可在这里继续查看物流信息。</p>${state.accountOrdersLoading ? '<div class="loading-copy">正在读取订单…</div>' : state.accountOrders.length ? `<div class="account-order-list">${state.accountOrders.map(order => `<article class="account-order"><div><strong>${esc(order.orderSn || order.id || 'Order')}</strong><small>${esc(order.createTime || '')}</small></div><div><span>${esc(order.productName || order.receiverName || 'CIRUI order')}</span><small>${esc(order.status === 0 ? '待付款' : order.status === 1 ? '待发货' : order.status === 2 ? '已发货' : order.status === 3 ? '已完成' : order.status === 4 ? '已关闭' : '处理中')}</small></div><strong>${money(order.payAmount || order.totalAmount || 0)}</strong></article>`).join('')}</div>` : '<div class="empty-state"><h3>暂无订单</h3><p>登录后创建的 CIRUI 订单会出现在这里。</p></div>'}</div></div>`;
   if (state.modal.type === 'review') return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Your experience</p><h2>Write a review.</h2><form class="modal-form" data-form="review"><div class="review-rating-input" role="radiogroup" aria-label="Rating"><input type="hidden" name="rating" value="5">${[5,4,3,2,1].map(n => `<button type="button" class="rating-star ${n === 5 ? 'is-active' : ''}" data-rating="${n}" aria-label="${n} stars">★</button>`).join('')}</div><input class="text-input" name="title" placeholder="Review title" required><textarea class="text-input" name="body" rows="5" placeholder="What did you install? How does it fit?" required></textarea><input class="text-input" name="vehicle" placeholder="Your vehicle (e.g. 2023 BMW M340i)"><button class="btn btn-primary">Submit review</button></form></div></div>`;
@@ -5240,9 +6264,14 @@ async function captureReturnedPayPalPayment() {
   } catch (error) { setToast(error?.message || 'PayPal payment confirmation failed.'); }
   history.replaceState({}, document.title, `${location.pathname}${location.hash || '#home'}`);
 }
-function footer() {
+function legacyFooter() {
   const whatsapp = generalWhatsAppContext();
   return `<footer class="footer cerui-footer"><div class="container"><div class="footer-top"><div class="cerui-footer-brand"><a class="brand" href="#home"><img src="${assetUrl('cerui/cerui-logo-black-v1.webp')}" alt="CIRUI Forged 策锐锻造"><span><strong>CIRUI FORGED</strong><small>${uiLabel('FORCARBOX · OFFICIAL GLOBAL SITE')}</small></span></a><p class="footer-slogan">${uiLabel('Factory-direct custom forged wheels built around the exact vehicle, fitment and finish.')}</p><div class="company-meta"><strong>${company.legalName}</strong><a href="tel:${company.tel}">${company.phone}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">WhatsApp · ${company.whatsapp}</a></div></div><div class="footer-grid"><div class="footer-col"><h3>${uiLabel('Forged wheels')}</h3><a href="#home#vehicles">${uiLabel('Shop by vehicle')}</a><a href="#store" data-category-link="Wheels">${uiLabel('All wheel directions')}</a><a href="/fitment-lab" data-app-path>${uiLabel('Custom fitment')}</a><a href="#home#engineering">${uiLabel('Engineering')}</a></div><div class="footer-col"><h3>${uiLabel('Tools')}</h3><a href="/fitment-lab" data-app-path>${uiLabel('Fitment Lab')}</a><a href="#product/cerui-bmw-forged-fitment">${uiLabel('Vehicle photo preview')}</a><a href="#blog">${uiLabel('Fitment journal')}</a><a href="#home#resources">${uiLabel('Customer feedback')}</a></div><div class="footer-col"><h3>${uiLabel('Factory + delivery')}</h3><a href="#about">${uiLabel('About CIRUI')}</a><a href="#about">${uiLabel('Manufacturing')}</a><a href="#about">${uiLabel('DDP delivery')}</a><a href="tel:${company.tel}">${uiLabel('Contact')} · ${company.phone}</a></div><div class="footer-col"><h3>${uiLabel('Orders + partners')}</h3><a href="#home" data-action="orders">${uiLabel('Track order')}</a><a href="#account">${uiLabel('My account')}</a><a href="#about">${uiLabel('Wholesale program')}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">${uiLabel('WhatsApp fitment help')}</a></div></div></div><div class="cerui-footer-disclaimer">${uiLabel('Vehicle manufacturer names are used only to identify compatibility. CIRUI Forged is not affiliated with or endorsed by those vehicle manufacturers.')}</div><div class="footer-bottom"><span>© 2026 ${company.legalName} · CIRUI Forged / Forcarbox</span><span>${uiLabel('Terms · Privacy · CCPA')}</span></div></div></footer>`;
+}
+
+function footer() {
+  const whatsapp = generalWhatsAppContext();
+  return `<footer class="footer cerui-footer"><div class="container"><div class="footer-top"><div class="cerui-footer-brand"><a class="brand" href="#home"><img src="${assetUrl('cerui/cerui-logo-black-v1.webp')}" alt="CIRUI Forged 策锐锻造"><span><strong>CIRUI FORGED</strong><small>${uiLabel('FORCARBOX · OFFICIAL GLOBAL SITE')}</small></span></a><p class="footer-slogan">${uiLabel('Factory-direct custom forged wheels built around the exact vehicle, fitment and finish.')}</p><div class="company-meta"><strong>${company.legalName}</strong><a href="tel:${company.tel}">${company.phone}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">WhatsApp · ${company.whatsapp}</a></div></div><div class="footer-grid"><div class="footer-col"><h3>${uiLabel('Forged wheels')}</h3><a href="#store" data-action="catalog-collection" data-collection="all">${uiLabel('All forged wheels')}</a><a href="#store" data-action="catalog-collection" data-collection="monoblock">${uiLabel('Monoblock forged')}</a><a href="#store" data-action="catalog-collection" data-collection="two-piece">${uiLabel('2-piece forged')}</a><a href="#store" data-action="catalog-collection" data-collection="aero-floating">${uiLabel('Aero & floating')}</a></div><div class="footer-col"><h3>${uiLabel('Fitment + customization')}</h3><a href="/fitment-lab" data-app-path>${uiLabel('Fitment Lab')}</a><a href="#store" data-action="catalog-visualizer">${uiLabel('Vehicle photo visualizer')}</a><a href="#custom">${uiLabel('Finishes, caps & hardware')}</a><a href="#blog">${uiLabel('Fitment journal')}</a></div><div class="footer-col"><h3>${uiLabel('Factory + delivery')}</h3><a href="#about">${uiLabel('Meet the factory')}</a><a href="#trade">${uiLabel('DDP Europe & North America')}</a><a href="#trade">${uiLabel('MOQ & lead time')}</a><a href="tel:${company.tel}">${uiLabel('Contact')} · ${company.phone}</a></div><div class="footer-col"><h3>${uiLabel('RFQ + partners')}</h3><a href="#cart" data-action="cart">${uiLabel('Open RFQ list')}</a><a href="#home" data-action="orders">${uiLabel('Track order')}</a><a href="#trade" data-action="trade-rfq" data-buyer-type="dealer">${uiLabel('Dealer & wholesale')}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">${uiLabel('WhatsApp fitment help')}</a></div></div></div><div class="cerui-footer-disclaimer">${uiLabel('Vehicle manufacturer names are used only to identify compatibility. CIRUI Forged is not affiliated with or endorsed by those vehicle manufacturers.')}</div><div class="footer-bottom"><span>© 2026 ${company.legalName} · CIRUI Forged / Forcarbox</span><span>${uiLabel('Terms · Privacy · CCPA')}</span></div></div></footer>`;
 }
 
 function localizedDynamicChineseText(value = '') {
@@ -5320,13 +6349,8 @@ function preserveTextWhitespace(source, translated) {
 }
 function collectTranslationTargets(root) {
   const targets = [];
-  root.querySelectorAll('select[data-translate-options] option, option[data-translate-option]').forEach(option => {
-    const node = option.firstChild;
-    const source = node?.nodeValue || '';
-    const key = source.trim();
-    if (!node || !key || key.length < 2 || /[\u0400-\u04FF\u0600-\u06FF\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]/.test(key)) return;
-    targets.push({ node, source, key, kind: 'text' });
-  });
+  // Visible document text comes first so the heading and primary actions are
+  // translated before long form controls and their option lists.
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   while (walker.nextNode()) {
     const node = walker.currentNode;
@@ -5335,6 +6359,13 @@ function collectTranslationTargets(root) {
     if (!key || key.length < 2 || /^[-+·•\d\s$€£¥%/.,:;!?]+$/.test(key) || /[\u0400-\u04FF\u0600-\u06FF\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]/.test(key) || isProtectedTranslationNode(node, root)) continue;
     targets.push({ node, source, key, kind: 'text' });
   }
+  root.querySelectorAll('select:not(.locale-select) option').forEach(option => {
+    const node = option.firstChild;
+    const source = node?.nodeValue || '';
+    const key = source.trim();
+    if (!node || !key || key.length < 2 || /[\u0400-\u04FF\u0600-\u06FF\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]/.test(key)) return;
+    targets.push({ node, source, key, kind: 'text' });
+  });
   root.querySelectorAll('[placeholder],[aria-label],[title]').forEach(element => {
     if (translationProtectedClasses.some(className => element.classList.contains(className))) return;
     ['placeholder', 'aria-label', 'title'].forEach(attribute => {
@@ -5354,7 +6385,6 @@ async function translatePhrases(sources, locale, signal) {
   });
   if (!response.ok) throw new Error(`Translation request failed: ${response.status}`);
   const payload = await response.json();
-  if (payload?.data?.upstream_available === false) throw new Error('Translation upstream unavailable');
   const translations = Array.isArray(payload?.data?.translations) ? payload.data.translations : [];
   return sources.map((source, index) => translations[index] || source);
 }
@@ -5364,7 +6394,16 @@ async function translatePageFull() {
   const root = document.querySelector('#app');
   if (!root) return;
   const controller = new AbortController();
-  const targets = collectTranslationTargets(root);
+  const dictionary = localeDictionaries[state.locale] || {};
+  // Reviewed dictionary entries are applied synchronously after this function
+  // starts. Only send genuinely missing English copy to the fallback service;
+  // otherwise Latin-language labels would be translated a second time.
+  const targets = collectTranslationTargets(root).filter(target => !dictionary[target.key]);
+  const targetsByKey = new Map();
+  targets.forEach(target => {
+    if (!targetsByKey.has(target.key)) targetsByKey.set(target.key, []);
+    targetsByKey.get(target.key).push(target);
+  });
   const pendingKeys = new Set();
   const pending = targets.filter(target => {
     const cacheKey = `${state.locale}::${target.key}`;
@@ -5378,23 +6417,31 @@ async function translatePageFull() {
   };
   const cached = targets.filter(target => translationCache[`${state.locale}::${target.key}`]);
   cached.forEach(target => apply(target, translationCache[`${state.locale}::${target.key}`]));
-  for (let index = 0; index < pending.length; index += 5) {
-    if (run !== translationRun) { controller.abort(); return; }
-    const batch = pending.slice(index, index + 5);
-    try {
-      const translations = await translatePhrases(batch.map(target => target.key), state.locale, controller.signal);
-      const results = batch.map((target, translationIndex) => [target, translations[translationIndex]]);
-      if (run !== translationRun) return;
-      results.forEach(([target, translated]) => {
-        translationCache[`${state.locale}::${target.key}`] = translated;
-        targets.filter(candidate => candidate.key === target.key).forEach(candidate => apply(candidate, translated));
-      });
-      localStorage.setItem(TRANSLATION_CACHE_KEY, JSON.stringify(translationCache));
-    } catch {
-      // Local locale dictionaries remain visible when the public translation endpoint is blocked or offline.
-      return;
+  const batches = [];
+  for (let index = 0; index < pending.length; index += 10) batches.push(pending.slice(index, index + 10));
+  let batchIndex = 0;
+  const translateWorker = async () => {
+    while (batchIndex < batches.length) {
+      if (run !== translationRun) { controller.abort(); return; }
+      const batch = batches[batchIndex++];
+      try {
+        const translations = await translatePhrases(batch.map(target => target.key), state.locale, controller.signal);
+        if (run !== translationRun) return;
+        batch.forEach((target, translationIndex) => {
+          const translated = translations[translationIndex];
+          // The backend returns the source when both providers fail. Leave it
+          // uncached so a later render can retry instead of persisting English.
+          if (!translated || translated === target.key) return;
+          translationCache[`${state.locale}::${target.key}`] = translated;
+          (targetsByKey.get(target.key) || []).forEach(candidate => apply(candidate, translated));
+        });
+        localStorage.setItem(TRANSLATION_CACHE_KEY, JSON.stringify(translationCache));
+      } catch {
+        // Keep reviewed local labels visible and allow other batches to finish.
+      }
     }
-  }
+  };
+  await Promise.all(Array.from({ length: Math.min(2, batches.length) }, () => translateWorker()));
 }
 
 async function detectLocaleByIp() {
@@ -5474,6 +6521,7 @@ function wireProductGallery() {
   }
 }
 function wireStartingPrices() {
+  if (document.body.classList.contains('fbox-global-premium')) return;
   document.querySelectorAll('.product-card').forEach(card => {
     const item = productFromCard(card);
     if (!item || !hasStartingPrice(item)) return;
@@ -5563,7 +6611,9 @@ function syncRouteDocumentTitle() {
     return;
   }
   if (state.route.name === 'store') { document.title = uiLabel('CIRUI Performance Parts'); return; }
-  if (state.route.name === 'cart') { document.title = uiLabel('CIRUI Shopping Cart'); return; }
+  if (state.route.name === 'cart') { document.title = uiLabel('CIRUI Request for Quotation'); return; }
+  if (state.route.name === 'custom') { document.title = uiLabel('CIRUI Wheel Customization | Finishes, Caps and Hardware'); return; }
+  if (state.route.name === 'trade') { document.title = uiLabel('CIRUI Trade & DDP | Europe and North America'); return; }
   if (state.route.name === 'blog') { document.title = uiLabel('CIRUI Journal | Fitment and Wheel Engineering'); return; }
   if (state.route.name === 'blog-post') {
     const post = state.blogPosts.find(item => item.slug === state.route.slug);
@@ -5575,8 +6625,11 @@ function syncRouteDocumentTitle() {
 
 function render() {
   state.route = getRoute();
+  if (location.pathname !== '/' && location.hash && ['fitment', 'fitment-result', 'fitment-share', 'account'].includes(state.route.name)) {
+    history.replaceState({}, '', `${location.pathname}${location.search}`);
+  }
   syncRouteDocumentTitle();
-  const page = state.route.name === 'home' ? premiumGlobalHomePage() : state.route.name === 'about' ? ceruiAboutPage() : state.route.name === 'fitment' ? fitmentPage() : state.route.name === 'fitment-result' ? fitmentResultPage() : state.route.name === 'fitment-share' ? fitmentSharePage() : state.route.name === 'account' ? accountPage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : state.route.name === 'blog' ? blogPage() : state.route.name === 'blog-post' ? blogArticlePage(state.blogPosts.find(post => post.slug === state.route.slug)) : productPage(product(state.route.id));
+  const page = state.route.name === 'home' ? premiumGlobalHomePage() : state.route.name === 'about' ? ceruiAboutPage() : state.route.name === 'custom' ? customizationPage() : state.route.name === 'trade' ? tradePage() : state.route.name === 'fitment' ? fitmentPage() : state.route.name === 'fitment-result' ? fitmentResultPage() : state.route.name === 'fitment-share' ? fitmentSharePage() : state.route.name === 'account' ? accountPage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : state.route.name === 'blog' ? blogPage() : state.route.name === 'blog-post' ? blogArticlePage(state.blogPosts.find(post => post.slug === state.route.slug)) : productPage(product(state.route.id));
   const pageWithReviews = state.route.name === 'home' ? page.replace(/<section class="section" id="resources">[\s\S]*?<\/section>/, homeReviewSection()) : page;
   const pageWithPhotoReviews = state.route.name === 'home' ? pageWithReviews.replace(/<section class="section" id="gallery">[\s\S]*?<\/section>/, homePhotoReviewGallery()) : pageWithReviews;
   const pageWithJournal = pageWithPhotoReviews;
@@ -5603,8 +6656,10 @@ function render() {
   wirePayPalHostedButton();
   wirePayPalCartButton();
   wireHomeWheelCarousel();
+  // Capture the original English DOM for fallback translation first, then
+  // synchronously apply the reviewed glossary while network work continues.
+  void translatePageFull();
   applyTranslations();
-  translatePageFull();
   wireSpotlights();
   animateIn();
 }
@@ -5633,13 +6688,15 @@ function updateFitmentVehicle(field, value) {
   captureFitmentDraft();
   const v = { ...(state.fitment.vehicle || {}) };
   const normalizedValue = String(value || '').trim();
-  if (field === 'year') state.fitment.vehicle = normalizedValue ? { year: normalizedValue } : null;
+  const previousValue = String(v[field] || '').trim();
+  const changed = normalizedValue !== previousValue;
+  if (field === 'year') state.fitment.vehicle = normalizedValue ? (changed ? { year: normalizedValue } : v) : null;
   else {
     if (normalizedValue) v[field] = normalizedValue;
     else delete v[field];
-    if (field === 'make') { delete v.model; delete v.trim; delete v.chassis; delete v.body_style; delete v.drive; }
-    if (field === 'model') { delete v.trim; delete v.chassis; delete v.body_style; delete v.drive; }
-    if (field === 'trim') delete v.drive;
+    if (changed && field === 'make') { delete v.model; delete v.trim; delete v.chassis; delete v.body_style; delete v.drive; }
+    if (changed && field === 'model') { delete v.trim; delete v.chassis; delete v.body_style; delete v.drive; }
+    if (changed && field === 'trim') delete v.drive;
     state.fitment.vehicle = v;
   }
   state.vehicle = state.fitment.vehicle;
@@ -5651,7 +6708,7 @@ function updateFitmentVehicle(field, value) {
   if (state.fitment.vehicle?.year && state.fitment.vehicle?.make && state.fitment.vehicle?.model) void loadFitmentVehicleReference(state.fitment.vehicle);
   if (state.fitment.vehicle?.trim) void loadSelectedVehicleRecord(state.fitment.vehicle);
 }
-function clearFilters() { state.search = ''; state.filters = { category: 'All', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' }; state.sort = 'latest'; render(); }
+function clearFilters() { state.search = ''; state.filters = { category: 'Wheels', collection: 'all', application: 'all', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' }; state.sort = 'latest'; render(); }
 
 function workshopDraftFromProject(project = {}) {
   const request = project.request || {};
@@ -5847,11 +6904,13 @@ function workshopNewProject() {
   state.fitment.resultStale = false;
   state.fitment.selectedPackageId = '';
   state.fitment.styleReference = null;
+  state.fitment.styleCatalog = { filter: 'all', expanded: false, query: '' };
   state.fitment.error = '';
   state.fitment.submitting = false;
   state.fitment.flow = { mode: '', step: 1, axle: 'front', panel: '', error: '' };
   state.fitment.ai = { loading: false, error: '', result: null, applied: false, missingFields: [] };
   state.fitment.reference = { key: '', loading: false, error: '', data: null };
+  state.fitment.vinLookup = { loading: false, error: '', data: null, queriedVin: '' };
   state.modal = null;
   localStorage.removeItem('fbox-fitment-draft');
   localStorage.removeItem('fbox-fitment-result');
@@ -6080,32 +7139,97 @@ async function wheelVisualizerSubmitInquiry(values) {
     render();
   }
 }
-async function addToCart(id) {
-  const item = product(id);
-  if (item && hasStartingPrice(item)) {
-    setToast('This is a starting price. Confirm your vehicle and custom wheel data to receive the final quote.');
-    go('#product/' + item.id);
+async function submitRfq(values) {
+  if (state.rfq.status === 'submitting' || !cartCount()) return;
+  const entries = state.cart.map(row => ({ row, item: product(row.id) })).filter(entry => entry.item?.category === 'Wheels' && entry.item.public_scope !== false);
+  if (!entries.length) {
+    state.rfq.error = uiLabel('Add at least one forged wheel direction before sending the RFQ.');
+    render();
     return;
   }
+  const draft = { ...values, ddp_requested: values.ddp_requested === 'on' };
+  state.rfq = { ...state.rfq, status: 'submitting', error: '', draft };
+  localStorage.setItem('cirui-rfq-draft', JSON.stringify(draft));
+  render();
+  const productsPayload = entries.map(({ row, item }) => ({
+    id: item.id,
+    name: productNameText(item),
+    part: item.part || '',
+    image: assetUrl(item.image),
+    construction: item.construction || 'unknown',
+    design_family: item.design_family || 'custom',
+    finish: values.finish || item.finish || 'Custom finish',
+    quantity: row.qty
+  }));
+  const productSummary = productsPayload.map(item => `${item.part || item.id} ${item.name} (${item.construction}) × ${item.quantity}`).join('; ');
+  const message = [
+    `Multi-product forged wheel RFQ: ${productSummary}.`,
+    `Vehicle: ${values.vehicle}.`,
+    `Preferred finish: ${values.finish || 'to confirm'}.`,
+    `Destination: ${values.country}, ${values.postcode}.`,
+    `DDP requested: ${values.ddp_requested === 'on' ? 'yes' : 'no'}.`,
+    `Buyer type: ${values.buyer_type || 'retail'}.`,
+    values.company ? `Company: ${values.company}.` : '',
+    values.quantity_note ? `Quantity note: ${values.quantity_note}.` : '',
+    `Customer note: ${values.customer_note || 'None'}`
+  ].filter(Boolean).join(' ');
+  try {
+    const response = await fetch('/api/fbox-content/inquiries', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        topic: 'multi-product-forged-wheel-rfq',
+        channel: 'website-rfq-list',
+        locale: state.locale,
+        message,
+        customer_name: values.customer_name,
+        customer_email: values.customer_email,
+        customer_phone: values.customer_phone,
+        company: values.company,
+        buyer_type: values.buyer_type,
+        country: values.country,
+        postcode: values.postcode,
+        ddp_requested: values.ddp_requested === 'on',
+        vehicle: values.vehicle,
+        vehicle_selection: state.vehicle || {},
+        product_id: productsPayload[0]?.id || '',
+        product_name: productsPayload[0]?.name || '',
+        product_category: 'Wheels',
+        product_finish: values.finish || 'Custom finish',
+        product_image: productsPayload[0]?.image || '',
+        product_display_price: entries[0]?.item?.price || 0,
+        products: productsPayload,
+        wheel_specs: { quantity: String(productsPayload.reduce((sum, item) => sum + item.quantity, 0)), source: 'RFQ list' },
+        customer_note: values.customer_note || ''
+      })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || uiLabel('The RFQ could not be submitted.'));
+    state.rfq = { status: 'success', id: payload.data?.id || 'submitted', error: '', draft };
+    state.cart = [];
+    persist();
+    render();
+  } catch (error) {
+    state.rfq = { ...state.rfq, status: 'error', error: error?.message || uiLabel('The RFQ could not be submitted. Please try again.'), draft };
+    render();
+  }
+}
+
+async function addToCart(id, options = {}) {
+  const item = product(id);
+  if (!item || item.category !== 'Wheels' || item.public_scope === false || item.vehicle_label) return;
   const minimum = productMinimumQuantity(item);
   const existing = state.cart.find(row => row.id === id);
-  if (existing) existing.qty = Math.max(minimum, existing.qty + 1);
+  if (existing) existing.qty = Math.max(minimum, existing.qty);
   else state.cart.push({ id, qty: minimum });
   persist();
-  if (state.mallToken && item) {
-    try {
-      await mallRequest(mallConfig.portalBase, '/cart/items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_id: item.id, quantity: minimum })
-      });
-      await loadMallCart();
-    } catch (error) {
-      setToast(error?.message || 'CIRUI 购物车同步失败，当前商品已保存在本地。');
-      return;
-    }
+  if (options.openRfq) {
+    state.rfq = { ...state.rfq, status: 'idle', error: '', id: '' };
+    state.modal = { type: 'rfq' };
+    render();
+    return;
   }
-  setToast(`${item.name} added to your cart.`);
+  setToast(`${productNameText(item)} ${uiLabel('added to your RFQ list.')}`);
 }
 
 function openFitmentWizard(mode = 'fitment-first', step = 1) {
@@ -6158,14 +7282,64 @@ function applyFitmentAiResult() {
     const value = nextDraft[item.name];
     return value === undefined || value === null || String(value).trim() === '';
   });
+  const blockingFields = missingFields.filter(item => item.blocking !== false);
   state.fitment.draft = nextDraft;
   state.fitment.ai = { ...state.fitment.ai, applied: true, missingFields };
   state.fitment.resultStale = Boolean(state.fitment.result);
   localStorage.setItem('fbox-fitment-draft', JSON.stringify(nextDraft));
-  const earliestStep = Math.min(...missingFields.map(item => Number(item.step) || 5), 5);
-  state.fitment.flow = { ...fitmentFlowState(), step: Number.isFinite(earliestStep) ? earliestStep : 4, axle: missingFields.some(item => item.name.includes('rear')) && !missingFields.some(item => item.name.includes('front')) ? 'rear' : 'front', error: '' };
+  const earliestStep = Math.min(...blockingFields.map(item => Number(item.step) || 5), 5);
+  state.fitment.flow = { ...fitmentFlowState(), step: Number.isFinite(earliestStep) ? earliestStep : 4, axle: blockingFields.some(item => item.name.includes('rear')) && !blockingFields.some(item => item.name.includes('front')) ? 'rear' : 'front', error: '' };
   render();
-  requestAnimationFrame(() => document.querySelector('.fitment-required-missing')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+  requestAnimationFrame(() => (document.querySelector('.fitment-required-missing') || document.querySelector('.fitment-flow-section'))?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+}
+
+function filterFitmentPartPicker(input) {
+  const picker = input?.closest('[data-fitment-part-picker]');
+  if (!picker) return;
+  const query = String(input.value || '').trim().toLowerCase();
+  const hasSelection = picker.dataset.selected === 'true';
+  let visible = 0;
+  picker.querySelectorAll('.fitment-part-option').forEach(option => {
+    const recommended = option.dataset.recommended === 'true';
+    const matches = query.length >= 2 ? String(option.dataset.partSearchText || '').includes(query) : recommended && !hasSelection;
+    option.hidden = !matches || visible >= 8;
+    if (matches && visible < 8) visible += 1;
+  });
+  const empty = picker.querySelector('.fitment-part-empty');
+  if (empty) {
+    empty.hidden = visible > 0;
+    empty.textContent = query.length < 2
+      ? uiLabel(hasSelection ? 'Selected. Search only if this component needs to be changed.' : 'Enter at least two characters to search the component catalog.')
+      : uiLabel('No matching component. Keep the workshop note and add the exact code later.');
+  }
+}
+
+function setFitmentPartSelection(field = '', id = '') {
+  const form = document.querySelector('[data-form="fitment-wizard"]');
+  const scrollTop = form?.querySelector('.fitment-flow-scroll')?.scrollTop || 0;
+  captureFitmentDraft(form);
+  const draft = { ...(state.fitment.draft || {}), [field]: id };
+  const part = fitmentPartRecord(id);
+  const base = field.replace(/_id$/, '');
+  if (part) {
+    draft[`${base}_detail`] = [part.brand, part.model].filter(Boolean).join(' ');
+    const familyOnly = /alias|umbrella|family reference/i.test(String(part.model || '')) || ['GT6', 'F40'].includes(String(part.part_number || '').toUpperCase());
+    if (part.part_number && !familyOnly) draft[`${base}_part_number`] = part.part_number;
+    if (state.fitment.ai?.applied) {
+      state.fitment.ai.missingFields = (state.fitment.ai.missingFields || []).filter(item => item.name !== field && (familyOnly || item.name !== `${base}_part_number`));
+    }
+  } else {
+    delete draft[`${base}_part_number`];
+  }
+  state.fitment.draft = draft;
+  state.fitment.resultStale = Boolean(state.fitment.result);
+  localStorage.setItem('fbox-fitment-draft', JSON.stringify(draft));
+  render();
+  requestAnimationFrame(() => {
+    const scroll = document.querySelector('[data-form="fitment-wizard"] .fitment-flow-scroll');
+    if (scroll) scroll.scrollTop = scrollTop;
+    document.querySelector(`[data-fitment-part-picker][data-field="${CSS.escape(field)}"] [data-fitment-part-search]`)?.focus({ preventScroll: true });
+  });
 }
 
 function fitmentWizardAdvance(delta = 1) {
@@ -6220,6 +7394,10 @@ document.addEventListener('click', async event => {
     state.mobileNav = false;
     state.menuOpen = false;
   }
+  if (event.target.closest('.mobile-nav-shortcut')) {
+    state.mobileNav = false;
+    state.menuOpen = false;
+  }
   const appPath = event.target.closest('a[data-app-path]');
   if (appPath) {
     event.preventDefault();
@@ -6231,20 +7409,49 @@ document.addEventListener('click', async event => {
   if (anchor) {
     event.preventDefault();
     const sectionId = anchor.getAttribute('href').split('#home#')[1];
-    state.modal = null;
-    if (location.hash !== '#home') location.hash = '#home';
+    go('#home');
     window.setTimeout(() => document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 40);
     return;
+  }
+  const routeAnchor = event.target.closest('a[href^="#"]:not([data-action]):not([data-category-link])');
+  if (routeAnchor) {
+    const href = routeAnchor.getAttribute('href') || '';
+    const isApplicationRoute = /^#(?:home|about|account|blog|cart|custom|fitment|store|trade)$/.test(href)
+      || /^#(?:product|blog)\//.test(href);
+    if (isApplicationRoute) {
+      event.preventDefault();
+      go(href);
+      return;
+    }
   }
   const target = event.target.closest('[data-action], [data-category-link]');
   if (!target) return;
   const action = target.dataset.action;
-  if (['add', 'buy-now', 'checkout', 'chat', 'write-review', 'customize', 'quote', 'whatsapp', 'whatsapp-fitment', 'whatsapp-product', 'whatsapp-visualizer', 'home-preview-wheel', 'home-preview-prev', 'home-preview-next'].includes(action)) {
+  if (['add', 'buy-now', 'request-rfq', 'checkout', 'chat', 'write-review', 'customize', 'quote', 'whatsapp', 'whatsapp-fitment', 'whatsapp-product', 'whatsapp-visualizer', 'home-preview-wheel', 'home-preview-prev', 'home-preview-next'].includes(action)) {
     trackEvent('click', { path: location.pathname + location.hash, title: action, meta: { action, product_id: target.dataset.id || '' } });
   }
-  if (target.dataset.categoryLink !== undefined) { state.filters.category = target.dataset.categoryLink || 'All'; state.menuOpen = false; go('#store'); return; }
+  if (target.dataset.categoryLink !== undefined) { setCatalogCollection('all'); state.catalogNotice = ''; state.menuOpen = false; if (state.route.name === 'store') render(); else go('#store'); return; }
+  if (action === 'catalog-collection') { event.preventDefault(); setCatalogCollection(target.dataset.collection || 'all'); state.catalogNotice = ''; state.menuOpen = false; if (state.route.name === 'store') render(); else go('#store'); return; }
+  if (action === 'catalog-visualizer') { event.preventDefault(); setCatalogCollection('all'); state.catalogNotice = 'visualizer'; state.menuOpen = false; if (state.route.name === 'store') render(); else go('#store'); return; }
+  if (action === 'custom-section') {
+    event.preventDefault();
+    state.customSection = target.dataset.section || 'overview';
+    state.menuOpen = false;
+    if (state.route.name === 'custom') render();
+    else go('#custom');
+    window.setTimeout(() => document.getElementById(`custom-${state.customSection}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+    return;
+  }
+  if (action === 'trade-rfq') {
+    event.preventDefault();
+    state.rfq.draft = { ...(state.rfq.draft || {}), buyer_type: target.dataset.buyerType || 'retail', ddp_requested: true };
+    if (!cartCount()) { setCatalogCollection('all'); go('#store'); window.setTimeout(() => setToast(uiLabel('Choose at least one wheel direction, then open the RFQ.')), 80); }
+    else { state.rfq = { ...state.rfq, status: 'idle', id: '', error: '' }; state.modal = { type: 'rfq' }; render(); }
+    return;
+  }
   if (action === 'fitment-start') { openFitmentWizard(target.dataset.mode || 'fitment-first', 1); return; }
   if (action === 'fitment-edit') { state.modal = null; openFitmentWizard(state.fitment.draft?.workflow_mode || 'fitment-first', Number(target.dataset.step || 1)); return; }
+  if (action === 'fitment-vin-decode') { await decodeFitmentVin(); return; }
   if (action === 'fitment-wizard-next') { fitmentWizardAdvance(1); return; }
   if (action === 'fitment-wizard-back') { fitmentWizardAdvance(-1); return; }
   if (action === 'fitment-wizard-step') {
@@ -6261,6 +7468,14 @@ document.addEventListener('click', async event => {
     render();
     return;
   }
+  if (action === 'fitment-part-select') {
+    setFitmentPartSelection(target.dataset.field || '', target.dataset.id || '');
+    return;
+  }
+  if (action === 'fitment-part-clear') {
+    setFitmentPartSelection(target.dataset.field || '', '');
+    return;
+  }
   if (action === 'fitment-ai-interpret') { await interpretFitmentNotes(); return; }
   if (action === 'fitment-ai-apply') { applyFitmentAiResult(); return; }
   if (action === 'fitment-wizard-close') {
@@ -6272,15 +7487,51 @@ document.addEventListener('click', async event => {
   }
   if (action === 'fitment-measurement-help') { state.fitment.flow = { ...fitmentFlowState(), panel: 'measurements' }; render(); return; }
   if (action === 'fitment-guide-close') { state.fitment.flow = { ...fitmentFlowState(), panel: '' }; render(); return; }
+  if (action === 'fitment-style-filter') {
+    const filter = ['all', 'monoblock', 'two-piece'].includes(target.dataset.filter) ? target.dataset.filter : 'all';
+    state.fitment.styleCatalog = { ...(state.fitment.styleCatalog || {}), filter, expanded: false };
+    render();
+    requestAnimationFrame(() => {
+      const catalog = document.querySelector('[data-fitment-style-catalog]');
+      scrollFitmentFlowTo(catalog, { block: 'nearest' });
+      catalog?.querySelector(`[data-action="fitment-style-filter"][data-filter="${filter}"]`)?.focus({ preventScroll: true });
+    });
+    return;
+  }
+  if (action === 'fitment-style-toggle') {
+    const current = state.fitment.styleCatalog || {};
+    const filter = ['all', 'monoblock', 'two-piece'].includes(current.filter) ? current.filter : 'all';
+    state.fitment.styleCatalog = { ...current, filter, expanded: !current.expanded };
+    render();
+    requestAnimationFrame(() => {
+      const catalog = document.querySelector('[data-fitment-style-catalog]');
+      const browseTarget = state.fitment.styleCatalog.expanded ? catalog?.querySelector('.fitment-style-results-head') : catalog;
+      scrollFitmentFlowTo(browseTarget, { block: state.fitment.styleCatalog.expanded ? 'start' : 'nearest', padding: 10 });
+      catalog?.querySelector('[data-action="fitment-style-toggle"]')?.focus({ preventScroll: true });
+    });
+    return;
+  }
+  if (action === 'fitment-style-search-clear') {
+    state.fitment.styleCatalog = { ...(state.fitment.styleCatalog || {}), query: '', expanded: false };
+    render();
+    requestAnimationFrame(() => document.querySelector('[data-fitment-style-search]')?.focus({ preventScroll: true }));
+    return;
+  }
   if (action === 'fitment-select-style') {
     const item = products.find(candidate => candidate.id === target.dataset.id && candidate.category === 'Wheels');
     if (!item) return;
+    const catalogGridScrollTop = target.closest('[data-fitment-style-catalog]')?.querySelector('.fitment-flow-wheel-grid')?.scrollTop || 0;
     state.workshop.selectedProductId = item.id;
     state.fitment.styleReference = null;
     state.fitment.draft = { ...(state.fitment.draft || {}), selected_product_id: item.id, style_reference_name: '' };
     state.fitment.resultStale = Boolean(state.fitment.result);
     localStorage.setItem('fbox-fitment-draft', JSON.stringify(state.fitment.draft));
     render();
+    requestAnimationFrame(() => {
+      const catalogGrid = document.querySelector('[data-fitment-style-catalog] .fitment-flow-wheel-grid');
+      if (catalogGrid) catalogGrid.scrollTop = catalogGridScrollTop;
+      scrollFitmentFlowTo(document.querySelector('[data-fitment-style-continuation]'), { block: 'end', padding: 44 });
+    });
     return;
   }
   if (action === 'fitment-package-details') { state.modal = { type: 'fitment-package', packageId: target.dataset.id || '' }; render(); return; }
@@ -6442,8 +7693,12 @@ document.addEventListener('click', async event => {
   }
   if (action === 'open-fitment-lab') {
     state.fitment.vehicle = state.vehicle || state.fitment.vehicle;
+    const focus = target.dataset.fitmentFocus || 'vehicle';
+    state.fitment.draft = { ...(state.fitment.draft || {}), entry_focus: focus, workflow_mode: 'fitment-first' };
+    localStorage.setItem('fbox-fitment-draft', JSON.stringify(state.fitment.draft));
     void loadFitmentPartsContent();
     goPath('/fitment-lab');
+    if (target.dataset.fitmentFocus) window.setTimeout(() => openFitmentWizard('fitment-first', 1), 50);
     return;
   }
   if (action === 'fitment-chat') {
@@ -6567,19 +7822,34 @@ document.addEventListener('click', async event => {
     render();
     return;
   }
-  if (action === 'add') { addToCart(target.dataset.id); return; }
-  if (action === 'buy-now') { addToCart(target.dataset.id); state.modal = state.mallToken ? { type: 'checkout' } : { type: 'account', afterLogin: 'checkout' }; state.checkoutStep = state.mallToken ? 3 : 1; render(); return; }
+  if (action === 'add') { await addToCart(target.dataset.id); return; }
+  if (action === 'buy-now') { await addToCart(target.dataset.id, { openRfq: true }); return; }
+  if (action === 'request-rfq') {
+    if (target.dataset.id) { await addToCart(target.dataset.id, { openRfq: true }); return; }
+    if (!cartCount()) {
+      setCatalogCollection('all');
+      state.catalogNotice = '';
+      if (state.route.name === 'store') render();
+      else go('#store');
+      window.setTimeout(() => setToast(uiLabel('Choose at least one wheel direction, then open the RFQ.')), 80);
+      return;
+    }
+    state.rfq = { ...state.rfq, status: 'idle', id: '', error: '' };
+    state.modal = { type: 'rfq' };
+    render();
+    return;
+  }
   if (action === 'product-image') { state.productImage[target.dataset.id] = target.dataset.image; render(); return; }
-  if (action === 'view-fitment-products') { state.search = ''; state.filters.category = 'All'; go('#store'); return; }
+  if (action === 'view-fitment-products') { setCatalogCollection('all'); go('#store'); return; }
   if (action === 'change-vehicle') { state.vehicle = null; localStorage.removeItem('fbox-vehicle'); go('#home'); return; }
   if (action === 'shop-vehicle') { if (!state.vehicle?.trim) { setToast('Choose Year, Make, Model and Trim first.'); return; } setToast(`Fitment saved for ${currentVehicleLabel()}.`); if (state.route.name !== 'store') go('#store'); else render(); return; }
   if (action === 'clear-filters') { clearFilters(); return; }
   if (action === 'ai-filter') { const input = document.querySelector('.ai-query input'); state.search = input?.value || ''; render(); return; }
   if (action === 'save-zip') { setToast('Delivery estimate saved for this session.'); return; }
-  if (action === 'remove-cart') { const item = state.cart.find(row => row.id === target.dataset.id); state.cart = state.cart.filter(row => row.id !== target.dataset.id); persist(); if (state.mallToken && item) { await mallRequest(mallConfig.portalBase, `/cart/items/${encodeURIComponent(item.id)}`, { method: 'DELETE' }).catch(() => {}); } render(); return; }
-  if (action === 'qty') { const item = state.cart.find(x => x.id === target.dataset.id); if (item) { const productItem = product(item.id); item.qty = Math.max(productMinimumQuantity(productItem), item.qty + Number(target.dataset.delta)); } state.cart = state.cart.filter(x => x.qty > 0); persist(); if (state.mallToken && item && item.qty > 0) await mallRequest(mallConfig.portalBase, `/cart/items/${encodeURIComponent(item.id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quantity: item.qty }) }).catch(() => {}); render(); return; }
+  if (action === 'remove-cart') { state.cart = state.cart.filter(row => row.id !== target.dataset.id); persist(); render(); return; }
+  if (action === 'qty') { const item = state.cart.find(x => x.id === target.dataset.id); if (item) { const productItem = product(item.id); item.qty = Math.max(productMinimumQuantity(productItem), item.qty + Number(target.dataset.delta)); } state.cart = state.cart.filter(x => x.qty > 0); persist(); render(); return; }
   if (action === 'apply-coupon') { setToast(state.mallToken ? '优惠码将在 CIRUI 结算规则中校验；当前订单按商品美元售价创建。' : '请先登录 CIRUI 账户，再选择可用优惠。'); return; }
-  if (action === 'checkout') { if (!state.cart.length) { setToast('Your cart is empty.'); return; } const minimumIssue = cartMinimumIssue(); if (minimumIssue) { setToast(`${productMinimumOrderText(minimumIssue.item)} ${uiLabel('Please update the quantity before checkout.', 'Please update the quantity before checkout.')}`); return; } state.modal = state.mallToken ? { type: 'checkout' } : { type: 'account', afterLogin: 'checkout' }; state.checkoutStep = state.mallToken ? 3 : 1; render(); return; }
+  if (action === 'checkout') { if (!cartCount()) { setToast(uiLabel('Your RFQ list is empty.')); return; } state.rfq = { ...state.rfq, status: 'idle', id: '', error: '' }; state.modal = { type: 'rfq' }; render(); return; }
   if (action === 'toggle-customer-builds') { state.homeBuildsExpanded = !state.homeBuildsExpanded; render(); window.setTimeout(() => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30); return; }
   if (action === 'load-reviews') { state.reviewLimit = reviews.length; render(); return; }
   if (action === 'write-review') { state.modal = { type: 'review', id: state.route.name === 'product' ? state.route.id : '' }; render(); return; }
@@ -6597,6 +7867,7 @@ document.addEventListener('change', event => {
     state.fitment.resultStale = Boolean(state.fitment.result);
     localStorage.setItem('fbox-fitment-draft', JSON.stringify(state.fitment.draft));
     render();
+    requestAnimationFrame(() => scrollFitmentFlowTo(document.querySelector('[data-fitment-style-continuation]'), { block: 'end', padding: 44 }));
     return;
   }
   if (el.matches('[data-wheel-upload]')) { wheelVisualizerHandleFile(el.files?.[0]); return; }
@@ -6653,8 +7924,52 @@ function endWheelCropDrag() {
 }
 document.addEventListener('pointerup', endWheelCropDrag);
 document.addEventListener('pointercancel', endWheelCropDrag);
+let catalogSearchTimer = 0;
+let fitmentStyleSearchTimer = 0;
 document.addEventListener('input', event => {
   const el = event.target;
+  if (el.matches('[data-fitment-part-search]')) {
+    filterFitmentPartPicker(el);
+    return;
+  }
+  if (el.matches('[data-fitment-style-search]')) {
+    const query = el.value;
+    state.fitment.styleCatalog = { ...(state.fitment.styleCatalog || {}), query };
+    window.clearTimeout(fitmentStyleSearchTimer);
+    const caret = el.selectionStart;
+    fitmentStyleSearchTimer = window.setTimeout(() => {
+      if (!document.querySelector('.fitment-flow-modal')) return;
+      render();
+      const replacement = document.querySelector('[data-fitment-style-search]');
+      replacement?.focus({ preventScroll: true });
+      if (Number.isInteger(caret)) replacement?.setSelectionRange(caret, caret);
+    }, 140);
+    return;
+  }
+  if (el.matches('[data-filter="ai"]') && state.route.name === 'store') {
+    state.search = el.value;
+    window.clearTimeout(catalogSearchTimer);
+    const caret = el.selectionStart;
+    catalogSearchTimer = window.setTimeout(() => {
+      if (state.route.name !== 'store') return;
+      render();
+      const replacement = document.querySelector('[data-filter="ai"]');
+      replacement?.focus({ preventScroll: true });
+      if (Number.isInteger(caret)) replacement?.setSelectionRange(caret, caret);
+    }, 180);
+    return;
+  }
+  if (el.matches('[data-fitment-vin-input]')) {
+    const vin = fitmentVinValue(el.value);
+    if (el.value !== vin) el.value = vin;
+    state.fitment.draft = { ...(state.fitment.draft || {}), vin_reference: vin };
+    localStorage.setItem('fbox-fitment-draft', JSON.stringify(state.fitment.draft));
+    if (state.fitment.vinLookup?.queriedVin && state.fitment.vinLookup.queriedVin !== vin) {
+      state.fitment.vinLookup = { loading: false, error: '', data: null, queriedVin: '' };
+    }
+    state.fitment.resultStale = Boolean(state.fitment.result);
+    return;
+  }
   if (el.matches('input[data-fitment-field]')) {
     const field = el.dataset.fitmentField;
     const value = String(el.value || '').trim();
@@ -6900,6 +8215,7 @@ document.addEventListener('submit', async event => {
   if (form.dataset.form === 'search') { state.search = new FormData(form).get('query') || ''; go('#store'); }
   if (form.dataset.form === 'site-chat') { await submitWebsiteChat(new FormData(form).get('message')); return; }
   if (form.dataset.form === 'wheel-inquiry') { await wheelVisualizerSubmitInquiry(Object.fromEntries(new FormData(form).entries())); return; }
+  if (form.dataset.form === 'rfq') { await submitRfq(Object.fromEntries(new FormData(form).entries())); return; }
   if (form.dataset.form === 'account') {
     const values = new FormData(form);
     try {
@@ -6910,7 +8226,6 @@ document.addEventListener('submit', async event => {
           state.mallToken = registerToken;
           localStorage.setItem('fbox-mall-token', state.mallToken);
           state.account = registered?.data?.member || registered?.member || null;
-          await syncMallCart();
           await syncMallWishlist();
           const next = state.modal?.afterLogin;
           state.modal = next === 'checkout' ? { type: 'checkout' } : next === 'orders' ? { type: 'orders' } : null;
@@ -6931,7 +8246,6 @@ document.addEventListener('submit', async event => {
       if (state.mallToken) localStorage.setItem('fbox-mall-token', state.mallToken);
       state.account = result?.data?.member || result?.member || null;
       const next = state.modal?.afterLogin;
-      await syncMallCart();
       await syncMallWishlist();
       state.modal = next === 'checkout' ? { type: 'checkout' } : next === 'orders' ? { type: 'orders' } : null;
       state.checkoutStep = next === 'checkout' ? 3 : state.checkoutStep;
@@ -6978,6 +8292,11 @@ document.addEventListener('submit', async event => {
   }
 });
 document.addEventListener('keydown', event => {
+  if (event.key === 'Enter' && event.target.matches?.('[data-fitment-vin-input]')) {
+    event.preventDefault();
+    void decodeFitmentVin();
+    return;
+  }
   if (event.key !== 'Escape') return;
   if (state.wheelVisualizer?.resultViewer?.open) { state.wheelVisualizer.resultViewer = null; render(); return; }
   if (String(state.modal?.type || '').startsWith('fitment-')) {
@@ -7001,6 +8320,7 @@ window.addEventListener('languagechange', () => {
   }
 });
 render();
+loadVehicleDirectory();
 void captureReturnedPayPalPayment();
 detectLocaleByIp();
 checkMallBackend();

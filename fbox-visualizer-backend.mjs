@@ -33,6 +33,11 @@ const defaultStorefrontSettings = {
 };
 const jobs = new Map();
 const jobTtlMs = 60 * 60 * 1000;
+const vinDecodeCache = new Map();
+const vinDecodeRateLimits = new Map();
+const vinDecodeCacheTtlMs = 24 * 60 * 60 * 1000;
+const vinDecodeRateWindowMs = 60 * 1000;
+const vinDecodeRateLimit = 20;
 const operationsPath = path.join(runtimeDir, 'fbox-operations.json');
 const seedOperationsPath = path.join(moduleDir, 'data', 'fbox-operations.seed.json');
 const seedReviewsPath = path.join(moduleDir, 'data', 'fbox-reviews-imported.json');
@@ -96,7 +101,6 @@ let customerSessionsLoaded = false;
 let customerSessionsWriteQueue = Promise.resolve();
 const publicTranslationCache = new Map();
 const publicTranslationLocales = new Set(['zh-CN', 'zh-TW', 'ja', 'ko', 'de', 'fr', 'es', 'it', 'pt-BR', 'ru', 'ar', 'nl', 'tr', 'pl', 'vi', 'th', 'id', 'hi']);
-let publicTranslationUnavailableUntil = 0;
 
 // ---------------------------------------------------------------------------
 // Storefront analytics: privacy-conscious, first-party event log. Every event
@@ -648,9 +652,12 @@ function cloneStoreValue(value) {
 
 function mergeStoreProductSeed(runtimeProducts = [], seedProducts = []) {
   const seededFields = [
-    'custom_size', 'size_note', 'price_mode', 'currency', 'sort',
+    'custom_size', 'size_note', 'price_mode', 'currency', 'sort', 'translation_profile',
     'image_original', 'image_cutout', 'visualizer_enabled',
-    'dynamic_wheel_effect', 'visualizer_mode', 'images'
+    'dynamic_wheel_effect', 'visualizer_mode', 'images', 'catalog_display_name',
+    'public_scope', 'minimum_quantity', 'construction', 'design_family', 'spoke_style',
+    'applications', 'classification_status', 'classification_note', 'load_rating_note',
+    'customization_options', 'ddp_regions', 'ddp_quote_basis', 'lead_time_note'
   ];
   const seedById = new Map(seedProducts.filter(item => item?.id).map(item => [String(item.id), item]));
   const runtimeIds = new Set(runtimeProducts.filter(item => item?.id).map(item => String(item.id)));
@@ -688,7 +695,8 @@ function ensureStoreProductContract(product = {}) {
       ? 'All sizes supported - custom diameter, width and fitment'
       : 'All sizes supported - custom fitment built to order',
     price_mode: 'fixed',
-    currency: 'USD'
+    currency: 'USD',
+    translation_profile: category === 'wheels' ? 'custom-wheel' : 'catalog-item'
   };
   Object.entries(defaults).forEach(([key, value]) => {
     if (next[key] === undefined || next[key] === null || next[key] === '') {
@@ -832,16 +840,129 @@ function textValue(value, max = 240) {
   return String(value || '').trim().slice(0, max);
 }
 
+function normalizedVin(value = '') {
+  return String(value || '').toUpperCase().replace(/[\s-]+/g, '');
+}
+
+function maskedVin(vin = '') {
+  const normalized = normalizedVin(vin);
+  return normalized.length === 17 ? `${normalized.slice(0, 3)}**********${normalized.slice(-4)}` : '';
+}
+
+function consumeVinDecodeRateLimit(req) {
+  const now = Date.now();
+  const key = clientIp(req) || 'local';
+  const current = vinDecodeRateLimits.get(key);
+  if (!current || current.resetAt <= now) {
+    vinDecodeRateLimits.set(key, { count: 1, resetAt: now + vinDecodeRateWindowMs });
+    return { allowed: true, retryAfter: 0 };
+  }
+  current.count += 1;
+  if (current.count <= vinDecodeRateLimit) return { allowed: true, retryAfter: 0 };
+  return { allowed: false, retryAfter: Math.max(1, Math.ceil((current.resetAt - now) / 1000)) };
+}
+
+function trimVinDecodeCaches() {
+  const now = Date.now();
+  for (const [key, entry] of vinDecodeCache) {
+    if (entry.expiresAt <= now) vinDecodeCache.delete(key);
+  }
+  if (vinDecodeCache.size > 5000) {
+    [...vinDecodeCache.keys()].slice(0, vinDecodeCache.size - 5000).forEach(key => vinDecodeCache.delete(key));
+  }
+  for (const [key, entry] of vinDecodeRateLimits) {
+    if (entry.resetAt <= now) vinDecodeRateLimits.delete(key);
+  }
+}
+
+async function decodeVinWithNhtsa(vin) {
+  trimVinDecodeCaches();
+  const cacheKey = createHash('sha256').update(vin).digest('hex');
+  const cached = vinDecodeCache.get(cacheKey);
+  if (cached?.expiresAt > Date.now()) return { ...cached.data, cached: true };
+
+  const endpoint = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${encodeURIComponent(vin)}?format=json`;
+  let response;
+  try {
+    response = await fetch(endpoint, {
+      headers: { Accept: 'application/json', 'User-Agent': 'Forcarbox-CIRUI/1.0 VIN decoder' },
+      signal: AbortSignal.timeout(12_000)
+    });
+  } catch (error) {
+    const upstreamError = new Error(error?.name === 'TimeoutError' ? 'The official VIN service timed out. Please try again.' : 'The official VIN service is temporarily unavailable.');
+    upstreamError.status = error?.name === 'TimeoutError' ? 504 : 502;
+    throw upstreamError;
+  }
+  if (!response.ok) {
+    const upstreamError = new Error('The official VIN service is temporarily unavailable.');
+    upstreamError.status = 502;
+    throw upstreamError;
+  }
+
+  const payload = await response.json().catch(() => null);
+  const result = Array.isArray(payload?.Results) ? payload.Results[0] : null;
+  if (!result || typeof result !== 'object') {
+    const upstreamError = new Error('The official VIN service returned an unreadable response.');
+    upstreamError.status = 502;
+    throw upstreamError;
+  }
+
+  const field = (name, max = 160) => textValue(result[name], max);
+  const vehicle = {
+    year: field('ModelYear', 4),
+    make: field('Make', 80),
+    model: field('Model', 120),
+    trim: field('Trim', 120),
+    series: field('Series', 120),
+    series_2: field('Series2', 120),
+    body_style: field('BodyClass', 120),
+    drive: field('DriveType', 80),
+    vehicle_type: field('VehicleType', 120),
+    manufacturer: field('Manufacturer', 180),
+    plant_country: field('PlantCountry', 100),
+    engine: {
+      cylinders: field('EngineCylinders', 20),
+      displacement_l: field('DisplacementL', 24),
+      fuel_type: field('FuelTypePrimary', 80),
+      model: field('EngineModel', 100)
+    },
+    oem_wheels: {
+      front_diameter_in: field('WheelSizeFront', 20),
+      rear_diameter_in: field('WheelSizeRear', 20),
+      number_of_wheels: field('Wheels', 20),
+      track_width_in: field('TrackWidth', 24)
+    }
+  };
+  const decoded = Boolean(vehicle.year && vehicle.make && vehicle.model);
+  const data = {
+    decoded,
+    vin_masked: maskedVin(vin),
+    source: 'NHTSA vPIC',
+    source_url: 'https://vpic.nhtsa.dot.gov/api/Home/Index',
+    checked_at: new Date().toISOString(),
+    cached: false,
+    vehicle,
+    warnings: field('ErrorCode', 80) === '0' ? [] : [field('ErrorText', 600) || 'The official decoder returned a partial record. Review every vehicle field.']
+  };
+  if (!decoded) {
+    const noMatch = new Error(field('ErrorText', 600) || 'No exact vehicle identity was returned for this VIN. Enter the vehicle manually and review the VIN.');
+    noMatch.status = 422;
+    throw noMatch;
+  }
+  vinDecodeCache.set(cacheKey, { expiresAt: Date.now() + vinDecodeCacheTtlMs, data });
+  return data;
+}
+
 async function translatePublicPhrases(values = [], locale = 'en') {
   const target = publicTranslationLocales.has(locale) ? locale : 'en';
   const sources = values.slice(0, 10).map(value => textValue(value, 360));
-  if (target === 'en' || Date.now() < publicTranslationUnavailableUntil) return sources;
-  let upstreamFailed = false;
+  if (target === 'en') return sources;
   const translations = await Promise.all(sources.map(async source => {
     if (!source) return '';
     const cacheKey = `${target}::${source}`;
     if (publicTranslationCache.has(cacheKey)) return publicTranslationCache.get(cacheKey);
     let translated = source;
+    let translatedUpstream = false;
     try {
       const googleTarget = target === 'pt-BR' ? 'pt' : target;
       const endpoint = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(googleTarget)}&dt=t&q=${encodeURIComponent(source)}`;
@@ -849,16 +970,32 @@ async function translatePublicPhrases(values = [], locale = 'en') {
       if (response.ok) {
         const payload = await response.json();
         translated = Array.isArray(payload?.[0]) ? payload[0].map(part => part?.[0] || '').join('') || source : source;
-      } else upstreamFailed = true;
-    } catch {
-      upstreamFailed = true;
-      translated = source;
+        translatedUpstream = true;
+      }
+    } catch {}
+    if (!translatedUpstream) {
+      try {
+        const memoryTarget = target === 'pt-BR' ? 'pt-BR' : target;
+        const endpoint = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(source)}&langpair=en%7C${encodeURIComponent(memoryTarget)}`;
+        const response = await fetch(endpoint, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(3500) });
+        if (response.ok) {
+          const payload = await response.json();
+          const candidate = textValue(payload?.responseData?.translatedText, 800)
+            .replaceAll('&quot;', '"').replaceAll('&#39;', "'").replaceAll('&amp;', '&').replaceAll('&lt;', '<').replaceAll('&gt;', '>');
+          if (candidate && !/MYMEMORY WARNING|QUERY LENGTH LIMIT/i.test(candidate)) {
+            translated = candidate;
+            translatedUpstream = true;
+          }
+        }
+      } catch {}
     }
     if (publicTranslationCache.size >= 5000) publicTranslationCache.delete(publicTranslationCache.keys().next().value);
-    publicTranslationCache.set(cacheKey, translated);
+    // A temporary failure for one phrase must not disable every language or
+    // poison the cache with untranslated English. Successful results remain
+    // cached; failed phrases can be retried on the next page render.
+    if (translatedUpstream) publicTranslationCache.set(cacheKey, translated);
     return translated;
   }));
-  if (upstreamFailed) publicTranslationUnavailableUntil = Date.now() + 5 * 60 * 1000;
   return translations;
 }
 
@@ -1808,11 +1945,21 @@ function fitmentAiWheelSpec(value = '') {
   return { diameter: Number(match[1]), width: Number(match[2]), offset: match[3] === undefined ? null : Number(match[3]) };
 }
 
+function fitmentAiWheelDiameter(value = '') {
+  const source = String(value || '').replace(/[”″]/g, '"');
+  const localized = source.match(/(?:^|\D)(1[2-9]|2[0-4])\s*(?:寸|吋|英寸|in(?:ch(?:es)?)?|\")(?=\D|$)/i);
+  if (localized) return Number(localized[1]);
+  return fitmentAiWheelSpec(source)?.diameter ?? null;
+}
+
 function fitmentAiPartCandidates(parts = [], phrase = '', types = [], axle = 'universal', vehicle = {}) {
   const query = normalizedFitmentToken(phrase).replace(/[^a-z0-9\u4e00-\u9fff.+/-]+/g, ' ');
   if (!query) return [];
   const queryTokens = query.split(/\s+/).filter(token => token.length >= 2);
   const modelNumberTokens = queryTokens.filter(token => /^\d{3,}$/.test(token) && Number(token) > 500);
+  const requestedIdentityTokens = queryTokens
+    .map(token => token.replace(/[^a-z0-9]/g, ''))
+    .filter(token => token.length >= 2 && /[a-z]/.test(token) && /\d/.test(token));
   const mentionedBrands = [...new Set(parts.map(part => normalizedFitmentToken(part.brand)).filter(brand => brand && brand.length >= 3 && query.includes(brand)))];
   const requestedPistons = fitmentAiPistonCount(query);
   const requestedRotor = fitmentAiRotorDiameter(query);
@@ -1822,17 +1969,24 @@ function fitmentAiPartCandidates(parts = [], phrase = '', types = [], axle = 'un
     const partNumber = normalizedFitmentToken(part.part_number).replace(/\s+/g, '');
     const normalizedQuery = query.replace(/\s+/g, '');
     const modelTokens = model.replace(/[^a-z0-9\u4e00-\u9fff]+/g, ' ').split(/\s+/).filter(token => token.length >= 2);
+    const searchAliases = (Array.isArray(part.specs?.search_aliases) ? part.specs.search_aliases : [])
+      .map(alias => normalizedFitmentToken(alias))
+      .filter(Boolean);
+    const compactIdentity = `${model} ${partNumber}`.replace(/[^a-z0-9]/g, '');
     const exactPartNumber = Boolean(partNumber && partNumber.length >= 4 && normalizedQuery.includes(partNumber));
     const exactModel = Boolean(model && model.length >= 4 && query.includes(model));
     const brandMatch = Boolean(brand && query.includes(brand));
     const modelTokenMatches = modelTokens.filter(token => queryTokens.includes(token) || query.includes(token));
+    const aliasMatch = searchAliases.some(alias => query.includes(alias) || alias.includes(query));
     const hasRequestedModelNumber = modelNumberTokens.length === 0 || modelNumberTokens.some(token => model.includes(token) || partNumber.includes(token));
-    const identityMatch = exactPartNumber || exactModel || brandMatch || modelTokenMatches.length > 0;
+    const hasRequestedIdentity = requestedIdentityTokens.length === 0 || requestedIdentityTokens.every(token => compactIdentity.includes(token));
+    const identityMatch = exactPartNumber || exactModel || aliasMatch || brandMatch || modelTokenMatches.length > 0;
     const vehicleMatch = fitmentPartMatchesVehicle(part, vehicle);
     const axleMatch = part.axle === axle || part.axle === 'universal' || part.axle === 'both' || axle === 'universal';
     let score = exactPartNumber ? 120 : 0;
     if (exactModel) score += 60;
     if (brandMatch) score += 28;
+    if (aliasMatch) score += 46;
     score += modelTokenMatches.length * 7;
     if (vehicleMatch) score += 45;
     else if ((part.fitment_rules || []).length) score -= 15;
@@ -1842,7 +1996,7 @@ function fitmentAiPartCandidates(parts = [], phrase = '', types = [], axle = 'un
     const rotor = fitmentNumber(part.specs?.rotor_diameter_mm) ?? fitmentAiRotorDiameter(part.specs?.rotor_diameter_mm_text);
     if (requestedPistons !== null && pistons !== null) score += requestedPistons === pistons ? 16 : -18;
     if (requestedRotor !== null && rotor !== null) score += Math.abs(requestedRotor - rotor) <= 2 ? 18 : -12;
-    if (!identityMatch || !hasRequestedModelNumber || (mentionedBrands.length && !mentionedBrands.includes(brand))) score = -1000;
+    if (!identityMatch || !hasRequestedModelNumber || !hasRequestedIdentity || (mentionedBrands.length && !mentionedBrands.includes(brand))) score = -1000;
     return { part, score, exactPartNumber, exactModel, vehicleMatch, pistons, rotor };
   }).filter(candidate => candidate.score >= 24).sort((left, right) => right.score - left.score).slice(0, 3);
 }
@@ -1874,7 +2028,15 @@ function fitmentAiPublicMatch(field, phrase, candidate, alternatives = []) {
     && candidate.vehicleMatch
     && part.auto_match_enabled === true
     && ['application_verified', 'template_verified', 'customer_measured'].includes(part.verification_status);
-  return { field, input: phrase, match_level: matchLevel, selected: compact(candidate), alternatives: alternatives.slice(1, 3).map(compact), can_autofill: canAutofill };
+  return {
+    field,
+    input: phrase,
+    match_level: matchLevel,
+    selected: compact(candidate),
+    alternatives: alternatives.slice(1, 3).map(compact),
+    can_autofill: canAutofill,
+    identity_prefill: Boolean(part.id)
+  };
 }
 
 function fitmentAiReferencePlan({ exactRecord = null, baseline = null, matches = [], extracted = {} } = {}) {
@@ -1977,6 +2139,41 @@ function fitmentAiFallbackExtract(notes = '', locale = 'en') {
       if (!front && !rear && !both) extracted.current_tire_unspecified = tire;
     }
   });
+  const pistonNumber = value => ({
+    '2': 2, '二': 2, '两': 2, '兩': 2,
+    '4': 4, '四': 4,
+    '6': 6, '六': 6,
+    '8': 8, '八': 8
+  })[String(value || '')] || null;
+  const sharedBrakeBrand = /(?:布雷博|\bbrembo\b)/i.test(source) ? 'Brembo' : '';
+  const compactPistons = source.match(/前(?:轮|輪|轴|軸|面|部)?\s*([二两兩四六八2468])\s*(?:活塞)?\s*[、/和与及]?\s*[后後](?:轮|輪|轴|軸|面|部)?\s*([二两兩四六八2468])\s*(?:活塞)?/i);
+  const axleModel = axle => {
+    const prefix = axle === 'front' ? '(?:前(?:轮|輪|轴|軸|面|部)?|front)' : '(?:[后後](?:轮|輪|轴|軸|面|部)?|rear)';
+    const match = source.match(new RegExp(`${prefix}\\s*(?:(?:刹车|剎車|制动|制動|卡钳|卡鉗)\\s*)?(?:是|为|為|用|装|裝|改|的|了|[:：-])*\\s*([a-z]{1,10}[- ]?\\d[a-z0-9-]{0,14})`, 'i'));
+    return match ? match[1].replace(/\s+/g, '').toUpperCase() : '';
+  };
+  const frontModel = axleModel('front');
+  const rearModel = axleModel('rear');
+  const frontPistons = compactPistons ? pistonNumber(compactPistons[1]) : fitmentAiPistonCount(extracted.front_brake);
+  const rearPistons = compactPistons ? pistonNumber(compactPistons[2]) : fitmentAiPistonCount(extracted.rear_brake);
+  const brakePhrase = (existing, model, pistons) => {
+    if (!existing && !model && pistons === null) return null;
+    const canonical = canonicalPhrase(existing || '');
+    const pieces = [];
+    if (sharedBrakeBrand && !new RegExp(sharedBrakeBrand, 'i').test(canonical)) pieces.push(sharedBrakeBrand);
+    if (model && !canonical.toUpperCase().replace(/[^A-Z0-9]/g, '').includes(model.replace(/[^A-Z0-9]/g, ''))) pieces.push(model);
+    if (pistons !== null && fitmentAiPistonCount(canonical) === null) pieces.push(tr(`${pistons}-piston`, `${pistons} 活塞`));
+    if (canonical) pieces.push(canonical);
+    return fitmentText(pieces.join(' ').replace(/\s+/g, ' '), 180) || null;
+  };
+  if (frontModel || frontPistons !== null) extracted.front_brake = brakePhrase(extracted.front_brake, frontModel, frontPistons);
+  if (rearModel || rearPistons !== null) extracted.rear_brake = brakePhrase(extracted.rear_brake, rearModel, rearPistons);
+  const currentWheelDiameter = fitmentAiWheelDiameter(source);
+  if (currentWheelDiameter && /(?:目前|现在|現在|当前|當前|使用|用的|原厂|原廠|current|installed|factory|oem|轮毂|輪轂|wheel)/i.test(source)
+    && !extracted.current_front_wheel && !extracted.current_rear_wheel && !extracted.current_wheel_unspecified) {
+    const factory = /(?:原厂|原廠|factory|oem)/i.test(source);
+    extracted.current_wheel_unspecified = tr(`${currentWheelDiameter} in${factory ? ' factory' : ''} wheel`, `${currentWheelDiameter} 寸${factory ? '原厂' : '当前'}轮毂`);
+  }
   const drop = source.match(/(?:降低|下降|降了|lowered|drop(?:ped)?)\D{0,8}(\d+(?:\.\d+)?)\s*(?:mm|毫米)/i);
   if (drop) extracted.ride_height_drop_mm = fitmentNumber(drop[1]);
   const frontCamber = source.match(/(?:前轮|前輪|前轴|前軸|front)\D{0,10}(?:倾角|傾角|外倾|外傾|camber)?\D{0,5}([+-]?\d+(?:\.\d+)?)\s*(?:°|度|deg)/i);
@@ -2925,6 +3122,8 @@ function normalizeProductPayload(payload = {}, existing = {}) {
   const dynamicWheelEffectInput = hasOwn(payload, 'dynamic_wheel_effect') ? payload.dynamic_wheel_effect : existing.dynamic_wheel_effect;
   const visualizerModeInput = hasOwn(payload, 'visualizer_mode') ? payload.visualizer_mode : existing.visualizer_mode;
   const sizeNoteInput = hasOwn(payload, 'size_note') ? payload.size_note : existing.size_note;
+  const categoryInput = textValue(hasOwn(payload, 'category') ? payload.category : existing.category, 120) || 'Wheels';
+  const translationProfileInput = hasOwn(payload, 'translation_profile') ? payload.translation_profile : existing.translation_profile;
   const sort = Math.floor(Number(sortInput || 0));
   const cover = images[0];
   const boolValue = (value, fallback = true) => {
@@ -2948,8 +3147,9 @@ function normalizeProductPayload(payload = {}, existing = {}) {
     visualizer_enabled: boolValue(visualizerEnabledInput, existing.visualizer_enabled !== false),
     dynamic_wheel_effect: boolValue(dynamicWheelEffectInput, existing.dynamic_wheel_effect !== false),
     visualizer_mode: textValue(visualizerModeInput || 'dynamic-wheel', 40) || 'dynamic-wheel',
+    translation_profile: textValue(translationProfileInput, 40) || (categoryInput.toLowerCase() === 'wheels' ? 'custom-wheel' : 'catalog-item'),
     custom_size: true,
-    size_note: textValue(sizeNoteInput, 240) || (String(payload.category || existing.category || '').toLowerCase() === 'wheels' ? 'All sizes supported - custom diameter, width and fitment' : 'All sizes supported - custom fitment built to order'),
+    size_note: textValue(sizeNoteInput, 240) || (categoryInput.toLowerCase() === 'wheels' ? 'All sizes supported - custom diameter, width and fitment' : 'All sizes supported - custom fitment built to order'),
     images,
     image: cover?.url || legacyImage,
     image_original: cover?.original_url || textValue(hasOwn(payload, 'image_original') ? payload.image_original : existing.image_original, 800),
@@ -3110,6 +3310,19 @@ function normalizeVehicleSelection(value = {}) {
     drive: textValue(source.drive, 20)
   };
 }
+function normalizeInquiryProducts(value = []) {
+  const source = Array.isArray(value) ? value : [];
+  return source.slice(0, 20).map(item => ({
+    id: textValue(item?.id || item?.product_id, 80),
+    name: textValue(item?.name || item?.product_name, 160),
+    part: textValue(item?.part, 80),
+    image: textValue(item?.image || item?.product_image, 1000),
+    construction: textValue(item?.construction, 40),
+    design_family: textValue(item?.design_family, 60),
+    finish: textValue(item?.finish, 80),
+    quantity: Math.min(999, Math.max(1, Number(item?.quantity || item?.qty || 1)))
+  })).filter(item => item.id || item.name);
+}
 function normalizeInquiry(payload = {}, id = operationId('inquiry')) {
   const record = {
     id,
@@ -3120,8 +3333,12 @@ function normalizeInquiry(payload = {}, id = operationId('inquiry')) {
     customer_name: textValue(payload.customer_name || payload.name || 'Website visitor', 80),
     customer_email: textValue(payload.customer_email || payload.email, 160),
     customer_phone: textValue(payload.customer_phone || payload.phone, 60),
+    company: textValue(payload.company, 160),
+    buyer_type: ['retail', 'dealer', 'distributor', 'shop'].includes(payload.buyer_type) ? payload.buyer_type : 'retail',
     country: textValue(payload.country, 80),
     country_code: textValue(payload.country_code, 8).toUpperCase(),
+    postcode: textValue(payload.postcode || payload.post_code, 30),
+    ddp_requested: payload.ddp_requested === true || ['true', '1', 'yes', 'on'].includes(String(payload.ddp_requested || '').toLowerCase()),
     vehicle: textValue(payload.vehicle, 160),
     vehicle_selection: normalizeVehicleSelection(payload.vehicle_selection),
     official_wheel_specs: normalizeInquirySpecs(payload.official_wheel_specs),
@@ -3132,6 +3349,7 @@ function normalizeInquiry(payload = {}, id = operationId('inquiry')) {
     product_finish: textValue(payload.product_finish, 80),
     product_image: textValue(payload.product_image, 1000),
     product_display_price: Number(payload.product_display_price || payload.product_price || 0) || 0,
+    products: normalizeInquiryProducts(payload.products),
     preview_images: Array.isArray(payload.preview_images) ? payload.preview_images.map(image => textValue(image, 1000)).filter(Boolean).slice(0, 3) : [],
     wheel_specs: normalizeInquirySpecs(payload.wheel_specs),
     workshop_project_token: textValue(payload.workshop_project_token, 120),
@@ -3297,10 +3515,14 @@ async function processCatalogImage(parsed, processMode = 'cutout') {
   }
   const source = sharp(parsed.bytes, { failOn: 'none' }).resize({ width: 1800, height: 1800, fit: 'inside', withoutEnlargement: true }).ensureAlpha();
   const { data, info } = await source.raw().toBuffer({ resolveWithObject: true });
-  const hasTransparency = (() => {
-    for (let index = 3; index < data.length; index += 4) if (data[index] < 255) return true;
-    return false;
-  })();
+  let transparentPixelCount = 0;
+  for (let index = 3; index < data.length; index += 4) {
+    if (data[index] < 250) transparentPixelCount += 1;
+  }
+  // A few antialiased or metadata-edge pixels do not make a product image a
+  // real cutout. Require a meaningful transparent area before preserving the
+  // source alpha; otherwise continue through the flat-background remover.
+  const hasTransparency = transparentPixelCount >= info.width * info.height * 0.03;
   const result = hasTransparency
     ? { data, removed: 0, attempted: false }
     : removeFlatImageBackground(data, info.width, info.height);
@@ -3832,6 +4054,21 @@ function publicAdminUser() {
 export async function handleFBoxStoreApi(req, res, url) {
   if (req.method === 'OPTIONS') return json(res, 204, {});
   const pathName = url.pathname.replace(/\/$/, '');
+
+  if (req.method === 'POST' && pathName === '/api/fbox-store/vehicle/vin-decode') {
+    try {
+      const rate = consumeVinDecodeRateLimit(req);
+      if (!rate.allowed) return json(res, 429, { code: 429, detail: 'Too many VIN checks. Please wait before trying again.', retry_after: rate.retryAfter });
+      const payload = await readJson(req, 8 * 1024);
+      const vin = normalizedVin(payload.vin);
+      if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) return json(res, 400, { code: 400, detail: 'Enter a valid 17-character VIN. Letters I, O and Q are not used in VINs.' });
+      const decoded = await decodeVinWithNhtsa(vin);
+      return json(res, 200, { code: 200, data: decoded });
+    } catch (error) {
+      return json(res, error.status || 502, { code: error.status || 502, detail: error.message || 'VIN decoding failed.' });
+    }
+  }
+
   const data = await loadStore();
   await ensureCustomerSessionsLoaded();
   const geo = await geoForRequest(req);
@@ -4430,7 +4667,8 @@ export async function handleFBoxOperationsApi(req, res, url) {
       const texts = Array.isArray(payload.texts) ? payload.texts : [];
       if (!publicTranslationLocales.has(locale) || !texts.length || texts.length > 10) return json(res, 422, { detail: 'A supported locale and 1-10 text values are required.' });
       const translations = await translatePublicPhrases(texts, locale);
-      return json(res, 200, { data: { locale, translations, upstream_available: Date.now() >= publicTranslationUnavailableUntil } });
+      const upstreamAvailable = locale === 'en' || translations.some((value, index) => value && value !== texts[index]);
+      return json(res, 200, { data: { locale, translations, upstream_available: upstreamAvailable } });
     }
     if (req.method === 'GET' && pathName === '/api/fbox-content/settings') {
       const storefront = (await loadConfig()).storefront || defaultStorefrontSettings;
@@ -4578,13 +4816,14 @@ export async function handleFBoxOperationsApi(req, res, url) {
         const isChinese = locale.toLowerCase().startsWith('zh');
         const isTraditionalChinese = locale.toLowerCase() === 'zh-tw';
         const tr = (english, chinese) => !isChinese ? english : isTraditionalChinese ? traditionalizeFitmentText(chinese) : chinese;
-        const system = `You extract customer facts for a professional custom-wheel fitment calculator. The application will query its own verified vehicle and component library after your extraction. Extract only facts explicitly stated by the user, but normalize an obvious localized brand alias to its canonical brand name when certain (for example 布雷博 to Brembo); never invent a model or part number. Never infer final wheel diameter, width, offset, tire approval, vehicle identity, clearance, compatibility or installation safety. The customer is here to calculate a custom wheel, so NEVER ask them to provide a target wheel diameter, target width, target ET or target tire size as a prerequisite. You may ask only for exact vehicle identity, exact installed component model or part number, current installed wheel/tire markings, physical clearance measurements, ride height/alignment, and intended use. Never copy an axle-ambiguous wheel or tire value into front or rear fields: if the user does not explicitly name front, rear, square setup, or both axles, place it only in current_wheel_unspecified or current_tire_unspecified. Unknown values must be null. Do not approve a fitment. Write summary, questions and cautions entirely in the requested locale; for zh-CN use Simplified Chinese only, for zh-TW use Traditional Chinese only, and never mix languages except unchanged brand names, part numbers and engineering units. Return JSON only with this schema: {"summary":"short neutral summary","extracted":{"front_brake":"string|null","rear_brake":"string|null","front_rotor":"string|null","rear_rotor":"string|null","suspension":"string|null","ride_height_drop_mm":"number|null","front_camber_deg":"number|null","rear_camber_deg":"number|null","current_front_wheel":"string|null","current_rear_wheel":"string|null","current_front_tire":"string|null","current_rear_tire":"string|null","current_wheel_unspecified":"string|null","current_tire_unspecified":"string|null","intended_use":"string|null","target_style":"string|null"},"questions":["one genuinely necessary fact"],"cautions":["fact that still needs a part number, drawing or measurement"]}. Keep questions concise and return no more than six.`;
+        const system = `You extract customer-stated facts for a professional custom-wheel fitment calculator. Missing vehicle identity must never prevent you from extracting installed wheel, brake, rotor or suspension facts that the user did state. The application will query its own verified vehicle and component library after your extraction. Extract only facts explicitly stated by the user, but normalize an obvious localized brand alias to its canonical brand name when certain (for example 布雷博 to Brembo); never invent a model or part number. Understand concise Chinese car-community wording: "前六后四" means front six-piston and rear four-piston; "前 GT6，后 F40，都是布雷博" means front Brembo GT6 and rear Brembo F40; a brand placed after "都是/均为" applies to both named axles. Preserve those named models even when an exact catalogue part number is still missing. "19寸原厂轮毂" is a stated current-wheel diameter, but without an explicit axle/square/both-axles phrase it belongs in current_wheel_unspecified. Never infer rotor diameter, final wheel diameter, width, offset, tire approval, vehicle identity, clearance, compatibility or installation safety. The customer is here to calculate a custom wheel, so NEVER ask them to provide a target wheel diameter, target width, target ET or target tire size as a prerequisite. You may ask only for exact vehicle identity, exact installed component model or part number, current installed wheel/tire markings, rotor diameter/thickness, physical clearance measurements, ride height/alignment, and intended use. Never copy an axle-ambiguous wheel or tire value into front or rear fields: if the user does not explicitly name front, rear, square setup, or both axles, place it only in current_wheel_unspecified or current_tire_unspecified. Unknown values must be null. Do not approve a fitment. Write summary, questions and cautions entirely in the requested locale; for zh-CN use Simplified Chinese only, for zh-TW use Traditional Chinese only, and never mix languages except unchanged brand names, part numbers and engineering units. Return JSON only with this schema: {"summary":"short neutral summary","extracted":{"front_brake":"string|null","rear_brake":"string|null","front_rotor":"string|null","rear_rotor":"string|null","suspension":"string|null","ride_height_drop_mm":"number|null","front_camber_deg":"number|null","rear_camber_deg":"number|null","current_front_wheel":"string|null","current_rear_wheel":"string|null","current_front_tire":"string|null","current_rear_tire":"string|null","current_wheel_unspecified":"string|null","current_tire_unspecified":"string|null","intended_use":"string|null","target_style":"string|null"},"questions":["one genuinely necessary fact"],"cautions":["fact that still needs a part number, drawing or measurement"]}. Keep questions concise and return no more than six.`;
         const context = {
           locale,
           vehicle: payload.vehicle && typeof payload.vehicle === 'object' ? payload.vehicle : {},
           notes
         };
         const modelTimeoutMs = Math.max(50, Math.min(25_000, Number(process.env.FBOX_FITMENT_AI_TIMEOUT_MS) || 20_000));
+        const localResult = fitmentAiFallbackExtract(notes, locale);
         let modelStatus = 'model';
         let result;
         try {
@@ -4592,12 +4831,20 @@ export async function handleFBoxOperationsApi(req, res, url) {
           if (!result?.extracted || typeof result.extracted !== 'object') throw new Error('The fitment assistant returned an incomplete extraction.');
         } catch {
           modelStatus = 'local_fallback';
-          result = fitmentAiFallbackExtract(notes, locale);
+          result = localResult;
         }
-        const source = result?.extracted && typeof result.extracted === 'object' ? result.extracted : {};
+        const modelSource = result?.extracted && typeof result.extracted === 'object' ? result.extracted : {};
+        const localSource = localResult?.extracted && typeof localResult.extracted === 'object' ? localResult.extracted : {};
         const allowedKeys = ['front_brake', 'rear_brake', 'front_rotor', 'rear_rotor', 'suspension', 'ride_height_drop_mm', 'front_camber_deg', 'rear_camber_deg', 'current_front_wheel', 'current_rear_wheel', 'current_front_tire', 'current_rear_tire', 'current_wheel_unspecified', 'current_tire_unspecified', 'intended_use', 'target_style'];
+        const fallbackAddedKeys = allowedKeys.filter(key => {
+          const modelValue = modelSource[key];
+          const localValue = localSource[key];
+          return (modelValue === null || modelValue === undefined || String(modelValue).trim() === '')
+            && localValue !== null && localValue !== undefined && String(localValue).trim() !== '';
+        });
         const extracted = Object.fromEntries(allowedKeys.map(key => {
-          const value = source[key];
+          const modelValue = modelSource[key];
+          const value = modelValue === null || modelValue === undefined || String(modelValue).trim() === '' ? localSource[key] : modelValue;
           if (value === null || value === undefined || value === '') return [key, null];
           if (['ride_height_drop_mm', 'front_camber_deg', 'rear_camber_deg'].includes(key)) return [key, fitmentNumber(value)];
           return [key, fitmentText(value, 180) || null];
@@ -4611,6 +4858,18 @@ export async function handleFBoxOperationsApi(req, res, url) {
           return isTraditionalChinese ? traditionalizeFitmentText(text) : text;
         };
         const cleanList = value => (Array.isArray(value) ? value : []).map(item => localizeModelText(item, 280)).filter(Boolean).slice(0, 6);
+        const explicitFactSummary = () => {
+          const facts = [
+            extracted.current_front_wheel || extracted.current_rear_wheel || extracted.current_wheel_unspecified,
+            extracted.front_brake ? tr(`Front: ${extracted.front_brake}`, `前刹车：${extracted.front_brake}`) : '',
+            extracted.rear_brake ? tr(`Rear: ${extracted.rear_brake}`, `后刹车：${extracted.rear_brake}`) : '',
+            extracted.front_rotor ? tr(`Front rotor: ${extracted.front_rotor}`, `前刹车盘：${extracted.front_rotor}`) : '',
+            extracted.rear_rotor ? tr(`Rear rotor: ${extracted.rear_rotor}`, `后刹车盘：${extracted.rear_rotor}`) : '',
+            extracted.suspension ? tr(`Suspension: ${extracted.suspension}`, `避震：${extracted.suspension}`) : ''
+          ].filter(Boolean);
+          if (!facts.length) return '';
+          return tr(`Identified ${facts.join('; ')}.`, `已识别：${facts.join('；')}。`);
+        };
         const vehicle = {
           year: Number(context.vehicle.year || 0),
           make: fitmentText(context.vehicle.make, 60),
@@ -4671,7 +4930,9 @@ export async function handleFBoxOperationsApi(req, res, url) {
           setPatch(definition.detailField, phrase);
           const match = matchedParts.find(item => item.field === definition.field);
           if (match?.match_level === 'exact_part_number') setPatch(definition.partNumberField, match.selected?.part_number);
-          if (match?.can_autofill) setPatch(definition.idField, match.selected?.id);
+          // Keep the identified catalog family selected even when its exact envelope
+          // still needs a drawing or kit code. Identity is not production approval.
+          if (match?.identity_prefill && match.selected?.id) setPatch(definition.idField, match.selected.id);
         });
         setPatch('ride_height_drop_mm', extracted.ride_height_drop_mm);
         setPatch('front_camber_deg', extracted.front_camber_deg);
@@ -4721,16 +4982,28 @@ export async function handleFBoxOperationsApi(req, res, url) {
           const value = formPatch[name] ?? draft[name];
           return value !== null && value !== undefined && String(value).trim() !== '';
         };
-        const addMissing = (name, step, reason) => {
+        const addMissing = (name, step, reason, options = {}) => {
           if (hasValue(name) || missingFields.some(item => item.name === name)) return;
-          missingFields.push({ name, step, label: fieldLabels[name] || name, reason, prompt: tr('Enter or measure this value to continue the precision calculation.', '填写或实测此项后，继续精准计算。') });
+          const blocking = options.blocking !== false;
+          missingFields.push({
+            name,
+            step,
+            label: fieldLabels[name] || name,
+            reason,
+            blocking,
+            phase: blocking ? 'calculation' : 'production_lock',
+            prompt: options.prompt || (blocking
+              ? tr('Enter or measure this value to continue the precision calculation.', '填写或实测此项后，继续精准计算。')
+              : tr('You can continue now. Confirm this code or attach a brake template before the wheel drawing is approved for production.', '现在可以继续计算；轮毂图纸批准生产前，再补充准确料号或上传刹车模板。'))
+          });
         };
         ['front', 'rear'].forEach(axle => {
           const brakeMatch = matchedParts.find(item => item.field === `${axle}_brake`);
           if (!draft[`${axle}_brake_id`] && !extracted[`${axle}_brake`]) addMissing(`${axle}_brake_id`, 3, tr('Choose factory original or describe the installed caliper.', `请选择${axle === 'front' ? '前' : '后'}卡钳为原厂，或填写已安装卡钳。`));
-          if (extracted[`${axle}_brake`] && brakeMatch?.match_level !== 'exact_part_number') addMissing(`${axle}_brake_part_number`, 3, tr('A brand or family match cannot determine the exact brake envelope.', '仅匹配到品牌或系列，无法确定准确卡钳外廓。'));
+          if (extracted[`${axle}_brake`] && brakeMatch?.match_level !== 'exact_part_number') addMissing(`${axle}_brake_part_number`, 3, tr('A brand or family match cannot determine the exact brake envelope.', '仅匹配到品牌或系列，无法确定准确卡钳外廓。'), { blocking: false });
           const rotorMatch = matchedParts.find(item => item.field === `${axle}_rotor`);
-          if (extracted[`${axle}_rotor`] && rotorMatch?.match_level !== 'exact_part_number') addMissing(`${axle}_rotor_part_number`, 3, tr('Confirm the exact rotor or kit reference so diameter and thickness are not guessed.', '请确认准确刹车盘或套件料号，避免猜测盘径与厚度。'));
+          if (extracted[`${axle}_brake`] && !extracted[`${axle}_rotor`]) addMissing(`${axle}_rotor_part_number`, 3, tr('The modified caliper is known, but its paired rotor diameter and thickness are still required.', '已识别改装卡钳，但仍需确认配套刹车盘的准确盘径与厚度。'), { blocking: false });
+          if (extracted[`${axle}_rotor`] && rotorMatch?.match_level !== 'exact_part_number') addMissing(`${axle}_rotor_part_number`, 3, tr('Confirm the exact rotor or kit reference so diameter and thickness are not guessed.', '请确认准确刹车盘或套件料号，避免猜测盘径与厚度。'), { blocking: false });
           ['diameter', 'width', 'offset', 'tire'].forEach(key => addMissing(`current_${axle}_${key}`, 4, tr('The current installed baseline is needed to calculate movement and rolling diameter.', '需要当前已安装基准，才能计算内外位移与滚动直径。')));
           ['inner_clearance_mm', 'spoke_clearance_mm', 'fender_clearance_mm', 'compression_clearance_mm'].forEach(key => addMissing(`${axle}_${key}`, 4, tr('A physical minimum clearance is required before final width and ET can be solved.', '必须提供现车最小实测间隙，才能反算最终轮宽与 ET。')));
           addMissing(`${axle}_pcd`, 5, tr('No reliable vehicle hub reference was found.', '暂未查到可靠的车型 PCD 参考。'));
@@ -4738,24 +5011,24 @@ export async function handleFBoxOperationsApi(req, res, url) {
         });
         if (!draft.suspension_id && !extracted.suspension) addMissing('suspension_id', 3, tr('Choose factory original or describe the installed suspension.', '请选择原厂避震，或填写已安装避震。'));
         const suspensionMatch = matchedParts.find(item => item.field === 'suspension');
-        if (extracted.suspension && suspensionMatch?.match_level !== 'exact_part_number') addMissing('suspension_part_number', 3, tr('The exact suspension model is needed to check body and spring-perch clearance.', '需要准确避震型号，才能核对筒身与弹簧座空间。'));
+        if (extracted.suspension && suspensionMatch?.match_level !== 'exact_part_number') addMissing('suspension_part_number', 3, tr('The exact suspension model is needed to check body and spring-perch clearance.', '需要准确避震型号，才能核对筒身与弹簧座空间。'), { blocking: false });
         const lowered = ['lowered', 'static-low', 'air-low', 'track'].includes(draft.stance_profile) || (extracted.ride_height_drop_mm !== null && Number(extracted.ride_height_drop_mm) > 0) || /lower|低|降/.test(normalizedFitmentToken(extracted.suspension));
         if (lowered) {
           addMissing('ride_height_drop_mm', 3, tr('Measure the current drop at the vehicle, not the advertised product range.', '请实测当前车身降低量，不要使用产品宣传的可调范围。'));
           addMissing('front_camber_deg', 4, tr('Lowered geometry needs the current alignment value.', '降低车身后需要当前四轮定位数据。'));
           addMissing('rear_camber_deg', 4, tr('Lowered geometry needs the current alignment value.', '降低车身后需要当前四轮定位数据。'));
         }
+        const cautions = cleanList(result?.cautions);
         const questions = [];
         if (!vehicle.year || !vehicle.make || !vehicle.model || !vehicle.trim || !vehicle.drive) questions.push(tr('Confirm the exact year, model, trim, drive and market from the VIN or build record.', '请通过 VIN 或原厂配置单确认准确年份、车型、配置、驱动形式和销售市场。'));
-        if (missingFields.some(item => /part_number$/.test(item.name))) questions.push(tr('Confirm the complete model or part number printed on each modified brake and suspension component.', '请补充各改装卡钳、刹车盘和避震上标注的完整型号或料号。'));
+        if (missingFields.some(item => /part_number$/.test(item.name))) cautions.unshift(tr('Before production approval, confirm the complete caliper or kit code and the paired rotor diameter/thickness printed on each modified brake component.', '生产批准前，请确认改装卡钳或套件的完整料号，以及配套刹车盘上标注的盘径与厚度。'));
         if (missingFields.some(item => item.name.startsWith('current_'))) questions.push(tr('Record the markings on the currently installed front and rear wheels and tires: diameter, width, ET and tire size.', '请记录当前前后轮毂及轮胎上的标识：直径、轮宽、ET 和轮胎规格。'));
         if (missingFields.some(item => /clearance_mm$/.test(item.name))) questions.push(tr('Measure the smallest barrel-to-suspension, spoke-to-caliper, tire-to-fender and full-travel clearances on both axles.', '请实测前后轴内桶到避震、辐条到卡钳、胎肩到轮眉以及满行程最小间隙。'));
         if (missingFields.some(item => item.name === 'ride_height_drop_mm' || item.name.endsWith('camber_deg'))) questions.push(tr('Enter the measured ride-height drop and current alignment values.', '请填写实测车身降低量和当前四轮定位数据。'));
-        const cautions = cleanList(result?.cautions);
         if (matchedParts.some(item => item.match_level !== 'exact_part_number')) cautions.unshift(tr('Brand or family matches are lookup references only. Confirm the exact part number and use the manufacturer drawing or a 1:1 brake template before wheel production.', '品牌或系列匹配仅用于查资料。轮毂生产前必须确认准确料号，并使用厂家图纸或 1:1 刹车模板复核。'));
         if (referencePlan.status !== 'verified_vehicle_reference') cautions.unshift(tr('The vehicle data is a reference baseline, not a production-approved record. PCD and center bore must be checked against the VIN/build record or the vehicle.', '当前车型数据属于参考基线，并非生产批准记录；PCD 与中心孔仍需通过 VIN、原厂配置单或现车复核。'));
         return json(res, 200, { data: {
-          summary: localizeModelText(result?.summary, 600) || tr('The note was parsed and checked against the F-Box vehicle and component library.', '已解析备注，并查询 F-Box 车型与改装件资料库。'),
+          summary: (modelStatus === 'local_fallback' || fallbackAddedKeys.length ? explicitFactSummary() : '') || localizeModelText(result?.summary, 600) || explicitFactSummary() || tr('The note was parsed and checked against the F-Box vehicle and component library.', '已解析备注，并查询 F-Box 车型与改装件资料库。'),
           extracted,
           matched_parts: matchedParts,
           reference_plan: referencePlan,
