@@ -6671,7 +6671,7 @@ async function animateIn() {
   try {
     const mod = await import('https://cdn.jsdelivr.net/npm/animejs@4.0.2/+esm');
     const animate = mod.animate;
-    const targets = document.querySelectorAll('.reveal');
+    const targets = document.querySelectorAll('.reveal:not(.premium-hero-copy)');
     if (typeof animate === 'function' && targets.length) animate(targets, { opacity: [0, 1], translateY: [14, 0], duration: 560, delay: mod.stagger ? mod.stagger(45) : 0, ease: 'outCubic' });
   } catch { /* CSS reveal is the offline fallback. */ }
 }

@@ -359,21 +359,27 @@ try {
 
   const mobile = await openPage({ width: 390, height: 844 });
   await mobile.waitForTimeout(700);
-  const mobileState = await mobile.evaluate(() => {
+  const mobileFirstPaint = await mobile.evaluate(() => {
     const copy = document.querySelector('.premium-hero-copy');
     const rect = copy?.getBoundingClientRect();
-    const video = document.querySelector('.premium-hero-video');
     return {
       copyVisible: Boolean(rect && rect.top >= 0 && rect.top < innerHeight && rect.bottom > 0 && getComputedStyle(copy).opacity !== '0'),
       copyRect: rect ? [rect.x, rect.y, rect.width, rect.height] : [],
-      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      video: video ? { readyState: video.readyState, paused: video.paused, width: video.videoWidth, height: video.videoHeight, src: video.currentSrc } : null
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
     };
   });
-  check('mobile hero copy is visible in the first screen', mobileState.copyVisible, JSON.stringify(mobileState.copyRect));
-  check('mobile repaired hero video decodes', mobileState.video?.readyState >= 2 && mobileState.video?.width === 1280 && mobileState.video?.height === 720, JSON.stringify(mobileState.video));
-  check('mobile repaired hero video plays', mobileState.video && !mobileState.video.paused, JSON.stringify(mobileState.video));
-  check('mobile homepage has no horizontal overflow', mobileState.overflow === 0, mobileState.overflow);
+  await mobile.waitForFunction(() => {
+    const video = document.querySelector('.premium-hero-video');
+    return video?.readyState >= 2 && video.videoWidth > 0;
+  }, null, { timeout: 7000 }).catch(() => undefined);
+  const mobileVideo = await mobile.evaluate(() => {
+    const video = document.querySelector('.premium-hero-video');
+    return video ? { readyState: video.readyState, paused: video.paused, width: video.videoWidth, height: video.videoHeight, src: video.currentSrc } : null;
+  });
+  check('mobile hero copy is visible in the first screen', mobileFirstPaint.copyVisible, JSON.stringify(mobileFirstPaint.copyRect));
+  check('mobile repaired hero video decodes', mobileVideo?.readyState >= 2 && mobileVideo?.width === 1280 && mobileVideo?.height === 720, JSON.stringify(mobileVideo));
+  check('mobile repaired hero video plays', mobileVideo && !mobileVideo.paused, JSON.stringify(mobileVideo));
+  check('mobile homepage has no horizontal overflow', mobileFirstPaint.overflow === 0, mobileFirstPaint.overflow);
   await mobile.locator('[data-action="mobile-nav"]').click();
   await mobile.waitForTimeout(150);
   check('mobile navigation opens', await mobile.locator('.nav-row.is-open').count() === 1);
