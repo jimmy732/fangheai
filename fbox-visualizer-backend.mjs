@@ -3437,6 +3437,40 @@ function parseImageDataUrl(value, label = '商品图片') {
   return { mime, extension, bytes };
 }
 
+async function persistVisualizerVehicleImage(parsed, jobId) {
+  const safeJobId = String(jobId || '').replace(/[^a-z0-9_-]/gi, '').slice(0, 100) || randomUUID().slice(0, 12);
+  let bytes = parsed.bytes;
+  let mime = parsed.mime;
+  let extension = parsed.extension;
+  let width = 0;
+  let height = 0;
+
+  if (sharp) {
+    bytes = await sharp(parsed.bytes, { failOn: 'error' })
+      .rotate()
+      .resize({ width: 2400, height: 2400, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 88, effort: 4, smartSubsample: true })
+      .toBuffer();
+    const metadata = await sharp(bytes, { failOn: 'none' }).metadata().catch(() => ({}));
+    width = Number(metadata.width || 0);
+    height = Number(metadata.height || 0);
+    mime = 'image/webp';
+    extension = 'webp';
+  }
+
+  const filename = `fbox_vehicle_${safeJobId}_${randomUUID().slice(0, 8)}.${extension}`;
+  await fs.mkdir(mediaDir, { recursive: true });
+  await fs.writeFile(path.join(mediaDir, filename), bytes);
+  return {
+    vehicle_image_url: `/api/fbox-assets/${encodeURIComponent(filename)}`,
+    vehicle_image_width: width,
+    vehicle_image_height: height,
+    vehicle_image_mime: mime,
+    vehicle_image_bytes: bytes.length,
+    vehicle_image_source: 'customer-upload'
+  };
+}
+
 function pixelDistance(data, index, background) {
   const red = data[index];
   const green = data[index + 1];
@@ -4591,7 +4625,7 @@ export async function handleWheelVisualizerApi(req, res, url) {
       payload.workshop_project_token = textValue(payload.workshop_project_token, 120);
       if (!String(payload.vehicle_image || '').startsWith('data:image/')) throw new Error('Upload a vehicle image first.');
       if (!String(payload.product_image || '').startsWith('data:image/')) throw new Error('Select a product reference image first.');
-      parseImageDataUrl(payload.vehicle_image, '车辆图片');
+      const parsedVehicleImage = parseImageDataUrl(payload.vehicle_image, '车辆图片');
       parseImageDataUrl(payload.product_image, '产品参考图片');
       const store = await loadStore();
       const selectedProduct = store.products.find(item => item.id === textValue(payload.product_id, 80));
@@ -4601,6 +4635,7 @@ export async function handleWheelVisualizerApi(req, res, url) {
       const config = await loadConfig();
       if (!config.api_key) return json(res, 503, { detail: 'F-Box image routing is not configured. Open /admin and save the LingkeAI API key first.' });
       const jobId = `fbox_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+      const vehicleImageAsset = await persistVisualizerVehicleImage(parsedVehicleImage, jobId);
       const now = new Date().toISOString();
       jobs.set(jobId, { job_id: jobId, status: 'queued', mode: 'fbox-lingkeai', results: [], visualizer_enabled: visualizerEnabled, dynamic_wheel_effect: dynamicWheelEffect, visualizer_mode: visualizerMode, design_prompt: payload.design_prompt, workshop_project_token: payload.workshop_project_token, created_at: Date.now(), updated_at: Date.now() });
       const operations = await loadOperations();
@@ -4621,6 +4656,7 @@ export async function handleWheelVisualizerApi(req, res, url) {
         visualizer_mode: visualizerMode,
         vehicle_name: textValue(payload.vehicle_name || payload.vehicle_label, 160),
         vehicle_file_name: textValue(payload.vehicle_file_name || payload.vehicle_name, 180),
+        ...vehicleImageAsset,
         angles: 3,
         results: [],
         created_at: now,

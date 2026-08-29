@@ -904,3 +904,302 @@ body.cirui-admin-ready .panel-card strong[data-v-21873957] {
     transition: none !important;
   }
 }
+
+/* Visualizer task vehicle-photo evidence and full-size review. */
+.fbox-job-photo-thumb {
+  display: grid;
+  width: 100%;
+  min-width: 196px;
+  cursor: zoom-in;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 5px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--cirui-ink);
+  font: inherit;
+  text-align: left;
+  transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+
+.fbox-job-photo-thumb:hover,
+.fbox-job-photo-thumb:focus-visible {
+  border-color: #d8c7ba;
+  outline: none;
+  background: #faf6f2;
+  box-shadow: 0 5px 18px rgba(37, 33, 29, 0.07);
+}
+
+.fbox-job-photo-image {
+  position: relative;
+  display: block;
+  width: 72px;
+  height: 54px;
+  overflow: hidden;
+  border-radius: 7px;
+  background: #e8e3dd;
+}
+
+.fbox-job-photo-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 180ms ease;
+}
+
+.fbox-job-photo-thumb:hover img {
+  transform: scale(1.05);
+}
+
+.fbox-job-photo-image i {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(21, 18, 16, 0.72);
+  color: #fff;
+  font-size: 9px;
+  font-style: normal;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.fbox-job-photo-thumb:hover .fbox-job-photo-image i,
+.fbox-job-photo-thumb:focus-visible .fbox-job-photo-image i {
+  opacity: 1;
+}
+
+.fbox-job-photo-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.fbox-job-photo-copy strong,
+.fbox-job-photo-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fbox-job-photo-copy strong {
+  color: var(--cirui-ink);
+  font-size: 12px;
+}
+
+.fbox-job-photo-copy small {
+  color: var(--cirui-muted);
+  font-size: 10px;
+}
+
+.fbox-job-photo-thumb.is-history-fallback .fbox-job-photo-image::after {
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(178, 110, 75, 0.52);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+}
+
+.fbox-job-photo-thumb.is-broken .fbox-job-photo-image::before {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  inset: 0;
+  place-items: center;
+  background: #eee8e1;
+  color: var(--cirui-muted);
+  content: "图片失效";
+  font-size: 10px;
+}
+
+.fbox-job-photo-empty {
+  display: grid;
+  min-width: 196px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  color: var(--cirui-muted);
+}
+
+.fbox-job-photo-empty > span {
+  display: block;
+  width: 42px;
+  height: 34px;
+  border: 1px dashed #cfc5ba;
+  border-radius: 7px;
+  background: #f5f1ed;
+}
+
+.fbox-job-photo-empty div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.fbox-job-photo-empty strong,
+.fbox-job-photo-empty small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fbox-job-photo-empty strong {
+  color: var(--cirui-ink);
+  font-size: 12px;
+}
+
+.fbox-job-photo-empty small {
+  font-size: 10px;
+}
+
+body.fbox-job-photo-viewer-open {
+  overflow: hidden;
+}
+
+.fbox-job-photo-viewer[hidden] {
+  display: none;
+}
+
+.fbox-job-photo-viewer {
+  position: fixed;
+  z-index: 4000;
+  display: grid;
+  inset: 0;
+  place-items: center;
+  padding: 24px;
+  background: rgba(24, 21, 19, 0.82);
+  backdrop-filter: blur(8px);
+}
+
+.fbox-job-photo-dialog {
+  display: grid;
+  width: min(1180px, 96vw);
+  max-height: 94vh;
+  overflow: hidden;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: #171513;
+  color: #fff;
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.42);
+}
+
+.fbox-job-photo-dialog header,
+.fbox-job-photo-dialog footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.fbox-job-photo-dialog header span {
+  color: #dca686;
+  font: 700 9px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fbox-job-photo-dialog h2 {
+  margin: 5px 0 0;
+  color: #fff;
+  font-size: 18px;
+}
+
+.fbox-job-photo-dialog header p {
+  margin: 4px 0 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+}
+
+.fbox-job-photo-close {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  cursor: pointer;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  font-size: 25px;
+  font-weight: 300;
+}
+
+.fbox-job-photo-close:hover,
+.fbox-job-photo-close:focus-visible {
+  outline: none;
+  background: #fff;
+  color: #171513;
+}
+
+.fbox-job-photo-stage {
+  display: grid;
+  min-height: 320px;
+  overflow: auto;
+  place-items: center;
+  padding: 18px;
+  background-image: linear-gradient(45deg, #1f1d1a 25%, transparent 25%), linear-gradient(-45deg, #1f1d1a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1f1d1a 75%), linear-gradient(-45deg, transparent 75%, #1f1d1a 75%);
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background-size: 16px 16px;
+}
+
+.fbox-job-photo-stage img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(94vh - 160px);
+  object-fit: contain;
+}
+
+.fbox-job-photo-dialog footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+}
+
+.fbox-job-photo-dialog footer a {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (max-width: 720px) {
+  .fbox-job-photo-viewer {
+    padding: 8px;
+  }
+
+  .fbox-job-photo-dialog {
+    width: 100%;
+    max-height: 96vh;
+  }
+
+  .fbox-job-photo-dialog header,
+  .fbox-job-photo-dialog footer {
+    padding: 12px;
+  }
+
+  .fbox-job-photo-dialog footer span {
+    display: none;
+  }
+
+  .fbox-job-photo-stage {
+    min-height: 220px;
+    padding: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fbox-job-photo-thumb,
+  .fbox-job-photo-image img,
+  .fbox-job-photo-image i {
+    transition: none !important;
+  }
+}
