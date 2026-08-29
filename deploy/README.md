@@ -1,5 +1,26 @@
 # Production deployment
 
+> [!IMPORTANT]
+> Deployment identity is fixed. Do not deploy one domain from the other
+> repository or branch.
+
+| Public domain | Git repository | Production branch | Server checkout / service |
+| --- | --- | --- | --- |
+| `forcarbox.cn` | `https://github.com/jimmy732/fangheai.git` | `agent/f-box-site-deploy` | `/opt/fbox/fangheai` · `fbox.service` · `127.0.0.1:4174` |
+| `crforged.cn` | `https://github.com/jimmy732/boxclaw5.15.git` | `codex/cerui-cn-site-4188` | Separate Chinese-site deployment; never deploy it through `fbox.service` |
+
+Before every `forcarbox.cn` deployment, verify all three values below. Stop
+immediately if any value differs:
+
+```bash
+git remote get-url origin
+git branch --show-current
+git rev-parse --show-toplevel
+```
+
+The expected results are the `fangheai` repository,
+`agent/f-box-site-deploy`, and `/opt/fbox/fangheai`.
+
 The public site and the independent F-Box admin are one Node service. Nginx
 terminates TLS for `forcarbox.cn` and proxies both `/` and `/api/*` to the
 private Node listener on `127.0.0.1:4174`. The model provider key is never

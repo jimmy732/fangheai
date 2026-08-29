@@ -887,6 +887,217 @@ body.fbox-global-premium .premium-engineering-media figcaption small {
   font-size: 9px;
 }
 
+/* The poster remains lightweight; the full factory film loads only after a visitor asks to play it. */
+body.fbox-global-premium .factory-film-card {
+  isolation: isolate;
+}
+
+body.fbox-global-premium .factory-film-trigger {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: #101214;
+  background-image: var(--factory-film-poster);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+}
+
+body.fbox-global-premium .factory-film-trigger > img {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  object-fit: cover;
+}
+
+body.fbox-global-premium .factory-film-trigger::after {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  content: '';
+  border: 2px solid transparent;
+  pointer-events: none;
+  transition: border-color .22s ease;
+}
+
+body.fbox-global-premium .factory-film-trigger:is(:hover, :focus-visible)::after {
+  border-color: var(--gp-red);
+}
+
+body.fbox-global-premium .factory-film-trigger:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: -6px;
+}
+
+body.fbox-global-premium .factory-film-shade {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.24) 55%, rgba(0,0,0,.78));
+  transition: background .25s ease;
+}
+
+body.fbox-global-premium .factory-film-trigger:is(:hover, :focus-visible) .factory-film-shade {
+  background: linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.16) 55%, rgba(0,0,0,.72));
+}
+
+body.fbox-global-premium .factory-film-play {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 70px;
+  height: 70px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 50%;
+  background: rgba(211, 8, 58, .94);
+  box-shadow: 0 14px 42px rgba(0,0,0,.38);
+  color: #fff;
+  transform: translate(-50%, -50%);
+  transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
+}
+
+body.fbox-global-premium .factory-film-play svg {
+  width: 27px;
+  height: 27px;
+  margin-left: 3px;
+}
+
+body.fbox-global-premium .factory-film-trigger:is(:hover, :focus-visible) .factory-film-play {
+  background: #ef1248;
+  box-shadow: 0 18px 48px rgba(0,0,0,.48);
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+body.fbox-global-premium .factory-film-runtime {
+  position: absolute;
+  z-index: 3;
+  top: 16px;
+  right: 16px;
+  padding: 7px 9px;
+  border: 1px solid rgba(255,255,255,.4);
+  background: rgba(7,9,11,.76);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  line-height: 1;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
+
+body.fbox-global-premium .factory-film-card figcaption {
+  z-index: 3;
+  pointer-events: none;
+}
+
+body.fbox-global-premium .factory-film-overlay {
+  z-index: 1800;
+  padding: 24px;
+  background: rgba(3,5,7,.94);
+  backdrop-filter: blur(16px);
+}
+
+body.fbox-global-premium .factory-film-dialog {
+  position: relative;
+  display: grid;
+  width: min(1180px, 100%);
+  max-height: calc(100dvh - 48px);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.2);
+  background: #080a0c;
+  box-shadow: 0 34px 100px rgba(0,0,0,.62);
+  color: #fff;
+}
+
+body.fbox-global-premium .factory-film-dialog-head {
+  display: flex;
+  min-width: 0;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 72px 20px 24px;
+  border-bottom: 1px solid rgba(255,255,255,.14);
+}
+
+body.fbox-global-premium .factory-film-dialog-head .eyebrow {
+  margin: 0 0 5px;
+  color: #ff315f;
+}
+
+body.fbox-global-premium .factory-film-dialog-head h2 {
+  margin: 0;
+  color: #fff;
+  font-family: var(--gp-display);
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 400;
+  line-height: 1;
+}
+
+body.fbox-global-premium .factory-film-dialog .modal-close {
+  top: 20px;
+  right: 20px;
+  border-color: rgba(255,255,255,.35);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+}
+
+body.fbox-global-premium .factory-film-player {
+  display: grid;
+  min-height: 0;
+  place-items: center;
+  background: #000;
+}
+
+body.fbox-global-premium .factory-film-player video {
+  display: block;
+  width: 100%;
+  max-height: calc(100dvh - 205px);
+  aspect-ratio: 16 / 9;
+  background: #000;
+  object-fit: contain;
+}
+
+body.fbox-global-premium .factory-film-dialog-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 15px 24px 17px;
+  color: #d4d7d8;
+}
+
+body.fbox-global-premium .factory-film-dialog-foot p {
+  max-width: 720px;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+body.fbox-global-premium .factory-film-dialog-foot span {
+  flex: 0 0 auto;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
 /* Customer proof is compact and paired on desktop. */
 body.fbox-global-premium .premium-evidence-grid {
   display: grid;
@@ -5636,5 +5847,79 @@ html[dir='rtl'] body.fbox-global-premium .fitment-style-selection-state {
   body.fbox-global-premium .fitment-style-catalog .fitment-flow-wheel:hover,
   body.fbox-global-premium .fitment-flow-wheel:hover .fitment-flow-wheel-media img {
     transform: none;
+  }
+}
+
+@media (max-width: 680px) {
+  body.fbox-global-premium .factory-film-play {
+    width: 58px;
+    height: 58px;
+  }
+
+  body.fbox-global-premium .factory-film-play svg {
+    width: 23px;
+    height: 23px;
+  }
+
+  body.fbox-global-premium .factory-film-runtime {
+    top: 12px;
+    right: 12px;
+    max-width: calc(100% - 24px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body.fbox-global-premium .factory-film-overlay {
+    align-items: end;
+    padding: 0;
+  }
+
+  body.fbox-global-premium .factory-film-dialog {
+    width: 100%;
+    max-height: 100dvh;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+  }
+
+  body.fbox-global-premium .factory-film-dialog-head {
+    min-height: 88px;
+    align-items: center;
+    padding: 16px 62px 14px 16px;
+  }
+
+  body.fbox-global-premium .factory-film-dialog .modal-close {
+    top: 17px;
+    right: 14px;
+  }
+
+  body.fbox-global-premium .factory-film-player video {
+    max-height: calc(100dvh - 194px);
+  }
+
+  body.fbox-global-premium .factory-film-dialog-foot {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+    padding: 13px 16px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.fbox-global-premium .factory-film-trigger::after,
+  body.fbox-global-premium .factory-film-shade,
+  body.fbox-global-premium .factory-film-play,
+  body.fbox-global-premium .factory-film-trigger img {
+    transition: none;
+  }
+
+  body.fbox-global-premium .factory-film-trigger:is(:hover, :focus-visible) .factory-film-play,
+  body.fbox-global-premium .factory-film-trigger:is(:hover, :focus-visible) img {
+    transform: none;
+  }
+
+  body.fbox-global-premium .factory-film-trigger:is(:hover, :focus-visible) .factory-film-play {
+    transform: translate(-50%, -50%);
   }
 }
