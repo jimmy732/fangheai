@@ -159,11 +159,15 @@ function workshopVehicleName(project = {}) {
   return [vehicle.year, vehicle.make, vehicle.model, vehicle.trim, vehicle.drive].filter(Boolean).join(' ') || 'custom vehicle';
 }
 
+const socialShareImage = 'https://forcarbox.cn/assets/cerui/forcarbox-social-share-v1.jpg?v=20260901';
+
 function injectDocumentMeta(template, { title, description, canonical, robots = 'index,follow', structuredData = null, initialMarkup = '' }) {
   let document = template
     .replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(title)}</title>`)
     .replace(/<meta name="description"[^>]*>/i, `<meta name="description" content="${escapeHtml(description)}" />`)
-    .replace('</head>', `    <meta name="robots" content="${escapeHtml(robots)}" />\n    <link rel="canonical" href="${escapeHtml(canonical)}" />\n    <meta property="og:type" content="website" />\n    <meta property="og:title" content="${escapeHtml(title)}" />\n    <meta property="og:description" content="${escapeHtml(description)}" />\n    <meta property="og:url" content="${escapeHtml(canonical)}" />${structuredData ? `\n    <script type="application/ld+json">${JSON.stringify(structuredData).replace(/</g, '\\u003c')}</script>` : ''}\n  </head>`);
+    .replace(/\s*<meta property="og:[^"]+"[^>]*>/gi, '')
+    .replace(/\s*<meta name="twitter:[^"]+"[^>]*>/gi, '')
+    .replace('</head>', `    <meta name="robots" content="${escapeHtml(robots)}" />\n    <link rel="canonical" href="${escapeHtml(canonical)}" />\n    <meta property="og:type" content="website" />\n    <meta property="og:site_name" content="CIRUI Forged / Forcarbox" />\n    <meta property="og:title" content="${escapeHtml(title)}" />\n    <meta property="og:description" content="${escapeHtml(description)}" />\n    <meta property="og:url" content="${escapeHtml(canonical)}" />\n    <meta property="og:locale" content="en_US" />\n    <meta property="og:image" content="${socialShareImage}" />\n    <meta property="og:image:secure_url" content="${socialShareImage}" />\n    <meta property="og:image:type" content="image/jpeg" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="630" />\n    <meta property="og:image:alt" content="CIRUI Forged custom wheels and free wheel fitment calculator" />\n    <meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:title" content="${escapeHtml(title)}" />\n    <meta name="twitter:description" content="${escapeHtml(description)}" />\n    <meta name="twitter:image" content="${socialShareImage}" />\n    <meta name="twitter:image:alt" content="CIRUI Forged custom wheels and free wheel fitment calculator" />${structuredData ? `\n    <script type="application/ld+json">${JSON.stringify(structuredData).replace(/</g, '\\u003c')}</script>` : ''}\n  </head>`);
   if (initialMarkup) document = document.replace('<div id="app"></div>', `<div id="app">${initialMarkup}</div>`);
   return document;
 }
