@@ -2504,6 +2504,92 @@ Object.entries(fitmentPlaceholderTranslations).forEach(([locale, values]) => {
   Object.assign(localeDictionaries[locale], Object.fromEntries(fitmentPlaceholderTranslationKeys.map((key, index) => [key, values[index] || key])));
 });
 
+const aiWheelStudioZhCN = {
+  'AI Original Design': 'AI 原创设计',
+  'AI Wheel Design Studio': 'AI 轮毂原创设计室',
+  'FROM IDEA TO A CONSISTENT CONCEPT': '从想法到一致的概念方案',
+  'Describe it. Reference it. Make it original.': '文字描述，也可上传参考图，生成你的原创方向。',
+  'Start with words, an optional reference image, or both. CIRUI generates four original wheel directions; after you select one, the studio renders eight locked angles as a nine-cell review board.': '可以只输入文字、只用参考图配合修改要求，或两者结合。CIRUI 先生成 4 个原创轮毂方向；选定后再锁定设计，生成 8 个固定角度并组成九宫格审核图。',
+  '01 Brief': '01 描述需求',
+  '02 Choose': '02 选择方案',
+  '03 Multi-view': '03 九宫格多视图',
+  'Write what you want': '写下你想要的轮毂',
+  'Reference an existing direction': '参考现有方向再创新',
+  'Use text + reference': '文字 + 参考图',
+  'Text only': '只用文字',
+  'Reference + changes': '参考图 + 修改要求',
+  'Text + reference': '文字 + 参考图',
+  'Describe the wheel direction': '描述想要的轮毂方向',
+  'Example: an original lightweight 10-spoke forged wheel, deep concavity, thin paired spokes, brushed face and polished step lip; technical motorsport character rather than luxury.': '例如：原创轻量化 10 辐锻造轮毂，深凹面，纤细双辐，拉丝轮面配抛光阶梯唇，偏技术赛车风而不是豪华风。',
+  'Be specific about spoke count, spoke shape, concavity, lip, center area and finish. Brand names are treated only as broad inspiration and are never copied.': '尽量写清辐条数量、造型、凹度、轮唇、中心区域和表面处理。品牌名称只能作为宽泛风格参考，不会照抄现有产品。',
+  'Optional reference image': '可选参考图',
+  'Upload a wheel image': '上传轮毂图片',
+  'JPG, PNG or WebP · up to 14 MB': 'JPG、PNG 或 WebP · 不超过 14MB',
+  'What should stay?': '参考图中保留什么？',
+  'Example: keep the thin paired-spoke rhythm and deep center.': '例如：保留纤细双辐节奏和深凹中心。',
+  'What should change?': '需要改成什么？',
+  'Example: change to 10 spokes, cleaner center and bronze brushed finish.': '例如：改成 10 辐、更干净的中心区域和古铜拉丝表面。',
+  'Construction': '结构',
+  'Forged monoblock': '单片式锻造',
+  'Forged 2-piece': '双片式锻造',
+  'Forged 3-piece': '三片式锻造',
+  'Design character': '设计风格',
+  'Performance / motorsport': '性能 / 赛车',
+  'Luxury / executive': '豪华 / 商务',
+  'Heritage / classic': '复古 / 经典',
+  'Aero / technical': '空气动力 / 技术感',
+  'SUV / off-road': 'SUV / 越野',
+  'Spoke direction': '辐条方向',
+  'Let AI propose': '由 AI 提议',
+  '5-spoke': '5 辐',
+  '6-spoke': '6 辐',
+  '7-spoke': '7 辐',
+  '8-spoke': '8 辐',
+  '10-spoke': '10 辐',
+  'Multi-spoke': '多辐',
+  'Finish direction': '表面处理方向',
+  'Brushed clear': '透明拉丝',
+  'Satin black': '缎面黑',
+  'Polished silver': '抛光银',
+  'Bronze': '古铜色',
+  'Two-tone custom': '双色定制',
+  'Visual diameter': '视觉轮径',
+  'Not fixed': '暂不限定',
+  'Vehicle context inherited': '已继承车型信息',
+  'No vehicle selected': '尚未选择车型',
+  'The vehicle is used only as design context. Fitment, brake clearance and load are still checked separately in the Fitment Lab.': '车型这里只用于辅助设计方向；实际适配、刹车间隙和载荷仍需在适配实验室单独核验。',
+  'Generate 4 original concepts': '生成 4 个原创方案',
+  'Sign in to generate concepts': '登录后生成方案',
+  'Concept preview only': '仅作为概念预览',
+  'AI images do not approve fitment, strength or manufacturing. Final production requires CIRUI engineering CAD, load review and physical-clearance approval.': 'AI 图片不代表适配、强度或制造批准。最终生产必须由 CIRUI 工程师完成 CAD、载荷审核和实体间隙确认。',
+  'Creating four original directions': '正在生成 4 个原创方向',
+  'The studio is varying the spoke rhythm, concavity and surface breaks while keeping your brief fixed.': '系统会在锁定需求的前提下，探索不同辐条节奏、凹度和表面转折。',
+  'Choose one direction': '选择一个设计方向',
+  'The selected image becomes the only visual identity reference for every multi-view angle.': '你选中的图片将成为后续所有角度唯一的视觉身份参考。',
+  'Selected': '已选择',
+  'Edit brief': '修改需求',
+  'Generate nine-cell multi-view': '生成九宫格多视图',
+  'Choose a concept first.': '请先选择一个方案。',
+  'Rendering eight locked angles': '正在生成 8 个锁定角度',
+  'Each image uses the selected concept as the same identity reference. This may take several minutes.': '每一张图都以选中方案为同一个身份参考，整个过程可能需要几分钟。',
+  'Nine-cell concept review': '九宫格概念审核',
+  'Eight generated angles surround the selected hero concept. Review spoke count, center, lip, barrel and finish consistency before sending it to engineering.': '8 个生成角度围绕中间的选中方案。请检查辐条数量、中心区、轮唇、轮辋和表面处理是否一致，再交给工程师。',
+  'Selected concept': '选中方案',
+  'Regenerate multi-view': '重新生成多视图',
+  'Start a new design': '开始新设计',
+  'Discuss with CIRUI': '联系 CIRUI 继续沟通',
+  'Open AI Original Design Studio': '打开 AI 轮毂原创设计室',
+  'Create four original directions first, then return with the selected concept for vehicle fitment and quoting.': '先独立生成 4 个原创方向并完成九宫格审核，再把选中的方案带回车型适配和询价流程。',
+  'This reference will guide the new design': '这张参考图将用于引导原创设计',
+  'Remove reference': '移除参考图',
+  'View larger': '放大查看',
+  'Generation failed': '生成失败',
+  'Try again': '重试',
+  'Return to brief': '返回修改需求'
+};
+Object.assign(localeDictionaries['zh-CN'], aiWheelStudioZhCN);
+Object.assign(localeDictionaries['zh-TW'], Object.fromEntries(Object.entries(aiWheelStudioZhCN).map(([key, value]) => [key, value.replace(/[\u3400-\u9fff]/g, character => exportTraditionalCharacters[character] || character)])));
+
 function uiLabel(key, fallback = key) {
   return localeDictionaries[state.locale]?.[key] || fallback;
 }
@@ -2585,6 +2671,33 @@ function readLocalJson(key, fallback) {
 const localWorkshopProjects = readLocalJson('fbox-workshop-projects', []);
 const localWorkshopCurrentToken = localStorage.getItem('fbox-workshop-current') || '';
 const localWorkshopCurrentProject = localWorkshopProjects.find(item => item.share_token === localWorkshopCurrentToken) || null;
+const initialAiWheelDraft = readLocalJson('cirui-ai-wheel-draft', {});
+
+function aiWheelDesignDefaults() {
+  return {
+    stage: 'brief',
+    status: 'idle',
+    error: '',
+    jobId: '',
+    draft: {
+      mode: 'text-reference',
+      prompt: '',
+      reference_keep: '',
+      reference_change: '',
+      construction: 'Forged monoblock',
+      character: 'Performance / motorsport',
+      spoke_count: '',
+      finish: 'Brushed clear',
+      diameter: '',
+      ...initialAiWheelDraft
+    },
+    referenceData: '',
+    referenceName: '',
+    concepts: [],
+    selectedIndex: -1,
+    views: []
+  };
+}
 
 const state = {
   route: getRoute(),
@@ -2624,6 +2737,7 @@ const state = {
   accountOrders: [],
   accountOrdersLoading: false,
   wheelVisualizer: null,
+  aiWheelDesign: aiWheelDesignDefaults(),
   homePreviewProductId: 'fbox-rse',
   homeWheelPage: 0,
   homeWheelAutoPausedUntil: 0,
@@ -2680,6 +2794,7 @@ function getRoute() {
   if (buildMatch || caseMatch) return { name: 'fitment-share', token: decodeURIComponent((buildMatch || caseMatch)[1]), publicCase: Boolean(caseMatch) };
   if (pathName === '/fitment-lab') return { name: 'fitment' };
   if (pathName === '/fitment-lab/result') return { name: 'fitment-result' };
+  if (pathName === '/ai-wheel-studio') return { name: 'ai-wheel-design' };
   if (pathName === '/account') return { name: 'account' };
 
   const rawHash = location.hash.replace(/^#/, '');
@@ -4364,10 +4479,8 @@ function workshopWheelPickerMarkup(project = {}) {
 }
 
 function workshopConceptMarkup(project = {}) {
-  const design = project.design || {};
-  const front = project.result?.axles?.front?.recommendation || {};
-  const rear = project.result?.axles?.rear?.recommendation || {};
-  return `<form class="workshop-path-panel workshop-concept-form" data-form="workshop-concept"><div class="workshop-panel-head"><div><p class="eyebrow">${uiLabel('Customer co-design studio')}</p><h3>${uiLabel('Describe it. Reference it. See it on the car.')}</h3></div><p>${uiLabel('The customer supplies a style reference and a written brief. CIRUI generates visual concepts while the saved fitment project keeps the engineering questions attached.')}</p></div><div class="workshop-concept-layout"><label class="workshop-concept-prompt"><span>${uiLabel('Describe the wheel you want')} <b>*</b></span><textarea name="design_prompt" rows="7" required placeholder="${esc(uiLabel('Example: a lightweight forged 10-spoke design, deep center, brushed face with polished step lip, motorsport rather than luxury.'))}">${esc(design.prompt || '')}</textarea><small>${uiLabel('Describe spoke count, spoke shape, lip, concavity, center cap and finish. Do not use the visual result as installation approval.')}</small></label><label class="workshop-reference-upload"><input type="file" name="reference_image" accept="image/jpeg,image/png,image/webp" required><span>${icons.image}</span><strong>${uiLabel('Upload a wheel reference image')}</strong><small>${uiLabel('JPG, PNG or WebP. The next step asks for the customer vehicle photo.')}</small></label></div><div class="workshop-design-fields"><label><span>${uiLabel('Finish')}</span><select name="finish"><option value="Brushed clear">${uiLabel('Brushed clear')}</option><option value="Satin black">${uiLabel('Satin black')}</option><option value="Polished silver">${uiLabel('Polished silver')}</option><option value="Bronze">${uiLabel('Bronze')}</option><option value="Custom finish">${uiLabel('Custom finish')}</option></select></label><label><span>${uiLabel('Construction')}</span><select name="construction"><option value="Forged monoblock">${uiLabel('Forged monoblock')}</option><option value="Forged 2-piece">${uiLabel('Forged 2-piece')}</option><option value="Forged 3-piece">${uiLabel('Forged 3-piece')}</option></select></label><label><span>${uiLabel('Diameter (in)')}</span><input name="diameter" type="number" min="12" max="30" step="0.5" value="${esc(design.diameter || front.diameter_min_in || rear.diameter_min_in || '')}" placeholder="19"></label><label><span>${uiLabel('Front width / ET')}</span><input name="front_spec" value="${esc([design.front_width, design.front_offset].filter(Boolean).join(' / '))}" placeholder="9.0 / ET35"></label><label><span>${uiLabel('Rear width / ET')}</span><input name="rear_spec" value="${esc([design.rear_width, design.rear_offset].filter(Boolean).join(' / '))}" placeholder="10.0 / ET40"></label></div><div class="workshop-path-actions"><button class="btn btn-primary" type="submit">${icons.spark} ${uiLabel('Start visual concept')}</button><span>${uiLabel('A free CIRUI account is requested only after the vehicle photo is uploaded.')}</span></div></form>`;
+  const vehicle = workshopVehicleLabel(project);
+  return `<div class="workshop-path-panel workshop-ai-studio-entry"><div class="workshop-panel-head"><div><p class="eyebrow">${uiLabel('Customer co-design studio')}</p><h3>${uiLabel('AI Wheel Design Studio')}</h3></div><p>${uiLabel('Create four original directions first, then return with the selected concept for vehicle fitment and quoting.')}</p></div><div class="workshop-ai-studio-context">${icons.shield}<span><small>${uiLabel('Vehicle context inherited')}</small><strong>${esc(vehicle)}</strong></span></div><div class="workshop-path-actions"><a class="btn btn-primary" href="/ai-wheel-studio" data-app-path>${icons.spark} ${uiLabel('Open AI Original Design Studio')} ${icons.arrowRight}</a><span>${uiLabel('Concept preview only')}</span></div></div>`;
 }
 
 function workshopDealerQuoteMarkup(project = {}) {
@@ -5123,7 +5236,7 @@ function localeControlMarkup(className = 'locale-control') {
 }
 
 function header() {
-  const active = state.route.name === 'store' ? 'SHOP' : state.route.name === 'about' ? 'ABOUT' : state.route.name === 'custom' ? 'CUSTOM' : state.route.name === 'trade' ? 'TRADE' : ['blog', 'blog-post'].includes(state.route.name) ? 'JOURNAL' : ['fitment', 'fitment-result', 'fitment-share'].includes(state.route.name) ? 'FITMENT' : state.route.name === 'account' ? 'ACCOUNT' : '';
+  const active = state.route.name === 'store' ? 'SHOP' : state.route.name === 'about' ? 'ABOUT' : state.route.name === 'custom' ? 'CUSTOM' : state.route.name === 'ai-wheel-design' ? 'AI-DESIGN' : state.route.name === 'trade' ? 'TRADE' : ['blog', 'blog-post'].includes(state.route.name) ? 'JOURNAL' : ['fitment', 'fitment-result', 'fitment-share'].includes(state.route.name) ? 'FITMENT' : state.route.name === 'account' ? 'ACCOUNT' : '';
   const attribution = partnerAttributionBar();
   return `<div class="global-header-stack${attribution ? ' has-partner-attribution' : ''}"><div class="announcement">${uiLabel('CIRUI source factory')} · <span>${uiLabel('DDP delivery available')}</span> · ${uiLabel('Target production + transport in about 30 business days')}</div>${attribution}
   <header class="site-header">
@@ -5145,6 +5258,7 @@ function header() {
             ${state.menuOpen ? megaMenu() : ''}
           </div>
           <a class="nav-link ${active === 'FITMENT' ? 'is-active' : ''}" href="/fitment-lab" data-app-path>${uiLabel('Fitment Lab')}</a>
+          <a class="nav-link nav-link-ai ${active === 'AI-DESIGN' ? 'is-active' : ''}" href="/ai-wheel-studio" data-app-path>${uiLabel('AI Original Design')}<small>NEW</small></a>
           <a class="nav-link ${active === 'CUSTOM' ? 'is-active' : ''}" href="#custom">${uiLabel('Customization')}</a>
           <a class="nav-link ${active === 'ABOUT' ? 'is-active' : ''}" href="#about">${uiLabel('Factory')}</a>
           <a class="nav-link ${active === 'TRADE' ? 'is-active' : ''}" href="#trade">${uiLabel('Trade & DDP')}</a>
@@ -5166,7 +5280,7 @@ function megaMenu() {
   return `<div class="mega-menu" id="shop-catalog-menu" aria-label="${esc(uiLabel('Forged wheel catalog'))}"><div class="container mega-grid">
     <div class="mega-col"><h3>${uiLabel('Wheel construction')}</h3><a href="#store" data-action="catalog-collection" data-collection="all">${uiLabel('All forged wheels')}</a><a href="#store" data-action="catalog-collection" data-collection="monoblock">${uiLabel('Monoblock forged')}</a><a href="#store" data-action="catalog-collection" data-collection="two-piece">${uiLabel('2-piece forged')}</a><a href="#store" data-action="catalog-collection" data-collection="aero-floating">${uiLabel('Aero & floating')}</a><a href="#store" data-action="catalog-collection" data-collection="suv-off-road">${uiLabel('SUV & off-road')}</a></div>
     <div class="mega-col"><h3>${uiLabel('Fitment tools')}</h3><a href="/fitment-lab" data-action="open-fitment-lab" data-fitment-focus="vehicle">${uiLabel('Vehicle fitment')}</a><a href="/fitment-lab" data-action="open-fitment-lab" data-fitment-focus="brakes">${uiLabel('Brake clearance')}</a><a href="#store" data-action="catalog-visualizer">${uiLabel('Vehicle photo visualizer')}</a><a href="/fitment-lab" data-action="open-fitment-lab" data-fitment-focus="offset">${uiLabel('Offset & stance calculator')}</a></div>
-    <div class="mega-col"><h3>${uiLabel('Customization')}</h3><a href="#custom" data-action="custom-section" data-section="finishes">${uiLabel('Finishes & colors')}</a><a href="#custom" data-action="custom-section" data-section="lips">${uiLabel('Lip profiles')}</a><a href="#custom" data-action="custom-section" data-section="caps">${uiLabel('Center caps')}</a><a href="#custom" data-action="custom-section" data-section="hardware">${uiLabel('Hardware options')}</a></div>
+    <div class="mega-col"><h3>${uiLabel('Customization')}</h3><a href="/ai-wheel-studio" data-app-path>${uiLabel('AI Original Design')}</a><a href="#custom" data-action="custom-section" data-section="finishes">${uiLabel('Finishes & colors')}</a><a href="#custom" data-action="custom-section" data-section="lips">${uiLabel('Lip profiles')}</a><a href="#custom" data-action="custom-section" data-section="caps">${uiLabel('Center caps')}</a><a href="#custom" data-action="custom-section" data-section="hardware">${uiLabel('Hardware options')}</a></div>
     <div class="mega-col"><h3>${uiLabel('Factory & trade')}</h3><a href="#about">${uiLabel('Meet the factory')}</a><a href="#trade">${uiLabel('DDP Europe & North America')}</a><a href="#trade" data-action="trade-rfq" data-buyer-type="dealer">${uiLabel('Dealer & wholesale')}</a><a href="#home" data-action="orders">${uiLabel('Track my order')}</a><a href="#cart" data-action="cart">${uiLabel('Open RFQ list')}</a></div>
   </div></div>`;
 }
@@ -5575,15 +5689,214 @@ function storePage() {
   <main class="container store-layout forged-store-layout"><aside class="filter-rail forged-filter-rail"><div class="filter-head"><strong>${uiLabel('Find the right starting design')}</strong><span>${uiLabel('Filters change the visible catalog immediately. Final fitment is engineered after the RFQ.')}</span></div><div class="filter-section"><h3>${uiLabel('Search designs')}</h3><input class="filter-input" data-filter="ai" placeholder="${esc(uiLabel('Model code, spoke style or finish'))}" value="${esc(state.search)}"></div><div class="filter-section"><h3>${uiLabel('Construction')}</h3><div class="catalog-filter-buttons">${Object.entries(catalogCollections).slice(0, 3).map(([key, item]) => `<button class="${state.filters.collection === key ? 'is-active' : ''}" data-action="catalog-collection" data-collection="${key}">${uiLabel(item.label)}</button>`).join('')}</div></div><div class="filter-section"><h3>${uiLabel('Application')}</h3><select class="filter-select" data-filter="application">${applications.map(([value, label]) => `<option value="${value}" ${state.filters.application === value ? 'selected' : ''}>${uiLabel(label)}</option>`).join('')}</select></div><div class="filter-section"><h3>${uiLabel('Vehicle fitment')}</h3>${vehicleSelector('store')}<button class="btn btn-dark btn-small filter-apply" data-action="shop-vehicle">${uiLabel('Attach vehicle')}</button></div><div class="filter-section catalog-ddp-filter">${icons.truck}<div><strong>${uiLabel('DDP available')}</strong><span>${uiLabel('Europe and North America · final quote by country and postcode')}</span></div></div></aside><section class="store-main">${visualizerNotice}${fitmentBanner}<div class="store-toolbar"><div class="result-count">${formatUiLabel('{count} results', { count: list.length })}<span> · ${uiLabel(context.label)}</span></div><div class="toolbar-actions"><button class="btn btn-outline btn-small" data-action="clear-filters">${uiLabel('Reset')}</button><select class="toolbar-select" data-filter="sort"><option value="latest" ${state.sort === 'latest' ? 'selected' : ''}>${uiLabel('Catalog order')}</option><option value="price-low" ${state.sort === 'price-low' ? 'selected' : ''}>${uiLabel('Reference price: low to high')}</option><option value="price-high" ${state.sort === 'price-high' ? 'selected' : ''}>${uiLabel('Reference price: high to low')}</option></select></div></div>${list.length ? `<div class="product-grid">${list.map(renderProductCard).join('')}</div>` : `<div class="empty-state"><h2>${uiLabel('No wheel matches every filter.')}</h2><p>${uiLabel('Reset the catalog or send the design reference to CIRUI for a custom direction.')}</p><button class="btn btn-primary" data-action="clear-filters">${uiLabel('Reset catalog')}</button></div>`}</section></main>`;
 }
 
+function aiWheelVehicleContext() {
+  const vehicle = state.fitment?.vehicle || state.vehicle;
+  if (!vehicle) return '';
+  return [vehicle.year, vehicle.make, vehicle.model, vehicle.trim, vehicle.drive].filter(Boolean).join(' ');
+}
+
+function aiWheelSelectedConcept() {
+  const current = state.aiWheelDesign;
+  return current.selectedIndex >= 0 ? current.concepts[current.selectedIndex] : null;
+}
+
+function aiWheelDesignProgress() {
+  const current = state.aiWheelDesign;
+  const active = current.stage === 'multiview' ? 3 : current.stage === 'concepts' ? 2 : 1;
+  return `<nav class="ai-wheel-progress" aria-label="${esc(uiLabel('AI Wheel Design Studio'))}">${[
+    ['01 Brief', 1],
+    ['02 Choose', 2],
+    ['03 Multi-view', 3]
+  ].map(([label, index]) => `<span class="${active === index ? 'is-active' : active > index ? 'is-complete' : ''}"><b>${active > index ? '✓' : String(index).padStart(2, '0')}</b><small>${uiLabel(label)}</small></span>`).join('')}</nav>`;
+}
+
+function aiWheelOption(value, selected, label = value) {
+  return `<option value="${esc(value)}" ${String(value) === String(selected) ? 'selected' : ''}>${uiLabel(label)}</option>`;
+}
+
+function aiWheelBriefMarkup() {
+  const current = state.aiWheelDesign;
+  const draft = current.draft || {};
+  const mode = draft.mode || 'text-reference';
+  const showReference = mode !== 'text';
+  const vehicleContext = aiWheelVehicleContext();
+  const referenceMarkup = current.referenceData
+    ? `<div class="ai-wheel-reference-preview"><img src="${esc(current.referenceData)}" alt="${esc(current.referenceName || uiLabel('Optional reference image'))}"><div><strong>${uiLabel('This reference will guide the new design')}</strong><span>${esc(current.referenceName)}</span><button type="button" data-action="ai-design-remove-reference">${uiLabel('Remove reference')}</button></div></div>`
+    : `<label class="ai-wheel-upload"><input type="file" accept="image/jpeg,image/png,image/webp" data-ai-design-upload><span>${icons.image}</span><strong>${uiLabel('Upload a wheel image')}</strong><small>${uiLabel('JPG, PNG or WebP · up to 14 MB')}</small></label>`;
+  return `<form class="ai-wheel-brief" data-form="ai-wheel-design"><div class="ai-wheel-brief-head"><div><p class="eyebrow">${uiLabel('Write what you want')}</p><h2>${uiLabel('Describe the wheel direction')}</h2></div><span>01</span></div><div class="ai-wheel-mode-tabs" role="group" aria-label="${esc(uiLabel('Describe the wheel direction'))}">${[
+    ['text', 'Text only'],
+    ['reference', 'Reference + changes'],
+    ['text-reference', 'Text + reference']
+  ].map(([value, label]) => `<button type="button" class="${mode === value ? 'is-active' : ''}" data-action="ai-design-mode" data-mode="${value}" aria-pressed="${mode === value}">${uiLabel(label)}</button>`).join('')}</div><div class="ai-wheel-brief-grid"><div class="ai-wheel-copy-fields"><label class="ai-wheel-main-prompt"><span>${uiLabel('Describe the wheel direction')} <b>*</b></span><textarea name="prompt" rows="8" minlength="8" maxlength="1600" required placeholder="${esc(uiLabel('Example: an original lightweight 10-spoke forged wheel, deep concavity, thin paired spokes, brushed face and polished step lip; technical motorsport character rather than luxury.'))}">${esc(draft.prompt || '')}</textarea><small>${uiLabel('Be specific about spoke count, spoke shape, concavity, lip, center area and finish. Brand names are treated only as broad inspiration and are never copied.')}</small></label>${showReference ? `<div class="ai-wheel-reference-fields"><div><span>${uiLabel('Optional reference image')}</span>${referenceMarkup}</div><label><span>${uiLabel('What should stay?')}</span><input name="reference_keep" value="${esc(draft.reference_keep || '')}" placeholder="${esc(uiLabel('Example: keep the thin paired-spoke rhythm and deep center.'))}"></label><label><span>${uiLabel('What should change?')}</span><input name="reference_change" value="${esc(draft.reference_change || '')}" placeholder="${esc(uiLabel('Example: change to 10 spokes, cleaner center and bronze brushed finish.'))}"></label></div>` : ''}</div><aside class="ai-wheel-spec-panel"><div class="ai-wheel-spec-grid"><label><span>${uiLabel('Construction')}</span><select name="construction">${['Forged monoblock', 'Forged 2-piece', 'Forged 3-piece'].map(value => aiWheelOption(value, draft.construction)).join('')}</select></label><label><span>${uiLabel('Design character')}</span><select name="character">${['Performance / motorsport', 'Luxury / executive', 'Heritage / classic', 'Aero / technical', 'SUV / off-road'].map(value => aiWheelOption(value, draft.character)).join('')}</select></label><label><span>${uiLabel('Spoke direction')}</span><select name="spoke_count">${aiWheelOption('', draft.spoke_count, 'Let AI propose')}${['5-spoke', '6-spoke', '7-spoke', '8-spoke', '10-spoke', 'Multi-spoke'].map(value => aiWheelOption(value, draft.spoke_count)).join('')}</select></label><label><span>${uiLabel('Finish direction')}</span><select name="finish">${['Brushed clear', 'Satin black', 'Polished silver', 'Bronze', 'Two-tone custom'].map(value => aiWheelOption(value, draft.finish)).join('')}</select></label><label><span>${uiLabel('Visual diameter')}</span><select name="diameter">${aiWheelOption('', draft.diameter, 'Not fixed')}${['17', '18', '19', '20', '21', '22', '23', '24'].map(value => aiWheelOption(value, draft.diameter, `${value} in`)).join('')}</select></label></div><div class="ai-wheel-vehicle-context ${vehicleContext ? 'has-vehicle' : ''}">${icons.shield}<div><small>${vehicleContext ? uiLabel('Vehicle context inherited') : uiLabel('No vehicle selected')}</small><strong>${esc(vehicleContext || uiLabel('Independent wheel concept'))}</strong><p>${uiLabel('The vehicle is used only as design context. Fitment, brake clearance and load are still checked separately in the Fitment Lab.')}</p>${!vehicleContext ? `<a href="/fitment-lab" data-app-path>${uiLabel('Open Fitment Lab')} ${icons.arrowRight}</a>` : ''}</div></div><button class="btn btn-primary ai-wheel-generate" type="submit"><span class="ai-wheel-generate-label">${icons.spark}<span>${uiLabel(state.mallToken && state.account ? 'Generate 4 original concepts' : 'Sign in to generate concepts')}</span></span><span class="ai-wheel-generate-arrow" aria-hidden="true">${icons.arrowRight}</span></button></aside></div></form>`;
+}
+
+function aiWheelLoadingMarkup(multiview = false) {
+  const count = multiview ? 9 : 4;
+  return `<section class="ai-wheel-generating" aria-live="polite"><div class="ai-wheel-generating-copy"><span class="ai-wheel-spinner" aria-hidden="true"></span><div><p class="eyebrow">CIRUI AI DESIGN</p><h2>${uiLabel(multiview ? 'Rendering eight locked angles' : 'Creating four original directions')}</h2><p>${uiLabel(multiview ? 'Each image uses the selected concept as the same identity reference. This may take several minutes.' : 'The studio is varying the spoke rhythm, concavity and surface breaks while keeping your brief fixed.')}</p></div></div><div class="ai-wheel-skeleton-grid ${multiview ? 'is-nine' : ''}">${Array.from({ length: count }, (_, index) => `<span class="${multiview && index === 4 ? 'is-center' : ''}"><i></i><small>${multiview && index === 4 ? uiLabel('Selected concept') : `${index + 1}`}</small></span>`).join('')}</div></section>`;
+}
+
+function aiWheelConceptsMarkup() {
+  const current = state.aiWheelDesign;
+  return `<section class="ai-wheel-concepts"><div class="ai-wheel-section-head"><div><p class="eyebrow">CIRUI ORIGINAL CONCEPTS</p><h2>${uiLabel('Choose one direction')}</h2><p>${uiLabel('The selected image becomes the only visual identity reference for every multi-view angle.')}</p></div><strong>02 / 03</strong></div><div class="ai-wheel-concept-grid">${current.concepts.map((concept, index) => {
+    const imageUrl = concept.image_url || concept.url || '';
+    const selected = current.selectedIndex === index;
+    return `<article class="ai-wheel-concept-card ${selected ? 'is-selected' : ''}"><button type="button" class="ai-wheel-concept-image" data-action="ai-design-select" data-index="${index}" aria-pressed="${selected}"><img src="${esc(imageUrl)}" alt="${esc(`${uiLabel('AI Original Design')} ${index + 1}`)}"><span>${selected ? `✓ ${uiLabel('Selected')}` : String.fromCharCode(65 + index)}</span></button><div><strong>${uiLabel('AI Original Design')} ${String.fromCharCode(65 + index)}</strong><button type="button" data-action="ai-design-view" data-image-url="${esc(imageUrl)}" data-label="${esc(`${uiLabel('AI Original Design')} ${String.fromCharCode(65 + index)}`)}">${uiLabel('View larger')} ↗</button></div></article>`;
+  }).join('')}</div><div class="ai-wheel-concept-actions"><button type="button" class="btn btn-outline" data-action="ai-design-edit">${uiLabel('Edit brief')}</button><button type="button" class="btn btn-primary" data-action="ai-design-multiview" ${current.selectedIndex < 0 ? 'disabled' : ''}>${uiLabel('Generate nine-cell multi-view')} ${icons.arrowRight}</button></div></section>`;
+}
+
+function aiWheelMultiviewMarkup() {
+  const current = state.aiWheelDesign;
+  const selected = aiWheelSelectedConcept();
+  const selectedUrl = selected?.image_url || selected?.url || '';
+  const views = current.views;
+  const cells = [views[0], views[1], views[2], views[7], { id: 'selected', angle: uiLabel('Selected concept'), image_url: selectedUrl, selected: true }, views[3], views[6], views[5], views[4]].filter(Boolean);
+  return `<section class="ai-wheel-multiview"><div class="ai-wheel-section-head"><div><p class="eyebrow">CIRUI MULTI-VIEW LOCK</p><h2>${uiLabel('Nine-cell concept review')}</h2><p>${uiLabel('Eight generated angles surround the selected hero concept. Review spoke count, center, lip, barrel and finish consistency before sending it to engineering.')}</p></div><strong>03 / 03</strong></div><div class="ai-wheel-nine-grid">${cells.map(cell => {
+    const imageUrl = cell.image_url || cell.url || '';
+    return `<button type="button" class="${cell.selected ? 'is-selected' : ''}" data-action="ai-design-view" data-image-url="${esc(imageUrl)}" data-label="${esc(cell.angle || uiLabel('AI Original Design'))}"><img src="${esc(imageUrl)}" alt="${esc(cell.angle || uiLabel('AI Original Design'))}"><span>${esc(cell.angle || '')}</span></button>`;
+  }).join('')}</div><div class="ai-wheel-safety-note">${icons.shield}<div><strong>${uiLabel('Concept preview only')}</strong><span>${uiLabel('AI images do not approve fitment, strength or manufacturing. Final production requires CIRUI engineering CAD, load review and physical-clearance approval.')}</span></div></div><div class="ai-wheel-concept-actions"><button type="button" class="btn btn-outline" data-action="ai-design-reset">${uiLabel('Start a new design')}</button><button type="button" class="btn btn-outline" data-action="ai-design-multiview">${uiLabel('Regenerate multi-view')}</button><a class="btn btn-primary" href="${esc(whatsappHref(`Hello CIRUI, I would like to continue with my AI wheel concept. ${state.aiWheelDesign.draft.prompt || ''}`))}" target="_blank" rel="noopener">${uiLabel('Discuss with CIRUI')} ${icons.arrowRight}</a></div></section>`;
+}
+
+function aiWheelDesignPage() {
+  const current = state.aiWheelDesign;
+  let content = aiWheelBriefMarkup();
+  if (current.status === 'generating-concepts') content = aiWheelLoadingMarkup(false);
+  else if (current.status === 'generating-multiview') content = aiWheelLoadingMarkup(true);
+  else if (current.stage === 'concepts' && current.concepts.length) content = aiWheelConceptsMarkup();
+  else if (current.stage === 'multiview' && current.views.length) content = aiWheelMultiviewMarkup();
+  else if (current.stage === 'multiview' && current.concepts.length) content = aiWheelConceptsMarkup();
+  const footerSafetyNote = current.stage === 'multiview' && current.views.length
+    ? ''
+    : `<section class="ai-wheel-safety-note is-footer">${icons.shield}<div><strong>${uiLabel('Concept preview only')}</strong><span>${uiLabel('AI images do not approve fitment, strength or manufacturing. Final production requires CIRUI engineering CAD, load review and physical-clearance approval.')}</span></div></section>`;
+  return `<main class="ai-wheel-page"><section class="ai-wheel-hero"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><a href="#custom">${uiLabel('Customization')}</a><span>/</span><span>${uiLabel('AI Original Design')}</span></div><div class="ai-wheel-hero-grid"><div><p class="eyebrow">${uiLabel('FROM IDEA TO A CONSISTENT CONCEPT')}</p><h1>${uiLabel('Describe it. Reference it. Make it original.')}</h1><p>${uiLabel('Start with words, an optional reference image, or both. CIRUI generates four original wheel directions; after you select one, the studio renders eight locked angles as a nine-cell review board.')}</p></div><div class="ai-wheel-hero-mark"><span>CIRUI</span><strong>AI</strong><small>CONCEPT<br>STUDIO</small></div></div>${aiWheelDesignProgress()}</div></section><div class="container ai-wheel-workspace">${current.error ? `<div class="ai-wheel-error" role="alert"><span>!</span><div><strong>${uiLabel('Generation failed')}</strong><p>${esc(current.error)}</p></div><button type="button" data-action="ai-design-edit">${uiLabel('Return to brief')}</button></div>` : ''}${content}${footerSafetyNote}</div></main>`;
+}
+
+function captureAiWheelDraft(form = document.querySelector('[data-form="ai-wheel-design"]')) {
+  if (!form) return state.aiWheelDesign.draft;
+  const values = Object.fromEntries(new FormData(form).entries());
+  state.aiWheelDesign.draft = { ...state.aiWheelDesign.draft, ...values };
+  localStorage.setItem('cirui-ai-wheel-draft', JSON.stringify(state.aiWheelDesign.draft));
+  return state.aiWheelDesign.draft;
+}
+
+async function aiWheelReferenceFile(file) {
+  if (!file) return;
+  if (!/^image\/(?:jpeg|png|webp)$/i.test(file.type) || file.size > 14 * 1024 * 1024) {
+    state.aiWheelDesign.error = uiLabel('Use a JPG, PNG or WebP image smaller than 14 MB.');
+    render();
+    return;
+  }
+  captureAiWheelDraft();
+  state.aiWheelDesign.error = '';
+  try {
+    state.aiWheelDesign.referenceData = await wheelVisualizerPrepareImage(file);
+    state.aiWheelDesign.referenceName = file.name;
+  } catch (error) {
+    state.aiWheelDesign.error = error?.message || uiLabel('The selected image could not be read. Please choose a JPG, PNG or WEBP photo.');
+  }
+  render();
+}
+
+async function pollAiWheelDesignJob(jobId, phase) {
+  for (let attempt = 0; attempt < 240; attempt += 1) {
+    await new Promise(resolve => window.setTimeout(resolve, 3000));
+    const response = await fetch(`/api/wheel-design/jobs/${encodeURIComponent(jobId)}`, { headers: { Accept: 'application/json' } });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || 'The wheel-design job could not be checked.');
+    const result = payload.data || payload;
+    if (result.status === 'failed') throw new Error(result.message || 'The wheel-design job failed.');
+    if (result.status === 'succeeded' || result.status === 'completed') {
+      const images = (result.results || []).filter(item => item.image_url || item.url);
+      if (phase === 'multiview') {
+        if (images.length !== 8) throw new Error('The multi-view service returned fewer than eight angles.');
+        state.aiWheelDesign.views = images;
+        state.aiWheelDesign.stage = 'multiview';
+      } else {
+        if (images.length !== 4) throw new Error('The concept service returned fewer than four designs.');
+        state.aiWheelDesign.concepts = images;
+        state.aiWheelDesign.selectedIndex = -1;
+        state.aiWheelDesign.views = [];
+        state.aiWheelDesign.stage = 'concepts';
+      }
+      state.aiWheelDesign.status = 'idle';
+      state.aiWheelDesign.error = '';
+      render();
+      return;
+    }
+  }
+  throw new Error('The design is still processing. Please return to this page shortly.');
+}
+
+async function submitAiWheelDesign(form) {
+  const draft = captureAiWheelDraft(form);
+  if (!state.mallToken || !state.account) {
+    state.modal = { type: 'account', mode: 'login', afterLogin: 'ai-wheel-design' };
+    render();
+    return;
+  }
+  if (String(draft.prompt || '').trim().length < 8) {
+    state.aiWheelDesign.error = uiLabel('Describe the wheel direction in at least 8 characters.');
+    render();
+    return;
+  }
+  state.aiWheelDesign.status = 'generating-concepts';
+  state.aiWheelDesign.error = '';
+  state.aiWheelDesign.stage = 'concepts';
+  render();
+  try {
+    const response = await fetch('/api/wheel-design/jobs', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: state.mallToken },
+      body: JSON.stringify({ ...draft, phase: 'concepts', reference_image: state.aiWheelDesign.referenceData, reference_name: state.aiWheelDesign.referenceName, vehicle_context: aiWheelVehicleContext() })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || 'CIRUI could not start the concept request.');
+    state.aiWheelDesign.jobId = payload.data?.job_id || payload.job_id || '';
+    await pollAiWheelDesignJob(state.aiWheelDesign.jobId, 'concepts');
+  } catch (error) {
+    state.aiWheelDesign.status = 'idle';
+    state.aiWheelDesign.stage = state.aiWheelDesign.concepts.length ? 'concepts' : 'brief';
+    state.aiWheelDesign.error = error?.message || 'CIRUI could not generate the concepts.';
+    render();
+  }
+}
+
+async function generateAiWheelMultiview() {
+  const selected = aiWheelSelectedConcept();
+  if (!selected) {
+    setToast(uiLabel('Choose a concept first.'));
+    return;
+  }
+  state.aiWheelDesign.status = 'generating-multiview';
+  state.aiWheelDesign.stage = 'multiview';
+  state.aiWheelDesign.error = '';
+  render();
+  try {
+    const response = await fetch('/api/wheel-design/jobs', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: state.mallToken },
+      body: JSON.stringify({ ...state.aiWheelDesign.draft, phase: 'multiview', selected_image: selected.image_url || selected.url, vehicle_context: aiWheelVehicleContext() })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || 'CIRUI could not start the multi-view request.');
+    state.aiWheelDesign.jobId = payload.data?.job_id || payload.job_id || '';
+    await pollAiWheelDesignJob(state.aiWheelDesign.jobId, 'multiview');
+  } catch (error) {
+    state.aiWheelDesign.status = 'idle';
+    state.aiWheelDesign.stage = 'concepts';
+    state.aiWheelDesign.error = error?.message || 'CIRUI could not generate the multi-view set.';
+    render();
+  }
+}
+
 function customizationPage() {
   const sampleProducts = publicForgedProducts().slice(0, 3);
   const options = [
-    ['finishes', 'Finishes & colors', 'Brushed, polished, satin, gloss, tinted clear and custom color directions are quoted against the selected wheel and use case.', ['Brushed clear', 'Satin black', 'Polished', 'Custom color']],
-    ['lips', 'Lip profiles', 'Flat, stepped and deep-lip directions depend on construction, brake package, offset and the approved wheel drawing.', ['Step lip', 'Reverse lip', 'Polished lip', 'Color-matched lip']],
-    ['caps', 'Center caps', 'Standard CIRUI caps, custom logo artwork and floating-cap directions are treated as product options, not separate empty products.', ['CIRUI cap', 'Custom artwork', 'Floating cap', 'Color matched']],
-    ['hardware', 'Hardware options', 'Visible or concealed hardware is available only where the selected construction supports it. Material and finish are confirmed in the quote.', ['Exposed hardware', 'Hidden hardware', 'Color options', 'Drawing review']]
+    ['finishes', 'Finishes & colors', 'Brushed, polished, satin, gloss, tinted clear and custom color directions are quoted against the selected wheel and use case.', ['Brushed clear', 'Satin black', 'Polished', 'Custom color'], '/assets/halo-20-spoke-03.webp'],
+    ['lips', 'Lip profiles', 'Flat, stepped and deep-lip directions depend on construction, brake package, offset and the approved wheel drawing.', ['Step lip', 'Reverse lip', 'Polished lip', 'Color-matched lip'], '/assets/sv100-03.webp'],
+    ['caps', 'Center caps', 'Standard CIRUI caps, custom logo artwork and floating-cap directions are treated as product options, not separate empty products.', ['CIRUI cap', 'Custom artwork', 'Floating cap', 'Color matched'], '/assets/generated/cirui-center-cap-options-v1.webp'],
+    ['hardware', 'Hardware options', 'Visible or concealed hardware is available only where the selected construction supports it. Material and finish are confirmed in the quote.', ['Exposed hardware', 'Hidden hardware', 'Color options', 'Drawing review'], '/assets/generated/cirui-wheel-hardware-options-v1.webp']
   ];
-  return `<main class="customization-page"><section class="customization-hero"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><span>${uiLabel('Customization')}</span></div><p class="eyebrow">${uiLabel('BUILT AROUND YOUR BRIEF')}</p><h1>${uiLabel('One wheel direction. Your exact finish and detail.')}</h1><p>${uiLabel('Choose the design first. CIRUI then combines construction, vehicle data, finish, cap, hardware and lip into one production drawing and one RFQ.')}</p><div><a class="btn btn-primary" href="#store" data-action="catalog-collection" data-collection="all">${uiLabel('Choose a wheel')}</a><button class="btn btn-outline" data-action="request-rfq">${uiLabel('Request a custom quote')}</button></div></div></section><section class="section customization-options"><div class="container"><div class="customization-option-grid">${options.map(([id, title, copy, tags]) => `<article id="custom-${id}" class="customization-option ${state.customSection === id ? 'is-highlighted' : ''}"><span>${String(options.findIndex(item => item[0] === id) + 1).padStart(2, '0')}</span><h2>${uiLabel(title)}</h2><p>${uiLabel(copy)}</p><div>${tags.map(tag => `<small>${uiLabel(tag)}</small>`).join('')}</div></article>`).join('')}</div></div></section><section class="section customization-process"><div class="container"><div><p class="eyebrow">${uiLabel('HOW IT BECOMES A REAL ORDER')}</p><h2>${uiLabel('Design choice → fitment → options → approved drawing.')}</h2></div><ol><li><b>01</b><span><strong>${uiLabel('Select a wheel direction')}</strong><small>${uiLabel('Monoblock, 2-piece, aero or off-road.')}</small></span></li><li><b>02</b><span><strong>${uiLabel('Attach the exact vehicle')}</strong><small>${uiLabel('Brake package, suspension and intended use matter.')}</small></span></li><li><b>03</b><span><strong>${uiLabel('Specify finish and details')}</strong><small>${uiLabel('Cap, hardware, lip and color are quoted together.')}</small></span></li><li><b>04</b><span><strong>${uiLabel('Approve the production drawing')}</strong><small>${uiLabel('No classification or preview replaces the final drawing.')}</small></span></li></ol></div></section>${sampleProducts.length ? `<section class="section"><div class="container"><div class="section-heading"><div><p class="eyebrow">${uiLabel('STARTING DIRECTIONS')}</p><h2>${uiLabel('Choose a wheel to customize.')}</h2></div><a class="btn btn-dark" href="#store">${uiLabel('View full catalog')}</a></div><div class="product-grid">${sampleProducts.map(renderProductCard).join('')}</div></div></section>` : ''}</main>`;
+  return `<main class="customization-page"><section class="customization-hero"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><span>${uiLabel('Customization')}</span></div><p class="eyebrow">${uiLabel('BUILT AROUND YOUR BRIEF')}</p><h1>${uiLabel('One wheel direction. Your exact finish and detail.')}</h1><p>${uiLabel('Choose the design first. CIRUI then combines construction, vehicle data, finish, cap, hardware and lip into one production drawing and one RFQ.')}</p><div><a class="btn btn-primary" href="/ai-wheel-studio" data-app-path>${icons.spark} ${uiLabel('AI Original Design')}</a><a class="btn btn-outline" href="#store" data-action="catalog-collection" data-collection="all">${uiLabel('Choose a wheel')}</a><button class="btn btn-outline" data-action="request-rfq">${uiLabel('Request a custom quote')}</button></div></div></section><section class="section customization-options"><div class="container"><div class="customization-option-grid">${options.map(([id, title, copy, tags, image], index) => `<article id="custom-${id}" class="customization-option customization-option-${id} ${state.customSection === id ? 'is-highlighted' : ''}"><figure class="customization-option-media"><img src="${esc(image)}" alt="${esc(uiLabel(title))}" loading="lazy" decoding="async"><span>${String(index + 1).padStart(2, '0')}</span></figure><div class="customization-option-body"><h2>${uiLabel(title)}</h2><p>${uiLabel(copy)}</p><div class="customization-option-tags">${tags.map(tag => `<small>${uiLabel(tag)}</small>`).join('')}</div></div></article>`).join('')}</div></div></section><section class="section customization-process"><div class="container"><div><p class="eyebrow">${uiLabel('HOW IT BECOMES A REAL ORDER')}</p><h2>${uiLabel('Design choice → fitment → options → approved drawing.')}</h2></div><ol><li><b>01</b><span><strong>${uiLabel('Select a wheel direction')}</strong><small>${uiLabel('Monoblock, 2-piece, aero or off-road.')}</small></span></li><li><b>02</b><span><strong>${uiLabel('Attach the exact vehicle')}</strong><small>${uiLabel('Brake package, suspension and intended use matter.')}</small></span></li><li><b>03</b><span><strong>${uiLabel('Specify finish and details')}</strong><small>${uiLabel('Cap, hardware, lip and color are quoted together.')}</small></span></li><li><b>04</b><span><strong>${uiLabel('Approve the production drawing')}</strong><small>${uiLabel('No classification or preview replaces the final drawing.')}</small></span></li></ol></div></section>${sampleProducts.length ? `<section class="section"><div class="container"><div class="section-heading"><div><p class="eyebrow">${uiLabel('STARTING DIRECTIONS')}</p><h2>${uiLabel('Choose a wheel to customize.')}</h2></div><a class="btn btn-dark" href="#store">${uiLabel('View full catalog')}</a></div><div class="product-grid">${sampleProducts.map(renderProductCard).join('')}</div></div></section>` : ''}</main>`;
 }
 
 function tradePage() {
@@ -6196,6 +6509,7 @@ function rfqModalMarkup() {
 
 function modal() {
   if (!state.modal) return '';
+  if (state.modal.type === 'ai-design-image') return `<div class="overlay ai-wheel-image-overlay" data-action="close-modal"><div class="ai-wheel-image-dialog" data-modal-content role="dialog" aria-modal="true" aria-label="${esc(state.modal.label || uiLabel('AI Original Design'))}"><header><div><p class="eyebrow">${uiLabel('Concept preview only')}</p><h2>${esc(state.modal.label || uiLabel('AI Original Design'))}</h2></div><button class="icon-btn modal-close" data-action="close-modal" aria-label="${esc(uiLabel('Close'))}">${icons.close}</button></header><img src="${esc(state.modal.imageUrl || '')}" alt="${esc(state.modal.label || uiLabel('AI Original Design'))}"><p>${uiLabel('AI images do not approve fitment, strength or manufacturing. Final production requires CIRUI engineering CAD, load review and physical-clearance approval.')}</p></div></div>`;
   if (state.modal.type === 'factory-film') return `<div class="overlay factory-film-overlay" data-action="close-modal"><div class="factory-film-dialog" data-modal-content role="dialog" aria-modal="true" aria-labelledby="factory-film-title"><div class="factory-film-dialog-head"><div><p class="eyebrow">CIRUI FORGED · FACTORY FILM</p><h2 id="factory-film-title">${uiLabel('Inside CIRUI manufacturing')}</h2></div><button class="icon-btn modal-close" data-action="close-modal" aria-label="${esc(uiLabel('Close'))}">${icons.close}</button></div><div class="factory-film-player"><video controls autoplay playsinline preload="metadata" poster="${assetUrl(factoryFilm.poster)}" data-factory-film-player><source src="${assetUrl(factoryFilm.source)}" type="video/mp4"></video></div><div class="factory-film-dialog-foot"><p>${uiLabel('Real factory footage from machining through finishing, inspection and packing.')}</p><span>${uiLabel('Full film · 02:16')}</span></div></div></div>`;
   if (state.modal.type === 'rfq') return rfqModalMarkup();
   if (state.modal.type === 'fitment-wizard') return fitmentWizardModalMarkup();
@@ -6662,6 +6976,10 @@ function syncRouteDocumentTitle() {
     document.title = `${title} | ${shop}`;
     return;
   }
+  if (state.route.name === 'ai-wheel-design') {
+    document.title = `${uiLabel('AI Wheel Design Studio')} | CIRUI Forged`;
+    return;
+  }
   if (state.route.name === 'store') { document.title = uiLabel('CIRUI Performance Parts'); return; }
   if (state.route.name === 'cart') { document.title = uiLabel('CIRUI Request for Quotation'); return; }
   if (state.route.name === 'custom') { document.title = uiLabel('CIRUI Wheel Customization | Finishes, Caps and Hardware'); return; }
@@ -6677,11 +6995,11 @@ function syncRouteDocumentTitle() {
 
 function render() {
   state.route = getRoute();
-  if (location.pathname !== '/' && location.hash && ['fitment', 'fitment-result', 'fitment-share', 'account'].includes(state.route.name)) {
+  if (location.pathname !== '/' && location.hash && ['fitment', 'fitment-result', 'fitment-share', 'ai-wheel-design', 'account'].includes(state.route.name)) {
     history.replaceState({}, '', `${location.pathname}${location.search}`);
   }
   syncRouteDocumentTitle();
-  const page = state.route.name === 'home' ? premiumGlobalHomePage() : state.route.name === 'about' ? ceruiAboutPage() : state.route.name === 'custom' ? customizationPage() : state.route.name === 'trade' ? tradePage() : state.route.name === 'fitment' ? fitmentPage() : state.route.name === 'fitment-result' ? fitmentResultPage() : state.route.name === 'fitment-share' ? fitmentSharePage() : state.route.name === 'account' ? accountPage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : state.route.name === 'blog' ? blogPage() : state.route.name === 'blog-post' ? blogArticlePage(state.blogPosts.find(post => post.slug === state.route.slug)) : productPage(product(state.route.id));
+  const page = state.route.name === 'home' ? premiumGlobalHomePage() : state.route.name === 'about' ? ceruiAboutPage() : state.route.name === 'custom' ? customizationPage() : state.route.name === 'ai-wheel-design' ? aiWheelDesignPage() : state.route.name === 'trade' ? tradePage() : state.route.name === 'fitment' ? fitmentPage() : state.route.name === 'fitment-result' ? fitmentResultPage() : state.route.name === 'fitment-share' ? fitmentSharePage() : state.route.name === 'account' ? accountPage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : state.route.name === 'blog' ? blogPage() : state.route.name === 'blog-post' ? blogArticlePage(state.blogPosts.find(post => post.slug === state.route.slug)) : productPage(product(state.route.id));
   const pageWithReviews = state.route.name === 'home' ? page.replace(/<section class="section" id="resources">[\s\S]*?<\/section>/, homeReviewSection()) : page;
   const pageWithPhotoReviews = state.route.name === 'home' ? pageWithReviews.replace(/<section class="section" id="gallery">[\s\S]*?<\/section>/, homePhotoReviewGallery()) : pageWithReviews;
   const pageWithJournal = pageWithPhotoReviews;
@@ -7858,6 +8176,54 @@ document.addEventListener('click', async event => {
     void player?.play().catch(() => {});
     return;
   }
+  if (action === 'ai-design-mode') {
+    captureAiWheelDraft();
+    state.aiWheelDesign.draft.mode = ['text', 'reference', 'text-reference'].includes(target.dataset.mode) ? target.dataset.mode : 'text-reference';
+    localStorage.setItem('cirui-ai-wheel-draft', JSON.stringify(state.aiWheelDesign.draft));
+    render();
+    return;
+  }
+  if (action === 'ai-design-remove-reference') {
+    captureAiWheelDraft();
+    state.aiWheelDesign.referenceData = '';
+    state.aiWheelDesign.referenceName = '';
+    state.aiWheelDesign.error = '';
+    render();
+    return;
+  }
+  if (action === 'ai-design-select') {
+    state.aiWheelDesign.selectedIndex = Math.max(0, Math.min(state.aiWheelDesign.concepts.length - 1, Number(target.dataset.index || 0)));
+    state.aiWheelDesign.views = [];
+    state.aiWheelDesign.error = '';
+    render();
+    return;
+  }
+  if (action === 'ai-design-edit') {
+    state.aiWheelDesign.stage = 'brief';
+    state.aiWheelDesign.status = 'idle';
+    state.aiWheelDesign.error = '';
+    render();
+    return;
+  }
+  if (action === 'ai-design-reset') {
+    localStorage.removeItem('cirui-ai-wheel-draft');
+    state.aiWheelDesign = {
+      ...aiWheelDesignDefaults(),
+      draft: { mode: 'text-reference', prompt: '', reference_keep: '', reference_change: '', construction: 'Forged monoblock', character: 'Performance / motorsport', spoke_count: '', finish: 'Brushed clear', diameter: '' }
+    };
+    render();
+    return;
+  }
+  if (action === 'ai-design-multiview') {
+    await generateAiWheelMultiview();
+    return;
+  }
+  if (action === 'ai-design-view') {
+    if (!target.dataset.imageUrl) return;
+    state.modal = { type: 'ai-design-image', imageUrl: target.dataset.imageUrl, label: target.dataset.label || uiLabel('AI Original Design') };
+    render();
+    return;
+  }
   if (action === 'close-modal') { if (event.target.closest('[data-modal-content]') && !target.classList.contains('modal-close')) return; state.modal = null; render(); return; }
   if (action === 'wishlist') {
     const id = target.dataset.id;
@@ -7916,6 +8282,7 @@ document.addEventListener('click', async event => {
 
 document.addEventListener('change', event => {
   const el = event.target;
+  if (el.matches('[data-ai-design-upload]')) { void aiWheelReferenceFile(el.files?.[0]); return; }
   if (el.matches('[data-fitment-style-upload]')) {
     const file = el.files?.[0];
     if (!file || !/^image\/(?:jpeg|png|webp)$/i.test(file.type)) return;
@@ -7987,6 +8354,11 @@ let catalogSearchTimer = 0;
 let fitmentStyleSearchTimer = 0;
 document.addEventListener('input', event => {
   const el = event.target;
+  if (el.closest('[data-form="ai-wheel-design"]')) {
+    captureAiWheelDraft(el.form);
+    state.aiWheelDesign.error = '';
+    return;
+  }
   if (el.matches('[data-fitment-part-search]')) {
     filterFitmentPartPicker(el);
     return;
@@ -8233,6 +8605,7 @@ async function submitFitmentWizard(form) {
 document.addEventListener('submit', async event => {
   event.preventDefault();
   const form = event.target;
+  if (form.dataset.form === 'ai-wheel-design') { await submitAiWheelDesign(form); return; }
   if (form.dataset.form === 'visualizer-register') { await submitWheelVisualizerRegistration(Object.fromEntries(new FormData(form).entries())); return; }
   if (form.dataset.form === 'fitment-wizard') { await submitFitmentWizard(form); return; }
   if (form.dataset.form === 'fitment-check') { await submitFitmentForm(form); return; }

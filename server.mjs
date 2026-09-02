@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createBrotliCompress, createGzip, constants as zlibConstants } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
-import { getPublicWorkshopProjectForSeo, handleFBoxAdminApi, handleFBoxAssetApi, handleFBoxAuthApi, handleFBoxOperationsApi, handleFBoxStoreApi, handleWheelVisualizerApi } from './fbox-visualizer-backend.mjs';
+import { getPublicWorkshopProjectForSeo, handleFBoxAdminApi, handleFBoxAssetApi, handleFBoxAuthApi, handleFBoxOperationsApi, handleFBoxStoreApi, handleWheelDesignApi, handleWheelVisualizerApi } from './fbox-visualizer-backend.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.FBOX_PORT || process.env.PORT || 4174);
@@ -214,6 +214,9 @@ async function serveAppDocument(req, res, pathname, project = null) {
     title = 'F-Box Wheel Fitment Proposals';
     description = 'Private wheel fitment proposals calculated from the current vehicle, modification and measurement record.';
     robots = 'noindex,nofollow';
+  } else if (pathname === '/ai-wheel-studio') {
+    title = 'CIRUI AI Wheel Design Studio | Original Forged Wheel Concepts';
+    description = 'Describe a custom forged wheel or upload a reference, compare four original concepts and review the selected design from multiple angles.';
   } else if (pathname === '/account') {
     title = 'My F-Box Account';
     description = 'Manage private F-Box workshop projects, orders and account details.';
@@ -250,12 +253,13 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === '/api/fbox-admin' || url.pathname.startsWith('/api/fbox-admin/')) return handleFBoxAdminApi(req, res, url);
   if (url.pathname === '/api/fbox-ops' || url.pathname.startsWith('/api/fbox-ops/') || url.pathname === '/api/fbox-content' || url.pathname.startsWith('/api/fbox-content/')) return handleFBoxOperationsApi(req, res, url);
   if (url.pathname === '/api/wheel-visualizer' || url.pathname.startsWith('/api/wheel-visualizer/')) return handleWheelVisualizerApi(req, res, url);
+  if (url.pathname === '/api/wheel-design' || url.pathname.startsWith('/api/wheel-design/')) return handleWheelDesignApi(req, res, url);
   const workshopBuildMatch = url.pathname.match(/^\/(?:build|fitment-cases)\/([^/]+)\/?$/);
   if ((req.method === 'GET' || req.method === 'HEAD') && workshopBuildMatch) {
     const project = await getPublicWorkshopProjectForSeo(decodeURIComponent(workshopBuildMatch[1]));
     return serveAppDocument(req, res, url.pathname.replace(/\/$/, ''), project);
   }
-  if ((req.method === 'GET' || req.method === 'HEAD') && ['/fitment-lab', '/fitment-lab/result', '/account'].includes(url.pathname.replace(/\/$/, ''))) return serveAppDocument(req, res, url.pathname.replace(/\/$/, ''));
+  if ((req.method === 'GET' || req.method === 'HEAD') && ['/fitment-lab', '/fitment-lab/result', '/ai-wheel-studio', '/account'].includes(url.pathname.replace(/\/$/, ''))) return serveAppDocument(req, res, url.pathname.replace(/\/$/, ''));
   return serveStatic(req, res, url.pathname);
 });
 
