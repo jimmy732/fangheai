@@ -6453,30 +6453,233 @@ function wheelVisualizerModal() {
 // First-party analytics beacon: every page/product view and key CTA click is
 // reported to the CIRUI backend so the owner can see where buyers come from.
 // Events are fire-and-forget; failures never affect the storefront.
+function analyticsRandomId(prefix) {
+  const value = typeof crypto?.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 14)}`;
+  return `${prefix}_${value}`;
+}
+
+function analyticsStoredId(storage, key, prefix) {
+  try {
+    const existing = String(storage.getItem(key) || '').trim();
+    if (/^[a-z0-9_-]{10,80}$/i.test(existing)) return existing;
+    const created = analyticsRandomId(prefix);
+    storage.setItem(key, created);
+    return created;
+  } catch {
+    return analyticsRandomId(prefix);
+  }
+}
+
+const analyticsVisitorId = analyticsStoredId(localStorage, 'fbox-analytics-visitor', 'visitor');
+const analyticsSessionId = analyticsStoredId(sessionStorage, 'fbox-analytics-session', 'session');
+const analyticsCampaign = (() => {
+  const params = new URLSearchParams(location.search);
+  const value = name => String(params.get(name) || '').slice(0, 160);
+  return {
+    utm_source: value('utm_source'),
+    utm_medium: value('utm_medium'),
+    utm_campaign: value('utm_campaign'),
+    utm_content: value('utm_content'),
+    // Campaign values are captured separately above. Do not retain arbitrary
+    // query-string values because they can contain customer data.
+    landing_path: `${location.pathname}${location.hash}`.slice(0, 160)
+  };
+})();
+let analyticsEngagement = null;
+const analyticsFitmentInputSteps = new Set();
+const analyticsEngagementMilestones = [10, 30, 60, 120, 300, 600];
+
+function analyticsEventBody(type, payload = {}) {
+  const meta = {
+    ...(type === 'page_view' || type === 'product_view' ? analyticsCampaign : {}),
+    ...(payload.meta && typeof payload.meta === 'object' ? payload.meta : {})
+  };
+  return {
+    type,
+    locale: state.locale,
+    ...payload,
+    visitor_id: analyticsVisitorId,
+    session_id: analyticsSessionId,
+    meta
+  };
+}
+
 function trackEvent(type, payload = {}) {
   try {
     fetch('/api/fbox-content/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ type, locale: state.locale, ...payload }),
+      body: JSON.stringify(analyticsEventBody(type, payload)),
       keepalive: true,
       signal: AbortSignal.timeout(4000)
     }).catch(() => {});
   } catch { /* analytics must never break the page */ }
 }
 
+function trackEventBeacon(type, payload = {}) {
+  try {
+    const body = JSON.stringify(analyticsEventBody(type, payload));
+    if (navigator.sendBeacon?.('/api/fbox-content/track', new Blob([body], { type: 'application/json' }))) return;
+    fetch('/api/fbox-content/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true }).catch(() => {});
+  } catch { /* leaving the page must never be delayed by analytics */ }
+}
+
+function analyticsIsFitmentPath(path = location.pathname + location.hash) {
+  return String(path).includes('/fitment-lab') || String(path).includes('#fitment');
+}
+
+function analyticsFitmentStep() {
+  return Math.max(0, Number(document.querySelector('.fitment-flow-form')?.dataset.step || state.fitment?.flow?.step || 0));
+}
+
+function analyticsEngagementPayload(reason) {
+  if (!analyticsEngagement) return null;
+  const now = Date.now();
+  const elapsedSeconds = Math.max(0, Math.round((now - analyticsEngagement.startedAt) / 1000));
+  return {
+    path: analyticsEngagement.path,
+    title: document.title,
+    meta: {
+      funnel: analyticsIsFitmentPath(analyticsEngagement.path) ? 'fitment_lab' : '',
+      action: 'page-engagement',
+      reason,
+      active_seconds: Math.round(analyticsEngagement.activeSeconds),
+      elapsed_seconds: elapsedSeconds,
+      max_scroll: Math.round(analyticsEngagement.maxScroll),
+      step: analyticsFitmentStep()
+    }
+  };
+}
+
+function analyticsFlushEngagement(reason, final = false) {
+  if (!analyticsEngagement || !analyticsIsFitmentPath(analyticsEngagement.path)) return;
+  if (final && analyticsEngagement.finalSent) return;
+  const payload = analyticsEngagementPayload(reason);
+  if (!payload) return;
+  if (final) {
+    analyticsEngagement.finalSent = true;
+    trackEventBeacon('session_end', payload);
+  }
+  else trackEvent('engagement', payload);
+}
+
+function analyticsBeginPage(path) {
+  const now = Date.now();
+  analyticsEngagement = {
+    path,
+    startedAt: now,
+    lastTickAt: now,
+    lastInteractionAt: now,
+    activeSeconds: 0,
+    maxScroll: 0,
+    finalSent: false,
+    sentMilestones: new Set()
+  };
+}
+
+function trackFitmentFunnel(action, extra = {}) {
+  const path = location.pathname + location.hash;
+  trackEvent('funnel', {
+    path,
+    title: action,
+    meta: {
+      funnel: 'fitment_lab',
+      action,
+      step: Number(extra.step ?? analyticsFitmentStep()),
+      mode: extra.mode || state.fitment?.flow?.mode || '',
+      reason: extra.reason || '',
+      error_code: extra.error_code || '',
+      label: extra.label || ''
+    }
+  });
+}
+
+function trackFitmentFieldActivity(element) {
+  if (!element?.closest?.('[data-form="fitment-wizard"], [data-form="fitment-check"]')) return;
+  const step = analyticsFitmentStep() || 1;
+  const key = `${location.pathname}${location.hash}:${step}`;
+  if (analyticsFitmentInputSteps.has(key)) return;
+  analyticsFitmentInputSteps.add(key);
+  trackFitmentFunnel('fitment-field-input', { step });
+}
+
+function analyticsTick() {
+  if (!analyticsEngagement) return;
+  const now = Date.now();
+  const delta = Math.min(2, Math.max(0, (now - analyticsEngagement.lastTickAt) / 1000));
+  analyticsEngagement.lastTickAt = now;
+  if (!document.hidden && now - analyticsEngagement.lastInteractionAt <= 30_000) analyticsEngagement.activeSeconds += delta;
+  if (!analyticsIsFitmentPath(analyticsEngagement.path)) return;
+  for (const milestone of analyticsEngagementMilestones) {
+    if (analyticsEngagement.activeSeconds < milestone || analyticsEngagement.sentMilestones.has(milestone)) continue;
+    analyticsEngagement.sentMilestones.add(milestone);
+    analyticsFlushEngagement(`active-${milestone}s`);
+  }
+}
+
+function analyticsUpdateScroll(event) {
+  if (!analyticsEngagement || !analyticsIsFitmentPath(analyticsEngagement.path)) return;
+  const target = event?.target;
+  const scroller = target === document ? document.documentElement : target;
+  const scrollTop = target === document ? (window.scrollY || document.documentElement.scrollTop) : Number(scroller?.scrollTop || 0);
+  const scrollHeight = target === document ? document.documentElement.scrollHeight : Number(scroller?.scrollHeight || 0);
+  const clientHeight = target === document ? window.innerHeight : Number(scroller?.clientHeight || 0);
+  const available = Math.max(0, scrollHeight - clientHeight);
+  if (!available) return;
+  analyticsEngagement.maxScroll = Math.max(analyticsEngagement.maxScroll, Math.min(100, (scrollTop / available) * 100));
+}
+
+window.setInterval(analyticsTick, 1000);
+['pointerdown', 'keydown', 'touchstart'].forEach(name => document.addEventListener(name, () => {
+  if (analyticsEngagement) analyticsEngagement.lastInteractionAt = Date.now();
+}, { passive: true, capture: true }));
+document.addEventListener('scroll', analyticsUpdateScroll, { passive: true, capture: true });
+document.addEventListener('visibilitychange', () => {
+  analyticsTick();
+  if (document.hidden) analyticsFlushEngagement('page-hidden', true);
+  else if (analyticsEngagement) {
+    analyticsEngagement.finalSent = false;
+    analyticsEngagement.lastInteractionAt = Date.now();
+  }
+});
+window.addEventListener('pagehide', () => { analyticsTick(); analyticsFlushEngagement('pagehide', true); });
+let analyticsLastClientError = '';
+function analyticsTrackClientError(message, code = 'runtime-error') {
+  if (!analyticsIsFitmentPath()) return;
+  const label = String(message || '').slice(0, 160);
+  const signature = `${code}:${label}`;
+  if (!label || signature === analyticsLastClientError) return;
+  analyticsLastClientError = signature;
+  trackEvent('client_error', {
+    path: location.pathname + location.hash,
+    title: 'fitment-error',
+    meta: { funnel: 'fitment_lab', action: 'fitment-error', step: analyticsFitmentStep(), error_code: code, label }
+  });
+}
+window.addEventListener('error', event => analyticsTrackClientError(event.message, event.error?.name || 'runtime-error'));
+window.addEventListener('unhandledrejection', event => analyticsTrackClientError(event.reason?.message || String(event.reason || ''), event.reason?.name || 'unhandled-rejection'));
+
 let lastTrackedPath = '';
 function trackPageView() {
   const path = location.pathname + location.hash;
   if (path === lastTrackedPath) return;
+  if (analyticsEngagement) analyticsFlushEngagement('route-change');
   lastTrackedPath = path;
+  analyticsBeginPage(path);
   const productId = state.route?.name === 'product' ? state.route.id : '';
   trackEvent(productId ? 'product_view' : 'page_view', {
     path,
     title: document.title,
     referrer: document.referrer || '',
     product_id: productId,
-    product_name: productId ? (product(productId)?.name || '') : ''
+    product_name: productId ? (product(productId)?.name || '') : '',
+    meta: {
+      ...(analyticsIsFitmentPath(path) ? { funnel: 'fitment_lab', action: 'fitment-page-view', step: path.includes('/result') ? 6 : 0 } : {}),
+      screen_width: window.innerWidth,
+      screen_height: window.innerHeight
+    }
   });
 }
 
@@ -7797,6 +8000,13 @@ document.addEventListener('click', async event => {
   const target = event.target.closest('[data-action], [data-category-link]');
   if (!target) return;
   const action = target.dataset.action;
+  if (action?.startsWith('fitment-')) {
+    trackFitmentFunnel(action, {
+      step: action === 'fitment-start' ? 1 : analyticsFitmentStep(),
+      mode: target.dataset.mode || state.fitment?.flow?.mode || '',
+      label: target.dataset.id || target.dataset.field || ''
+    });
+  }
   if (['add', 'buy-now', 'request-rfq', 'checkout', 'chat', 'write-review', 'customize', 'quote', 'whatsapp', 'whatsapp-fitment', 'whatsapp-product', 'whatsapp-visualizer', 'home-preview-wheel', 'home-preview-prev', 'home-preview-next'].includes(action)) {
     trackEvent('click', { path: location.pathname + location.hash, title: action, meta: { action, product_id: target.dataset.id || '' } });
   }
@@ -8282,6 +8492,7 @@ document.addEventListener('click', async event => {
 
 document.addEventListener('change', event => {
   const el = event.target;
+  trackFitmentFieldActivity(el);
   if (el.matches('[data-ai-design-upload]')) { void aiWheelReferenceFile(el.files?.[0]); return; }
   if (el.matches('[data-fitment-style-upload]')) {
     const file = el.files?.[0];
@@ -8354,6 +8565,7 @@ let catalogSearchTimer = 0;
 let fitmentStyleSearchTimer = 0;
 document.addEventListener('input', event => {
   const el = event.target;
+  trackFitmentFieldActivity(el);
   if (el.closest('[data-form="ai-wheel-design"]')) {
     captureAiWheelDraft(el.form);
     state.aiWheelDesign.error = '';
@@ -8560,14 +8772,17 @@ async function submitFitmentForm(form) {
   localStorage.setItem('fbox-fitment-draft', JSON.stringify(values));
   state.fitment.submitting = true;
   state.fitment.error = '';
+  trackFitmentFunnel('fitment-submit', { step: analyticsFitmentStep() || 5 });
   render();
   try {
     const response = await fetch('/api/fbox-content/fitment/check', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.detail || 'Fitment check failed.');
     state.fitment.result = result.data || result;
+    trackFitmentFunnel('fitment-complete', { step: 6 });
   } catch (error) {
     state.fitment.error = error?.message || 'Fitment check failed. Please try again.';
+    trackFitmentFunnel('fitment-error', { step: analyticsFitmentStep() || 5, error_code: 'fitment-check-failed' });
   } finally {
     state.fitment.submitting = false;
     render();
@@ -8580,6 +8795,7 @@ async function submitFitmentWizard(form) {
   state.fitment.submitting = true;
   state.fitment.error = '';
   state.fitment.flow = { ...fitmentFlowState(), error: '' };
+  trackFitmentFunnel('fitment-submit', { step: analyticsFitmentStep() || 5 });
   render();
   try {
     const response = await fetch('/api/fbox-content/fitment/check', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -8594,11 +8810,13 @@ async function submitFitmentWizard(form) {
     else localStorage.removeItem('fbox-fitment-package');
     state.modal = null;
     state.fitment.submitting = false;
+    trackFitmentFunnel('fitment-complete', { step: 6 });
     goPath('/fitment-lab/result');
   } catch (error) {
     state.fitment.error = error?.message || 'Fitment check failed. Please try again.';
     state.fitment.flow = { ...fitmentFlowState(), error: state.fitment.error };
     state.fitment.submitting = false;
+    trackFitmentFunnel('fitment-error', { step: analyticsFitmentStep() || 5, error_code: 'fitment-check-failed' });
     render();
   }
 }

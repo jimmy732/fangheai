@@ -186,7 +186,26 @@ function analyticsCustomerId(req) {
   try { return currentCustomer(req)?.accountId || ''; } catch { return ''; }
 }
 
-async function recordAnalyticsEvent(req, { type = 'page_view', path: eventPath = '', title = '', referrer = '', locale = '', customer_id = '', product_id = '', product_name = '', meta = null, geo = null } = {}) {
+function sanitizeAnalyticsMeta(meta) {
+  if (!meta || typeof meta !== 'object' || Array.isArray(meta)) return null;
+  const allowed = new Set([
+    'action', 'funnel', 'step', 'mode', 'reason', 'label', 'error_code',
+    'active_seconds', 'elapsed_seconds', 'max_scroll', 'screen_width', 'screen_height',
+    'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'landing_path',
+    'product_id', 'image_count', 'phone', 'existing_account', 'phone_optional',
+    'inquiry_id', 'phase', 'has_reference'
+  ]);
+  const clean = {};
+  for (const [key, value] of Object.entries(meta)) {
+    if (!allowed.has(key) || value == null) continue;
+    if (typeof value === 'number' && Number.isFinite(value)) clean[key] = Math.max(-1_000_000, Math.min(1_000_000, value));
+    else if (typeof value === 'boolean') clean[key] = value;
+    else clean[key] = textValue(value, 160);
+  }
+  return Object.keys(clean).length ? clean : null;
+}
+
+async function recordAnalyticsEvent(req, { type = 'page_view', path: eventPath = '', title = '', referrer = '', locale = '', customer_id = '', visitor_id = '', session_id = '', product_id = '', product_name = '', meta = null, geo = null } = {}) {
   try {
     const userAgent = String(req.headers['user-agent'] || '').slice(0, 240);
     if (analyticsBotPattern.test(userAgent)) return null;
@@ -200,9 +219,11 @@ async function recordAnalyticsEvent(req, { type = 'page_view', path: eventPath =
       referrer: textValue(referrer, 500),
       locale: textValue(locale, 16),
       customer_id: textValue(customer_id, 80),
+      visitor_id: textValue(visitor_id, 80),
+      session_id: textValue(session_id, 80),
       product_id: textValue(product_id, 100),
       product_name: textValue(product_name, 160),
-      meta: meta && typeof meta === 'object' ? JSON.parse(JSON.stringify(meta)).constructor === Object ? meta : null : null,
+      meta: sanitizeAnalyticsMeta(meta),
       ip: resolvedGeo.ip || '',
       country: resolvedGeo.country || '',
       country_code: resolvedGeo.country_code || '',
@@ -231,6 +252,9 @@ function analyticsInRange(event, fromMs, toMs) {
 }
 
 function analyticsSourceOf(event) {
+  const taggedSource = textValue(event?.meta?.utm_source, 80);
+  const taggedMedium = textValue(event?.meta?.utm_medium, 80);
+  if (taggedSource) return taggedMedium ? `${taggedSource} / ${taggedMedium}` : taggedSource;
   const ref = String(event.referrer || '');
   if (!ref) return 'Direct';
   try {
@@ -261,15 +285,164 @@ function countBy(records, keyFn) {
   return [...map.entries()].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
 }
 
+function isFitmentAnalyticsEvent(event) {
+  const eventPath = String(event?.path || '').toLowerCase();
+  return event?.meta?.funnel === 'fitment_lab'
+    || eventPath.includes('/fitment-lab')
+    || eventPath.includes('#fitment');
+}
+
+function analyticsDeviceOf(userAgent = '') {
+  const value = String(userAgent || '');
+  if (/ipad|tablet|playbook|silk/i.test(value)) return '平板';
+  if (/mobile|iphone|ipod|android/i.test(value)) return '手机';
+  return '电脑';
+}
+
+function fitmentTimelineLabel(event) {
+  const action = String(event?.meta?.action || event?.title || '');
+  const labels = {
+    'fitment-page-view': '打开适配实验室',
+    'fitment-start': '选择流程并开始',
+    'fitment-field-input': '开始填写当前步骤',
+    'fitment-wizard-next': '继续下一步',
+    'fitment-wizard-back': '返回上一步',
+    'fitment-select-style': '选择轮毂款式',
+    'fitment-style-filter': '筛选轮毂款式',
+    'fitment-ai-interpret': '使用 AI 查询参数',
+    'fitment-ai-apply': '采用 AI 查询结果',
+    'fitment-submit': '提交适配计算',
+    'fitment-complete': '完成适配计算',
+    'fitment-error': '遇到错误',
+    'fitment-wizard-close': '关闭填写窗口'
+  };
+  if (event.type === 'engagement') return `有效停留 ${Math.round(Number(event.meta?.active_seconds || 0))} 秒 · 滚动 ${Math.round(Number(event.meta?.max_scroll || 0))}%`;
+  if (event.type === 'session_end') return `离开页面 · 有效停留 ${Math.round(Number(event.meta?.active_seconds || 0))} 秒`;
+  if (event.type === 'page_view') return String(event.path || '').includes('/result') ? '打开适配结果' : '打开适配实验室';
+  return labels[action] || action || event.type;
+}
+
+function buildFitmentAnalytics(events) {
+  const relevant = events.filter(isFitmentAnalyticsEvent);
+  const grouped = new Map();
+  relevant.forEach((event, index) => {
+    const key = event.session_id || `legacy:${event.id || index}`;
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key).push(event);
+  });
+
+  const sessions = [...grouped.entries()].map(([sessionId, sessionEvents]) => {
+    const ordered = [...sessionEvents].sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+    const first = ordered[0] || {};
+    const last = ordered.at(-1) || first;
+    const startedAt = Date.parse(first.created_at || '') || 0;
+    const endedAt = Date.parse(last.created_at || '') || startedAt;
+    const metaNumbers = key => ordered.map(event => Number(event.meta?.[key] || 0)).filter(Number.isFinite);
+    const hasDuration = ordered.some(event => ['engagement', 'session_end'].includes(event.type));
+    const activeSeconds = Math.max(0, ...metaNumbers('active_seconds'));
+    const elapsedSeconds = Math.max(Math.max(0, Math.round((endedAt - startedAt) / 1000)), ...metaNumbers('elapsed_seconds'));
+    const maxScroll = Math.min(100, Math.max(0, ...metaNumbers('max_scroll')));
+    let maxStep = 0;
+    let started = false;
+    let completed = false;
+    let error = false;
+    let lastAction = '';
+    for (const event of ordered) {
+      const action = String(event.meta?.action || event.title || '');
+      const step = Math.max(0, Number(event.meta?.step || 0));
+      maxStep = Math.max(maxStep, step);
+      if (event.type === 'funnel' || action.startsWith('fitment-')) lastAction = action || lastAction;
+      if (['fitment-start', 'fitment-field-input', 'fitment-wizard-next', 'fitment-select-style', 'fitment-submit'].includes(action)) started = true;
+      if (action === 'fitment-complete' || String(event.path || '').includes('/fitment-lab/result')) completed = true;
+      if (event.type === 'client_error' || action === 'fitment-error') error = true;
+    }
+    if (completed) maxStep = Math.max(maxStep, 6);
+    const interacted = ordered.some(event => event.type === 'funnel' || (event.type === 'click' && String(event.meta?.action || '').startsWith('fitment-')));
+    const engaged = interacted || activeSeconds >= 10 || maxScroll >= 25;
+    const legacy = !ordered.some(event => event.session_id);
+    let outcome = '浏览后未开始';
+    let outcome_code = 'viewed_only';
+    if (legacy) { outcome = '旧记录：停留未知'; outcome_code = 'legacy_unknown'; }
+    else if (completed) { outcome = '已完成计算'; outcome_code = 'completed'; }
+    else if (error) { outcome = maxStep ? `第 ${maxStep} 步遇到错误` : '遇到错误后离开'; outcome_code = 'error'; }
+    else if (started) { outcome = `在第 ${Math.max(1, maxStep)} 步离开`; outcome_code = 'abandoned_step'; }
+    else if (!engaged && hasDuration && activeSeconds < 10) { outcome = '快速离开'; outcome_code = 'quick_exit'; }
+    const timeline = ordered.slice(-24).map(event => ({
+      created_at: event.created_at,
+      offset_seconds: Math.max(0, Math.round(((Date.parse(event.created_at || '') || startedAt) - startedAt) / 1000)),
+      type: event.type,
+      action: event.meta?.action || '',
+      step: Math.max(0, Number(event.meta?.step || 0)),
+      label: fitmentTimelineLabel(event)
+    }));
+    return {
+      session_id: legacy ? '' : sessionId,
+      visitor_id: first.visitor_id || '',
+      first_seen_at: first.created_at || '',
+      last_seen_at: last.created_at || '',
+      path: first.path || '/fitment-lab',
+      title: first.title || '',
+      country: first.country || '',
+      country_code: first.country_code || '',
+      city: first.city || '',
+      ip: first.ip || '',
+      source: analyticsSourceOf(first),
+      device: analyticsDeviceOf(first.user_agent),
+      locale: first.locale || '',
+      duration_seconds: hasDuration ? Math.round(elapsedSeconds) : null,
+      active_seconds: hasDuration ? Math.round(activeSeconds) : null,
+      max_scroll: hasDuration ? Math.round(maxScroll) : null,
+      event_count: ordered.length,
+      max_step: maxStep,
+      interacted,
+      engaged,
+      completed,
+      last_action: lastAction,
+      outcome,
+      outcome_code,
+      timeline
+    };
+  }).sort((a, b) => String(b.first_seen_at).localeCompare(String(a.first_seen_at)));
+
+  const knownDurations = sessions.map(item => item.active_seconds).filter(value => Number.isFinite(value)).sort((a, b) => a - b);
+  const medianActive = knownDurations.length ? knownDurations[Math.floor(knownDurations.length / 2)] : null;
+  const knownSessions = sessions.filter(item => item.outcome_code !== 'legacy_unknown');
+  const started = knownSessions.filter(item => item.max_step > 0 || item.interacted);
+  const completed = knownSessions.filter(item => item.completed);
+  const stages = [
+    { key: 'visited', label: '进入页面', value: knownSessions.length },
+    { key: 'engaged', label: '有效浏览', value: knownSessions.filter(item => item.engaged).length },
+    { key: 'started', label: '开始使用', value: started.length },
+    { key: 'details', label: '进入车型/参数', value: knownSessions.filter(item => item.max_step >= 2).length },
+    { key: 'completed', label: '完成计算', value: completed.length }
+  ];
+  return {
+    summary: {
+      sessions: sessions.length,
+      known_sessions: knownSessions.length,
+      engaged: stages[1].value,
+      started: stages[2].value,
+      completed: completed.length,
+      start_rate: knownSessions.length ? Math.round((started.length / knownSessions.length) * 100) : 0,
+      completion_rate: started.length ? Math.round((completed.length / started.length) * 100) : 0,
+      median_active_seconds: medianActive
+    },
+    funnel: stages,
+    abandonment: countBy(sessions, item => item.outcome),
+    sessions: sessions.slice(0, 40)
+  };
+}
+
 function buildAnalyticsDashboard(events, store, operations, fromMs, toMs) {
   const scoped = events.filter(event => analyticsInRange(event, fromMs, toMs));
   const pageViews = scoped.filter(event => event.type === 'page_view');
   const productViews = scoped.filter(event => event.type === 'product_view');
-  const clicks = scoped.filter(event => event.type === 'click');
+  const clicks = scoped.filter(event => event.type === 'click' || event.type === 'whatsapp_click');
   const inquiries = (operations.inquiries || []).filter(item => analyticsInRange(item, fromMs, toMs));
   const orders = (store.orders || []).filter(item => analyticsInRange(item, fromMs, toMs));
   const accounts = store.accounts || [];
   const registrations = accounts.filter(item => analyticsInRange({ created_at: item.created_at }, fromMs, toMs));
+  const fitmentAnalytics = buildFitmentAnalytics(scoped);
 
   const dayMs = 24 * 60 * 60 * 1000;
   const days = [];
@@ -283,7 +456,7 @@ function buildAnalyticsDashboard(events, store, operations, fromMs, toMs) {
       date: new Date(t).toISOString().slice(0, 10),
       page_views: dayEvents.filter(event => event.type === 'page_view').length,
       product_views: dayEvents.filter(event => event.type === 'product_view').length,
-      clicks: dayEvents.filter(event => event.type === 'click').length,
+      clicks: dayEvents.filter(event => event.type === 'click' || event.type === 'whatsapp_click').length,
       visitors: new Set(dayEvents.map(event => event.ip).filter(Boolean)).size
     });
   }
@@ -344,6 +517,7 @@ function buildAnalyticsDashboard(events, store, operations, fromMs, toMs) {
     pages: countBy(pageViews, event => event.path || '/'),
     products: countBy(productViews, event => event.product_name || event.product_id),
     locales: countBy(pageViews, event => event.locale),
+    fitment_analytics: fitmentAnalytics,
     leads,
     recent_events: [...scoped].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 40).map(event => ({
       id: event.id,
@@ -354,6 +528,7 @@ function buildAnalyticsDashboard(events, store, operations, fromMs, toMs) {
       country: event.country,
       city: event.city,
       ip: event.ip,
+      session_id: event.session_id || '',
       source: analyticsSourceOf(event),
       created_at: event.created_at
     }))
@@ -5439,13 +5614,15 @@ export async function handleFBoxOperationsApi(req, res, url) {
     if (req.method === 'POST' && pathName === '/api/fbox-content/track') {
       try {
         const payload = await readJson(req, 32 * 1024);
-        const type = ['page_view', 'product_view', 'click'].includes(String(payload.type || '')) ? String(payload.type) : 'page_view';
+        const type = ['page_view', 'product_view', 'click', 'whatsapp_click', 'engagement', 'funnel', 'session_end', 'client_error'].includes(String(payload.type || '')) ? String(payload.type) : 'page_view';
         await recordAnalyticsEvent(req, {
           type,
           path: payload.path,
           title: payload.title,
           referrer: payload.referrer,
           locale: payload.locale,
+          visitor_id: payload.visitor_id,
+          session_id: payload.session_id,
           product_id: payload.product_id,
           product_name: payload.product_name,
           meta: payload.meta,
