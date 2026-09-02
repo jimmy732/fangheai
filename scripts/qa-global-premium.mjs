@@ -138,6 +138,8 @@ try {
     home: Boolean(document.querySelector('.premium-global-home')),
     headline: document.querySelector('.premium-hero h1')?.innerText || '',
     headlineAccent: document.querySelector('.premium-hero h1 em')?.innerText || '',
+    heroCopyRevealClass: document.querySelector('.premium-hero-copy')?.classList.contains('reveal') || false,
+    heroCopyAnimation: getComputedStyle(document.querySelector('.premium-hero-copy')).animationName,
     sections: document.querySelectorAll('.premium-hero, .premium-proof, .premium-fitment, .premium-products, .premium-engineering, .premium-evidence-grid, .premium-delivery').length,
     selectors: document.querySelectorAll('.premium-fitment .fitment-select').length,
     products: document.querySelectorAll('.premium-product-grid .product-card').length,
@@ -148,6 +150,7 @@ try {
   check('premium body class', desktopLayout.bodyClass.includes('fbox-global-premium'));
   check('premium homepage renders', desktopLayout.home);
   check('approved localized two-line headline renders', Boolean(desktopLayout.headline.trim()) && Boolean(desktopLayout.headlineAccent.trim()), desktopLayout.headline);
+  check('hero copy does not replay a reveal animation during background refreshes', !desktopLayout.heroCopyRevealClass && desktopLayout.heroCopyAnimation === 'none', JSON.stringify({ class: desktopLayout.heroCopyRevealClass, animation: desktopLayout.heroCopyAnimation }));
   check('seven-part homepage hierarchy', desktopLayout.sections === 7, desktopLayout.sections);
   check('desktop repaired hero video decodes', desktopVideo.readyState >= 2 && desktopVideo.width === 1920 && desktopVideo.height === 1080, JSON.stringify(desktopVideo));
   check('desktop repaired hero video plays', !desktopVideo.paused, JSON.stringify(desktopVideo));

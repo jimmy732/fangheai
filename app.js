@@ -5377,7 +5377,7 @@ function premiumGlobalHomePage() {
       </video>
       <div class="premium-hero-shade" aria-hidden="true"></div>
       <div class="container premium-hero-inner">
-        <div class="premium-hero-copy reveal">
+        <div class="premium-hero-copy">
           <p class="premium-kicker"><span></span>${uiLabel('CIRUI FORGED · OFFICIAL GLOBAL SITE')}</p>
           <h1 id="premium-hero-title">${uiLabel('Forged for your')}<br><em>${uiLabel('exact vehicle.')}</em></h1>
           <p>${uiLabel('Forcarbox is the official overseas website of CIRUI Forged — a source wheel factory turning your exact vehicle, stance and finish into a production-ready forged wheel.')}</p>
