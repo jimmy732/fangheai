@@ -5070,6 +5070,9 @@ export async function handleWheelDesignApi(req, res, url) {
       }
       const config = await loadConfig();
       if (!config.api_key) return json(res, 503, { detail: 'The shared gpt-image-2 effect-image route is not configured. Open /admin and save the existing LingkeAI image API key first.' });
+      const selectedImageUrl = payload.phase === 'multiview' && /^https:\/\//i.test(String(payload.selected_image || ''))
+        ? textValue(payload.selected_image, 2400)
+        : '';
       const jobId = `wheel_design_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
       const now = new Date().toISOString();
       jobs.set(jobId, {
@@ -5099,6 +5102,15 @@ export async function handleWheelDesignApi(req, res, url) {
         generation_model: config.model,
         vehicle_name: payload.vehicle_context || 'Independent wheel design',
         vehicle_file_name: textValue(payload.reference_name, 180),
+        source_job_id: payload.phase === 'multiview' ? textValue(payload.source_job_id, 120) : '',
+        selected_concept_id: payload.phase === 'multiview' ? textValue(payload.selected_concept_id, 80) : '',
+        selected_concept_index: payload.phase === 'multiview'
+          && payload.selected_concept_index !== undefined
+          && payload.selected_concept_index !== null
+          && Number.isInteger(Number(payload.selected_concept_index))
+          ? Math.max(0, Math.min(3, Number(payload.selected_concept_index)))
+          : null,
+        selected_image_url: selectedImageUrl,
         ...referenceAsset,
         angles: payload.phase === 'multiview' ? 8 : 4,
         results: [],

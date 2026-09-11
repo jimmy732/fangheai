@@ -2679,6 +2679,7 @@ function aiWheelDesignDefaults() {
     status: 'idle',
     error: '',
     jobId: '',
+    conceptJobId: '',
     draft: {
       mode: 'text-reference',
       prompt: '',
@@ -5851,6 +5852,7 @@ async function submitAiWheelDesign(form) {
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.detail || 'CIRUI could not start the concept request.');
     state.aiWheelDesign.jobId = payload.data?.job_id || payload.job_id || '';
+    state.aiWheelDesign.conceptJobId = state.aiWheelDesign.jobId;
     await pollAiWheelDesignJob(state.aiWheelDesign.jobId, 'concepts');
   } catch (error) {
     state.aiWheelDesign.status = 'idle';
@@ -5871,10 +5873,19 @@ async function generateAiWheelMultiview() {
   state.aiWheelDesign.error = '';
   render();
   try {
+    const sourceJobId = state.aiWheelDesign.conceptJobId || state.aiWheelDesign.jobId || '';
     const response = await fetch('/api/wheel-design/jobs', {
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: state.mallToken },
-      body: JSON.stringify({ ...state.aiWheelDesign.draft, phase: 'multiview', selected_image: selected.image_url || selected.url, vehicle_context: aiWheelVehicleContext() })
+      body: JSON.stringify({
+        ...state.aiWheelDesign.draft,
+        phase: 'multiview',
+        selected_image: selected.image_url || selected.url,
+        selected_concept_id: selected.id || `concept-${state.aiWheelDesign.selectedIndex + 1}`,
+        selected_concept_index: state.aiWheelDesign.selectedIndex,
+        source_job_id: sourceJobId,
+        vehicle_context: aiWheelVehicleContext()
+      })
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.detail || 'CIRUI could not start the multi-view request.');
