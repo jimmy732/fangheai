@@ -584,10 +584,7 @@ body.cirui-admin-ready .metric-grid strong[data-v-7e48123b] {
 }
 
 body.cirui-admin-ready .ops-tabs[data-v-7e48123b] {
-  display: grid;
-  grid-template-columns: 194px minmax(0, 1fr);
-  align-items: start;
-  gap: 18px;
+  display: block;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -595,23 +592,12 @@ body.cirui-admin-ready .ops-tabs[data-v-7e48123b] {
 }
 
 body.cirui-admin-ready .ops-tabs[data-v-7e48123b] > .el-tabs__header {
-  position: sticky;
-  z-index: 4;
-  top: 78px;
-  grid-column: 1;
-  grid-row: 1;
-  margin: 0;
-  padding: 10px;
-  border: 1px solid var(--cirui-line);
-  border-radius: var(--cirui-radius);
-  background: var(--cirui-surface);
-  box-shadow: 0 8px 28px rgba(37, 33, 29, 0.045);
+  display: none;
 }
 
 body.cirui-admin-ready .ops-tabs[data-v-7e48123b] > .el-tabs__content {
   min-width: 0;
-  grid-column: 2;
-  grid-row: 1;
+  width: 100%;
 }
 
 body.cirui-admin-ready .ops-tabs[data-v-7e48123b] .el-tabs__nav-wrap::after,
