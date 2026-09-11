@@ -2733,6 +2733,7 @@ const state = {
   localeCountry: '',
   mallToken: localStorage.getItem('fbox-mall-token') || '',
   account: null,
+  accountLoginDraft: { identity: '', password: '', identityUnlocked: false, passwordUnlocked: false },
   catalogLoaded: false,
   checkoutForm: JSON.parse(localStorage.getItem('fbox-checkout-form') || '{}'),
   rfq: { status: 'idle', id: '', error: '', draft: readLocalJson('cirui-rfq-draft', {}) },
@@ -3703,6 +3704,12 @@ async function mallLogin(identity, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ identity, password })
   });
+}
+
+function openAccountLogin(afterLogin = '') {
+  state.accountLoginDraft = { identity: '', password: '', identityUnlocked: false, passwordUnlocked: false };
+  state.modal = { type: 'account', mode: 'login', afterLogin };
+  render();
 }
 
 async function mallRegister(values) {
@@ -5843,8 +5850,7 @@ async function pollAiWheelDesignJob(jobId, phase) {
 async function submitAiWheelDesign(form) {
   const draft = captureAiWheelDraft(form);
   if (!state.mallToken || !state.account) {
-    state.modal = { type: 'account', mode: 'login', afterLogin: 'ai-wheel-design' };
-    render();
+    openAccountLogin('ai-wheel-design');
     return;
   }
   if (String(draft.prompt || '').trim().length < 8) {
@@ -6768,12 +6774,13 @@ function modal() {
   if (state.modal.type === 'quick') { const item = product(state.modal.id); const displayName = productNameText(item); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">${uiLabel('Quick view')}</p><h2>${esc(displayName)}</h2><div class="quick-product"><img src="${assetUrl(item.image)}" alt="${esc(displayName)}"><div><div class="product-brand">${esc(item.part || item.brand)} · ${uiLabel(productConstructionLabel(item))}</div><p>${uiLabel(productDesignLabel(item))}<br>${uiLabel(productClassificationLabel(item))}</p><strong style="font-size:22px">${productPriceText(item)} <small class="muted">${uiLabel('reference / wheel')}</small></strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">${uiLabel('Add to RFQ')}</button><a class="btn btn-outline" href="#product/${item.id}" style="width:100%;margin-top:8px">${uiLabel('View full details')}</a></div></div></div></div>`; }
   if (state.modal.type === 'account') {
     const register = state.modal.mode === 'register';
+    const loginDraft = state.accountLoginDraft || {};
     const accountField = register
       ? '<input class="text-input" name="username" placeholder="Username" autocomplete="username" required>'
-      : `<input class="text-input" name="identity" value="" placeholder="${esc(uiLabel('Email or username'))}" autocomplete="off" autocapitalize="none" spellcheck="false" readonly data-account-login-field required>`;
+      : `<input class="text-input" name="identity" value="" placeholder="${esc(uiLabel('Email or username'))}" autocomplete="off" autocapitalize="none" spellcheck="false"${loginDraft.identityUnlocked ? '' : ' readonly data-account-login-field'} required>`;
     const passwordField = register
       ? '<input class="text-input" name="password" type="password" placeholder="Password (6+ characters)" autocomplete="new-password" minlength="6" required>'
-      : `<input class="text-input" name="password" type="password" value="" placeholder="${esc(uiLabel('Password (6+ characters)'))}" autocomplete="off" readonly data-account-login-field minlength="6" required>`;
+      : `<input class="text-input" name="password" type="password" value="" placeholder="${esc(uiLabel('Password (6+ characters)'))}" autocomplete="off"${loginDraft.passwordUnlocked ? '' : ' readonly data-account-login-field'} minlength="6" required>`;
     return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">CIRUI account</p><h2>${register ? 'Create your build account.' : 'Save your build.'}</h2><p>${register ? 'Save fitment builds, wishlist, addresses and orders. Dealers: add your company so we can quote wholesale.' : uiLabel('Use your email address or username with your password.')}</p><form class="modal-form" data-form="account" data-mode="${register ? 'register' : 'login'}" autocomplete="${register ? 'on' : 'off'}">${accountField}${passwordField}${register ? '<input class="text-input" name="email" type="email" autocomplete="email" placeholder="Email (for quotes & order updates)" required><input class="text-input" name="telephone" autocomplete="tel" placeholder="Phone / WhatsApp (optional)"><input class="text-input" name="company" autocomplete="organization" placeholder="Company (dealers & distributors)">' : ''}<button class="btn btn-primary">${register ? 'Create account & sign in' : 'Sign in'}</button><button class="btn btn-outline" type="button" data-action="${register ? 'account-login' : 'account-register'}">${register ? 'I already have an account' : 'Create a new account'}</button></form></div></div>`;
   }
   if (state.modal.type === 'orders') return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">CIRUI account</p><h2>Track my orders.</h2><p>订单状态来自 CIRUI 自有订单服务；发货后可在这里继续查看物流信息。</p>${state.accountOrdersLoading ? '<div class="loading-copy">正在读取订单…</div>' : state.accountOrders.length ? `<div class="account-order-list">${state.accountOrders.map(order => `<article class="account-order"><div><strong>${esc(order.orderSn || order.id || 'Order')}</strong><small>${esc(order.createTime || '')}</small></div><div><span>${esc(order.productName || order.receiverName || 'CIRUI order')}</span><small>${esc(order.status === 0 ? '待付款' : order.status === 1 ? '待发货' : order.status === 2 ? '已发货' : order.status === 3 ? '已完成' : order.status === 4 ? '已关闭' : '处理中')}</small></div><strong>${money(order.payAmount || order.totalAmount || 0)}</strong></article>`).join('')}</div>` : '<div class="empty-state"><h3>暂无订单</h3><p>登录后创建的 CIRUI 订单会出现在这里。</p></div>'}</div></div>`;
@@ -7250,10 +7257,11 @@ function render() {
   const preservedHeroVideo = Boolean(existingHeroVideo && nextHeroVideo);
   if (preservedHeroVideo) nextHeroVideo.replaceWith(existingHeroVideo);
   appRoot.replaceChildren(...nextRoot.childNodes);
-  appRoot.querySelectorAll('[data-account-login-field]').forEach(field => {
-    field.value = '';
-    field.readOnly = true;
-  });
+  const accountLoginForm = appRoot.querySelector('form[data-form="account"][data-mode="login"]');
+  if (accountLoginForm) {
+    accountLoginForm.elements.identity.value = state.accountLoginDraft?.identity || '';
+    accountLoginForm.elements.password.value = state.accountLoginDraft?.password || '';
+  }
   if (preservedHeroVideo && existingHeroVideo.paused) void existingHeroVideo.play().catch(() => {});
   syncFitmentEntryStatus();
   wireProductGallery();
@@ -7279,6 +7287,8 @@ function unlockAccountLoginField(target) {
   target.value = '';
   target.readOnly = false;
   target.removeAttribute('data-account-login-field');
+  if (target.name === 'identity') state.accountLoginDraft.identityUnlocked = true;
+  if (target.name === 'password') state.accountLoginDraft.passwordUnlocked = true;
 }
 
 function wireSpotlights() {
@@ -7443,8 +7453,7 @@ async function workshopSaveProject({ share = false } = {}) {
   if (state.workshop.saving) return null;
   captureFitmentDraft();
   if (!state.mallToken || !state.account) {
-    state.modal = { type: 'account', mode: 'login', afterLogin: share ? 'workshop-share' : 'workshop-save' };
-    render();
+    openAccountLogin(share ? 'workshop-share' : 'workshop-save');
     return null;
   }
   const profile = resolvedWorkshopProfile();
@@ -8181,11 +8190,11 @@ document.addEventListener('click', async event => {
     return;
   }
   if (action === 'cart') { go('#cart'); return; }
-  if (action === 'account') { if (state.mallToken && state.account) goPath('/account'); else { state.modal = { type: 'account', mode: 'login' }; render(); } return; }
+  if (action === 'account') { if (state.mallToken && state.account) goPath('/account'); else openAccountLogin(); return; }
   if (action === 'account-logout') { await mallLogout(); state.modal = null; if (state.route.name === 'account') goPath('/'); else render(); setToast('Signed out. Your local cart stays on this device.'); return; }
   if (action === 'account-register') { state.modal = { type: 'account', mode: 'register', afterLogin: state.modal?.afterLogin || target.dataset.afterLogin || '' }; render(); return; }
-  if (action === 'account-login') { state.modal = { type: 'account', mode: 'login', afterLogin: state.modal?.afterLogin || target.dataset.afterLogin || '' }; render(); return; }
-  if (action === 'orders') { if (!state.mallToken) { state.modal = { type: 'account', mode: 'login', afterLogin: 'orders' }; render(); } else { state.modal = { type: 'orders' }; loadMemberOrders(); } return; }
+  if (action === 'account-login') { openAccountLogin(state.modal?.afterLogin || target.dataset.afterLogin || ''); return; }
+  if (action === 'orders') { if (!state.mallToken) openAccountLogin('orders'); else { state.modal = { type: 'orders' }; loadMemberOrders(); } return; }
   if (action === 'dismiss-cookie') { state.cookie = false; localStorage.setItem('fbox-cookie', 'dismissed'); render(); return; }
   if (action === 'workshop-new' || action === 'fitment-clear-open') { state.modal = { type: 'fitment-clear-confirm' }; render(); return; }
   if (action === 'fitment-clear-confirm') { workshopNewProject(); return; }
@@ -8611,6 +8620,10 @@ let fitmentStyleSearchTimer = 0;
 document.addEventListener('input', event => {
   const el = event.target;
   trackFitmentFieldActivity(el);
+  if (el.closest('form[data-form="account"][data-mode="login"]') && ['identity', 'password'].includes(el.name)) {
+    state.accountLoginDraft[el.name] = el.value;
+    return;
+  }
   if (el.closest('[data-form="ai-wheel-design"]')) {
     captureAiWheelDraft(el.form);
     state.aiWheelDesign.error = '';
@@ -8931,7 +8944,8 @@ document.addEventListener('submit', async event => {
           if (next === 'account') goPath('/account');
           setToast('Welcome to CIRUI — your account is ready.');
         } else {
-          state.modal = { type: 'account', mode: 'login' };
+          state.accountLoginDraft = { identity: '', password: '', identityUnlocked: false, passwordUnlocked: false };
+          state.modal = { type: 'account', mode: 'login', afterLogin: '' };
           setToast('账户已创建，请登录 CIRUI。');
         }
         return;
