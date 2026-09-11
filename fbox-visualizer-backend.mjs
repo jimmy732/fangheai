@@ -21,6 +21,7 @@ const defaultEndpoint = 'https://api.lk888.ai/v1';
 const defaultModel = 'gpt-image-2';
 const defaultChatModel = 'gpt-5.5';
 const defaultPayPalMode = 'sandbox';
+const publicImageServiceUnavailableMessage = 'The official image generation service is not configured or is temporarily unavailable. Please try again later or contact CIRUI support.';
 const defaultStorefrontSettings = {
   company_name: 'Fanghe Overseas Intelligent Technology Co., Ltd.',
   phone: '+86 14726178447',
@@ -3992,10 +3993,13 @@ function normalizeApiKeyCollection(raw = {}) {
   return { api_keys: apiKeys, primary_api_key_id: primaryApiKeyId, api_key: apiKeys.find(item => item.id === primaryApiKeyId)?.api_key || '' };
 }
 
+let lastConfigLoadError = '';
+
 async function loadConfig() {
   try {
     const raw = JSON.parse(await fs.readFile(configPath, 'utf8'));
     const keyCollection = normalizeApiKeyCollection(raw);
+    lastConfigLoadError = '';
     return {
       endpoint: String(raw.endpoint || defaultEndpoint).replace(/\/$/, ''),
       provider: String(raw.provider || 'lk888'),
@@ -4007,9 +4011,36 @@ async function loadConfig() {
       paypal_client_secret: String(raw.paypal_client_secret || ''),
       storefront: { ...defaultStorefrontSettings, ...(raw.storefront || {}) }
     };
-  } catch {
-    return { endpoint: defaultEndpoint, provider: 'lk888', model: defaultModel, chat_model: defaultChatModel, api_key: '', api_keys: [], primary_api_key_id: '', paypal_mode: defaultPayPalMode, paypal_client_id: '', paypal_client_secret: '', storefront: { ...defaultStorefrontSettings } };
+  } catch (error) {
+    const configLoadError = error?.message || 'Unknown configuration read error.';
+    if (configLoadError !== lastConfigLoadError) {
+      console.error('[fbox-image-config] Could not load the saved provider configuration:', configLoadError);
+      lastConfigLoadError = configLoadError;
+    }
+    return { endpoint: defaultEndpoint, provider: 'lk888', model: defaultModel, chat_model: defaultChatModel, api_key: '', api_keys: [], primary_api_key_id: '', paypal_mode: defaultPayPalMode, paypal_client_id: '', paypal_client_secret: '', storefront: { ...defaultStorefrontSettings }, config_load_error: configLoadError };
   }
+}
+
+async function writeConfig(config) {
+  await fs.mkdir(runtimeDir, { recursive: true });
+  const temporaryPath = `${configPath}.${process.pid}.${randomUUID()}.tmp`;
+  try {
+    await fs.writeFile(temporaryPath, JSON.stringify(config, null, 2), { encoding: 'utf8', mode: 0o600 });
+    await fs.rename(temporaryPath, configPath);
+  } catch (error) {
+    await fs.rm(temporaryPath, { force: true }).catch(() => {});
+    throw error;
+  }
+}
+
+function logImageServiceUnavailable(scope, config, error = null, context = {}) {
+  console.error(`[${scope}] Official image generation service unavailable:`, {
+    ...context,
+    reason: error?.message || config?.config_load_error || 'No active provider API key.',
+    endpoint: config?.endpoint || defaultEndpoint,
+    key_count: Array.isArray(config?.api_keys) ? config.api_keys.length : 0,
+    primary_key_selected: Boolean(config?.primary_api_key_id)
+  });
 }
 
 function publicStatus(config) {
@@ -4090,9 +4121,8 @@ async function saveConfig(payload) {
   const paypalMode = ['sandbox', 'live'].includes(payload.paypal_mode) ? payload.paypal_mode : current.paypal_mode || defaultPayPalMode;
   const paypalClientId = String(payload.paypal_client_id || current.paypal_client_id || '').trim();
   const paypalClientSecret = String(payload.paypal_client_secret || current.paypal_client_secret || '').trim();
-  await fs.mkdir(runtimeDir, { recursive: true });
   const next = { endpoint, provider: 'lk888', model: defaultModel, chat_model: current.chat_model || defaultChatModel, api_key: apiKey, api_keys: apiKeys, primary_api_key_id: primaryApiKeyId, paypal_mode: paypalMode, paypal_client_id: paypalClientId, paypal_client_secret: paypalClientSecret, storefront: current.storefront };
-  await fs.writeFile(configPath, JSON.stringify(next, null, 2), 'utf8');
+  await writeConfig(next);
   return { ...publicStatus(next), saved: true, key_preview: keyPreview(apiKey) };
 }
 
@@ -4102,8 +4132,7 @@ async function setPrimaryApiKey(payload) {
   if (!selected) throw new Error('The selected LingkeAI API key does not exist.');
   if (selected.id !== current.primary_api_key_id) await verifyProvider(current.endpoint, selected.api_key);
   const next = { ...current, api_key: selected.api_key, primary_api_key_id: selected.id };
-  await fs.mkdir(runtimeDir, { recursive: true });
-  await fs.writeFile(configPath, JSON.stringify(next, null, 2), 'utf8');
+  await writeConfig(next);
   return { ...publicStatus(next), saved: true };
 }
 
@@ -4127,8 +4156,7 @@ function normalizeStorefrontSettings(payload = {}) {
 async function saveStorefrontSettings(payload) {
   const current = await loadConfig();
   const storefront = normalizeStorefrontSettings(payload);
-  await fs.mkdir(runtimeDir, { recursive: true });
-  await fs.writeFile(configPath, JSON.stringify({ endpoint: current.endpoint, provider: current.provider, model: current.model, chat_model: current.chat_model || defaultChatModel, api_key: current.api_key, api_keys: current.api_keys || [], primary_api_key_id: current.primary_api_key_id || '', paypal_mode: current.paypal_mode || defaultPayPalMode, paypal_client_id: current.paypal_client_id || '', paypal_client_secret: current.paypal_client_secret || '', storefront }, null, 2), 'utf8');
+  await writeConfig({ endpoint: current.endpoint, provider: current.provider, model: current.model, chat_model: current.chat_model || defaultChatModel, api_key: current.api_key, api_keys: current.api_keys || [], primary_api_key_id: current.primary_api_key_id || '', paypal_mode: current.paypal_mode || defaultPayPalMode, paypal_client_id: current.paypal_client_id || '', paypal_client_secret: current.paypal_client_secret || '', storefront });
   return storefront;
 }
 
@@ -4443,8 +4471,8 @@ export async function handleFBoxStoreApi(req, res, url) {
   if (req.method === 'POST' && pathName === '/api/fbox-store/auth/login') {
     try {
       const payload = await readJson(req, 64 * 1024);
-      const identity = textValue(payload.username || payload.email, 160).toLowerCase();
-      const account = data.accounts.find(item => item.username.toLowerCase() === identity || (item.email && item.email.toLowerCase() === identity));
+      const identity = textValue(payload.identity || payload.username || payload.email, 160).toLowerCase();
+      const account = data.accounts.find(item => String(item.username || '').toLowerCase() === identity || String(item.email || '').toLowerCase() === identity);
       if (!account || account.password_hash !== hashCustomerPassword(payload.password)) return json(res, 401, { detail: 'Invalid F-Box account or password.' });
       const token = `fbox_customer_${randomUUID()}`;
       customerSessions.set(token, { accountId: account.id, createdAt: Date.now() });
@@ -4902,7 +4930,7 @@ async function runWheelDesignJob(jobId, payload) {
   }
   try {
     const config = await loadConfig();
-    if (!config.api_key) throw new Error('The shared gpt-image-2 effect-image route is not configured. Open /admin and save the existing LingkeAI image API key first.');
+    if (!config.api_key) throw new Error(config.config_load_error || 'No active provider API key is available.');
     let results = [];
     if (payload.phase === 'multiview') {
       const views = [
@@ -4947,11 +4975,14 @@ async function runWheelDesignJob(jobId, payload) {
       await saveOperations(operations);
     }
   } catch (error) {
+    const diagnosticMessage = error?.message || 'The CIRUI wheel-design request could not be completed.';
+    logImageServiceUnavailable('fbox-wheel-design', null, error, { job_id: jobId, phase: payload.phase });
     job.status = 'failed';
-    job.message = error?.message || 'The CIRUI wheel-design request could not be completed.';
+    job.message = publicImageServiceUnavailableMessage;
     if (persistedJob) {
       persistedJob.status = 'failed';
       persistedJob.message = job.message;
+      persistedJob.diagnostic_message = diagnosticMessage;
       persistedJob.updated_at = new Date().toISOString();
       await saveOperations(operations);
     }
@@ -4973,7 +5004,7 @@ async function runJob(jobId, payload) {
   }
   try {
     const config = await loadConfig();
-    if (!config.api_key) throw new Error('F-Box image routing is not configured. Open /admin and save the LingkeAI API key first.');
+    if (!config.api_key) throw new Error(config.config_load_error || 'No active provider API key is available.');
     const angleSpecs = [
       ['front-left', 'front-left three-quarter view'],
       ['front-right', 'front-right three-quarter view'],
@@ -4994,11 +5025,14 @@ async function runJob(jobId, payload) {
       await saveOperations(operations);
     }
   } catch (error) {
+    const diagnosticMessage = error?.message || 'The F-Box image route could not finish this preview.';
+    logImageServiceUnavailable('fbox-wheel-visualizer', null, error, { job_id: jobId });
     job.status = 'failed';
-    job.message = error?.message || 'The F-Box image route could not finish this preview.';
+    job.message = publicImageServiceUnavailableMessage;
     if (persistedJob) {
       persistedJob.status = 'failed';
       persistedJob.message = job.message;
+      persistedJob.diagnostic_message = diagnosticMessage;
       persistedJob.updated_at = new Date().toISOString();
       await saveOperations(operations);
     }
@@ -5065,7 +5099,10 @@ export async function handleWheelVisualizerApi(req, res, url) {
       const dynamicWheelEffect = selectedProduct ? selectedProduct.dynamic_wheel_effect !== false : true;
       const visualizerMode = textValue(selectedProduct?.visualizer_mode || 'dynamic-wheel', 40) || 'dynamic-wheel';
       const config = await loadConfig();
-      if (!config.api_key) return json(res, 503, { detail: 'F-Box image routing is not configured. Open /admin and save the LingkeAI API key first.' });
+      if (!config.api_key) {
+        logImageServiceUnavailable('fbox-wheel-visualizer', config, null, { stage: 'create-job' });
+        return json(res, 503, { detail: publicImageServiceUnavailableMessage });
+      }
       const jobId = `fbox_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
       const vehicleImageAsset = await persistVisualizerVehicleImage(parsedVehicleImage, jobId);
       const now = new Date().toISOString();
@@ -5143,7 +5180,10 @@ export async function handleWheelDesignApi(req, res, url) {
         return json(res, 422, { detail: 'Choose one generated concept before creating the multi-view set.' });
       }
       const config = await loadConfig();
-      if (!config.api_key) return json(res, 503, { detail: 'The shared gpt-image-2 effect-image route is not configured. Open /admin and save the existing LingkeAI image API key first.' });
+      if (!config.api_key) {
+        logImageServiceUnavailable('fbox-wheel-design', config, null, { stage: 'create-job', phase: payload.phase });
+        return json(res, 503, { detail: publicImageServiceUnavailableMessage });
+      }
       const selectedImageUrl = payload.phase === 'multiview' && /^https:\/\//i.test(String(payload.selected_image || ''))
         ? textValue(payload.selected_image, 2400)
         : '';
