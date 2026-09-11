@@ -3989,6 +3989,8 @@ function publicStatus(config) {
   const configured = Boolean(config.api_key);
   return {
     configured,
+    key_preview: configured ? keyPreview(config.api_key) : '',
+    active_key_source: configured ? 'saved' : 'none',
     provider: config.provider,
     endpoint: config.endpoint,
     model: config.model,
@@ -4032,7 +4034,11 @@ function keyPreview(apiKey) {
 async function saveConfig(payload) {
   const endpoint = validateEndpoint(payload.endpoint || defaultEndpoint);
   const current = await loadConfig();
-  const apiKey = String(payload.api_key || '').trim() || current.api_key;
+  const suppliedApiKey = String(payload.api_key || '').trim();
+  const credentialPreference = String(payload.credential_preference || '').trim().toLowerCase();
+  if (credentialPreference === 'saved' && !current.api_key) throw new Error('No saved LingkeAI API key is available. Enter a new key first.');
+  if (credentialPreference === 'new' && suppliedApiKey.length < 8) throw new Error('Enter a valid new LingkeAI API key before saving.');
+  const apiKey = credentialPreference === 'saved' ? current.api_key : suppliedApiKey || current.api_key;
   if (apiKey.length < 8) throw new Error('Paste a valid LingkeAI API key before saving.');
   await verifyProvider(endpoint, apiKey);
   const paypalMode = ['sandbox', 'live'].includes(payload.paypal_mode) ? payload.paypal_mode : current.paypal_mode || defaultPayPalMode;
@@ -4954,6 +4960,11 @@ export async function handleFBoxAdminApi(req, res, url) {
   if (!(await isAdminRequest(req))) return json(res, 401, { detail: 'F-Box admin authentication is required.' });
   if (req.method === 'GET' && (url.pathname === '/api/fbox-admin/status' || url.pathname === '/api/fbox-admin/status/')) {
     return json(res, 200, { data: publicStatus(await loadConfig()) });
+  }
+  if (req.method === 'GET' && (url.pathname === '/api/fbox-admin/config/secret' || url.pathname === '/api/fbox-admin/config/secret/')) {
+    const config = await loadConfig();
+    if (!config.api_key) return json(res, 404, { detail: 'No LingkeAI API key has been saved.' });
+    return json(res, 200, { data: { api_key: config.api_key } });
   }
   if (req.method === 'GET' && (url.pathname === '/api/fbox-admin/settings' || url.pathname === '/api/fbox-admin/settings/')) {
     return json(res, 200, { data: (await loadConfig()).storefront });
