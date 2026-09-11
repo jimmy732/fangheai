@@ -898,6 +898,9 @@ const workshopChineseTranslations = {
   'Vehicle and parts lookup is open. Sign in only when your shop needs to save, share or price a customer build.': '车辆与改装件查询免费开放；需要保存、分享或给客户定价时再登录。',
   'Sign in': '登录',
   'Sign out': '退出登录',
+  'Email or username': '邮箱或用户名',
+  'Use your email address or username with your password.': '使用邮箱或用户名加密码登录。',
+  'Password (6+ characters)': '密码（至少 6 个字符）',
   'Close': '关闭',
   'Create shop account': '创建店家账号',
   'Shop workspace': '店家工作台',
@@ -2556,6 +2559,9 @@ const aiWheelStudioZhCN = {
   'Visual diameter': '视觉轮径',
   'Not fixed': '暂不限定',
   'Vehicle context inherited': '已继承车型信息',
+  'Vehicle context (editable)': '车型信息（可手动修改）',
+  'Enter year, make, model, trim and drive': '输入年份、品牌、车型、配置和驱动形式',
+  'You can replace the inherited vehicle with a manual description. The edited value will be used for this design request.': '可以手动修改已继承的车型；修改后的内容会用于本次设计需求。',
   'No vehicle selected': '尚未选择车型',
   'The vehicle is used only as design context. Fitment, brake clearance and load are still checked separately in the Fitment Lab.': '车型这里只用于辅助设计方向；实际适配、刹车间隙和载荷仍需在适配实验室单独核验。',
   'Generate 4 original concepts': '生成 4 个原创方案',
@@ -2584,6 +2590,7 @@ const aiWheelStudioZhCN = {
   'Remove reference': '移除参考图',
   'View larger': '放大查看',
   'Generation failed': '生成失败',
+  'The official image generation service is not configured or is temporarily unavailable. Please try again later or contact CIRUI support.': '官方图片生成服务尚未配置或暂时不可用，请稍后重试或联系 CIRUI 客服。',
   'Try again': '重试',
   'Return to brief': '返回修改需求'
 };
@@ -3690,11 +3697,11 @@ function blogArticlePage(post) {
   return `<main class="blog-article"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><a href="#blog">Journal</a><span>/</span><span>${esc(post.category || 'Journal')}</span></div><div class="blog-article-head"><p class="eyebrow">${esc(post.category || 'Journal')} · ${esc(post.read_time || '5 min read')}</p><h1>${esc(post.title)}</h1><p>${esc(post.excerpt)}</p><div class="blog-article-byline"><span>By ${esc(post.author || 'CIRUI Editorial')}</span><span>${esc(blogDateLabel(post.published_at))}</span></div></div><figure class="blog-article-cover"><img src="${blogCover(post)}" alt="${esc(post.title)}"></figure><div class="blog-article-layout"><article class="blog-article-body">${blogBodyMarkup(post)}<div class="blog-article-cta"><strong>Have a build in mind?</strong><span>Bring the vehicle, the stance and the finish. CIRUI will help turn the brief into a build-ready spec.</span><a class="btn btn-primary" href="#store" data-category-link="Wheels">Browse wheels</a></div></article><aside class="blog-article-aside"><span class="eyebrow">In this post</span>${(post.tags || []).map(tag => `<span class="blog-tag">${esc(tag)}</span>`).join('')}<a class="btn btn-outline btn-small" href="#blog">Back to Journal</a></aside></div>${related.length ? `<section class="blog-related"><div class="section-heading"><div><p class="eyebrow">Keep reading</p><h2>More from the journal.</h2></div></div><div class="blog-grid">${related.map((item, index) => blogCard(item, index)).join('')}</div></section>` : ''}</div></main>`;
 }
 
-async function mallLogin(username, password) {
+async function mallLogin(identity, password) {
   return mallRequest(mallConfig.portalBase, '/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
+    body: JSON.stringify({ identity, password })
   });
 }
 
@@ -5690,10 +5697,16 @@ function storePage() {
   <main class="container store-layout forged-store-layout"><aside class="filter-rail forged-filter-rail"><div class="filter-head"><strong>${uiLabel('Find the right starting design')}</strong><span>${uiLabel('Filters change the visible catalog immediately. Final fitment is engineered after the RFQ.')}</span></div><div class="filter-section"><h3>${uiLabel('Search designs')}</h3><input class="filter-input" data-filter="ai" placeholder="${esc(uiLabel('Model code, spoke style or finish'))}" value="${esc(state.search)}"></div><div class="filter-section"><h3>${uiLabel('Construction')}</h3><div class="catalog-filter-buttons">${Object.entries(catalogCollections).slice(0, 3).map(([key, item]) => `<button class="${state.filters.collection === key ? 'is-active' : ''}" data-action="catalog-collection" data-collection="${key}">${uiLabel(item.label)}</button>`).join('')}</div></div><div class="filter-section"><h3>${uiLabel('Application')}</h3><select class="filter-select" data-filter="application">${applications.map(([value, label]) => `<option value="${value}" ${state.filters.application === value ? 'selected' : ''}>${uiLabel(label)}</option>`).join('')}</select></div><div class="filter-section"><h3>${uiLabel('Vehicle fitment')}</h3>${vehicleSelector('store')}<button class="btn btn-dark btn-small filter-apply" data-action="shop-vehicle">${uiLabel('Attach vehicle')}</button></div><div class="filter-section catalog-ddp-filter">${icons.truck}<div><strong>${uiLabel('DDP available')}</strong><span>${uiLabel('Europe and North America · final quote by country and postcode')}</span></div></div></aside><section class="store-main">${visualizerNotice}${fitmentBanner}<div class="store-toolbar"><div class="result-count">${formatUiLabel('{count} results', { count: list.length })}<span> · ${uiLabel(context.label)}</span></div><div class="toolbar-actions"><button class="btn btn-outline btn-small" data-action="clear-filters">${uiLabel('Reset')}</button><select class="toolbar-select" data-filter="sort"><option value="latest" ${state.sort === 'latest' ? 'selected' : ''}>${uiLabel('Catalog order')}</option><option value="price-low" ${state.sort === 'price-low' ? 'selected' : ''}>${uiLabel('Reference price: low to high')}</option><option value="price-high" ${state.sort === 'price-high' ? 'selected' : ''}>${uiLabel('Reference price: high to low')}</option></select></div></div>${list.length ? `<div class="product-grid">${list.map(renderProductCard).join('')}</div>` : `<div class="empty-state"><h2>${uiLabel('No wheel matches every filter.')}</h2><p>${uiLabel('Reset the catalog or send the design reference to CIRUI for a custom direction.')}</p><button class="btn btn-primary" data-action="clear-filters">${uiLabel('Reset catalog')}</button></div>`}</section></main>`;
 }
 
-function aiWheelVehicleContext() {
+function aiWheelInheritedVehicleContext() {
   const vehicle = state.fitment?.vehicle || state.vehicle;
   if (!vehicle) return '';
   return [vehicle.year, vehicle.make, vehicle.model, vehicle.trim, vehicle.drive].filter(Boolean).join(' ');
+}
+
+function aiWheelVehicleContext() {
+  const draft = state.aiWheelDesign?.draft || {};
+  if (Object.prototype.hasOwnProperty.call(draft, 'vehicle_context')) return String(draft.vehicle_context || '').trim();
+  return aiWheelInheritedVehicleContext();
 }
 
 function aiWheelSelectedConcept() {
@@ -5728,7 +5741,7 @@ function aiWheelBriefMarkup() {
     ['text', 'Text only'],
     ['reference', 'Reference + changes'],
     ['text-reference', 'Text + reference']
-  ].map(([value, label]) => `<button type="button" class="${mode === value ? 'is-active' : ''}" data-action="ai-design-mode" data-mode="${value}" aria-pressed="${mode === value}">${uiLabel(label)}</button>`).join('')}</div><div class="ai-wheel-brief-grid"><div class="ai-wheel-copy-fields"><label class="ai-wheel-main-prompt"><span>${uiLabel('Describe the wheel direction')} <b>*</b></span><textarea name="prompt" rows="8" minlength="8" maxlength="1600" required placeholder="${esc(uiLabel('Example: an original lightweight 10-spoke forged wheel, deep concavity, thin paired spokes, brushed face and polished step lip; technical motorsport character rather than luxury.'))}">${esc(draft.prompt || '')}</textarea><small>${uiLabel('Be specific about spoke count, spoke shape, concavity, lip, center area and finish. Brand names are treated only as broad inspiration and are never copied.')}</small></label>${showReference ? `<div class="ai-wheel-reference-fields"><div><span>${uiLabel('Optional reference image')}</span>${referenceMarkup}</div><label><span>${uiLabel('What should stay?')}</span><input name="reference_keep" value="${esc(draft.reference_keep || '')}" placeholder="${esc(uiLabel('Example: keep the thin paired-spoke rhythm and deep center.'))}"></label><label><span>${uiLabel('What should change?')}</span><input name="reference_change" value="${esc(draft.reference_change || '')}" placeholder="${esc(uiLabel('Example: change to 10 spokes, cleaner center and bronze brushed finish.'))}"></label></div>` : ''}</div><aside class="ai-wheel-spec-panel"><div class="ai-wheel-spec-grid"><label><span>${uiLabel('Construction')}</span><select name="construction">${['Forged monoblock', 'Forged 2-piece', 'Forged 3-piece'].map(value => aiWheelOption(value, draft.construction)).join('')}</select></label><label><span>${uiLabel('Design character')}</span><select name="character">${['Performance / motorsport', 'Luxury / executive', 'Heritage / classic', 'Aero / technical', 'SUV / off-road'].map(value => aiWheelOption(value, draft.character)).join('')}</select></label><label><span>${uiLabel('Spoke direction')}</span><select name="spoke_count">${aiWheelOption('', draft.spoke_count, 'Let AI propose')}${['5-spoke', '6-spoke', '7-spoke', '8-spoke', '10-spoke', 'Multi-spoke'].map(value => aiWheelOption(value, draft.spoke_count)).join('')}</select></label><label><span>${uiLabel('Finish direction')}</span><select name="finish">${['Brushed clear', 'Satin black', 'Polished silver', 'Bronze', 'Two-tone custom'].map(value => aiWheelOption(value, draft.finish)).join('')}</select></label><label><span>${uiLabel('Visual diameter')}</span><select name="diameter">${aiWheelOption('', draft.diameter, 'Not fixed')}${['17', '18', '19', '20', '21', '22', '23', '24'].map(value => aiWheelOption(value, draft.diameter, `${value} in`)).join('')}</select></label></div><div class="ai-wheel-vehicle-context ${vehicleContext ? 'has-vehicle' : ''}">${icons.shield}<div><small>${vehicleContext ? uiLabel('Vehicle context inherited') : uiLabel('No vehicle selected')}</small><strong>${esc(vehicleContext || uiLabel('Independent wheel concept'))}</strong><p>${uiLabel('The vehicle is used only as design context. Fitment, brake clearance and load are still checked separately in the Fitment Lab.')}</p>${!vehicleContext ? `<a href="/fitment-lab" data-app-path>${uiLabel('Open Fitment Lab')} ${icons.arrowRight}</a>` : ''}</div></div><button class="btn btn-primary ai-wheel-generate" type="submit"><span class="ai-wheel-generate-label">${icons.spark}<span>${uiLabel(state.mallToken && state.account ? 'Generate 4 original concepts' : 'Sign in to generate concepts')}</span></span><span class="ai-wheel-generate-arrow" aria-hidden="true">${icons.arrowRight}</span></button></aside></div></form>`;
+  ].map(([value, label]) => `<button type="button" class="${mode === value ? 'is-active' : ''}" data-action="ai-design-mode" data-mode="${value}" aria-pressed="${mode === value}">${uiLabel(label)}</button>`).join('')}</div><div class="ai-wheel-brief-grid"><div class="ai-wheel-copy-fields"><label class="ai-wheel-main-prompt"><span>${uiLabel('Describe the wheel direction')} <b>*</b></span><textarea name="prompt" rows="8" minlength="8" maxlength="1600" required placeholder="${esc(uiLabel('Example: an original lightweight 10-spoke forged wheel, deep concavity, thin paired spokes, brushed face and polished step lip; technical motorsport character rather than luxury.'))}">${esc(draft.prompt || '')}</textarea><small>${uiLabel('Be specific about spoke count, spoke shape, concavity, lip, center area and finish. Brand names are treated only as broad inspiration and are never copied.')}</small></label>${showReference ? `<div class="ai-wheel-reference-fields"><div><span>${uiLabel('Optional reference image')}</span>${referenceMarkup}</div><label><span>${uiLabel('What should stay?')}</span><input name="reference_keep" value="${esc(draft.reference_keep || '')}" placeholder="${esc(uiLabel('Example: keep the thin paired-spoke rhythm and deep center.'))}"></label><label><span>${uiLabel('What should change?')}</span><input name="reference_change" value="${esc(draft.reference_change || '')}" placeholder="${esc(uiLabel('Example: change to 10 spokes, cleaner center and bronze brushed finish.'))}"></label></div>` : ''}</div><aside class="ai-wheel-spec-panel"><div class="ai-wheel-spec-grid"><label><span>${uiLabel('Construction')}</span><select name="construction">${['Forged monoblock', 'Forged 2-piece', 'Forged 3-piece'].map(value => aiWheelOption(value, draft.construction)).join('')}</select></label><label><span>${uiLabel('Design character')}</span><select name="character">${['Performance / motorsport', 'Luxury / executive', 'Heritage / classic', 'Aero / technical', 'SUV / off-road'].map(value => aiWheelOption(value, draft.character)).join('')}</select></label><label><span>${uiLabel('Spoke direction')}</span><select name="spoke_count">${aiWheelOption('', draft.spoke_count, 'Let AI propose')}${['5-spoke', '6-spoke', '7-spoke', '8-spoke', '10-spoke', 'Multi-spoke'].map(value => aiWheelOption(value, draft.spoke_count)).join('')}</select></label><label><span>${uiLabel('Finish direction')}</span><select name="finish">${['Brushed clear', 'Satin black', 'Polished silver', 'Bronze', 'Two-tone custom'].map(value => aiWheelOption(value, draft.finish)).join('')}</select></label><label><span>${uiLabel('Visual diameter')}</span><select name="diameter">${aiWheelOption('', draft.diameter, 'Not fixed')}${['17', '18', '19', '20', '21', '22', '23', '24'].map(value => aiWheelOption(value, draft.diameter, `${value} in`)).join('')}</select></label></div><div class="ai-wheel-vehicle-context ${vehicleContext ? 'has-vehicle' : ''}">${icons.shield}<div><label class="ai-wheel-vehicle-input"><small>${uiLabel('Vehicle context (editable)')}</small><input name="vehicle_context" value="${esc(vehicleContext)}" maxlength="160" autocomplete="off" placeholder="${esc(uiLabel('Enter year, make, model, trim and drive'))}"></label><p>${uiLabel('You can replace the inherited vehicle with a manual description. The edited value will be used for this design request.')}</p><p>${uiLabel('The vehicle is used only as design context. Fitment, brake clearance and load are still checked separately in the Fitment Lab.')}</p>${!vehicleContext ? `<a href="/fitment-lab" data-app-path>${uiLabel('Open Fitment Lab')} ${icons.arrowRight}</a>` : ''}</div></div><button class="btn btn-primary ai-wheel-generate" type="submit"><span class="ai-wheel-generate-label">${icons.spark}<span>${uiLabel(state.mallToken && state.account ? 'Generate 4 original concepts' : 'Sign in to generate concepts')}</span></span><span class="ai-wheel-generate-arrow" aria-hidden="true">${icons.arrowRight}</span></button></aside></div></form>`;
 }
 
 function aiWheelLoadingMarkup(multiview = false) {
@@ -6753,7 +6766,16 @@ function modal() {
   }
   if (!state.modal) return '';
   if (state.modal.type === 'quick') { const item = product(state.modal.id); const displayName = productNameText(item); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">${uiLabel('Quick view')}</p><h2>${esc(displayName)}</h2><div class="quick-product"><img src="${assetUrl(item.image)}" alt="${esc(displayName)}"><div><div class="product-brand">${esc(item.part || item.brand)} · ${uiLabel(productConstructionLabel(item))}</div><p>${uiLabel(productDesignLabel(item))}<br>${uiLabel(productClassificationLabel(item))}</p><strong style="font-size:22px">${productPriceText(item)} <small class="muted">${uiLabel('reference / wheel')}</small></strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">${uiLabel('Add to RFQ')}</button><a class="btn btn-outline" href="#product/${item.id}" style="width:100%;margin-top:8px">${uiLabel('View full details')}</a></div></div></div></div>`; }
-  if (state.modal.type === 'account') { const register = state.modal.mode === 'register'; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">CIRUI account</p><h2>${register ? 'Create your build account.' : 'Save your build.'}</h2><p>${register ? 'Save fitment builds, wishlist, addresses and orders. Dealers: add your company so we can quote wholesale.' : 'Sign in to sync your cart, wishlist and orders with the CIRUI service.'}</p><form class="modal-form" data-form="account" data-mode="${register ? 'register' : 'login'}"><input class="text-input" name="username" placeholder="Username" autocomplete="username" required><input class="text-input" name="password" type="password" placeholder="Password (6+ characters)" autocomplete="${register ? 'new-password' : 'current-password'}" minlength="6" required>${register ? '<input class="text-input" name="email" type="email" autocomplete="email" placeholder="Email (for quotes & order updates)" required><input class="text-input" name="telephone" autocomplete="tel" placeholder="Phone / WhatsApp (optional)"><input class="text-input" name="company" autocomplete="organization" placeholder="Company (dealers & distributors)">' : ''}<button class="btn btn-primary">${register ? 'Create account & sign in' : 'Sign in'}</button><button class="btn btn-outline" type="button" data-action="${register ? 'account-login' : 'account-register'}">${register ? 'I already have an account' : 'Create a new account'}</button></form></div></div>`; }
+  if (state.modal.type === 'account') {
+    const register = state.modal.mode === 'register';
+    const accountField = register
+      ? '<input class="text-input" name="username" placeholder="Username" autocomplete="username" required>'
+      : `<input class="text-input" name="identity" value="" placeholder="${esc(uiLabel('Email or username'))}" autocomplete="off" autocapitalize="none" spellcheck="false" readonly data-account-login-field required>`;
+    const passwordField = register
+      ? '<input class="text-input" name="password" type="password" placeholder="Password (6+ characters)" autocomplete="new-password" minlength="6" required>'
+      : `<input class="text-input" name="password" type="password" value="" placeholder="${esc(uiLabel('Password (6+ characters)'))}" autocomplete="off" readonly data-account-login-field minlength="6" required>`;
+    return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">CIRUI account</p><h2>${register ? 'Create your build account.' : 'Save your build.'}</h2><p>${register ? 'Save fitment builds, wishlist, addresses and orders. Dealers: add your company so we can quote wholesale.' : uiLabel('Use your email address or username with your password.')}</p><form class="modal-form" data-form="account" data-mode="${register ? 'register' : 'login'}" autocomplete="${register ? 'on' : 'off'}">${accountField}${passwordField}${register ? '<input class="text-input" name="email" type="email" autocomplete="email" placeholder="Email (for quotes & order updates)" required><input class="text-input" name="telephone" autocomplete="tel" placeholder="Phone / WhatsApp (optional)"><input class="text-input" name="company" autocomplete="organization" placeholder="Company (dealers & distributors)">' : ''}<button class="btn btn-primary">${register ? 'Create account & sign in' : 'Sign in'}</button><button class="btn btn-outline" type="button" data-action="${register ? 'account-login' : 'account-register'}">${register ? 'I already have an account' : 'Create a new account'}</button></form></div></div>`;
+  }
   if (state.modal.type === 'orders') return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">CIRUI account</p><h2>Track my orders.</h2><p>订单状态来自 CIRUI 自有订单服务；发货后可在这里继续查看物流信息。</p>${state.accountOrdersLoading ? '<div class="loading-copy">正在读取订单…</div>' : state.accountOrders.length ? `<div class="account-order-list">${state.accountOrders.map(order => `<article class="account-order"><div><strong>${esc(order.orderSn || order.id || 'Order')}</strong><small>${esc(order.createTime || '')}</small></div><div><span>${esc(order.productName || order.receiverName || 'CIRUI order')}</span><small>${esc(order.status === 0 ? '待付款' : order.status === 1 ? '待发货' : order.status === 2 ? '已发货' : order.status === 3 ? '已完成' : order.status === 4 ? '已关闭' : '处理中')}</small></div><strong>${money(order.payAmount || order.totalAmount || 0)}</strong></article>`).join('')}</div>` : '<div class="empty-state"><h3>暂无订单</h3><p>登录后创建的 CIRUI 订单会出现在这里。</p></div>'}</div></div>`;
   if (state.modal.type === 'review') return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Your experience</p><h2>Write a review.</h2><form class="modal-form" data-form="review"><div class="review-rating-input" role="radiogroup" aria-label="Rating"><input type="hidden" name="rating" value="5">${[5,4,3,2,1].map(n => `<button type="button" class="rating-star ${n === 5 ? 'is-active' : ''}" data-rating="${n}" aria-label="${n} stars">★</button>`).join('')}</div><input class="text-input" name="title" placeholder="Review title" required><textarea class="text-input" name="body" rows="5" placeholder="What did you install? How does it fit?" required></textarea><input class="text-input" name="vehicle" placeholder="Your vehicle (e.g. 2023 BMW M340i)"><button class="btn btn-primary">Submit review</button></form></div></div>`;
   if (state.modal.type === 'checkout') { const f = state.checkoutForm || {}; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Secure checkout</p><h2>创建 CIRUI 订单</h2><div class="checkout-steps">${['客户信息', '收货信息', '创建订单'].map((label, i) => `<div class="checkout-step ${state.checkoutStep === i + 1 || state.checkoutStep === 3 ? 'is-active' : ''}">${i + 1}. ${label}</div>`).join('')}</div>${state.checkoutStep === 4 ? `<div class="success-box"><h3>订单已创建。</h3><p>订单号：${esc(state.lastOrder?.orderSn || state.lastOrder?.id || '已提交')}。你可以在后台“订单 > 订单列表”继续处理。</p><button class="btn btn-dark" data-action="close-modal">返回商城</button></div>` : `<form class="modal-form" data-form="checkout"><input class="text-input" name="name" value="${esc(f.name || '')}" required placeholder="Full name"><input class="text-input" name="phone" value="${esc(f.phone || '')}" required placeholder="Phone number"><input class="text-input" name="email" value="${esc(f.email || '')}" type="email" required placeholder="Email address"><input class="text-input" name="address" value="${esc(f.address || '')}" required placeholder="Street address"><div class="filter-row"><input class="text-input" name="city" value="${esc(f.city || '')}" required placeholder="City"><input class="text-input" name="province" value="${esc(f.province || '')}" placeholder="State / Province"></div><div class="filter-row"><input class="text-input" name="region" value="${esc(f.region || '')}" placeholder="Region"><input class="text-input" name="postCode" value="${esc(f.postCode || '')}" required placeholder="Postcode"></div><p class="filter-help">订单会先创建为“待付款”，支付由后台配置的支付渠道处理。</p><button class="btn btn-primary" data-submit-order>${state.checkoutStep === 3 ? '提交并创建订单' : '继续填写并创建订单'}</button></form>`}</div></div>`; }
@@ -7228,6 +7250,10 @@ function render() {
   const preservedHeroVideo = Boolean(existingHeroVideo && nextHeroVideo);
   if (preservedHeroVideo) nextHeroVideo.replaceWith(existingHeroVideo);
   appRoot.replaceChildren(...nextRoot.childNodes);
+  appRoot.querySelectorAll('[data-account-login-field]').forEach(field => {
+    field.value = '';
+    field.readOnly = true;
+  });
   if (preservedHeroVideo && existingHeroVideo.paused) void existingHeroVideo.play().catch(() => {});
   syncFitmentEntryStatus();
   wireProductGallery();
@@ -7246,6 +7272,13 @@ function render() {
   applyTranslations();
   wireSpotlights();
   animateIn();
+}
+
+function unlockAccountLoginField(target) {
+  if (!(target instanceof HTMLInputElement) || !target.matches('[data-account-login-field]')) return;
+  target.value = '';
+  target.readOnly = false;
+  target.removeAttribute('data-account-login-field');
 }
 
 function wireSpotlights() {
@@ -8550,6 +8583,7 @@ document.addEventListener('change', event => {
   }
 });
 let wheelCropDrag = null;
+document.addEventListener('focusin', event => unlockAccountLoginField(event.target));
 document.addEventListener('pointerdown', event => {
   const stage = event.target.closest('[data-wheel-crop-stage]');
   if (!stage || !state.wheelVisualizer?.vehicleUrl) return;
@@ -8902,7 +8936,7 @@ document.addEventListener('submit', async event => {
         }
         return;
       }
-      const result = await mallLogin(values.get('username'), values.get('password'));
+      const result = await mallLogin(values.get('identity'), values.get('password'));
       state.mallToken = `${result?.tokenHead || 'Bearer '}${result?.token || ''}`.trim();
       if (state.mallToken) localStorage.setItem('fbox-mall-token', state.mallToken);
       state.account = result?.data?.member || result?.member || null;
