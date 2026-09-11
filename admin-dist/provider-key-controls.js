@@ -5,12 +5,15 @@
   const state = {
     authorization: '',
     configured: false,
-    keyPreview: '',
-    preference: 'saved',
-    preferenceTouched: false,
+    keys: [],
+    primaryId: '',
+    selectedId: '',
+    mode: 'saved',
+    modeTouched: false,
     manager: null,
     keyInput: null,
-    revealedKey: ''
+    revealedKeys: new Map(),
+    busy: false
   };
 
   function requestUrl(resource) {
@@ -57,6 +60,19 @@
     return '';
   }
 
+  async function adminJson(path, options = {}) {
+    const authorization = storedAuthorization();
+    if (!authorization) throw new Error('无法读取管理员登录状态，请刷新页面后重试。');
+    const response = await nativeFetch(path, {
+      ...options,
+      cache: 'no-store',
+      headers: { Accept: 'application/json', Authorization: authorization, ...(options.headers || {}) }
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || payload.message || 'F-Box Key 接口请求失败。');
+    return payload?.data || payload;
+  }
+
   function setInputValue(input, value) {
     if (!input) return;
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
@@ -73,63 +89,107 @@
     output.dataset.kind = kind;
   }
 
-  function hideSecret() {
-    state.revealedKey = '';
-    const value = state.manager?.querySelector('[data-key-secret]');
-    const reveal = state.manager?.querySelector('[data-key-reveal]');
-    const copy = state.manager?.querySelector('[data-key-copy]');
-    if (value) {
-      value.textContent = '';
-      value.hidden = true;
+  function renderKeys() {
+    const list = state.manager?.querySelector('[data-key-list]');
+    const count = state.manager?.querySelector('[data-key-count]');
+    if (!list) return;
+    if (count) count.textContent = `${state.keys.length} 个已保存 Key`;
+    list.replaceChildren();
+    if (!state.keys.length) {
+      const empty = document.createElement('div');
+      empty.className = 'fbox-provider-key-empty';
+      empty.textContent = '服务器尚未保存 Key，请在下方添加第一个。';
+      list.appendChild(empty);
+      return;
     }
-    if (copy) copy.hidden = true;
-    if (reveal) reveal.textContent = '显示完整 Key';
+    state.keys.forEach((key, index) => {
+      const isPrimary = key.id === state.primaryId;
+      const isSelected = state.mode === 'saved' && key.id === state.selectedId;
+      const revealed = state.revealedKeys.get(key.id) || '';
+      const row = document.createElement('article');
+      row.className = `fbox-provider-key-card${isSelected ? ' is-selected' : ''}${isPrimary ? ' is-primary' : ''}`;
+      row.dataset.keyId = key.id;
+      row.innerHTML = `
+        <input class="fbox-provider-key-radio" type="radio" name="fbox-provider-key-preference">
+        <div class="fbox-provider-key-copy"><strong></strong><small></small></div>
+        <em class="fbox-provider-key-badge"></em>
+        <div class="fbox-provider-key-actions">
+          <button type="button" data-action="reveal"></button>
+          <button type="button" data-action="copy">复制 Key</button>
+        </div>
+        <code class="fbox-provider-key-secret"></code>`;
+      const radio = row.querySelector('.fbox-provider-key-radio');
+      radio.value = key.id;
+      radio.checked = isSelected;
+      radio.disabled = state.busy;
+      radio.setAttribute('aria-label', `优先使用 ${key.label || `Key ${index + 1}`}`);
+      row.querySelector('strong').textContent = key.label || `Key ${index + 1}`;
+      row.querySelector('small').textContent = key.key_preview || '已保存（脱敏）';
+      const badge = row.querySelector('.fbox-provider-key-badge');
+      badge.textContent = isPrimary ? '当前优先' : '可选';
+      badge.dataset.primary = isPrimary ? 'true' : 'false';
+      const reveal = row.querySelector('[data-action="reveal"]');
+      const copy = row.querySelector('[data-action="copy"]');
+      const secret = row.querySelector('.fbox-provider-key-secret');
+      reveal.textContent = revealed ? '隐藏完整 Key' : '显示完整 Key';
+      reveal.disabled = state.busy;
+      copy.hidden = !revealed;
+      copy.disabled = state.busy;
+      secret.hidden = !revealed;
+      secret.textContent = revealed;
+      radio.addEventListener('change', () => switchPrimaryKey(key.id));
+      reveal.addEventListener('click', () => toggleRevealKey(key.id));
+      copy.addEventListener('click', () => copyKey(key.id));
+      list.appendChild(row);
+    });
   }
 
-  function setPreference(preference, announce = true) {
-    const wantsSaved = preference === 'saved' && state.configured;
-    state.preference = wantsSaved ? 'saved' : 'new';
-    const savedChoice = state.manager?.querySelector('input[value="saved"]');
-    const newChoice = state.manager?.querySelector('input[value="new"]');
-    if (savedChoice) {
-      savedChoice.disabled = !state.configured;
-      savedChoice.checked = wantsSaved;
-    }
-    if (newChoice) newChoice.checked = !wantsSaved;
-    const badge = state.manager?.querySelector('[data-key-badge]');
-    if (badge) {
-      badge.textContent = !state.configured ? '不可用' : wantsSaved ? '当前优先' : '已保存可选';
-      badge.dataset.active = wantsSaved ? 'true' : 'false';
-    }
+  function syncModeControls() {
+    const addChoice = state.manager?.querySelector('[data-add-key-choice]');
+    const labelWrap = state.manager?.querySelector('[data-new-key-options]');
+    if (addChoice) addChoice.checked = state.mode === 'new';
+    if (labelWrap) labelWrap.hidden = state.mode !== 'new';
     if (state.keyInput) {
-      state.keyInput.disabled = wantsSaved;
-      state.keyInput.setAttribute('aria-disabled', wantsSaved ? 'true' : 'false');
-      state.keyInput.placeholder = wantsSaved
-        ? `优先使用已保存 Key${state.keyPreview ? `：${state.keyPreview}` : ''}`
-        : '粘贴新的 LingkeAI 接口密钥';
-      if (wantsSaved) setInputValue(state.keyInput, '');
+      const adding = state.mode === 'new';
+      state.keyInput.disabled = !adding;
+      state.keyInput.setAttribute('aria-disabled', adding ? 'false' : 'true');
+      state.keyInput.placeholder = adding ? '粘贴新的 LingkeAI 接口密钥' : '从上方 Key 池选择当前优先 Key';
+      if (!adding) setInputValue(state.keyInput, '');
     }
-    state.manager?.classList.toggle('is-using-saved', wantsSaved);
-    if (announce) {
-      state.preferenceTouched = true;
-      feedback(wantsSaved ? '保存时会继续使用服务器中已保存的 Key。' : '请输入新 Key；验证成功后会替换服务器保存值。', 'info');
-    }
+    state.manager?.classList.toggle('is-adding-new', state.mode === 'new');
+    renderKeys();
+  }
+
+  function chooseNewKey(announce = true) {
+    state.mode = 'new';
+    state.modeTouched = true;
+    syncModeControls();
+    if (announce) feedback('输入新 Key 后点击“保存并验证”，新 Key 会加入池中并成为优先项，旧 Key 会全部保留。', 'info');
+    state.keyInput?.focus();
   }
 
   function applyStatus(payload) {
     const data = payload?.data || payload || {};
-    state.configured = Boolean(data.configured);
-    state.keyPreview = String(data.key_preview || '');
-    const preview = state.manager?.querySelector('[data-key-preview]');
-    const badge = state.manager?.querySelector('[data-key-badge]');
-    if (preview) preview.textContent = state.configured ? state.keyPreview || '已保存（脱敏）' : '尚未保存';
-    if (badge) {
-      badge.dataset.ready = state.configured ? 'true' : 'false';
+    const keys = Array.isArray(data.api_keys) ? data.api_keys : [];
+    state.keys = keys.map((item, index) => ({
+      id: String(item.id || `key-${index + 1}`),
+      label: String(item.label || `Key ${index + 1}`),
+      key_preview: String(item.key_preview || ''),
+      is_primary: Boolean(item.is_primary)
+    }));
+    if (!state.keys.length && data.configured) {
+      state.keys = [{ id: String(data.primary_api_key_id || 'legacy-primary'), label: 'Key 1', key_preview: String(data.key_preview || ''), is_primary: true }];
     }
-    setPreference(state.preferenceTouched ? state.preference : state.configured ? 'saved' : 'new', false);
+    state.primaryId = String(data.primary_api_key_id || state.keys.find(item => item.is_primary)?.id || state.keys[0]?.id || '');
+    state.configured = state.keys.length > 0;
+    if (!state.modeTouched || state.mode === 'saved') {
+      state.mode = state.configured ? 'saved' : 'new';
+      state.selectedId = state.primaryId;
+    }
+    syncModeControls();
   }
 
-  window.fetch = async function fboxKeyAwareFetch(resource, options = {}) {
+  window.fetch = async function fboxKeyPoolAwareFetch(resource, options = {}) {
     const url = requestUrl(resource);
     const request = typeof Request !== 'undefined' && resource instanceof Request ? resource : null;
     const headers = new Headers(options.headers || request?.headers || {});
@@ -141,8 +201,13 @@
     if (url?.pathname.replace(/\/$/, '') === '/api/fbox-admin/config' && method === 'PUT' && typeof options.body === 'string') {
       try {
         const body = JSON.parse(options.body);
-        body.credential_preference = state.preference;
-        if (state.preference === 'saved') body.api_key = '';
+        body.credential_preference = state.mode;
+        if (state.mode === 'saved') {
+          body.credential_id = state.selectedId || state.primaryId;
+          body.api_key = '';
+        } else {
+          body.key_label = String(state.manager?.querySelector('[data-new-key-label]')?.value || '').trim();
+        }
         nextOptions = { ...options, body: JSON.stringify(body) };
       } catch {
         // Leave non-JSON requests untouched.
@@ -155,85 +220,103 @@
     }
     if (url?.pathname.replace(/\/$/, '') === '/api/fbox-admin/config' && method === 'PUT' && response.ok) {
       response.clone().json().then(payload => {
-        state.preferenceTouched = false;
+        const addedNewKey = state.mode === 'new';
+        state.modeTouched = false;
+        state.revealedKeys.clear();
+        const labelInput = state.manager?.querySelector('[data-new-key-label]');
+        if (labelInput) labelInput.value = '';
         applyStatus(payload);
-        hideSecret();
-        feedback('配置已保存，服务器已保存 Key 继续作为优先凭证。', 'success');
+        feedback(addedNewKey ? '新 Key 已加入 Key 池并设为当前优先项；原有 Key 已保留。' : '配置已保存，当前优先 Key 保持不变。', 'success');
       }).catch(() => {});
     }
     return response;
   };
 
-  async function revealSecret() {
-    if (state.revealedKey) {
-      hideSecret();
+  async function switchPrimaryKey(keyId) {
+    if (state.busy) return;
+    if (keyId === state.primaryId) {
+      state.mode = 'saved';
+      state.modeTouched = false;
+      state.selectedId = keyId;
+      syncModeControls();
+      feedback('这个 Key 已经是当前优先项。', 'info');
       return;
     }
-    const authorization = storedAuthorization();
-    if (!authorization) {
-      feedback('无法读取管理员登录状态，请刷新页面后重试。', 'error');
-      return;
-    }
-    const button = state.manager?.querySelector('[data-key-reveal]');
-    if (button) button.disabled = true;
-    feedback('正在从服务器读取已保存 Key…', 'info');
+    const previousPrimaryId = state.primaryId;
+    state.mode = 'saved';
+    state.selectedId = keyId;
+    state.busy = true;
+    syncModeControls();
+    feedback('正在验证并切换优先 Key…', 'info');
     try {
-      const response = await nativeFetch('/api/fbox-admin/config/secret', {
-        headers: { Accept: 'application/json', Authorization: authorization },
-        cache: 'no-store'
+      const payload = await adminJson('/api/fbox-admin/keys/primary', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key_id: keyId })
       });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.detail || payload.message || '读取已保存 Key 失败。');
-      state.revealedKey = String(payload?.data?.api_key || payload?.api_key || '');
-      if (!state.revealedKey) throw new Error('服务器没有返回已保存 Key。');
-      const value = state.manager?.querySelector('[data-key-secret]');
-      const copy = state.manager?.querySelector('[data-key-copy]');
-      if (value) {
-        value.textContent = state.revealedKey;
-        value.hidden = false;
-      }
-      if (copy) copy.hidden = false;
-      if (button) button.textContent = '隐藏完整 Key';
-      feedback('完整 Key 仅在当前管理员页面临时显示；离开页面后会清除。', 'success');
+      state.modeTouched = false;
+      applyStatus(payload);
+      feedback('优先 Key 已切换，图片生成和 GPT-5.5 客服助手将使用它。', 'success');
     } catch (error) {
-      hideSecret();
-      feedback(error instanceof Error ? error.message : '读取已保存 Key 失败。', 'error');
+      state.primaryId = previousPrimaryId;
+      state.selectedId = previousPrimaryId;
+      feedback(error instanceof Error ? error.message : '优先 Key 切换失败。', 'error');
     } finally {
-      if (button) button.disabled = false;
+      state.busy = false;
+      syncModeControls();
     }
   }
 
-  async function copySecret() {
-    if (!state.revealedKey) return;
+  async function toggleRevealKey(keyId) {
+    if (state.revealedKeys.has(keyId)) {
+      state.revealedKeys.delete(keyId);
+      renderKeys();
+      return;
+    }
+    state.busy = true;
+    renderKeys();
+    feedback('正在读取所选 Key…', 'info');
     try {
-      await navigator.clipboard.writeText(state.revealedKey);
-      feedback('完整 Key 已复制到剪贴板。', 'success');
+      const payload = await adminJson(`/api/fbox-admin/config/secret?id=${encodeURIComponent(keyId)}`);
+      const apiKey = String(payload.api_key || '');
+      if (!apiKey) throw new Error('服务器没有返回所选 Key。');
+      state.revealedKeys.set(keyId, apiKey);
+      feedback('完整 Key 仅在当前管理员页面临时显示；离开页面后会清除。', 'success');
+    } catch (error) {
+      feedback(error instanceof Error ? error.message : '读取所选 Key 失败。', 'error');
+    } finally {
+      state.busy = false;
+      renderKeys();
+    }
+  }
+
+  async function copyKey(keyId) {
+    const apiKey = state.revealedKeys.get(keyId);
+    if (!apiKey) return;
+    try {
+      await navigator.clipboard.writeText(apiKey);
+      feedback('所选 Key 已复制到剪贴板。', 'success');
     } catch {
-      feedback('浏览器不允许自动复制，请手动选择上方 Key。', 'error');
+      feedback('浏览器不允许自动复制，请手动选择完整 Key。', 'error');
     }
   }
 
   function managerTemplate() {
     return `
-      <section class="fbox-provider-key-manager" aria-label="API Key 使用优先级">
+      <section class="fbox-provider-key-manager" aria-label="API Key 池">
         <div class="fbox-provider-key-title">
-          <strong>优先使用哪个 Key</strong>
-          <span>图片生成与 GPT-5.5 客服助手共用所选凭证</span>
+          <strong>已保存 Key 池</strong>
+          <span data-key-count>读取中…</span>
         </div>
-        <label class="fbox-provider-key-choice">
-          <input type="radio" name="fbox-provider-key-preference" value="saved">
-          <span><b>服务器已保存 Key</b><small data-key-preview>读取中…</small></span>
-          <em data-key-badge>读取中</em>
+        <div class="fbox-provider-key-list" data-key-list></div>
+        <label class="fbox-provider-key-add">
+          <input type="radio" name="fbox-provider-key-preference" value="new" data-add-key-choice>
+          <span><b>添加新 Key</b><small>验证成功后加入 Key 池，不覆盖原有 Key</small></span>
         </label>
-        <label class="fbox-provider-key-choice">
-          <input type="radio" name="fbox-provider-key-preference" value="new">
-          <span><b>输入新 Key</b><small>验证成功后替换服务器保存值</small></span>
+        <label class="fbox-provider-key-label" data-new-key-options hidden>
+          <span>Key 名称（可选）</span>
+          <input type="text" maxlength="80" placeholder="例如：主账号、备用账号 1" data-new-key-label>
         </label>
-        <div class="fbox-provider-key-secret-row">
-          <button type="button" data-key-reveal>显示完整 Key</button>
-          <button type="button" data-key-copy hidden>复制 Key</button>
-          <code data-key-secret hidden></code>
-        </div>
         <p class="fbox-provider-key-feedback" data-key-feedback role="status"></p>
       </section>`;
   }
@@ -247,8 +330,8 @@
 
   function reconcile() {
     if (!window.location.hash.startsWith('#/fbox/visualizer')) {
-      if (state.manager) hideSecret();
-      state.preferenceTouched = false;
+      state.revealedKeys.clear();
+      state.modeTouched = false;
       state.manager = null;
       state.keyInput = null;
       return;
@@ -276,13 +359,11 @@
     state.keyInput = input;
 
     const oldHint = item.querySelector('.field-hint');
-    if (oldHint) oldHint.textContent = '已保存 Key 默认脱敏。只有登录后的管理员主动点击“显示完整 Key”时才会临时取回，且不会进入公开前台构建文件。';
-    manager.addEventListener('change', event => {
-      if (event.target instanceof HTMLInputElement && event.target.name === 'fbox-provider-key-preference') setPreference(event.target.value);
+    if (oldHint) oldHint.textContent = '每个已保存 Key 都会保留在服务器 Key 池中。完整值仅在登录管理员主动查看时临时取回，不会进入公开前台构建文件。';
+    manager.querySelector('[data-add-key-choice]')?.addEventListener('change', event => {
+      if (event.target.checked) chooseNewKey();
     });
-    manager.querySelector('[data-key-reveal]')?.addEventListener('click', revealSecret);
-    manager.querySelector('[data-key-copy]')?.addEventListener('click', copySecret);
-    applyStatus({ configured: state.configured, key_preview: state.keyPreview });
+    applyStatus({ configured: state.configured, api_keys: state.keys, primary_api_key_id: state.primaryId });
 
     const authorization = storedAuthorization();
     if (authorization) {
@@ -298,19 +379,19 @@
     const isSubmit = event.type === 'submit';
     const button = event.target instanceof Element ? event.target.closest('button') : null;
     if (!isSubmit && (!button || !/保存并验证实时路由/.test(button.textContent || ''))) return;
-    const missingSaved = state.preference === 'saved' && !state.configured;
-    const missingNew = state.preference === 'new' && !String(state.keyInput?.value || '').trim();
+    const missingSaved = state.mode === 'saved' && !(state.selectedId || state.primaryId);
+    const missingNew = state.mode === 'new' && !String(state.keyInput?.value || '').trim();
     if (!missingSaved && !missingNew) return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    feedback(missingSaved ? '服务器还没有保存 Key，请选择“输入新 Key”。' : '请输入新的 LingkeAI API Key 后再保存。', 'error');
+    feedback(missingSaved ? 'Key 池为空，请先添加新 Key。' : '请输入新的 LingkeAI API Key 后再保存。', 'error');
     if (missingNew) state.keyInput?.focus();
   }
 
   document.addEventListener('click', blockInvalidSave, true);
   document.addEventListener('submit', blockInvalidSave, true);
   window.addEventListener('hashchange', () => {
-    if (!window.location.hash.startsWith('#/fbox/visualizer')) hideSecret();
+    if (!window.location.hash.startsWith('#/fbox/visualizer')) state.revealedKeys.clear();
     window.setTimeout(reconcile, 0);
   });
   const observer = new MutationObserver(() => window.requestAnimationFrame(reconcile));

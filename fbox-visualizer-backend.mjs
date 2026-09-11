@@ -3966,22 +3966,49 @@ export async function handleFBoxAssetApi(req, res, url) {
   return json(res, 404, { detail: 'F-Box 商品图片接口不存在。' });
 }
 
+function normalizeApiKeyCollection(raw = {}) {
+  const apiKeys = [];
+  const usedIds = new Set();
+  const addKey = (candidate, fallbackLabel) => {
+    const apiKey = String(candidate?.api_key || '').trim();
+    if (!apiKey || apiKeys.some(item => item.api_key === apiKey)) return;
+    let id = String(candidate?.id || '').trim();
+    if (!/^[a-zA-Z0-9_-]{3,80}$/.test(id) || usedIds.has(id)) id = randomUUID();
+    usedIds.add(id);
+    apiKeys.push({
+      id,
+      label: String(candidate?.label || fallbackLabel || `Key ${apiKeys.length + 1}`).trim().slice(0, 80) || `Key ${apiKeys.length + 1}`,
+      api_key: apiKey,
+      created_at: String(candidate?.created_at || new Date().toISOString())
+    });
+  };
+  if (Array.isArray(raw.api_keys)) raw.api_keys.forEach((item, index) => addKey(item, `Key ${index + 1}`));
+  const legacyApiKey = String(raw.api_key || '').trim();
+  if (legacyApiKey) addKey({ id: raw.primary_api_key_id || 'legacy-primary', label: raw.api_key_label || 'Key 1', api_key: legacyApiKey, created_at: raw.api_key_created_at }, 'Key 1');
+  let primaryApiKeyId = String(raw.primary_api_key_id || '').trim();
+  if (!apiKeys.some(item => item.id === primaryApiKeyId)) {
+    primaryApiKeyId = apiKeys.find(item => item.api_key === legacyApiKey)?.id || apiKeys[0]?.id || '';
+  }
+  return { api_keys: apiKeys, primary_api_key_id: primaryApiKeyId, api_key: apiKeys.find(item => item.id === primaryApiKeyId)?.api_key || '' };
+}
+
 async function loadConfig() {
   try {
     const raw = JSON.parse(await fs.readFile(configPath, 'utf8'));
+    const keyCollection = normalizeApiKeyCollection(raw);
     return {
       endpoint: String(raw.endpoint || defaultEndpoint).replace(/\/$/, ''),
       provider: String(raw.provider || 'lk888'),
       model: defaultModel,
       chat_model: String(raw.chat_model || defaultChatModel),
-      api_key: String(raw.api_key || ''),
+      ...keyCollection,
       paypal_mode: ['sandbox', 'live'].includes(raw.paypal_mode) ? raw.paypal_mode : defaultPayPalMode,
       paypal_client_id: String(raw.paypal_client_id || ''),
       paypal_client_secret: String(raw.paypal_client_secret || ''),
       storefront: { ...defaultStorefrontSettings, ...(raw.storefront || {}) }
     };
   } catch {
-    return { endpoint: defaultEndpoint, provider: 'lk888', model: defaultModel, chat_model: defaultChatModel, api_key: '', paypal_mode: defaultPayPalMode, paypal_client_id: '', paypal_client_secret: '', storefront: { ...defaultStorefrontSettings } };
+    return { endpoint: defaultEndpoint, provider: 'lk888', model: defaultModel, chat_model: defaultChatModel, api_key: '', api_keys: [], primary_api_key_id: '', paypal_mode: defaultPayPalMode, paypal_client_id: '', paypal_client_secret: '', storefront: { ...defaultStorefrontSettings } };
   }
 }
 
@@ -3991,6 +4018,9 @@ function publicStatus(config) {
     configured,
     key_preview: configured ? keyPreview(config.api_key) : '',
     active_key_source: configured ? 'saved' : 'none',
+    primary_api_key_id: config.primary_api_key_id || '',
+    api_keys: (config.api_keys || []).map((item, index) => ({ id: item.id, label: item.label || `Key ${index + 1}`, key_preview: keyPreview(item.api_key), is_primary: item.id === config.primary_api_key_id, created_at: item.created_at || '' })),
+    key_count: (config.api_keys || []).length,
     provider: config.provider,
     endpoint: config.endpoint,
     model: config.model,
@@ -4036,18 +4066,45 @@ async function saveConfig(payload) {
   const current = await loadConfig();
   const suppliedApiKey = String(payload.api_key || '').trim();
   const credentialPreference = String(payload.credential_preference || '').trim().toLowerCase();
-  if (credentialPreference === 'saved' && !current.api_key) throw new Error('No saved LingkeAI API key is available. Enter a new key first.');
+  const requestedKeyId = String(payload.credential_id || '').trim();
+  const apiKeys = (current.api_keys || []).map(item => ({ ...item }));
+  let primaryApiKeyId = current.primary_api_key_id || '';
+  let selectedKey = apiKeys.find(item => item.id === (requestedKeyId || primaryApiKeyId));
+  if (credentialPreference === 'saved' && !selectedKey) throw new Error('The selected saved LingkeAI API key is not available.');
   if (credentialPreference === 'new' && suppliedApiKey.length < 8) throw new Error('Enter a valid new LingkeAI API key before saving.');
-  const apiKey = credentialPreference === 'saved' ? current.api_key : suppliedApiKey || current.api_key;
+  if (suppliedApiKey && credentialPreference !== 'saved') {
+    selectedKey = apiKeys.find(item => item.api_key === suppliedApiKey);
+    const suppliedLabel = String(payload.key_label || '').trim().slice(0, 80);
+    if (!selectedKey) {
+      selectedKey = { id: randomUUID(), label: suppliedLabel || `Key ${apiKeys.length + 1}`, api_key: suppliedApiKey, created_at: new Date().toISOString() };
+      apiKeys.push(selectedKey);
+    } else if (suppliedLabel) {
+      selectedKey.label = suppliedLabel;
+    }
+  }
+  if (!selectedKey) selectedKey = apiKeys.find(item => item.id === primaryApiKeyId) || apiKeys[0];
+  const apiKey = selectedKey?.api_key || '';
   if (apiKey.length < 8) throw new Error('Paste a valid LingkeAI API key before saving.');
+  primaryApiKeyId = selectedKey.id;
   await verifyProvider(endpoint, apiKey);
   const paypalMode = ['sandbox', 'live'].includes(payload.paypal_mode) ? payload.paypal_mode : current.paypal_mode || defaultPayPalMode;
   const paypalClientId = String(payload.paypal_client_id || current.paypal_client_id || '').trim();
   const paypalClientSecret = String(payload.paypal_client_secret || current.paypal_client_secret || '').trim();
   await fs.mkdir(runtimeDir, { recursive: true });
-  const next = { endpoint, provider: 'lk888', model: defaultModel, chat_model: current.chat_model || defaultChatModel, api_key: apiKey, paypal_mode: paypalMode, paypal_client_id: paypalClientId, paypal_client_secret: paypalClientSecret, storefront: current.storefront };
+  const next = { endpoint, provider: 'lk888', model: defaultModel, chat_model: current.chat_model || defaultChatModel, api_key: apiKey, api_keys: apiKeys, primary_api_key_id: primaryApiKeyId, paypal_mode: paypalMode, paypal_client_id: paypalClientId, paypal_client_secret: paypalClientSecret, storefront: current.storefront };
   await fs.writeFile(configPath, JSON.stringify(next, null, 2), 'utf8');
   return { ...publicStatus(next), saved: true, key_preview: keyPreview(apiKey) };
+}
+
+async function setPrimaryApiKey(payload) {
+  const current = await loadConfig();
+  const selected = (current.api_keys || []).find(item => item.id === String(payload.key_id || '').trim());
+  if (!selected) throw new Error('The selected LingkeAI API key does not exist.');
+  if (selected.id !== current.primary_api_key_id) await verifyProvider(current.endpoint, selected.api_key);
+  const next = { ...current, api_key: selected.api_key, primary_api_key_id: selected.id };
+  await fs.mkdir(runtimeDir, { recursive: true });
+  await fs.writeFile(configPath, JSON.stringify(next, null, 2), 'utf8');
+  return { ...publicStatus(next), saved: true };
 }
 
 function normalizeStorefrontSettings(payload = {}) {
@@ -4071,7 +4128,7 @@ async function saveStorefrontSettings(payload) {
   const current = await loadConfig();
   const storefront = normalizeStorefrontSettings(payload);
   await fs.mkdir(runtimeDir, { recursive: true });
-  await fs.writeFile(configPath, JSON.stringify({ endpoint: current.endpoint, provider: current.provider, model: current.model, chat_model: current.chat_model || defaultChatModel, api_key: current.api_key, paypal_mode: current.paypal_mode || defaultPayPalMode, paypal_client_id: current.paypal_client_id || '', paypal_client_secret: current.paypal_client_secret || '', storefront }, null, 2), 'utf8');
+  await fs.writeFile(configPath, JSON.stringify({ endpoint: current.endpoint, provider: current.provider, model: current.model, chat_model: current.chat_model || defaultChatModel, api_key: current.api_key, api_keys: current.api_keys || [], primary_api_key_id: current.primary_api_key_id || '', paypal_mode: current.paypal_mode || defaultPayPalMode, paypal_client_id: current.paypal_client_id || '', paypal_client_secret: current.paypal_client_secret || '', storefront }, null, 2), 'utf8');
   return storefront;
 }
 
@@ -4963,8 +5020,14 @@ export async function handleFBoxAdminApi(req, res, url) {
   }
   if (req.method === 'GET' && (url.pathname === '/api/fbox-admin/config/secret' || url.pathname === '/api/fbox-admin/config/secret/')) {
     const config = await loadConfig();
-    if (!config.api_key) return json(res, 404, { detail: 'No LingkeAI API key has been saved.' });
-    return json(res, 200, { data: { api_key: config.api_key } });
+    const requestedKeyId = String(url.searchParams.get('id') || config.primary_api_key_id || '').trim();
+    const selected = (config.api_keys || []).find(item => item.id === requestedKeyId);
+    if (!selected) return json(res, 404, { detail: 'The selected LingkeAI API key does not exist.' });
+    return json(res, 200, { data: { id: selected.id, label: selected.label, api_key: selected.api_key, is_primary: selected.id === config.primary_api_key_id } });
+  }
+  if (req.method === 'PUT' && (url.pathname === '/api/fbox-admin/keys/primary' || url.pathname === '/api/fbox-admin/keys/primary/')) {
+    try { return json(res, 200, { data: await setPrimaryApiKey(await readJson(req, 64 * 1024)) }); }
+    catch (error) { return json(res, error.status || 502, { detail: error.message || 'The preferred API key could not be changed.' }); }
   }
   if (req.method === 'GET' && (url.pathname === '/api/fbox-admin/settings' || url.pathname === '/api/fbox-admin/settings/')) {
     return json(res, 200, { data: (await loadConfig()).storefront });

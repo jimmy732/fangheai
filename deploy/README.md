@@ -25,9 +25,10 @@ The public site and the independent F-Box admin are one Node service. Nginx
 terminates TLS for `forcarbox.cn` and proxies both `/` and `/api/*` to the
 private Node listener on `127.0.0.1:4174`. The model provider key is never
 committed; `/admin` writes it to `/var/lib/fbox/runtime` on the server. The
-authenticated admin can see a masked preview, explicitly reveal the full key
-for the current page session, and choose whether to keep the saved key or
-replace it with a newly entered key.
+authenticated admin can keep multiple provider keys in a server-side key pool,
+see every masked preview, explicitly reveal any full key for the current page
+session, and choose which saved key is used as the primary credential. Adding
+a new key never overwrites the existing pool.
 
 The service unit assumes the repository is checked out at
 `/opt/fbox/fangheai` on the `agent/f-box-site-deploy` branch. Before the first
