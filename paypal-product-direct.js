@@ -33,7 +33,6 @@
       }
       .paypal-direct-detail .paypal-direct-panel h2 { margin: 0; font-size: 22px; }
       .paypal-direct-detail .paypal-direct-panel p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
-      .paypal-direct-detail .paypal-direct-form { margin: 0; }
       .paypal-direct-detail .paypal-direct-link {
         display: flex;
         width: 100%;
@@ -87,12 +86,10 @@
           <h2 id="paypal-direct-title">Complete your payment</h2>
           <p>This product uses the fixed PayPal payment configured for CIRUI. No vehicle or customization details are required on this page.</p>
         </div>
-        <form class="paypal-direct-form" action="${paymentUrl}" method="post" target="_blank">
-          <button class="paypal-direct-link" type="submit" aria-label="Pay securely with PayPal">
-            <span class="paypal-direct-wordmark">PayPal</span>
-            <span>Pay now</span>
-          </button>
-        </form>
+        <a class="paypal-direct-link" href="${paymentUrl}" target="_blank" rel="noopener noreferrer" aria-label="Pay securely with PayPal">
+          <span class="paypal-direct-wordmark">PayPal</span>
+          <span>Pay now</span>
+        </a>
         <p class="paypal-direct-link-note">Opens the official PayPal secure checkout page.</p>
       </section>`;
     imageNode.setAttribute('alt', imageAlt);
