@@ -56,7 +56,7 @@
 
   function mountPayPal() {
     const container = document.getElementById(containerId);
-    if (!container || !container.isConnected || container.dataset.paypalRendered === 'true') return;
+    if (!container || !container.isConnected || ['loading', 'true', 'failed'].includes(container.dataset.paypalRendered)) return;
     if (!window.paypal?.HostedButtons) {
       mountAttempts += 1;
       if (mountAttempts < 80) window.setTimeout(mountPayPal, 250);
@@ -64,8 +64,9 @@
       return;
     }
     try {
-      container.dataset.paypalRendered = 'true';
+      container.dataset.paypalRendered = 'loading';
       const rendered = window.paypal.HostedButtons({ hostedButtonId }).render(`#${containerId}`);
+      container.dataset.paypalRendered = 'true';
       Promise.resolve(rendered).catch(showPayPalFailure);
     } catch {
       showPayPalFailure();
@@ -132,11 +133,13 @@
     }
   }
 
+  const appRoot = document.querySelector('#app');
   const observer = new MutationObserver(() => {
-    resetAfterRouteChange();
-    applyDirectCheckout();
+    if (targetProductOpen()) applyDirectCheckout();
   });
-  observer.observe(document.documentElement, { childList: true, subtree: true });
+  // Watch only top-level app renders. PayPal mutates its own iframe subtree heavily;
+  // observing the whole document makes the browser process thousands of callbacks.
+  if (appRoot) observer.observe(appRoot, { childList: true });
   window.addEventListener('hashchange', () => {
     resetAfterRouteChange();
     window.setTimeout(applyDirectCheckout, 0);
