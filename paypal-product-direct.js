@@ -1,10 +1,7 @@
 (() => {
   const productId = 'cr-c8z06-track-001';
   const hostedButtonId = 'LB7ZA6K8HAL2C';
-  const containerId = `paypal-container-${hostedButtonId}`;
-  const sdkId = 'fbox-paypal-direct-sdk';
-  const sdkUrl = 'https://www.paypal.com/sdk/js?client-id=BAA8s4HvB-lyiiKYKM_GT6F_AebG4mRT6fQP9ZEHYZ17BU9vy9KaSahJUqK8hVYyCRKWYqeVl-u6H7D9Qg&components=hosted-buttons&disable-funding=venmo&currency=USD';
-  let mountAttempts = 0;
+  const paymentUrl = `https://www.paypal.com/ncp/payment/${hostedButtonId}`;
 
   const escapeHtml = value => String(value || '').replace(/[&<>"']/g, character => ({
     '&': '&amp;',
@@ -36,8 +33,25 @@
       }
       .paypal-direct-detail .paypal-direct-panel h2 { margin: 0; font-size: 22px; }
       .paypal-direct-detail .paypal-direct-panel p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
-      .paypal-direct-detail .paypal-direct-container { min-height: 52px; width: 100%; }
-      .paypal-direct-detail .paypal-direct-fallback { padding: 12px; border: 1px dashed #cbd5e1; border-radius: 9px; background: #fff; color: var(--muted); }
+      .paypal-direct-detail .paypal-direct-form { margin: 0; }
+      .paypal-direct-detail .paypal-direct-link {
+        display: flex;
+        width: 100%;
+        min-height: 54px;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: 0;
+        border-radius: 999px;
+        background: #ffc439;
+        box-shadow: 0 7px 18px rgba(0, 48, 135, .14);
+        color: #111820;
+        cursor: pointer;
+        font: 700 15px/1 'DM Sans', sans-serif;
+      }
+      .paypal-direct-detail .paypal-direct-link:hover { background: #f4b921; transform: translateY(-1px); }
+      .paypal-direct-detail .paypal-direct-wordmark { color: #003087; font-size: 22px; font-style: italic; font-weight: 900; letter-spacing: -.07em; }
+      .paypal-direct-detail .paypal-direct-link-note { text-align: center; }
       .paypal-direct-detail .paypal-direct-badge { display: inline-flex; width: fit-content; align-items: center; gap: 7px; color: #1c4f8a; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
       .paypal-direct-detail .paypal-direct-badge::before { width: 7px; height: 7px; border-radius: 50%; background: #0070ba; content: ''; }
       @media (max-width: 760px) {
@@ -47,47 +61,6 @@
     document.head.append(style);
   }
 
-  function showPayPalFailure() {
-    const container = document.getElementById(containerId);
-    if (!container || !container.isConnected) return;
-    container.dataset.paypalRendered = 'failed';
-    container.innerHTML = '<p class="paypal-direct-fallback">PayPal is temporarily unavailable. Please refresh and try again.</p>';
-  }
-
-  function mountPayPal() {
-    const container = document.getElementById(containerId);
-    if (!container || !container.isConnected || ['loading', 'true', 'failed'].includes(container.dataset.paypalRendered)) return;
-    if (!window.paypal?.HostedButtons) {
-      mountAttempts += 1;
-      if (mountAttempts < 80) window.setTimeout(mountPayPal, 250);
-      else showPayPalFailure();
-      return;
-    }
-    try {
-      container.dataset.paypalRendered = 'loading';
-      const rendered = window.paypal.HostedButtons({ hostedButtonId }).render(`#${containerId}`);
-      container.dataset.paypalRendered = 'true';
-      Promise.resolve(rendered).catch(showPayPalFailure);
-    } catch {
-      showPayPalFailure();
-    }
-  }
-
-  function loadPayPal() {
-    mountAttempts = 0;
-    const existing = document.getElementById(sdkId);
-    if (!existing) {
-      const script = document.createElement('script');
-      script.id = sdkId;
-      script.src = sdkUrl;
-      script.async = true;
-      script.addEventListener('load', mountPayPal, { once: true });
-      script.addEventListener('error', showPayPalFailure, { once: true });
-      document.head.append(script);
-    }
-    mountPayPal();
-  }
-
   function applyDirectCheckout() {
     if (!targetProductOpen()) return;
     const root = document.querySelector('.detail-wrap.forged-detail');
@@ -95,10 +68,7 @@
     const titleNode = purchase?.querySelector('.detail-title');
     const imageNode = root?.querySelector('.main-image img');
     if (!root || !purchase || !titleNode || !imageNode) return;
-    if (root.dataset.paypalDirectReady === 'true') {
-      mountPayPal();
-      return;
-    }
+    if (root.dataset.paypalDirectReady === 'true') return;
 
     const title = titleNode.textContent.trim();
     const imageAlt = imageNode.getAttribute('alt') || title;
@@ -117,11 +87,16 @@
           <h2 id="paypal-direct-title">Complete your payment</h2>
           <p>This product uses the fixed PayPal payment configured for CIRUI. No vehicle or customization details are required on this page.</p>
         </div>
-        <div class="paypal-direct-container" id="${containerId}" aria-live="polite"></div>
+        <form class="paypal-direct-form" action="${paymentUrl}" method="post" target="_blank">
+          <button class="paypal-direct-link" type="submit" aria-label="Pay securely with PayPal">
+            <span class="paypal-direct-wordmark">PayPal</span>
+            <span>Pay now</span>
+          </button>
+        </form>
+        <p class="paypal-direct-link-note">Opens the official PayPal secure checkout page.</p>
       </section>`;
     imageNode.setAttribute('alt', imageAlt);
     root.dataset.paypalDirectReady = 'true';
-    loadPayPal();
   }
 
   function resetAfterRouteChange() {
