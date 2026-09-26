@@ -21,6 +21,7 @@ const defaultEndpoint = 'https://api.lk888.ai/v1';
 const defaultModel = 'gpt-image-2';
 const defaultChatModel = 'gpt-5.5';
 const defaultPayPalMode = 'sandbox';
+const publicImageServiceUnavailableMessage = 'The official image generation service is not configured or is temporarily unavailable. Please try again later or contact CIRUI support.';
 const defaultStorefrontSettings = {
   company_name: 'Fanghe Overseas Intelligent Technology Co., Ltd.',
   phone: '+86 14726178447',
@@ -44,6 +45,11 @@ const seedReviewsPath = path.join(moduleDir, 'data', 'fbox-reviews-imported.json
 const seedPhotoReviewsPath = path.join(moduleDir, 'data', 'fbox-photo-reviews.seed.json');
 const storePath = path.join(runtimeDir, 'fbox-store.json');
 const seedStorePath = path.join(moduleDir, 'data', 'fbox-store.seed.json');
+const seedStockProductsPath = path.join(moduleDir, 'data', 'cerui-stock-products.seed.json');
+const seedStockInventoryPath = path.join(moduleDir, 'data', 'cerui-stock-inventory.seed.json');
+const shopifyPriceSnapshotPath = path.join(moduleDir, 'data', 'shopify-catalog-prices.json');
+const shopifyCatalogUrl = 'https://shop.forcarbox.cn';
+const shopifyPriceRefreshMs = 15 * 60 * 1000;
 const blogPath = path.join(runtimeDir, 'fbox-blog.json');
 const seedBlogPath = path.join(moduleDir, 'data', 'fbox-blog.seed.json');
 const fitmentPath = path.join(runtimeDir, 'fbox-fitment.json');
@@ -810,9 +816,18 @@ function copyDefaultStore() {
 async function loadStoreSeed() {
   try {
     const raw = JSON.parse(await fs.readFile(seedStorePath, 'utf8'));
+    const stockProducts = [];
+    for (const supplementalPath of [seedStockProductsPath, seedStockInventoryPath]) {
+      try {
+        const supplementalSeed = JSON.parse(await fs.readFile(supplementalPath, 'utf8'));
+        if (Array.isArray(supplementalSeed?.products)) stockProducts.push(...supplementalSeed.products);
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+      }
+    }
     return {
       ...copyDefaultStore(),
-      products: Array.isArray(raw?.products) ? raw.products : [],
+      products: [...(Array.isArray(raw?.products) ? raw.products : []), ...stockProducts],
       accounts: Array.isArray(raw?.accounts) ? raw.accounts : [],
       orders: Array.isArray(raw?.orders) ? raw.orders : []
     };
@@ -825,6 +840,23 @@ function cloneStoreValue(value) {
   return value === undefined ? value : JSON.parse(JSON.stringify(value));
 }
 
+function isCeruiStockCollection(product) {
+  return product?.stock_collection === true
+    && product?.category === 'Wheels'
+    && /^cirui-(?:stock|inventory)-[a-z0-9-]+$/i.test(String(product?.id || ''));
+}
+
+const publicLegacyWheelIds = new Set([
+  'fbox-axis-19', 'fbox-velocity-18', 'fbox-forge-20',
+  'fbox-drift-18', 'fbox-lumen-19', 'fbox-track-17'
+]);
+
+function isPublicLegacyWheel(product) {
+  return product?.legacy_wheel === true
+    && product?.category === 'Wheels'
+    && publicLegacyWheelIds.has(String(product?.id || ''));
+}
+
 function mergeStoreProductSeed(runtimeProducts = [], seedProducts = []) {
   const seededFields = [
     'custom_size', 'size_note', 'price_mode', 'currency', 'sort', 'translation_profile',
@@ -832,7 +864,9 @@ function mergeStoreProductSeed(runtimeProducts = [], seedProducts = []) {
     'dynamic_wheel_effect', 'visualizer_mode', 'images', 'catalog_display_name',
     'public_scope', 'minimum_quantity', 'construction', 'design_family', 'spoke_style',
     'applications', 'classification_status', 'classification_note', 'load_rating_note',
-    'customization_options', 'ddp_regions', 'ddp_quote_basis', 'lead_time_note'
+    'customization_options', 'ddp_regions', 'ddp_quote_basis', 'lead_time_note',
+    'stock_collection', 'stock_group', 'stock_inventory', 'stock_snapshot_date', 'stock_variants',
+    'localized_names', 'source_sheet', 'source_image_id', 'legacy_wheel'
   ];
   const seedById = new Map(seedProducts.filter(item => item?.id).map(item => [String(item.id), item]));
   const runtimeIds = new Set(runtimeProducts.filter(item => item?.id).map(item => String(item.id)));
@@ -847,6 +881,33 @@ function mergeStoreProductSeed(runtimeProducts = [], seedProducts = []) {
         && !(Array.isArray(runtimeValue) && runtimeValue.length === 0);
       if (!hasRuntimeValue && seed[field] !== undefined) next[field] = cloneStoreValue(seed[field]);
     });
+    if (isCeruiStockCollection(seed) && next.price_source !== 'admin') {
+      const seedPrice = Number(seed.price);
+      if (Number.isFinite(seedPrice) && seedPrice > 0) {
+        next.price = seedPrice;
+        next.oldPrice = null;
+        next.price_mode = 'fixed';
+        next.price_source = 'catalog';
+        next.currency = 'USD';
+      }
+    }
+    if (isPublicLegacyWheel(seed)) {
+      next.brand = seed.brand;
+      next.public_scope = true;
+      next.legacy_wheel = true;
+      next.custom_size = false;
+      next.size_note = seed.size_note;
+      next.stock = 0;
+      next.deal = seed.deal;
+      next.storefront_note = seed.storefront_note;
+      if (next.price_source !== 'admin') {
+        next.price = Number(seed.price);
+        next.oldPrice = seed.oldPrice ?? null;
+        next.price_mode = 'fixed';
+        next.price_source = 'catalog';
+        next.currency = 'USD';
+      }
+    }
     if (JSON.stringify(next) !== JSON.stringify(item)) changed = true;
     return next;
   });
@@ -863,6 +924,15 @@ function mergeStoreProductSeed(runtimeProducts = [], seedProducts = []) {
 function ensureStoreProductContract(product = {}) {
   const next = { ...product };
   let changed = false;
+  if (isCeruiStockCollection(next)) {
+    const pricing = { oldPrice: null, price_mode: 'fixed', currency: 'USD', price_source: next.price_source === 'admin' ? 'admin' : 'catalog' };
+    Object.entries(pricing).forEach(([key, value]) => {
+      if (next[key] !== value) {
+        next[key] = value;
+        changed = true;
+      }
+    });
+  }
   const category = String(next.category || '').toLowerCase();
   const defaults = {
     custom_size: true,
@@ -3311,6 +3381,9 @@ function normalizeProductPayload(payload = {}, existing = {}) {
     ...existing,
     ...payload,
     price: Number(priceInput || 0),
+    price_source: (isCeruiStockCollection(existing) || isPublicLegacyWheel(existing)) && hasOwn(payload, 'price') && Number(priceInput) !== Number(existing.price)
+      ? 'admin'
+      : (payload.price_source || existing.price_source || 'catalog'),
     oldPrice: oldPriceInput === null || oldPriceInput === '' || oldPriceInput === undefined ? null : Number(oldPriceInput || 0),
     stock: Math.max(0, Number(stockInput || 0)),
     status: ['draft', 'published', 'archived'].includes(statusInput) ? statusInput : 'draft',
@@ -3610,6 +3683,76 @@ function parseImageDataUrl(value, label = '商品图片') {
     throw error;
   }
   return { mime, extension, bytes };
+}
+
+let shopifyPriceCache = null;
+let shopifyPriceCheckedAt = 0;
+let shopifyPriceRequest = null;
+
+function shopifyPricesFromProducts(products) {
+  const prices = new Map();
+  const conflicts = new Set();
+  for (const listing of products) {
+    for (const variant of listing.variants || []) {
+      const sku = String(variant.sku || '').trim().toUpperCase();
+      const amount = Number(variant.price);
+      if (!sku || !Number.isFinite(amount) || amount <= 0) continue;
+      const priceCents = Math.round(amount * 100);
+      if (prices.has(sku) && prices.get(sku).price_cents !== priceCents) conflicts.add(sku);
+      prices.set(sku, { price_cents: priceCents, handle: String(listing.handle || '') });
+    }
+  }
+  conflicts.forEach(sku => prices.delete(sku));
+  return prices;
+}
+
+async function shopifyCatalogPrices() {
+  if (!shopifyPriceCache) {
+    const snapshot = JSON.parse(await fs.readFile(shopifyPriceSnapshotPath, 'utf8'));
+    shopifyPriceCache = new Map(Object.entries(snapshot.products || {}).map(([sku, entry]) => [sku.toUpperCase(), entry]));
+  }
+  if (Date.now() - shopifyPriceCheckedAt < shopifyPriceRefreshMs) return shopifyPriceCache;
+  if (!shopifyPriceRequest) {
+    shopifyPriceRequest = (async () => {
+      const listings = [];
+      for (let page = 1; page <= 20; page += 1) {
+        const response = await fetch(`${shopifyCatalogUrl}/products.json?limit=250&page=${page}`, {
+          headers: { Accept: 'application/json' },
+          signal: AbortSignal.timeout(4000)
+        });
+        if (!response.ok) throw new Error(`Shopify catalog returned HTTP ${response.status}`);
+        const payload = await response.json();
+        const products = Array.isArray(payload?.products) ? payload.products : [];
+        listings.push(...products);
+        if (products.length < 250) break;
+      }
+      const current = shopifyPricesFromProducts(listings);
+      if (current.size) shopifyPriceCache = current;
+    })().catch(() => {
+      // Keep the last verified local snapshot when Shopify is unavailable.
+    }).finally(() => {
+      shopifyPriceCheckedAt = Date.now();
+      shopifyPriceRequest = null;
+    });
+  }
+  await shopifyPriceRequest;
+  return shopifyPriceCache;
+}
+
+function productWithShopifyPrice(item, prices) {
+  if (item.category !== 'Wheels' || item.public_scope === false) return item;
+  if (isCeruiStockCollection(item)) return { ...item, oldPrice: null, price_mode: 'fixed', price_source: item.price_source === 'admin' ? 'admin' : 'catalog' };
+  if (isPublicLegacyWheel(item)) return { ...item, price_mode: 'fixed', price_source: item.price_source === 'admin' ? 'admin' : 'catalog' };
+  const listing = prices.get(String(item.part || '').trim().toUpperCase());
+  if (!listing) return { ...item, price: null, oldPrice: null, price_mode: 'quote', price_source: 'inquiry' };
+  return {
+    ...item,
+    price: listing.price_cents / 100,
+    oldPrice: null,
+    price_mode: 'fixed',
+    price_source: 'shopify',
+    shopify_handle: listing.handle
+  };
 }
 
 async function persistVisualizerVehicleImage(parsed, jobId) {
@@ -3966,29 +4109,91 @@ export async function handleFBoxAssetApi(req, res, url) {
   return json(res, 404, { detail: 'F-Box 商品图片接口不存在。' });
 }
 
+function normalizeApiKeyCollection(raw = {}) {
+  const apiKeys = [];
+  const usedIds = new Set();
+  const addKey = (candidate, fallbackLabel) => {
+    const apiKey = String(candidate?.api_key || '').trim();
+    if (!apiKey || apiKeys.some(item => item.api_key === apiKey)) return;
+    let id = String(candidate?.id || '').trim();
+    if (!/^[a-zA-Z0-9_-]{3,80}$/.test(id) || usedIds.has(id)) id = randomUUID();
+    usedIds.add(id);
+    apiKeys.push({
+      id,
+      label: String(candidate?.label || fallbackLabel || `Key ${apiKeys.length + 1}`).trim().slice(0, 80) || `Key ${apiKeys.length + 1}`,
+      api_key: apiKey,
+      created_at: String(candidate?.created_at || new Date().toISOString())
+    });
+  };
+  if (Array.isArray(raw.api_keys)) raw.api_keys.forEach((item, index) => addKey(item, `Key ${index + 1}`));
+  const legacyApiKey = String(raw.api_key || '').trim();
+  if (legacyApiKey) addKey({ id: raw.primary_api_key_id || 'legacy-primary', label: raw.api_key_label || 'Key 1', api_key: legacyApiKey, created_at: raw.api_key_created_at }, 'Key 1');
+  let primaryApiKeyId = String(raw.primary_api_key_id || '').trim();
+  if (!apiKeys.some(item => item.id === primaryApiKeyId)) {
+    primaryApiKeyId = apiKeys.find(item => item.api_key === legacyApiKey)?.id || apiKeys[0]?.id || '';
+  }
+  return { api_keys: apiKeys, primary_api_key_id: primaryApiKeyId, api_key: apiKeys.find(item => item.id === primaryApiKeyId)?.api_key || '' };
+}
+
+let lastConfigLoadError = '';
+
 async function loadConfig() {
   try {
     const raw = JSON.parse(await fs.readFile(configPath, 'utf8'));
+    const keyCollection = normalizeApiKeyCollection(raw);
+    lastConfigLoadError = '';
     return {
       endpoint: String(raw.endpoint || defaultEndpoint).replace(/\/$/, ''),
       provider: String(raw.provider || 'lk888'),
       model: defaultModel,
       chat_model: String(raw.chat_model || defaultChatModel),
-      api_key: String(raw.api_key || ''),
+      ...keyCollection,
       paypal_mode: ['sandbox', 'live'].includes(raw.paypal_mode) ? raw.paypal_mode : defaultPayPalMode,
       paypal_client_id: String(raw.paypal_client_id || ''),
       paypal_client_secret: String(raw.paypal_client_secret || ''),
       storefront: { ...defaultStorefrontSettings, ...(raw.storefront || {}) }
     };
-  } catch {
-    return { endpoint: defaultEndpoint, provider: 'lk888', model: defaultModel, chat_model: defaultChatModel, api_key: '', paypal_mode: defaultPayPalMode, paypal_client_id: '', paypal_client_secret: '', storefront: { ...defaultStorefrontSettings } };
+  } catch (error) {
+    const configLoadError = error?.message || 'Unknown configuration read error.';
+    if (configLoadError !== lastConfigLoadError) {
+      console.error('[fbox-image-config] Could not load the saved provider configuration:', configLoadError);
+      lastConfigLoadError = configLoadError;
+    }
+    return { endpoint: defaultEndpoint, provider: 'lk888', model: defaultModel, chat_model: defaultChatModel, api_key: '', api_keys: [], primary_api_key_id: '', paypal_mode: defaultPayPalMode, paypal_client_id: '', paypal_client_secret: '', storefront: { ...defaultStorefrontSettings }, config_load_error: configLoadError };
   }
+}
+
+async function writeConfig(config) {
+  await fs.mkdir(runtimeDir, { recursive: true });
+  const temporaryPath = `${configPath}.${process.pid}.${randomUUID()}.tmp`;
+  try {
+    await fs.writeFile(temporaryPath, JSON.stringify(config, null, 2), { encoding: 'utf8', mode: 0o600 });
+    await fs.rename(temporaryPath, configPath);
+  } catch (error) {
+    await fs.rm(temporaryPath, { force: true }).catch(() => {});
+    throw error;
+  }
+}
+
+function logImageServiceUnavailable(scope, config, error = null, context = {}) {
+  console.error(`[${scope}] Official image generation service unavailable:`, {
+    ...context,
+    reason: error?.message || config?.config_load_error || 'No active provider API key.',
+    endpoint: config?.endpoint || defaultEndpoint,
+    key_count: Array.isArray(config?.api_keys) ? config.api_keys.length : 0,
+    primary_key_selected: Boolean(config?.primary_api_key_id)
+  });
 }
 
 function publicStatus(config) {
   const configured = Boolean(config.api_key);
   return {
     configured,
+    key_preview: configured ? keyPreview(config.api_key) : '',
+    active_key_source: configured ? 'saved' : 'none',
+    primary_api_key_id: config.primary_api_key_id || '',
+    api_keys: (config.api_keys || []).map((item, index) => ({ id: item.id, label: item.label || `Key ${index + 1}`, key_preview: keyPreview(item.api_key), is_primary: item.id === config.primary_api_key_id, created_at: item.created_at || '' })),
+    key_count: (config.api_keys || []).length,
     provider: config.provider,
     endpoint: config.endpoint,
     model: config.model,
@@ -4032,16 +4237,45 @@ function keyPreview(apiKey) {
 async function saveConfig(payload) {
   const endpoint = validateEndpoint(payload.endpoint || defaultEndpoint);
   const current = await loadConfig();
-  const apiKey = String(payload.api_key || '').trim() || current.api_key;
+  const suppliedApiKey = String(payload.api_key || '').trim();
+  const credentialPreference = String(payload.credential_preference || '').trim().toLowerCase();
+  const requestedKeyId = String(payload.credential_id || '').trim();
+  const apiKeys = (current.api_keys || []).map(item => ({ ...item }));
+  let primaryApiKeyId = current.primary_api_key_id || '';
+  let selectedKey = apiKeys.find(item => item.id === (requestedKeyId || primaryApiKeyId));
+  if (credentialPreference === 'saved' && !selectedKey) throw new Error('The selected saved LingkeAI API key is not available.');
+  if (credentialPreference === 'new' && suppliedApiKey.length < 8) throw new Error('Enter a valid new LingkeAI API key before saving.');
+  if (suppliedApiKey && credentialPreference !== 'saved') {
+    selectedKey = apiKeys.find(item => item.api_key === suppliedApiKey);
+    const suppliedLabel = String(payload.key_label || '').trim().slice(0, 80);
+    if (!selectedKey) {
+      selectedKey = { id: randomUUID(), label: suppliedLabel || `Key ${apiKeys.length + 1}`, api_key: suppliedApiKey, created_at: new Date().toISOString() };
+      apiKeys.push(selectedKey);
+    } else if (suppliedLabel) {
+      selectedKey.label = suppliedLabel;
+    }
+  }
+  if (!selectedKey) selectedKey = apiKeys.find(item => item.id === primaryApiKeyId) || apiKeys[0];
+  const apiKey = selectedKey?.api_key || '';
   if (apiKey.length < 8) throw new Error('Paste a valid LingkeAI API key before saving.');
+  primaryApiKeyId = selectedKey.id;
   await verifyProvider(endpoint, apiKey);
   const paypalMode = ['sandbox', 'live'].includes(payload.paypal_mode) ? payload.paypal_mode : current.paypal_mode || defaultPayPalMode;
   const paypalClientId = String(payload.paypal_client_id || current.paypal_client_id || '').trim();
   const paypalClientSecret = String(payload.paypal_client_secret || current.paypal_client_secret || '').trim();
-  await fs.mkdir(runtimeDir, { recursive: true });
-  const next = { endpoint, provider: 'lk888', model: defaultModel, chat_model: current.chat_model || defaultChatModel, api_key: apiKey, paypal_mode: paypalMode, paypal_client_id: paypalClientId, paypal_client_secret: paypalClientSecret, storefront: current.storefront };
-  await fs.writeFile(configPath, JSON.stringify(next, null, 2), 'utf8');
+  const next = { endpoint, provider: 'lk888', model: defaultModel, chat_model: current.chat_model || defaultChatModel, api_key: apiKey, api_keys: apiKeys, primary_api_key_id: primaryApiKeyId, paypal_mode: paypalMode, paypal_client_id: paypalClientId, paypal_client_secret: paypalClientSecret, storefront: current.storefront };
+  await writeConfig(next);
   return { ...publicStatus(next), saved: true, key_preview: keyPreview(apiKey) };
+}
+
+async function setPrimaryApiKey(payload) {
+  const current = await loadConfig();
+  const selected = (current.api_keys || []).find(item => item.id === String(payload.key_id || '').trim());
+  if (!selected) throw new Error('The selected LingkeAI API key does not exist.');
+  if (selected.id !== current.primary_api_key_id) await verifyProvider(current.endpoint, selected.api_key);
+  const next = { ...current, api_key: selected.api_key, primary_api_key_id: selected.id };
+  await writeConfig(next);
+  return { ...publicStatus(next), saved: true };
 }
 
 function normalizeStorefrontSettings(payload = {}) {
@@ -4064,8 +4298,7 @@ function normalizeStorefrontSettings(payload = {}) {
 async function saveStorefrontSettings(payload) {
   const current = await loadConfig();
   const storefront = normalizeStorefrontSettings(payload);
-  await fs.mkdir(runtimeDir, { recursive: true });
-  await fs.writeFile(configPath, JSON.stringify({ endpoint: current.endpoint, provider: current.provider, model: current.model, chat_model: current.chat_model || defaultChatModel, api_key: current.api_key, paypal_mode: current.paypal_mode || defaultPayPalMode, paypal_client_id: current.paypal_client_id || '', paypal_client_secret: current.paypal_client_secret || '', storefront }, null, 2), 'utf8');
+  await writeConfig({ endpoint: current.endpoint, provider: current.provider, model: current.model, chat_model: current.chat_model || defaultChatModel, api_key: current.api_key, api_keys: current.api_keys || [], primary_api_key_id: current.primary_api_key_id || '', paypal_mode: current.paypal_mode || defaultPayPalMode, paypal_client_id: current.paypal_client_id || '', paypal_client_secret: current.paypal_client_secret || '', storefront });
   return storefront;
 }
 
@@ -4108,10 +4341,22 @@ function publicChatRecord(record) {
       role: message.role,
       text: message.text,
       kind: message.kind || 'text',
-      quote: safeQuote(message.quote),
+      quote: safeQuote(safe.quotes?.find(quote => quote.id === message.quote?.id) || message.quote),
       created_at: message.created_at
     }))
   };
+}
+
+const shopifyCheckoutHosts = new Set(['shop.forcarbox.cn', 'evstuy-1w.myshopify.com', 'payment.forcarbox.cn']);
+function normalizeShopifyCheckoutUrl(value) {
+  const raw = textValue(value, 2000).trim();
+  if (!raw) return '';
+  let url;
+  try { url = new URL(raw); } catch { throw new Error('Shopify 结账链接无效。'); }
+  if (url.protocol !== 'https:' || !shopifyCheckoutHosts.has(url.hostname.toLowerCase()) || url.port || url.username || url.password || url.pathname === '/') {
+    throw new Error('请粘贴当前 CR FORGED Shopify 店铺生成的 HTTPS 结账链接。');
+  }
+  return url.toString();
 }
 
 function normalizeQuote(payload = {}, inquiry, id = operationId('quote')) {
@@ -4121,6 +4366,7 @@ function normalizeQuote(payload = {}, inquiry, id = operationId('quote')) {
   const subtotal = Number((unitPrice * quantity).toFixed(2));
   const total = Number((subtotal + shippingFee).toFixed(2));
   if (!unitPrice || !total) throw new Error('报价必须包含大于 0 的展示单价。');
+  const shopifyCheckoutUrl = normalizeShopifyCheckoutUrl(payload.shopify_checkout_url);
   return {
     id,
     inquiry_id: inquiry.id,
@@ -4145,7 +4391,8 @@ function normalizeQuote(payload = {}, inquiry, id = operationId('quote')) {
     official_wheel_specs: normalizeInquirySpecs(inquiry.official_wheel_specs),
     customer_wheel_specs: normalizeInquirySpecs(inquiry.wheel_specs),
     vehicle_selection: normalizeVehicleSelection(inquiry.vehicle_selection),
-    payment_provider: 'paypal',
+    payment_provider: shopifyCheckoutUrl ? 'shopify' : 'paypal',
+    shopify_checkout_url: shopifyCheckoutUrl,
     payment_status: 'unpaid',
     payment_token: randomUUID(),
     paypal_order_id: '',
@@ -4156,13 +4403,13 @@ function normalizeQuote(payload = {}, inquiry, id = operationId('quote')) {
 }
 
 function quoteMessageText(quote) {
-  return `F-Box quotation: ${quote.product_name} × ${quote.quantity}. Total ${quote.currency} ${quote.total.toFixed(2)}. ${quote.logistics_method}.`;
+  return `CIRUI quotation: ${quote.product_name} × ${quote.quantity}. Total ${quote.currency} ${quote.total.toFixed(2)}. ${quote.logistics_method}.`;
 }
 
 function publicQuote(quote) {
   if (!quote) return null;
-  const { cost_price, payment_token, paypal_order_id, paypal_approval_url, ...safe } = quote;
-  return { ...safe, checkout_token: payment_token || '', payment_ready: quote.payment_status !== 'paid' };
+  const { cost_price, payment_token, paypal_order_id, paypal_approval_url, shopify_checkout_url, ...safe } = quote;
+  return { ...safe, checkout_token: payment_token || '', payment_ready: quote.payment_status !== 'paid' && (quote.payment_provider !== 'shopify' || Boolean(shopify_checkout_url)) };
 }
 
 function paypalApiBase(mode = defaultPayPalMode) {
@@ -4285,7 +4532,8 @@ export async function handleFBoxStoreApi(req, res, url) {
   if (req.method === 'GET' && pathName === '/api/fbox-store/products') {
     const query = textValue(url.searchParams.get('q'), 120).toLowerCase();
     const category = textValue(url.searchParams.get('category'), 80);
-    const products = sortProductsForDisplay(data.products.filter(item => item.status === 'published' && (!category || item.category === category) && (!query || [item.name, item.brand, item.part, item.meta].some(value => String(value || '').toLowerCase().includes(query)))));
+    const prices = await shopifyCatalogPrices();
+    const products = sortProductsForDisplay(data.products.filter(item => item.status === 'published' && (!category || item.category === category) && (!query || [item.name, item.brand, item.part, item.meta].some(value => String(value || '').toLowerCase().includes(query))))).map(item => productWithShopifyPrice(item, prices));
     return json(res, 200, { code: 200, data: products, meta: { total: products.length } });
   }
 
@@ -4380,8 +4628,8 @@ export async function handleFBoxStoreApi(req, res, url) {
   if (req.method === 'POST' && pathName === '/api/fbox-store/auth/login') {
     try {
       const payload = await readJson(req, 64 * 1024);
-      const identity = textValue(payload.username || payload.email, 160).toLowerCase();
-      const account = data.accounts.find(item => item.username.toLowerCase() === identity || (item.email && item.email.toLowerCase() === identity));
+      const identity = textValue(payload.identity || payload.username || payload.email, 160).toLowerCase();
+      const account = data.accounts.find(item => String(item.username || '').toLowerCase() === identity || String(item.email || '').toLowerCase() === identity);
       if (!account || account.password_hash !== hashCustomerPassword(payload.password)) return json(res, 401, { detail: 'Invalid F-Box account or password.' });
       const token = `fbox_customer_${randomUUID()}`;
       customerSessions.set(token, { accountId: account.id, createdAt: Date.now() });
@@ -4839,7 +5087,7 @@ async function runWheelDesignJob(jobId, payload) {
   }
   try {
     const config = await loadConfig();
-    if (!config.api_key) throw new Error('The shared gpt-image-2 effect-image route is not configured. Open /admin and save the existing LingkeAI image API key first.');
+    if (!config.api_key) throw new Error(config.config_load_error || 'No active provider API key is available.');
     let results = [];
     if (payload.phase === 'multiview') {
       const views = [
@@ -4884,11 +5132,14 @@ async function runWheelDesignJob(jobId, payload) {
       await saveOperations(operations);
     }
   } catch (error) {
+    const diagnosticMessage = error?.message || 'The CIRUI wheel-design request could not be completed.';
+    logImageServiceUnavailable('fbox-wheel-design', null, error, { job_id: jobId, phase: payload.phase });
     job.status = 'failed';
-    job.message = error?.message || 'The CIRUI wheel-design request could not be completed.';
+    job.message = publicImageServiceUnavailableMessage;
     if (persistedJob) {
       persistedJob.status = 'failed';
       persistedJob.message = job.message;
+      persistedJob.diagnostic_message = diagnosticMessage;
       persistedJob.updated_at = new Date().toISOString();
       await saveOperations(operations);
     }
@@ -4910,7 +5161,7 @@ async function runJob(jobId, payload) {
   }
   try {
     const config = await loadConfig();
-    if (!config.api_key) throw new Error('F-Box image routing is not configured. Open /admin and save the LingkeAI API key first.');
+    if (!config.api_key) throw new Error(config.config_load_error || 'No active provider API key is available.');
     const angleSpecs = [
       ['front-left', 'front-left three-quarter view'],
       ['front-right', 'front-right three-quarter view'],
@@ -4931,11 +5182,14 @@ async function runJob(jobId, payload) {
       await saveOperations(operations);
     }
   } catch (error) {
+    const diagnosticMessage = error?.message || 'The F-Box image route could not finish this preview.';
+    logImageServiceUnavailable('fbox-wheel-visualizer', null, error, { job_id: jobId });
     job.status = 'failed';
-    job.message = error?.message || 'The F-Box image route could not finish this preview.';
+    job.message = publicImageServiceUnavailableMessage;
     if (persistedJob) {
       persistedJob.status = 'failed';
       persistedJob.message = job.message;
+      persistedJob.diagnostic_message = diagnosticMessage;
       persistedJob.updated_at = new Date().toISOString();
       await saveOperations(operations);
     }
@@ -4954,6 +5208,17 @@ export async function handleFBoxAdminApi(req, res, url) {
   if (!(await isAdminRequest(req))) return json(res, 401, { detail: 'F-Box admin authentication is required.' });
   if (req.method === 'GET' && (url.pathname === '/api/fbox-admin/status' || url.pathname === '/api/fbox-admin/status/')) {
     return json(res, 200, { data: publicStatus(await loadConfig()) });
+  }
+  if (req.method === 'GET' && (url.pathname === '/api/fbox-admin/config/secret' || url.pathname === '/api/fbox-admin/config/secret/')) {
+    const config = await loadConfig();
+    const requestedKeyId = String(url.searchParams.get('id') || config.primary_api_key_id || '').trim();
+    const selected = (config.api_keys || []).find(item => item.id === requestedKeyId);
+    if (!selected) return json(res, 404, { detail: 'The selected LingkeAI API key does not exist.' });
+    return json(res, 200, { data: { id: selected.id, label: selected.label, api_key: selected.api_key, is_primary: selected.id === config.primary_api_key_id } });
+  }
+  if (req.method === 'PUT' && (url.pathname === '/api/fbox-admin/keys/primary' || url.pathname === '/api/fbox-admin/keys/primary/')) {
+    try { return json(res, 200, { data: await setPrimaryApiKey(await readJson(req, 64 * 1024)) }); }
+    catch (error) { return json(res, error.status || 502, { detail: error.message || 'The preferred API key could not be changed.' }); }
   }
   if (req.method === 'GET' && (url.pathname === '/api/fbox-admin/settings' || url.pathname === '/api/fbox-admin/settings/')) {
     return json(res, 200, { data: (await loadConfig()).storefront });
@@ -4991,7 +5256,10 @@ export async function handleWheelVisualizerApi(req, res, url) {
       const dynamicWheelEffect = selectedProduct ? selectedProduct.dynamic_wheel_effect !== false : true;
       const visualizerMode = textValue(selectedProduct?.visualizer_mode || 'dynamic-wheel', 40) || 'dynamic-wheel';
       const config = await loadConfig();
-      if (!config.api_key) return json(res, 503, { detail: 'F-Box image routing is not configured. Open /admin and save the LingkeAI API key first.' });
+      if (!config.api_key) {
+        logImageServiceUnavailable('fbox-wheel-visualizer', config, null, { stage: 'create-job' });
+        return json(res, 503, { detail: publicImageServiceUnavailableMessage });
+      }
       const jobId = `fbox_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
       const vehicleImageAsset = await persistVisualizerVehicleImage(parsedVehicleImage, jobId);
       const now = new Date().toISOString();
@@ -5069,7 +5337,10 @@ export async function handleWheelDesignApi(req, res, url) {
         return json(res, 422, { detail: 'Choose one generated concept before creating the multi-view set.' });
       }
       const config = await loadConfig();
-      if (!config.api_key) return json(res, 503, { detail: 'The shared gpt-image-2 effect-image route is not configured. Open /admin and save the existing LingkeAI image API key first.' });
+      if (!config.api_key) {
+        logImageServiceUnavailable('fbox-wheel-design', config, null, { stage: 'create-job', phase: payload.phase });
+        return json(res, 503, { detail: publicImageServiceUnavailableMessage });
+      }
       const selectedImageUrl = payload.phase === 'multiview' && /^https:\/\//i.test(String(payload.selected_image || ''))
         ? textValue(payload.selected_image, 2400)
         : '';
@@ -5750,6 +6021,20 @@ export async function handleFBoxOperationsApi(req, res, url) {
       if (!record) return json(res, 404, { detail: '在线会话不存在。' });
       return json(res, 200, { data: publicChatRecord(record) });
     }
+    const publicShopifyQuoteMatch = pathName.match(/^\/api\/fbox-content\/quotes\/([^/]+)\/shopify$/);
+    if (publicShopifyQuoteMatch && req.method === 'POST') {
+      try {
+        const payload = await readJson(req, 64 * 1024);
+        const data = await loadOperations();
+        const quoteId = decodeURIComponent(publicShopifyQuoteMatch[1]);
+        const owner = data.inquiries.find(item => item.quotes?.some(quote => quote.id === quoteId));
+        const quote = owner?.quotes?.find(item => item.id === quoteId);
+        if (!owner || !quote || quote.payment_token !== textValue(payload.payment_token, 120)) return json(res, 404, { detail: '报价付款链接无效或已失效。' });
+        if (quote.payment_status === 'paid') return json(res, 409, { detail: '这份报价已标记为支付完成。' });
+        if (quote.payment_provider !== 'shopify' || !quote.shopify_checkout_url) return json(res, 409, { detail: 'Shopify 结账链接尚未准备好。' });
+        return json(res, 200, { data: { quote_id: quote.id, checkout_url: normalizeShopifyCheckoutUrl(quote.shopify_checkout_url) } });
+      } catch (error) { return json(res, error.status || 422, { detail: error.message || 'Shopify 付款跳转失败。' }); }
+    }
     const publicQuotePayMatch = pathName.match(/^\/api\/fbox-content\/quotes\/([^/]+)\/paypal$/);
     if (publicQuotePayMatch && req.method === 'POST') {
       try {
@@ -5996,7 +6281,8 @@ export async function handleFBoxOperationsApi(req, res, url) {
   if (req.method === 'GET' && pathName === '/api/fbox-ops/products') {
     const q = textValue(url.searchParams.get('q'), 120).toLowerCase();
     const category = textValue(url.searchParams.get('category'), 80);
-    const products = sortProductsForDisplay(store.products.filter(item => (!category || item.category === category) && (!q || [item.id, item.name, item.brand, item.part].some(value => String(value || '').toLowerCase().includes(q))))).map(publicProduct);
+    const prices = await shopifyCatalogPrices();
+    const products = sortProductsForDisplay(store.products.filter(item => (!category || item.category === category) && (!q || [item.id, item.name, item.brand, item.part].some(value => String(value || '').toLowerCase().includes(q))))).map(item => publicProduct(productWithShopifyPrice(item, prices)));
     return json(res, 200, { data: products, meta: { total: products.length } });
   }
   if (req.method === 'POST' && pathName === '/api/fbox-ops/products') {

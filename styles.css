@@ -1733,6 +1733,7 @@ paypal-cart-button { display: block; min-height: 46px; width: 100%; }
 .chat-quote-total strong { color: #111820; font-size: 19px; }
 .chat-quote-note { margin: 8px 0 0; color: #6e7b8e; font-size: 10px; line-height: 1.45; }
 .chat-quote-pay { width: 100%; margin-top: 11px; }
+.chat-quote-checkout-note { display: block; margin-top: 7px; color: #6e7b8e; font-size: 10px; line-height: 1.45; }
 .chat-quote-paid, .chat-quote-pending { margin-top: 10px; padding: 8px 9px; border-radius: 7px; background: #f3fbf5; color: #3f8e5d; font-size: 10px; line-height: 1.45; }
 .chat-quote-pending { background: #fff8e8; color: #a47525; }
 
@@ -3035,6 +3036,9 @@ body.fbox-global-premium .ai-wheel-hero-grid h1 { max-width: 810px; margin: 10px
 .ai-wheel-vehicle-context > div { display: grid; gap: 4px; }
 .ai-wheel-vehicle-context small { color: #758187; font-size: 8px; }
 .ai-wheel-vehicle-context strong { color: #1c2529; font-size: 11px; }
+.ai-wheel-vehicle-input { display: grid; gap: 4px; }
+.ai-wheel-vehicle-input input { width: 100%; min-height: 40px; padding: 0 10px; border: 1px solid #bec9c7; border-radius: 2px; background: #fff; color: #1c2529; font: 650 10px/1.4 inherit; }
+.ai-wheel-vehicle-input input:focus { border-color: #e51249; outline: 0; box-shadow: 0 0 0 3px rgba(229,18,73,.12); }
 .ai-wheel-vehicle-context p { margin: 3px 0 0; color: #68757b; font-size: 8px; line-height: 1.5; }
 .ai-wheel-vehicle-context a { width: max-content; margin-top: 4px; color: #be143d; font-size: 8px; font-weight: 750; }
 .ai-wheel-vehicle-context a svg { width: 10px; height: 10px; }

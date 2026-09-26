@@ -1,0 +1,5397 @@
+{
+  "products": [
+    {
+      "id": "cirui-inventory-bbs-1e2d1e76a4634a0aa7a8152034d48323",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR12/CRZ501 Stock Wheel",
+      "catalog_display_name": "CR12/CRZ501 Stock Wheel",
+      "localized_names": {
+        "en": "CR12/CRZ501 Stock Wheel",
+        "zh-CN": "CR12/CRZ501 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR12/CRZ501",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 18*8, 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/1e2d1e76a4634a0aa7a8152034d48323.jpeg",
+      "image_original": "products/stock-inventory/1e2d1e76a4634a0aa7a8152034d48323.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/1e2d1e76a4634a0aa7a8152034d48323.jpeg",
+          "original_url": "products/stock-inventory/1e2d1e76a4634a0aa7a8152034d48323.jpeg",
+          "alt": "CR12/CRZ501 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR12/CRZ501",
+      "stock": 14,
+      "sort": 601,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 3,
+          "item_no": "CR12/CRZ501",
+          "size": "18*8",
+          "pcd": "5*120",
+          "et": "30",
+          "cb": "72.56",
+          "color": "雅黑全涂/matte black",
+          "recorded_quantity": 4,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 5,
+          "item_no": "CR12/CRZ501",
+          "size": "19*8.5",
+          "pcd": "5*114.3",
+          "et": "38",
+          "cb": "73.1",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 4,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 6,
+          "item_no": "CR12/CRZ501",
+          "size": "19*9.5",
+          "pcd": "5*114.3",
+          "et": "38",
+          "cb": "73.1",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 2,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 9,
+          "item_no": "CR12/CRZ501",
+          "size": "19*8.5",
+          "pcd": "5*120",
+          "et": "28",
+          "cb": "72.56",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 2,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 10,
+          "item_no": "CR12/CRZ501",
+          "size": "19*9.5",
+          "pcd": "5*120",
+          "et": "38",
+          "cb": "72.56",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 2,
+          "load_rating": "750KG"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_1E2D1E76A4634A0AA7A8152034D48323",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "750KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-fab17bde190f4883a21733c35b589579",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CRM274 Stock Wheel",
+      "catalog_display_name": "CRM274 Stock Wheel",
+      "localized_names": {
+        "en": "CRM274 Stock Wheel",
+        "zh-CN": "CRM274 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CRM274",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2200,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/fab17bde190f4883a21733c35b589579.png",
+      "image_original": "products/stock-inventory/fab17bde190f4883a21733c35b589579.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/fab17bde190f4883a21733c35b589579.png",
+          "original_url": "products/stock-inventory/fab17bde190f4883a21733c35b589579.png",
+          "alt": "CRM274 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CRM274",
+      "stock": 4,
+      "sort": 602,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 15,
+          "item_no": "CRM274",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "25",
+          "cb": "66.5",
+          "color": "高亮黑/hyper black+镂空hollow spokes",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 16,
+          "item_no": "CRM274",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "38",
+          "cb": "66.5",
+          "color": "高亮黑/hyper black+镂空hollow spokes",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_FAB17BDE190F4883A21733C35B589579",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-0707e9788db347bf94eff52c9da2ac66",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR33 Stock Wheel",
+      "catalog_display_name": "CR33 Stock Wheel",
+      "localized_names": {
+        "en": "CR33 Stock Wheel",
+        "zh-CN": "CR33 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR33",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/0707e9788db347bf94eff52c9da2ac66.jpeg",
+      "image_original": "products/stock-inventory/0707e9788db347bf94eff52c9da2ac66.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/0707e9788db347bf94eff52c9da2ac66.jpeg",
+          "original_url": "products/stock-inventory/0707e9788db347bf94eff52c9da2ac66.jpeg",
+          "alt": "CR33 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR33",
+      "stock": 2,
+      "sort": 603,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 26,
+          "item_no": "CR33",
+          "size": "19*9.5",
+          "pcd": "5*114.3",
+          "et": "38",
+          "cb": "73.1",
+          "color": "高亮黑/hyper black",
+          "recorded_quantity": 2,
+          "load_rating": "750KG"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_0707E9788DB347BF94EFF52C9DA2AC66",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "750KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-30a8609cb7d64f8d977bc5d3cab3d3cc",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR33 Stock Wheel",
+      "catalog_display_name": "CR33 Stock Wheel",
+      "localized_names": {
+        "en": "CR33 Stock Wheel",
+        "zh-CN": "CR33 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR33",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/30a8609cb7d64f8d977bc5d3cab3d3cc.jpeg",
+      "image_original": "products/stock-inventory/30a8609cb7d64f8d977bc5d3cab3d3cc.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/30a8609cb7d64f8d977bc5d3cab3d3cc.jpeg",
+          "original_url": "products/stock-inventory/30a8609cb7d64f8d977bc5d3cab3d3cc.jpeg",
+          "alt": "CR33 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR33",
+      "stock": 10,
+      "sort": 604,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 31,
+          "item_no": "CR33",
+          "size": "19*8.5",
+          "pcd": "5*114.3",
+          "et": "38",
+          "cb": "73.1",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 2,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 32,
+          "item_no": "CR33",
+          "size": "19*9.5",
+          "pcd": "5*114.3",
+          "et": "38",
+          "cb": "73.1",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 4,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 35,
+          "item_no": "CR33",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "25",
+          "cb": "66.5",
+          "color": "亮黑全涂/gloss black",
+          "recorded_quantity": 2,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 36,
+          "item_no": "CR33",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "38",
+          "cb": "66.5",
+          "color": "亮黑全涂/gloss black",
+          "recorded_quantity": 2,
+          "load_rating": "750KG"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_30A8609CB7D64F8D977BC5D3CAB3D3CC",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "750KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-d59f1b750ca44e8a875f2de623a788d3",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR33 Stock Wheel",
+      "catalog_display_name": "CR33 Stock Wheel",
+      "localized_names": {
+        "en": "CR33 Stock Wheel",
+        "zh-CN": "CR33 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR33",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/d59f1b750ca44e8a875f2de623a788d3.jpeg",
+      "image_original": "products/stock-inventory/d59f1b750ca44e8a875f2de623a788d3.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/d59f1b750ca44e8a875f2de623a788d3.jpeg",
+          "original_url": "products/stock-inventory/d59f1b750ca44e8a875f2de623a788d3.jpeg",
+          "alt": "CR33 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR33",
+      "stock": 4,
+      "sort": 605,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 41,
+          "item_no": "CR33",
+          "size": "19*8.5",
+          "pcd": "5*114.3",
+          "et": "38",
+          "cb": "73.1",
+          "color": "枪灰全涂/gunmetal/gunmetal",
+          "recorded_quantity": 2,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 42,
+          "item_no": "CR33",
+          "size": "19*9.5",
+          "pcd": "5*114.3",
+          "et": "38",
+          "cb": "73.1",
+          "color": "枪灰全涂/gunmetal/gunmetal",
+          "recorded_quantity": 2,
+          "load_rating": "750KG"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_D59F1B750CA44E8A875F2DE623A788D3",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "750KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-254bac80d58941c395f2d170d17d0c8e",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "BBS Section Stock Wheel",
+      "catalog_display_name": "BBS Section Stock Wheel",
+      "localized_names": {
+        "en": "BBS Section Stock Wheel",
+        "zh-CN": "BBS 分组现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: BBS",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/254bac80d58941c395f2d170d17d0c8e.jpeg",
+      "image_original": "products/stock-inventory/254bac80d58941c395f2d170d17d0c8e.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/254bac80d58941c395f2d170d17d0c8e.jpeg",
+          "original_url": "products/stock-inventory/254bac80d58941c395f2d170d17d0c8e.jpeg",
+          "alt": "BBS Section Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "BBS",
+      "stock": 4,
+      "sort": 606,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 49,
+          "item_no": "BBS",
+          "size": "19*9.5",
+          "pcd": "5*114.3",
+          "et": "38",
+          "cb": "73.1",
+          "color": "亚黑全涂/matte black",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_254BAC80D58941C395F2D170D17D0C8E",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-b943177e8aa142a3815fd0ed89e6553c",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CRA02 Stock Wheel",
+      "catalog_display_name": "CRA02 Stock Wheel",
+      "localized_names": {
+        "en": "CRA02 Stock Wheel",
+        "zh-CN": "CRA02 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CRA02",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2200,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/b943177e8aa142a3815fd0ed89e6553c.png",
+      "image_original": "products/stock-inventory/b943177e8aa142a3815fd0ed89e6553c.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/b943177e8aa142a3815fd0ed89e6553c.png",
+          "original_url": "products/stock-inventory/b943177e8aa142a3815fd0ed89e6553c.png",
+          "alt": "CRA02 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CRA02",
+      "stock": 4,
+      "sort": 607,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 60,
+          "item_no": "CRA02",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "38",
+          "cb": "66.5",
+          "color": "电镀银/chrome silver",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 73,
+          "item_no": "CRA02",
+          "size": "19*9.5",
+          "pcd": "5*114.3",
+          "et": "38",
+          "cb": "73.1",
+          "color": "电镀银/chrome silver",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_B943177E8AA142A3815FD0ED89E6553C",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-fb86358847c64473a210b570606903b5",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CRA01 Stock Wheel",
+      "catalog_display_name": "CRA01 Stock Wheel",
+      "localized_names": {
+        "en": "CRA01 Stock Wheel",
+        "zh-CN": "CRA01 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CRA01",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/fb86358847c64473a210b570606903b5.jpeg",
+      "image_original": "products/stock-inventory/fb86358847c64473a210b570606903b5.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/fb86358847c64473a210b570606903b5.jpeg",
+          "original_url": "products/stock-inventory/fb86358847c64473a210b570606903b5.jpeg",
+          "alt": "CRA01 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CRA01",
+      "stock": 31,
+      "sort": 608,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 76,
+          "item_no": "CRA01",
+          "size": "19*8.5",
+          "pcd": "5*108",
+          "et": "35",
+          "cb": "73.1",
+          "color": "雅黑全涂/matte black",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        },
+        {
+          "source_row": 79,
+          "item_no": "CRA01",
+          "size": "19*8.5",
+          "pcd": "5*114.3",
+          "et": "35",
+          "cb": "73.1",
+          "color": "雅黑全涂/matte black",
+          "recorded_quantity": 15,
+          "load_rating": ""
+        },
+        {
+          "source_row": 80,
+          "item_no": "CRA01",
+          "size": "19*9.5",
+          "pcd": "5*114.3",
+          "et": "38",
+          "cb": "73.1",
+          "color": "雅黑全涂/matte black",
+          "recorded_quantity": 5,
+          "load_rating": ""
+        },
+        {
+          "source_row": 86,
+          "item_no": "CRA01",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "35",
+          "cb": "66.5",
+          "color": "雅黑全涂/matte black",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        },
+        {
+          "source_row": 87,
+          "item_no": "CRA01",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "38",
+          "cb": "66.5",
+          "color": "雅黑全涂/matte black",
+          "recorded_quantity": 3,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_FB86358847C64473A210B570606903B5",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-b7a5255df0d340479bf799d856e3322f",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CRA01 Stock Wheel",
+      "catalog_display_name": "CRA01 Stock Wheel",
+      "localized_names": {
+        "en": "CRA01 Stock Wheel",
+        "zh-CN": "CRA01 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CRA01",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2200,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/b7a5255df0d340479bf799d856e3322f.jpeg",
+      "image_original": "products/stock-inventory/b7a5255df0d340479bf799d856e3322f.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/b7a5255df0d340479bf799d856e3322f.jpeg",
+          "original_url": "products/stock-inventory/b7a5255df0d340479bf799d856e3322f.jpeg",
+          "alt": "CRA01 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CRA01",
+      "stock": 12,
+      "sort": 609,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 92,
+          "item_no": "CRA01",
+          "size": "19*8.5",
+          "pcd": "5*114.3",
+          "et": "35",
+          "cb": "73.1",
+          "color": "电镀银/chrome silver",
+          "recorded_quantity": 10,
+          "load_rating": ""
+        },
+        {
+          "source_row": 93,
+          "item_no": "CRA01",
+          "size": "19*9.5",
+          "pcd": "5*114.3",
+          "et": "38",
+          "cb": "73.1",
+          "color": "电镀银/chrome silver",
+          "recorded_quantity": 2,
+          "load_rating": "后轮有装车痕迹 可优惠处理"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_B7A5255DF0D340479BF799D856E3322F",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "后轮有装车痕迹 可优惠处理",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-15fabdad5172424b921a41524eae8fa4",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CRA01 Stock Wheel",
+      "catalog_display_name": "CRA01 Stock Wheel",
+      "localized_names": {
+        "en": "CRA01 Stock Wheel",
+        "zh-CN": "CRA01 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CRA01",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2200,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/15fabdad5172424b921a41524eae8fa4.jpeg",
+      "image_original": "products/stock-inventory/15fabdad5172424b921a41524eae8fa4.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/15fabdad5172424b921a41524eae8fa4.jpeg",
+          "original_url": "products/stock-inventory/15fabdad5172424b921a41524eae8fa4.jpeg",
+          "alt": "CRA01 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CRA01",
+      "stock": 5,
+      "sort": 610,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 99,
+          "item_no": "CRA01",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "38",
+          "cb": "66.5",
+          "color": "电镀银/chrome silver",
+          "recorded_quantity": 5,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_15FABDAD5172424B921A41524EAE8FA4",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-251844e6c06141aa88bfd8be97afb6cd",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CRA04 Stock Wheel",
+      "catalog_display_name": "CRA04 Stock Wheel",
+      "localized_names": {
+        "en": "CRA04 Stock Wheel",
+        "zh-CN": "CRA04 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CRA04",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5, 18*8. Confirm the selected specification and availability with CIRUI.",
+      "price": 2200,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/251844e6c06141aa88bfd8be97afb6cd.png",
+      "image_original": "products/stock-inventory/251844e6c06141aa88bfd8be97afb6cd.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/251844e6c06141aa88bfd8be97afb6cd.png",
+          "original_url": "products/stock-inventory/251844e6c06141aa88bfd8be97afb6cd.png",
+          "alt": "CRA04 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CRA04",
+      "stock": 8,
+      "sort": 611,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 106,
+          "item_no": "CRA04",
+          "size": "19*8.5",
+          "pcd": "5*120",
+          "et": "28",
+          "cb": "72.56",
+          "color": "电镀银/chrome silver车边/chrome silver+machined lip",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 107,
+          "item_no": "CRA04",
+          "size": "19*9.5",
+          "pcd": "5*120",
+          "et": "38",
+          "cb": "72.56",
+          "color": "电镀银/chrome silver车边/chrome silver+machined lip",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 108,
+          "item_no": "CRA04",
+          "size": "18*8",
+          "pcd": "5*114.3",
+          "et": "35",
+          "cb": "73.1",
+          "color": "哑黑车边铣亮字/matte black machined lip+milling letters",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_251844E6C06141AA88BFD8BE97AFB6CD",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-36caac54d8b846fb96a6dc231affd626",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR08015 Stock Wheel",
+      "catalog_display_name": "CR08015 Stock Wheel",
+      "localized_names": {
+        "en": "CR08015 Stock Wheel",
+        "zh-CN": "CR08015 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR08015, CR0802, CR0805048",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 18*8, 19*8.5, 18*9. Confirm the selected specification and availability with CIRUI.",
+      "price": 2200,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/36caac54d8b846fb96a6dc231affd626.jpeg",
+      "image_original": "products/stock-inventory/36caac54d8b846fb96a6dc231affd626.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/36caac54d8b846fb96a6dc231affd626.jpeg",
+          "original_url": "products/stock-inventory/36caac54d8b846fb96a6dc231affd626.jpeg",
+          "alt": "CR08015 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR08015",
+      "stock": 77,
+      "sort": 612,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 121,
+          "item_no": "CR08015",
+          "size": "18*8",
+          "pcd": "5*120",
+          "et": "30",
+          "cb": "72.56",
+          "color": "亮黑车边/black machined lip",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        },
+        {
+          "source_row": 123,
+          "item_no": "CR08015",
+          "size": "19*8.5",
+          "pcd": "5*108",
+          "et": "35",
+          "cb": "73.1",
+          "color": "亮黑车边/black machined lip",
+          "recorded_quantity": 1,
+          "load_rating": ""
+        },
+        {
+          "source_row": 127,
+          "item_no": "CR0802",
+          "size": "18*8",
+          "pcd": "5*114.3",
+          "et": "35",
+          "cb": "73.1",
+          "color": "哑黑车边+亮字",
+          "recorded_quantity": 16,
+          "load_rating": "730KG"
+        },
+        {
+          "source_row": 128,
+          "item_no": "CR0802",
+          "size": "18*8",
+          "pcd": "5*112",
+          "et": "30",
+          "cb": "66.5",
+          "color": "哑黑车边+亮字",
+          "recorded_quantity": 12,
+          "load_rating": "730KG"
+        },
+        {
+          "source_row": 130,
+          "item_no": "CR0805048",
+          "size": "18*8",
+          "pcd": "5*112",
+          "et": "30",
+          "cb": "66.5",
+          "color": "哑黑车边+亮字",
+          "recorded_quantity": 28,
+          "load_rating": "730KG"
+        },
+        {
+          "source_row": 133,
+          "item_no": "CR0802",
+          "size": "18*8",
+          "pcd": "5*112",
+          "et": "30",
+          "cb": "66.5",
+          "color": "电镀银车边+亮字",
+          "recorded_quantity": 8,
+          "load_rating": "730KG"
+        },
+        {
+          "source_row": 134,
+          "item_no": "CR0802",
+          "size": "18*9",
+          "pcd": "5*112",
+          "et": "35",
+          "cb": "66.5",
+          "color": "电镀银车边+亮字",
+          "recorded_quantity": 8,
+          "load_rating": "730KG"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_36CAAC54D8B846FB96A6DC231AFFD626",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "730KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-5983b5b0588d444494d9d107f602a442",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR0802 Stock Wheel",
+      "catalog_display_name": "CR0802 Stock Wheel",
+      "localized_names": {
+        "en": "CR0802 Stock Wheel",
+        "zh-CN": "CR0802 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR0802",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 18*8, 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2200,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/5983b5b0588d444494d9d107f602a442.jpeg",
+      "image_original": "products/stock-inventory/5983b5b0588d444494d9d107f602a442.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/5983b5b0588d444494d9d107f602a442.jpeg",
+          "original_url": "products/stock-inventory/5983b5b0588d444494d9d107f602a442.jpeg",
+          "alt": "CR0802 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR0802",
+      "stock": 78,
+      "sort": 613,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 137,
+          "item_no": "CR0802",
+          "size": "18*8",
+          "pcd": "5*120",
+          "et": "35",
+          "cb": "72.6",
+          "color": "哑黑车边+亮字",
+          "recorded_quantity": 6,
+          "load_rating": "730KG"
+        },
+        {
+          "source_row": 139,
+          "item_no": "CR0802",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "25",
+          "cb": "66.5",
+          "color": "电镀银车边+亮字",
+          "recorded_quantity": 6,
+          "load_rating": "730KG"
+        },
+        {
+          "source_row": 140,
+          "item_no": "CR0802",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "25",
+          "cb": "66.5",
+          "color": "电镀银车边+亮字",
+          "recorded_quantity": 14,
+          "load_rating": "730KG"
+        },
+        {
+          "source_row": 141,
+          "item_no": "CR0802",
+          "size": "19*8.5",
+          "pcd": "5*114.3",
+          "et": "35",
+          "cb": "73.1",
+          "color": "电镀银车边+亮字",
+          "recorded_quantity": 4,
+          "load_rating": "730KG"
+        },
+        {
+          "source_row": 142,
+          "item_no": "CR0802",
+          "size": "19*8.5",
+          "pcd": "5*114.3",
+          "et": "35",
+          "cb": "73.1",
+          "color": "哑黑车边+亮字",
+          "recorded_quantity": 20,
+          "load_rating": "730KG"
+        },
+        {
+          "source_row": 143,
+          "item_no": "CR0802",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "25",
+          "cb": "66.56",
+          "color": "哑黑车边+亮字",
+          "recorded_quantity": 16,
+          "load_rating": "730KG"
+        },
+        {
+          "source_row": 144,
+          "item_no": "CR0802",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "35",
+          "cb": "66.5",
+          "color": "哑黑车边+亮字",
+          "recorded_quantity": 12,
+          "load_rating": "730KG"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_5983B5B0588D444494D9D107F602A442",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "730KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-9b6bafc9f335472abaa1c77cc7450f8e",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR83/CRZ522 Stock Wheel",
+      "catalog_display_name": "CR83/CRZ522 Stock Wheel",
+      "localized_names": {
+        "en": "CR83/CRZ522 Stock Wheel",
+        "zh-CN": "CR83/CRZ522 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR83/CRZ522",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*9.5, 20*9. Confirm the selected specification and availability with CIRUI.",
+      "price": 2300,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/9b6bafc9f335472abaa1c77cc7450f8e.jpeg",
+      "image_original": "products/stock-inventory/9b6bafc9f335472abaa1c77cc7450f8e.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/9b6bafc9f335472abaa1c77cc7450f8e.jpeg",
+          "original_url": "products/stock-inventory/9b6bafc9f335472abaa1c77cc7450f8e.jpeg",
+          "alt": "CR83/CRZ522 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR83/CRZ522",
+      "stock": 7,
+      "sort": 614,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 149,
+          "item_no": "CR83/CRZ522",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "38",
+          "cb": "66.5",
+          "color": "哑光青古铜/ matte bronze",
+          "recorded_quantity": 3,
+          "load_rating": ""
+        },
+        {
+          "source_row": 150,
+          "item_no": "CR83/CRZ522",
+          "size": "20*9",
+          "pcd": "5*112",
+          "et": "28",
+          "cb": "66.5",
+          "color": "哑光青古铜/ matte bronze",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_9B6BAFC9F335472ABAA1C77CC7450F8E",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-8dc0da7f6f51419d9cfef38d5ddcf6ee",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR82/CRZ521 Stock Wheel",
+      "catalog_display_name": "CR82/CRZ521 Stock Wheel",
+      "localized_names": {
+        "en": "CR82/CRZ521 Stock Wheel",
+        "zh-CN": "CR82/CRZ521 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR82/CRZ521, CRA06",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/8dc0da7f6f51419d9cfef38d5ddcf6ee.jpeg",
+      "image_original": "products/stock-inventory/8dc0da7f6f51419d9cfef38d5ddcf6ee.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/8dc0da7f6f51419d9cfef38d5ddcf6ee.jpeg",
+          "original_url": "products/stock-inventory/8dc0da7f6f51419d9cfef38d5ddcf6ee.jpeg",
+          "alt": "CR82/CRZ521 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR82/CRZ521",
+      "stock": 8,
+      "sort": 615,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 156,
+          "item_no": "CR82/CRZ521",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "25",
+          "cb": "66.5",
+          "color": "雅黑全涂/matte black",
+          "recorded_quantity": 2,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 157,
+          "item_no": "CR82/CRZ521",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "38",
+          "cb": "66.5",
+          "color": "雅黑全涂/matte black",
+          "recorded_quantity": 2,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 159,
+          "item_no": "CRA06",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "25",
+          "cb": "66.5",
+          "color": "雅黑全涂/matte black",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_8DC0DA7F6F51419D9CFEF38D5DDCF6EE",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "750KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-faf39a8525c9484f99afa73ffafe50a4",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CRA06 Stock Wheel",
+      "catalog_display_name": "CRA06 Stock Wheel",
+      "localized_names": {
+        "en": "CRA06 Stock Wheel",
+        "zh-CN": "CRA06 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CRA06",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/faf39a8525c9484f99afa73ffafe50a4.jpeg",
+      "image_original": "products/stock-inventory/faf39a8525c9484f99afa73ffafe50a4.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/faf39a8525c9484f99afa73ffafe50a4.jpeg",
+          "original_url": "products/stock-inventory/faf39a8525c9484f99afa73ffafe50a4.jpeg",
+          "alt": "CRA06 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CRA06",
+      "stock": 5,
+      "sort": 616,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 164,
+          "item_no": "CRA06",
+          "size": "19*8.5",
+          "pcd": "5*114.3",
+          "et": "35",
+          "cb": "73.1",
+          "color": "哑光古铜/matte bronze",
+          "recorded_quantity": 3,
+          "load_rating": ""
+        },
+        {
+          "source_row": 165,
+          "item_no": "CRA06",
+          "size": "19*9.5",
+          "pcd": "5*114.3",
+          "et": "38",
+          "cb": "73.1",
+          "color": "哑光古铜/matte bronze",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_FAF39A8525C9484F99AFA73FFAFE50A4",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-42a85a79dea147df89fb5126b4f3eaf5",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR0805 Stock Wheel",
+      "catalog_display_name": "CR0805 Stock Wheel",
+      "localized_names": {
+        "en": "CR0805 Stock Wheel",
+        "zh-CN": "CR0805 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR0805",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 18*8. Confirm the selected specification and availability with CIRUI.",
+      "price": 1900,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/42a85a79dea147df89fb5126b4f3eaf5.jpeg",
+      "image_original": "products/stock-inventory/42a85a79dea147df89fb5126b4f3eaf5.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/42a85a79dea147df89fb5126b4f3eaf5.jpeg",
+          "original_url": "products/stock-inventory/42a85a79dea147df89fb5126b4f3eaf5.jpeg",
+          "alt": "CR0805 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR0805",
+      "stock": 28,
+      "sort": 617,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 171,
+          "item_no": "CR0805",
+          "size": "18*8",
+          "pcd": "5*114.3",
+          "et": "30",
+          "cb": "73.1",
+          "color": "哑光古铜/matte bronze",
+          "recorded_quantity": 4,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 174,
+          "item_no": "CR0805",
+          "size": "18*8",
+          "pcd": "5*120",
+          "et": "30",
+          "cb": "72.6",
+          "color": "哑光古铜/matte bronze",
+          "recorded_quantity": 24,
+          "load_rating": "750KG"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_42A85A79DEA147DF89FB5126B4F3EAF5",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "750KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-4412eacfc5c944d5b33e9c4ccedee7d0",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR0827008 Stock Wheel",
+      "catalog_display_name": "CR0827008 Stock Wheel",
+      "localized_names": {
+        "en": "CR0827008 Stock Wheel",
+        "zh-CN": "CR0827008 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR0827008, CR0827, CR0827007, CR03086",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 18*8, 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2200,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/4412eacfc5c944d5b33e9c4ccedee7d0.jpeg",
+      "image_original": "products/stock-inventory/4412eacfc5c944d5b33e9c4ccedee7d0.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/4412eacfc5c944d5b33e9c4ccedee7d0.jpeg",
+          "original_url": "products/stock-inventory/4412eacfc5c944d5b33e9c4ccedee7d0.jpeg",
+          "alt": "CR0827008 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR0827008",
+      "stock": 96,
+      "sort": 618,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 179,
+          "item_no": "CR0827008",
+          "size": "18*8",
+          "pcd": "5*112",
+          "et": "30",
+          "cb": "66.5",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 20,
+          "load_rating": ""
+        },
+        {
+          "source_row": 180,
+          "item_no": "CR0827",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "22",
+          "cb": "66.6",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 18,
+          "load_rating": ""
+        },
+        {
+          "source_row": 181,
+          "item_no": "CR0827",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "34",
+          "cb": "66.6",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 6,
+          "load_rating": ""
+        },
+        {
+          "source_row": 182,
+          "item_no": "CR0827",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "22",
+          "cb": "66.6",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 8,
+          "load_rating": ""
+        },
+        {
+          "source_row": 183,
+          "item_no": "CR0827",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "34",
+          "cb": "66.6",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        },
+        {
+          "source_row": 184,
+          "item_no": "CR0827007",
+          "size": "19*8.5",
+          "pcd": "5*120",
+          "et": "28",
+          "cb": "72.56",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 185,
+          "item_no": "CR0827007",
+          "size": "19*9.5",
+          "pcd": "5*120",
+          "et": "35",
+          "cb": "72.56",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 186,
+          "item_no": "CR03086",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "22",
+          "cb": "66.56",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 18,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 187,
+          "item_no": "CR03086",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "34",
+          "cb": "66.56",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 18,
+          "load_rating": "750KG"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_4412EACFC5C944D5B33E9C4CCEDEE7D0",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "750KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-f1816d02c5f546ae8fbed30e558262c5",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR0801 Stock Wheel",
+      "catalog_display_name": "CR0801 Stock Wheel",
+      "localized_names": {
+        "en": "CR0801 Stock Wheel",
+        "zh-CN": "CR0801 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR0801",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 18*8, 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/f1816d02c5f546ae8fbed30e558262c5.png",
+      "image_original": "products/stock-inventory/f1816d02c5f546ae8fbed30e558262c5.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/f1816d02c5f546ae8fbed30e558262c5.png",
+          "original_url": "products/stock-inventory/f1816d02c5f546ae8fbed30e558262c5.png",
+          "alt": "CR0801 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR0801",
+      "stock": 72,
+      "sort": 619,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 190,
+          "item_no": "CR0801",
+          "size": "18*8",
+          "pcd": "5*112",
+          "et": "30",
+          "cb": "66.5",
+          "color": "亮黑全涂/gloss black",
+          "recorded_quantity": 28,
+          "load_rating": "800KG"
+        },
+        {
+          "source_row": 191,
+          "item_no": "CR0801",
+          "size": "18*8",
+          "pcd": "5*114.3",
+          "et": "35",
+          "cb": "73.1",
+          "color": "亮黑全涂/gloss black",
+          "recorded_quantity": 12,
+          "load_rating": "800KG"
+        },
+        {
+          "source_row": 192,
+          "item_no": "CR0801",
+          "size": "19*8.5",
+          "pcd": "5*108",
+          "et": "38",
+          "cb": "73.1",
+          "color": "亮黑全涂/gloss black",
+          "recorded_quantity": 8,
+          "load_rating": "800KG"
+        },
+        {
+          "source_row": 193,
+          "item_no": "CR0801",
+          "size": "19*8.5",
+          "pcd": "5*108",
+          "et": "38",
+          "cb": "73.1",
+          "color": "哑光古铜/matte bronze",
+          "recorded_quantity": 12,
+          "load_rating": "800KG"
+        },
+        {
+          "source_row": 194,
+          "item_no": "CR0801",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "25",
+          "cb": "66.5",
+          "color": "亮黑全涂/gloss black",
+          "recorded_quantity": 2,
+          "load_rating": "800KG"
+        },
+        {
+          "source_row": 195,
+          "item_no": "CR0801",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "35",
+          "cb": "66.5",
+          "color": "亮黑全涂/gloss black",
+          "recorded_quantity": 2,
+          "load_rating": "800KG"
+        },
+        {
+          "source_row": 196,
+          "item_no": "CR0801",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "25",
+          "cb": "66.5",
+          "color": "哑光古铜/matte bronze",
+          "recorded_quantity": 6,
+          "load_rating": "800KG"
+        },
+        {
+          "source_row": 197,
+          "item_no": "CR0801",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "35",
+          "cb": "66.5",
+          "color": "哑光古铜/matte bronze",
+          "recorded_quantity": 2,
+          "load_rating": "800KG"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_F1816D02C5F546AE8FBED30E558262C5",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "800KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-bbc19cc7000a4f88a534bd69b7c24a89",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR0804 Stock Wheel",
+      "catalog_display_name": "CR0804 Stock Wheel",
+      "localized_names": {
+        "en": "CR0804 Stock Wheel",
+        "zh-CN": "CR0804 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR0804",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*8.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2300,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/bbc19cc7000a4f88a534bd69b7c24a89.png",
+      "image_original": "products/stock-inventory/bbc19cc7000a4f88a534bd69b7c24a89.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/bbc19cc7000a4f88a534bd69b7c24a89.png",
+          "original_url": "products/stock-inventory/bbc19cc7000a4f88a534bd69b7c24a89.png",
+          "alt": "CR0804 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR0804",
+      "stock": 8,
+      "sort": 620,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 199,
+          "item_no": "CR0804",
+          "size": "20*8.5",
+          "pcd": "5*112",
+          "et": "22",
+          "cb": "66.5",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 8,
+          "load_rating": "750KG"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_BBC19CC7000A4F88A534BD69B7C24A89",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "750KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-960e6a2db8704ba39eda5a899de8cc74",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR0826012 Stock Wheel",
+      "catalog_display_name": "CR0826012 Stock Wheel",
+      "localized_names": {
+        "en": "CR0826012 Stock Wheel",
+        "zh-CN": "CR0826012 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR0826012",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 18*8. Confirm the selected specification and availability with CIRUI.",
+      "price": 2000,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/960e6a2db8704ba39eda5a899de8cc74.jpeg",
+      "image_original": "products/stock-inventory/960e6a2db8704ba39eda5a899de8cc74.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/960e6a2db8704ba39eda5a899de8cc74.jpeg",
+          "original_url": "products/stock-inventory/960e6a2db8704ba39eda5a899de8cc74.jpeg",
+          "alt": "CR0826012 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR0826012",
+      "stock": 20,
+      "sort": 621,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 208,
+          "item_no": "CR0826012",
+          "size": "18*8",
+          "pcd": "5*112",
+          "et": "30",
+          "cb": "66.5",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 16,
+          "load_rating": ""
+        },
+        {
+          "source_row": 209,
+          "item_no": "CR0826012",
+          "size": "18*8",
+          "pcd": "5*112",
+          "et": "30",
+          "cb": "66.5",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_960E6A2DB8704BA39EDA5A899DE8CC74",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-9e06714469944002b9f4b341e32e8742",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR0826001 Stock Wheel",
+      "catalog_display_name": "CR0826001 Stock Wheel",
+      "localized_names": {
+        "en": "CR0826001 Stock Wheel",
+        "zh-CN": "CR0826001 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR0826001, CR0826011, CR0826",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5, 19*9, 20*9, 21*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2500,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/9e06714469944002b9f4b341e32e8742.png",
+      "image_original": "products/stock-inventory/9e06714469944002b9f4b341e32e8742.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/9e06714469944002b9f4b341e32e8742.png",
+          "original_url": "products/stock-inventory/9e06714469944002b9f4b341e32e8742.png",
+          "alt": "CR0826001 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR0826001",
+      "stock": 94,
+      "sort": 622,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 210,
+          "item_no": "CR0826001",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "22",
+          "cb": "66.6",
+          "color": "哑光浅金/Matte light gold",
+          "recorded_quantity": 23,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 211,
+          "item_no": "CR0826001",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "34",
+          "cb": "66.6",
+          "color": "哑光浅金/Matte light gold",
+          "recorded_quantity": 11,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 212,
+          "item_no": "CR0826001",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "22",
+          "cb": "66.6",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 12,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 213,
+          "item_no": "CR0826001",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "34",
+          "cb": "66.6",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 20,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 214,
+          "item_no": "CR0826001",
+          "size": "19*9",
+          "pcd": "5*112",
+          "et": "30",
+          "cb": "66.45",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 8,
+          "load_rating": ""
+        },
+        {
+          "source_row": 215,
+          "item_no": "CR0826011",
+          "size": "19*8.5",
+          "pcd": "5*120",
+          "et": "28",
+          "cb": "72.56",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 216,
+          "item_no": "CR0826011",
+          "size": "19*9.5",
+          "pcd": "5*120",
+          "et": "35",
+          "cb": "72.56",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 217,
+          "item_no": "CR0826",
+          "size": "20*9",
+          "pcd": "5*112",
+          "et": "20",
+          "cb": "66.6",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        },
+        {
+          "source_row": 218,
+          "item_no": "CR0826",
+          "size": "21*9.5",
+          "pcd": "5*112",
+          "et": "20",
+          "cb": "66.45",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 12,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_9E06714469944002B9F4B341E32E8742",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "750KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-bbs-3a108a9b679e43d5bbd34a0c53de3510",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR0826002 Stock Wheel",
+      "catalog_display_name": "CR0826002 Stock Wheel",
+      "localized_names": {
+        "en": "CR0826002 Stock Wheel",
+        "zh-CN": "CR0826002 现货轮毂"
+      },
+      "meta": "BBS worksheet section · Model codes: CR0826002, CR0824",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5, 19*9, 20*9, 21*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2500,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/3a108a9b679e43d5bbd34a0c53de3510.png",
+      "image_original": "products/stock-inventory/3a108a9b679e43d5bbd34a0c53de3510.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/3a108a9b679e43d5bbd34a0c53de3510.png",
+          "original_url": "products/stock-inventory/3a108a9b679e43d5bbd34a0c53de3510.png",
+          "alt": "CR0826002 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR0826002",
+      "stock": 134,
+      "sort": 623,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "bbs",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 220,
+          "item_no": "CR0826002",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "22",
+          "cb": "66.6",
+          "color": "哑光浅金/Matte light gold",
+          "recorded_quantity": 28,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 221,
+          "item_no": "CR0826002",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "34",
+          "cb": "66.6",
+          "color": "哑光浅金/Matte light gold",
+          "recorded_quantity": 18,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 222,
+          "item_no": "CR0826002",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "22",
+          "cb": "66.6",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 30,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 223,
+          "item_no": "CR0826002",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "34",
+          "cb": "66.6",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 22,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 224,
+          "item_no": "CR0826002",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "22",
+          "cb": "66.6",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 4,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 225,
+          "item_no": "CR0826002",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "34",
+          "cb": "66.6",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 8,
+          "load_rating": "750KG"
+        },
+        {
+          "source_row": 226,
+          "item_no": "CR0824",
+          "size": "19*9",
+          "pcd": "5*112",
+          "et": "30",
+          "cb": "66.45",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 8,
+          "load_rating": ""
+        },
+        {
+          "source_row": 227,
+          "item_no": "CR0824",
+          "size": "20*9",
+          "pcd": "5*112",
+          "et": "20",
+          "cb": "66.6",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 8,
+          "load_rating": ""
+        },
+        {
+          "source_row": 228,
+          "item_no": "CR0824",
+          "size": "21*9.5",
+          "pcd": "5*112",
+          "et": "20",
+          "cb": "66.45",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 8,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_3A108A9B679E43D5BBD34A0C53DE3510",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "750KG",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-311b9a3b22314c80bd083028256a76e8",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR7087 Stock Wheel",
+      "catalog_display_name": "CR7087 Stock Wheel",
+      "localized_names": {
+        "en": "CR7087 Stock Wheel",
+        "zh-CN": "CR7087 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR7087",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 22*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2400,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/311b9a3b22314c80bd083028256a76e8.jpeg",
+      "image_original": "products/stock-inventory/311b9a3b22314c80bd083028256a76e8.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/311b9a3b22314c80bd083028256a76e8.jpeg",
+          "original_url": "products/stock-inventory/311b9a3b22314c80bd083028256a76e8.jpeg",
+          "alt": "CR7087 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR7087",
+      "stock": 4,
+      "sort": 624,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 232,
+          "item_no": "CR7087",
+          "size": "22*9.5",
+          "pcd": "6*135",
+          "et": "40",
+          "cb": "87.1",
+          "color": "轮辋古铜中片哑黑/center matte black+barrel bronze",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_311B9A3B22314C80BD083028256A76E8",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-0f47efaeb89e45e1bc820aca91126e72",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR200814 Stock Wheel",
+      "catalog_display_name": "CR200814 Stock Wheel",
+      "localized_names": {
+        "en": "CR200814 Stock Wheel",
+        "zh-CN": "CR200814 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR200814",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 18*7.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 1600,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/0f47efaeb89e45e1bc820aca91126e72.jpeg",
+      "image_original": "products/stock-inventory/0f47efaeb89e45e1bc820aca91126e72.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/0f47efaeb89e45e1bc820aca91126e72.jpeg",
+          "original_url": "products/stock-inventory/0f47efaeb89e45e1bc820aca91126e72.jpeg",
+          "alt": "CR200814 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR200814",
+      "stock": 4,
+      "sort": 625,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 237,
+          "item_no": "CR200814",
+          "size": "18*7.5",
+          "pcd": "5*105",
+          "et": "38",
+          "cb": "56.6",
+          "color": "黑色全涂/gloss black",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_0F47EFAEB89E45E1BC820ACA91126E72",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-5ac1589e0a8b476faad4a2d620d2bde4",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "210729 Stock Wheel",
+      "catalog_display_name": "210729 Stock Wheel",
+      "localized_names": {
+        "en": "210729 Stock Wheel",
+        "zh-CN": "210729 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: 210729",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*9. Confirm the selected specification and availability with CIRUI.",
+      "price": 2000,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/5ac1589e0a8b476faad4a2d620d2bde4.jpeg",
+      "image_original": "products/stock-inventory/5ac1589e0a8b476faad4a2d620d2bde4.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/5ac1589e0a8b476faad4a2d620d2bde4.jpeg",
+          "original_url": "products/stock-inventory/5ac1589e0a8b476faad4a2d620d2bde4.jpeg",
+          "alt": "210729 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "210729",
+      "stock": 4,
+      "sort": 626,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 244,
+          "item_no": "210729",
+          "size": "20*9",
+          "pcd": "6*139.7",
+          "et": "30",
+          "cb": "100",
+          "color": "古铜色/bronze",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_5AC1589E0A8B476FAAD4A2D620D2BDE4",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-432f0d3c976745cfac3fad45dccdb7b1",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "JC030 Stock Wheel",
+      "catalog_display_name": "JC030 Stock Wheel",
+      "localized_names": {
+        "en": "JC030 Stock Wheel",
+        "zh-CN": "JC030 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: JC030",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*10. Confirm the selected specification and availability with CIRUI.",
+      "price": 2000,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/432f0d3c976745cfac3fad45dccdb7b1.jpeg",
+      "image_original": "products/stock-inventory/432f0d3c976745cfac3fad45dccdb7b1.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/432f0d3c976745cfac3fad45dccdb7b1.jpeg",
+          "original_url": "products/stock-inventory/432f0d3c976745cfac3fad45dccdb7b1.jpeg",
+          "alt": "JC030 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "JC030",
+      "stock": 4,
+      "sort": 627,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 249,
+          "item_no": "JC030",
+          "size": "20*10",
+          "pcd": "5*120",
+          "et": "20",
+          "cb": "72.56",
+          "color": "银色全涂/silver",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_432F0D3C976745CFAC3FAD45DCCDB7B1",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-593870ac5f20483487ae413877e5f592",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "D216995 Stock Wheel",
+      "catalog_display_name": "D216995 Stock Wheel",
+      "localized_names": {
+        "en": "D216995 Stock Wheel",
+        "zh-CN": "D216995 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: D216995",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 21*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2200,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/593870ac5f20483487ae413877e5f592.png",
+      "image_original": "products/stock-inventory/593870ac5f20483487ae413877e5f592.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/593870ac5f20483487ae413877e5f592.png",
+          "original_url": "products/stock-inventory/593870ac5f20483487ae413877e5f592.png",
+          "alt": "D216995 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "D216995",
+      "stock": 4,
+      "sort": 628,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 254,
+          "item_no": "D216995",
+          "size": "21*9.5",
+          "pcd": "5*112",
+          "et": "31",
+          "cb": "66.56",
+          "color": "亚黑涂装/matte black",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_593870AC5F20483487AE413877E5F592",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-3612cac4f83e4e8c864a21c274bd4a32",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR23042803 Stock Wheel",
+      "catalog_display_name": "CR23042803 Stock Wheel",
+      "localized_names": {
+        "en": "CR23042803 Stock Wheel",
+        "zh-CN": "CR23042803 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR23042803",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*9, 20*10.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2000,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/3612cac4f83e4e8c864a21c274bd4a32.png",
+      "image_original": "products/stock-inventory/3612cac4f83e4e8c864a21c274bd4a32.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/3612cac4f83e4e8c864a21c274bd4a32.png",
+          "original_url": "products/stock-inventory/3612cac4f83e4e8c864a21c274bd4a32.png",
+          "alt": "CR23042803 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR23042803",
+      "stock": 4,
+      "sort": 629,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 259,
+          "item_no": "CR23042803",
+          "size": "20*9",
+          "pcd": "5*120",
+          "et": "15",
+          "cb": "72.56",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 2,
+          "load_rating": "宝马M4-F82"
+        },
+        {
+          "source_row": 260,
+          "item_no": "CR23042803",
+          "size": "20*10.5",
+          "pcd": "5*120",
+          "et": "38",
+          "cb": "72.56",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_3612CAC4F83E4E8C864A21C274BD4A32",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "宝马M4-F82",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-57d19c3fa07949a0a9dd098060aeda73",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR24072905 Stock Wheel",
+      "catalog_display_name": "CR24072905 Stock Wheel",
+      "localized_names": {
+        "en": "CR24072905 Stock Wheel",
+        "zh-CN": "CR24072905 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR24072905",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 22*12. Confirm the selected specification and availability with CIRUI.",
+      "price": 2400,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/57d19c3fa07949a0a9dd098060aeda73.png",
+      "image_original": "products/stock-inventory/57d19c3fa07949a0a9dd098060aeda73.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/57d19c3fa07949a0a9dd098060aeda73.png",
+          "original_url": "products/stock-inventory/57d19c3fa07949a0a9dd098060aeda73.png",
+          "alt": "CR24072905 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR24072905",
+      "stock": 1,
+      "sort": 630,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 264,
+          "item_no": "CR24072905",
+          "size": "22*12",
+          "pcd": "6*139.7",
+          "et": "-50",
+          "cb": "100",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 1,
+          "load_rating": "哎呦不错拍视频"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_57D19C3FA07949A0A9DD098060AEDA73",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "哎呦不错拍视频",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-de977c75a759402aab1508d271fc2b53",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR243266 Stock Wheel",
+      "catalog_display_name": "CR243266 Stock Wheel",
+      "localized_names": {
+        "en": "CR243266 Stock Wheel",
+        "zh-CN": "CR243266 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR243266",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*8.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2000,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/de977c75a759402aab1508d271fc2b53.png",
+      "image_original": "products/stock-inventory/de977c75a759402aab1508d271fc2b53.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/de977c75a759402aab1508d271fc2b53.png",
+          "original_url": "products/stock-inventory/de977c75a759402aab1508d271fc2b53.png",
+          "alt": "CR243266 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR243266",
+      "stock": 4,
+      "sort": 631,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 268,
+          "item_no": "CR243266",
+          "size": "20*8.5",
+          "pcd": "5*112",
+          "et": "25",
+          "cb": "66.6",
+          "color": "哑光古铜/matte bronze",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 269,
+          "item_no": "CR243266",
+          "size": "20*8.5",
+          "pcd": "5*112",
+          "et": "29",
+          "cb": "66.6",
+          "color": "哑光古铜/matte bronze",
+          "recorded_quantity": 2,
+          "load_rating": "业务员赵磊"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_DE977C75A759402AAB1508D271FC2B53",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "业务员赵磊",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-53f164e25a684d2c86c8eadd17a9bb85",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "1990-25042222 Stock Wheel",
+      "catalog_display_name": "1990-25042222 Stock Wheel",
+      "localized_names": {
+        "en": "1990-25042222 Stock Wheel",
+        "zh-CN": "1990-25042222 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: 1990-25042222",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*9, 20*10. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/53f164e25a684d2c86c8eadd17a9bb85.png",
+      "image_original": "products/stock-inventory/53f164e25a684d2c86c8eadd17a9bb85.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/53f164e25a684d2c86c8eadd17a9bb85.png",
+          "original_url": "products/stock-inventory/53f164e25a684d2c86c8eadd17a9bb85.png",
+          "alt": "1990-25042222 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "1990-25042222",
+      "stock": 4,
+      "sort": 632,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 273,
+          "item_no": "1990-25042222",
+          "size": "20*9",
+          "pcd": "5*120",
+          "et": "16",
+          "cb": "72.56",
+          "color": "哑黑镂空+滚花/Silky black openwork design + embossed texture",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 274,
+          "item_no": "1990-25042222",
+          "size": "20*10",
+          "pcd": "5*120",
+          "et": "12",
+          "cb": "72.56",
+          "color": "哑黑镂空+滚花/Silky black openwork design + embossed texture",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_53F164E25A684D2C86C8EADD17A9BB85",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-b52ad851546a469c89e76d7a0cec2bc5",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR25051419 Stock Wheel",
+      "catalog_display_name": "CR25051419 Stock Wheel",
+      "localized_names": {
+        "en": "CR25051419 Stock Wheel",
+        "zh-CN": "CR25051419 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR25051419",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 21*9. Confirm the selected specification and availability with CIRUI.",
+      "price": 2300,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/b52ad851546a469c89e76d7a0cec2bc5.png",
+      "image_original": "products/stock-inventory/b52ad851546a469c89e76d7a0cec2bc5.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/b52ad851546a469c89e76d7a0cec2bc5.png",
+          "original_url": "products/stock-inventory/b52ad851546a469c89e76d7a0cec2bc5.png",
+          "alt": "CR25051419 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR25051419",
+      "stock": 4,
+      "sort": 633,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 279,
+          "item_no": "CR25051419",
+          "size": "21*9",
+          "pcd": "5*120",
+          "et": "45",
+          "cb": "62.55",
+          "color": "轮辋抛光边 中盘亮光登王金/Wheel rim polishing edge; Center plate glossy finish – Dengwang Gold",
+          "recorded_quantity": 4,
+          "load_rating": "适配理想/蔚来 定金3100"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_B52AD851546A469C89E76D7A0CEC2BC5",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "适配理想/蔚来 定金3100",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-69edfb5e56c949a1b19a115389c68467",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "HQ2321NA Stock Wheel",
+      "catalog_display_name": "HQ2321NA Stock Wheel",
+      "localized_names": {
+        "en": "HQ2321NA Stock Wheel",
+        "zh-CN": "HQ2321NA 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: HQ2321NA",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 18*8. Confirm the selected specification and availability with CIRUI.",
+      "price": 1700,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/69edfb5e56c949a1b19a115389c68467.png",
+      "image_original": "products/stock-inventory/69edfb5e56c949a1b19a115389c68467.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/69edfb5e56c949a1b19a115389c68467.png",
+          "original_url": "products/stock-inventory/69edfb5e56c949a1b19a115389c68467.png",
+          "alt": "HQ2321NA Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "HQ2321NA",
+      "stock": 4,
+      "sort": 634,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 284,
+          "item_no": "HQ2321NA",
+          "size": "18*8",
+          "pcd": "5*114.3",
+          "et": "40",
+          "cb": "64.1",
+          "color": "黑色车边/black machined lip",
+          "recorded_quantity": 4,
+          "load_rating": "适配本田"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_69EDFB5E56C949A1B19A115389C68467",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "适配本田",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-5c9141b58b4645849a3bb9aedf42e059",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR25091405 Stock Wheel",
+      "catalog_display_name": "CR25091405 Stock Wheel",
+      "localized_names": {
+        "en": "CR25091405 Stock Wheel",
+        "zh-CN": "CR25091405 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR25091405",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*10, 19*9. Confirm the selected specification and availability with CIRUI.",
+      "price": 1900,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/5c9141b58b4645849a3bb9aedf42e059.png",
+      "image_original": "products/stock-inventory/5c9141b58b4645849a3bb9aedf42e059.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/5c9141b58b4645849a3bb9aedf42e059.png",
+          "original_url": "products/stock-inventory/5c9141b58b4645849a3bb9aedf42e059.png",
+          "alt": "CR25091405 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR25091405",
+      "stock": 4,
+      "sort": 635,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 288,
+          "item_no": "CR25091405",
+          "size": "19*10",
+          "pcd": "5*112",
+          "et": "22",
+          "cb": "66.5",
+          "color": "轮辋抛边中盘银色/Wheel rim with chamfered edge – Silver color",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 289,
+          "item_no": "CR25091405",
+          "size": "19*9",
+          "pcd": "5*112",
+          "et": "0",
+          "cb": "66.5",
+          "color": "轮辋抛边中盘银色/Wheel rim with chamfered edge – Silver color",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_5C9141B58B4645849A3BB9AEDF42E059",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-eb8eab9c73954e378f5fb9b439031e8a",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "HQ2327 Stock Wheel",
+      "catalog_display_name": "HQ2327 Stock Wheel",
+      "localized_names": {
+        "en": "HQ2327 Stock Wheel",
+        "zh-CN": "HQ2327 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: HQ2327",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*10.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2000,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/eb8eab9c73954e378f5fb9b439031e8a.png",
+      "image_original": "products/stock-inventory/eb8eab9c73954e378f5fb9b439031e8a.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/eb8eab9c73954e378f5fb9b439031e8a.png",
+          "original_url": "products/stock-inventory/eb8eab9c73954e378f5fb9b439031e8a.png",
+          "alt": "HQ2327 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "HQ2327",
+      "stock": 4,
+      "sort": 636,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 294,
+          "item_no": "HQ2327",
+          "size": "20*10.5",
+          "pcd": "5*112",
+          "et": "20",
+          "cb": "66.5",
+          "color": "哑光浅金/Matte light gold",
+          "recorded_quantity": 4,
+          "load_rating": "装奥迪RS5齐边  RS6/RS7"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_EB8EAB9C73954E378F5FB9B439031E8A",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "装奥迪RS5齐边  RS6/RS7",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-b804ae448d73432d93f378c0b331c663",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR2446 Stock Wheel",
+      "catalog_display_name": "CR2446 Stock Wheel",
+      "localized_names": {
+        "en": "CR2446 Stock Wheel",
+        "zh-CN": "CR2446 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR2446",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 17*7. Confirm the selected specification and availability with CIRUI.",
+      "price": 1500,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/b804ae448d73432d93f378c0b331c663.png",
+      "image_original": "products/stock-inventory/b804ae448d73432d93f378c0b331c663.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/b804ae448d73432d93f378c0b331c663.png",
+          "original_url": "products/stock-inventory/b804ae448d73432d93f378c0b331c663.png",
+          "alt": "CR2446 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR2446",
+      "stock": 2,
+      "sort": 637,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 299,
+          "item_no": "CR2446",
+          "size": "17*7",
+          "pcd": "5*114.3",
+          "et": "30",
+          "cb": "60.1",
+          "color": "亮黑车面/Bright black vehicle body",
+          "recorded_quantity": 2,
+          "load_rating": "比亚迪海豚/海豹/海鸥"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_B804AE448D73432D93F378C0B331C663",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "比亚迪海豚/海豹/海鸥",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-f06be8591f8c42d6976896c3c62edc47",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR230032 Stock Wheel",
+      "catalog_display_name": "CR230032 Stock Wheel",
+      "localized_names": {
+        "en": "CR230032 Stock Wheel",
+        "zh-CN": "CR230032 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR230032",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*8.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2000,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/f06be8591f8c42d6976896c3c62edc47.jpeg",
+      "image_original": "products/stock-inventory/f06be8591f8c42d6976896c3c62edc47.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/f06be8591f8c42d6976896c3c62edc47.jpeg",
+          "original_url": "products/stock-inventory/f06be8591f8c42d6976896c3c62edc47.jpeg",
+          "alt": "CR230032 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR230032",
+      "stock": 4,
+      "sort": 638,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 304,
+          "item_no": "CR230032",
+          "size": "20*8.5",
+          "pcd": "5*120",
+          "et": "35",
+          "cb": "59.5",
+          "color": "枪灰全涂/gunmetal",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_F06BE8591F8C42D6976896C3C62EDC47",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-5c09932e3ad74e1ca33a839b39644461",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR24030903 Stock Wheel",
+      "catalog_display_name": "CR24030903 Stock Wheel",
+      "localized_names": {
+        "en": "CR24030903 Stock Wheel",
+        "zh-CN": "CR24030903 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR24030903",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 21*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2200,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/5c09932e3ad74e1ca33a839b39644461.png",
+      "image_original": "products/stock-inventory/5c09932e3ad74e1ca33a839b39644461.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/5c09932e3ad74e1ca33a839b39644461.png",
+          "original_url": "products/stock-inventory/5c09932e3ad74e1ca33a839b39644461.png",
+          "alt": "CR24030903 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR24030903",
+      "stock": 4,
+      "sort": 639,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 309,
+          "item_no": "CR24030903",
+          "size": "21*9.5",
+          "pcd": "5*120",
+          "et": "32",
+          "cb": "72.56",
+          "color": "黑色全涂/gloss black",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 310,
+          "item_no": "CR24030903",
+          "size": "21*9.5",
+          "pcd": "5*120",
+          "et": "32",
+          "cb": "72.56",
+          "color": "黑色全涂/gloss black",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_5C09932E3AD74E1CA33A839B39644461",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-9141cd67e91c47f8bea637a0f171dcf1",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR220710 Stock Wheel",
+      "catalog_display_name": "CR220710 Stock Wheel",
+      "localized_names": {
+        "en": "CR220710 Stock Wheel",
+        "zh-CN": "CR220710 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR220710",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 1800,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/9141cd67e91c47f8bea637a0f171dcf1.jpeg",
+      "image_original": "products/stock-inventory/9141cd67e91c47f8bea637a0f171dcf1.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/9141cd67e91c47f8bea637a0f171dcf1.jpeg",
+          "original_url": "products/stock-inventory/9141cd67e91c47f8bea637a0f171dcf1.jpeg",
+          "alt": "CR220710 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR220710",
+      "stock": 4,
+      "sort": 640,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 313,
+          "item_no": "CR220710",
+          "size": "19*8.5",
+          "pcd": "5*114.3",
+          "et": "30",
+          "cb": "60.1",
+          "color": "高亮黑/hyper black",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_9141CD67E91C47F8BEA637A0F171DCF1",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-f6887b11b0374fe3a716316c1bde11e5",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "RL8702 Stock Wheel",
+      "catalog_display_name": "RL8702 Stock Wheel",
+      "localized_names": {
+        "en": "RL8702 Stock Wheel",
+        "zh-CN": "RL8702 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: RL8702",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 21*9. Confirm the selected specification and availability with CIRUI.",
+      "price": 2200,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/f6887b11b0374fe3a716316c1bde11e5.png",
+      "image_original": "products/stock-inventory/f6887b11b0374fe3a716316c1bde11e5.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/f6887b11b0374fe3a716316c1bde11e5.png",
+          "original_url": "products/stock-inventory/f6887b11b0374fe3a716316c1bde11e5.png",
+          "alt": "RL8702 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "RL8702",
+      "stock": 4,
+      "sort": 641,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 319,
+          "item_no": "RL8702",
+          "size": "21*9",
+          "pcd": "5*120",
+          "et": "35",
+          "cb": "64.1",
+          "color": "哑光古铜/matte bronze",
+          "recorded_quantity": 4,
+          "load_rating": "路虎，BYD唐，理想，蔚来，"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_F6887B11B0374FE3A716316C1BDE11E5",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "路虎，BYD唐，理想，蔚来，",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-080412edea704cc09f13f92eb594ce6f",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR260084 Stock Wheel",
+      "catalog_display_name": "CR260084 Stock Wheel",
+      "localized_names": {
+        "en": "CR260084 Stock Wheel",
+        "zh-CN": "CR260084 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR260084",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 23*11. Confirm the selected specification and availability with CIRUI.",
+      "price": 2500,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/080412edea704cc09f13f92eb594ce6f.png",
+      "image_original": "products/stock-inventory/080412edea704cc09f13f92eb594ce6f.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/080412edea704cc09f13f92eb594ce6f.png",
+          "original_url": "products/stock-inventory/080412edea704cc09f13f92eb594ce6f.png",
+          "alt": "CR260084 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR260084",
+      "stock": 2,
+      "sort": 642,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 323,
+          "item_no": "CR260084",
+          "size": "23*11",
+          "pcd": "5*112",
+          "et": "20",
+          "cb": "66.5",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_080412EDEA704CC09F13F92EB594CE6F",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-913397479f064932a5e674922cdbaf65",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR25121144 Stock Wheel",
+      "catalog_display_name": "CR25121144 Stock Wheel",
+      "localized_names": {
+        "en": "CR25121144 Stock Wheel",
+        "zh-CN": "CR25121144 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR25121144",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 18*8. Confirm the selected specification and availability with CIRUI.",
+      "price": 1600,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/913397479f064932a5e674922cdbaf65.png",
+      "image_original": "products/stock-inventory/913397479f064932a5e674922cdbaf65.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/913397479f064932a5e674922cdbaf65.png",
+          "original_url": "products/stock-inventory/913397479f064932a5e674922cdbaf65.png",
+          "alt": "CR25121144 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR25121144",
+      "stock": 1,
+      "sort": 643,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 329,
+          "item_no": "CR25121144",
+          "size": "18*8",
+          "pcd": "5*130",
+          "et": "50",
+          "cb": "71.6",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 1,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_913397479F064932A5E674922CDBAF65",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-b4ecf6c363c047cb81191403847fa31f",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "ZG23040731 Stock Wheel",
+      "catalog_display_name": "ZG23040731 Stock Wheel",
+      "localized_names": {
+        "en": "ZG23040731 Stock Wheel",
+        "zh-CN": "ZG23040731 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: ZG23040731",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*9, 20*10.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/b4ecf6c363c047cb81191403847fa31f.png",
+      "image_original": "products/stock-inventory/b4ecf6c363c047cb81191403847fa31f.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/b4ecf6c363c047cb81191403847fa31f.png",
+          "original_url": "products/stock-inventory/b4ecf6c363c047cb81191403847fa31f.png",
+          "alt": "ZG23040731 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "ZG23040731",
+      "stock": 4,
+      "sort": 644,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 334,
+          "item_no": "ZG23040731",
+          "size": "20*9",
+          "pcd": "5*114.3",
+          "et": "35",
+          "cb": "67.1",
+          "color": "轮辋拉丝透明古铜中盘哑黑/Wheel rim with brushed transparent bronze finish – mid-rim in matte black",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 335,
+          "item_no": "ZG23040731",
+          "size": "20*10.5",
+          "pcd": "5*114.3",
+          "et": "15",
+          "cb": "67.1",
+          "color": "轮辋拉丝透明古铜中盘哑黑/Wheel rim with brushed transparent bronze finish – mid-rim in matte black",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_B4ECF6C363C047CB81191403847FA31F",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-bb6d866972514f9aae80c437900337ec",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "BM1056 Stock Wheel",
+      "catalog_display_name": "BM1056 Stock Wheel",
+      "localized_names": {
+        "en": "BM1056 Stock Wheel",
+        "zh-CN": "BM1056 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: BM1056",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 1900,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/bb6d866972514f9aae80c437900337ec.png",
+      "image_original": "products/stock-inventory/bb6d866972514f9aae80c437900337ec.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/bb6d866972514f9aae80c437900337ec.png",
+          "original_url": "products/stock-inventory/bb6d866972514f9aae80c437900337ec.png",
+          "alt": "BM1056 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "BM1056",
+      "stock": 4,
+      "sort": 645,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 339,
+          "item_no": "BM1056",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "25",
+          "cb": "66.5",
+          "color": "哑黑镂空/Silky black openwork design",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 340,
+          "item_no": "BM1056",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "35",
+          "cb": "66.5",
+          "color": "哑黑镂空/Silky black openwork design",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_BB6D866972514F9AAE80C437900337EC",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-5618f856ecd740acb23a153f6f84b872",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR2509003 Stock Wheel",
+      "catalog_display_name": "CR2509003 Stock Wheel",
+      "localized_names": {
+        "en": "CR2509003 Stock Wheel",
+        "zh-CN": "CR2509003 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR2509003",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*11. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/5618f856ecd740acb23a153f6f84b872.png",
+      "image_original": "products/stock-inventory/5618f856ecd740acb23a153f6f84b872.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/5618f856ecd740acb23a153f6f84b872.png",
+          "original_url": "products/stock-inventory/5618f856ecd740acb23a153f6f84b872.png",
+          "alt": "CR2509003 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR2509003",
+      "stock": 1,
+      "sort": 646,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 344,
+          "item_no": "CR2509003",
+          "size": "20*11",
+          "pcd": "5*112",
+          "et": "13",
+          "cb": "66.6",
+          "color": "精抛/clear polished",
+          "recorded_quantity": 1,
+          "load_rating": "1990款"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_5618F856ECD740ACB23A153F6F84B872",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "1990款",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-79281b8c5d36414bb2bab26f48794679",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "1990-26011701 Stock Wheel",
+      "catalog_display_name": "1990-26011701 Stock Wheel",
+      "localized_names": {
+        "en": "1990-26011701 Stock Wheel",
+        "zh-CN": "1990-26011701 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: 1990-26011701",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*10, 20*11. Confirm the selected specification and availability with CIRUI.",
+      "price": 2000,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/79281b8c5d36414bb2bab26f48794679.png",
+      "image_original": "products/stock-inventory/79281b8c5d36414bb2bab26f48794679.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/79281b8c5d36414bb2bab26f48794679.png",
+          "original_url": "products/stock-inventory/79281b8c5d36414bb2bab26f48794679.png",
+          "alt": "1990-26011701 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "1990-26011701",
+      "stock": 5,
+      "sort": 647,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 349,
+          "item_no": "1990-26011701",
+          "size": "20*10",
+          "pcd": "5*112",
+          "et": "6",
+          "cb": "66.6",
+          "color": "哑光银/Matte Silver",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        },
+        {
+          "source_row": 350,
+          "item_no": "1990-26011701",
+          "size": "20*11",
+          "pcd": "5*112",
+          "et": "8",
+          "cb": "66.6",
+          "color": "冰裂银/Ice Crack Silver",
+          "recorded_quantity": 1,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_79281B8C5D36414BB2BAB26F48794679",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-1889605d112940eea3ceeb69732db072",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "1990-26011702 Stock Wheel",
+      "catalog_display_name": "1990-26011702 Stock Wheel",
+      "localized_names": {
+        "en": "1990-26011702 Stock Wheel",
+        "zh-CN": "1990-26011702 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: 1990-26011702",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*10, 20*11. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/1889605d112940eea3ceeb69732db072.png",
+      "image_original": "products/stock-inventory/1889605d112940eea3ceeb69732db072.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/1889605d112940eea3ceeb69732db072.png",
+          "original_url": "products/stock-inventory/1889605d112940eea3ceeb69732db072.png",
+          "alt": "1990-26011702 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "1990-26011702",
+      "stock": 4,
+      "sort": 648,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 354,
+          "item_no": "1990-26011702",
+          "size": "20*10",
+          "pcd": "5*112",
+          "et": "6",
+          "cb": "66.6",
+          "color": "哑黑套抛边镂空/Silky black cover with edge trimming and openwork design",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 355,
+          "item_no": "1990-26011702",
+          "size": "20*11",
+          "pcd": "5*112",
+          "et": "8",
+          "cb": "66.6",
+          "color": "",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_1889605D112940EEA3CEEB69732DB072",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-201f2d2ff8e84327b7cf7a9a056f65fc",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR26011666 Stock Wheel",
+      "catalog_display_name": "CR26011666 Stock Wheel",
+      "localized_names": {
+        "en": "CR26011666 Stock Wheel",
+        "zh-CN": "CR26011666 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR26011666",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*9.5, 20*10.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2100,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/201f2d2ff8e84327b7cf7a9a056f65fc.png",
+      "image_original": "products/stock-inventory/201f2d2ff8e84327b7cf7a9a056f65fc.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/201f2d2ff8e84327b7cf7a9a056f65fc.png",
+          "original_url": "products/stock-inventory/201f2d2ff8e84327b7cf7a9a056f65fc.png",
+          "alt": "CR26011666 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR26011666",
+      "stock": 4,
+      "sort": 649,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 359,
+          "item_no": "CR26011666",
+          "size": "20*9.5",
+          "pcd": "5*112",
+          "et": "10",
+          "cb": "66.5",
+          "color": "亮光香槟金车边/Bright Champagne Gold Trim",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        },
+        {
+          "source_row": 360,
+          "item_no": "CR26011666",
+          "size": "20*10.5",
+          "pcd": "5*112",
+          "et": "10",
+          "cb": "66.5",
+          "color": "亮光香槟金车边/Bright Champagne Gold Trim",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_201F2D2FF8E84327B7CF7A9A056F65FC",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-775459d8fb61415abb5ea5e1a8807303",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR260351 Stock Wheel",
+      "catalog_display_name": "CR260351 Stock Wheel",
+      "localized_names": {
+        "en": "CR260351 Stock Wheel",
+        "zh-CN": "CR260351 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR260351",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8. Confirm the selected specification and availability with CIRUI.",
+      "price": 1800,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/775459d8fb61415abb5ea5e1a8807303.png",
+      "image_original": "products/stock-inventory/775459d8fb61415abb5ea5e1a8807303.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/775459d8fb61415abb5ea5e1a8807303.png",
+          "original_url": "products/stock-inventory/775459d8fb61415abb5ea5e1a8807303.png",
+          "alt": "CR260351 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR260351",
+      "stock": 4,
+      "sort": 650,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 364,
+          "item_no": "CR260351",
+          "size": "19*8",
+          "pcd": "5*112",
+          "et": "57.1",
+          "cb": "35",
+          "color": "亮黑全涂/gloss black",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_775459D8FB61415ABB5EA5E1A8807303",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-11d12ada727946c4889150cf4c77e9ef",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR26030807 Stock Wheel",
+      "catalog_display_name": "CR26030807 Stock Wheel",
+      "localized_names": {
+        "en": "CR26030807 Stock Wheel",
+        "zh-CN": "CR26030807 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR26030807",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 20*8.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2000,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/11d12ada727946c4889150cf4c77e9ef.png",
+      "image_original": "products/stock-inventory/11d12ada727946c4889150cf4c77e9ef.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/11d12ada727946c4889150cf4c77e9ef.png",
+          "original_url": "products/stock-inventory/11d12ada727946c4889150cf4c77e9ef.png",
+          "alt": "CR26030807 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR26030807",
+      "stock": 4,
+      "sort": 651,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 369,
+          "item_no": "CR26030807",
+          "size": "20*8.5",
+          "pcd": "5*112",
+          "et": "30",
+          "cb": "5*112",
+          "color": "哑黑全涂/matte black",
+          "recorded_quantity": 4,
+          "load_rating": "奥迪"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_11D12ADA727946C4889150CF4C77E9EF",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "奥迪",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-b7537f0f356a44cea37e0483b2647a2b",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR23060219 Stock Wheel",
+      "catalog_display_name": "CR23060219 Stock Wheel",
+      "localized_names": {
+        "en": "CR23060219 Stock Wheel",
+        "zh-CN": "CR23060219 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR23060219",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 18*8. Confirm the selected specification and availability with CIRUI.",
+      "price": 1600,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/b7537f0f356a44cea37e0483b2647a2b.png",
+      "image_original": "products/stock-inventory/b7537f0f356a44cea37e0483b2647a2b.png",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/b7537f0f356a44cea37e0483b2647a2b.png",
+          "original_url": "products/stock-inventory/b7537f0f356a44cea37e0483b2647a2b.png",
+          "alt": "CR23060219 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR23060219",
+      "stock": 4,
+      "sort": 652,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 374,
+          "item_no": "CR23060219",
+          "size": "18*8",
+          "pcd": "4*100",
+          "et": "35",
+          "cb": "54.1",
+          "color": "亮黑全涂+黄色刻字/Bright black full paint job + yellow engraved text",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_B7537F0F356A44CEA37E0483B2647A2B",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-0dbb563e51154ebf8b921c6d04a02659",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR260736 Stock Wheel",
+      "catalog_display_name": "CR260736 Stock Wheel",
+      "localized_names": {
+        "en": "CR260736 Stock Wheel",
+        "zh-CN": "CR260736 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR260736",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 1900,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/0dbb563e51154ebf8b921c6d04a02659.jpeg",
+      "image_original": "products/stock-inventory/0dbb563e51154ebf8b921c6d04a02659.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/0dbb563e51154ebf8b921c6d04a02659.jpeg",
+          "original_url": "products/stock-inventory/0dbb563e51154ebf8b921c6d04a02659.jpeg",
+          "alt": "CR260736 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR260736",
+      "stock": 4,
+      "sort": 653,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 379,
+          "item_no": "CR260736",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "35",
+          "cb": "57.1",
+          "color": "拉丝香槟金/Woven Champagne Gold",
+          "recorded_quantity": 2,
+          "load_rating": "奥迪E5"
+        },
+        {
+          "source_row": 380,
+          "item_no": "CR260736",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "38",
+          "cb": "57.1",
+          "color": "拉丝香槟金/Woven Champagne Gold",
+          "recorded_quantity": 2,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_0DBB563E51154EBF8B921C6D04A02659",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "奥迪E5",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-619852e858a64158b880efc7c25d356c",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR23080721 Stock Wheel",
+      "catalog_display_name": "CR23080721 Stock Wheel",
+      "localized_names": {
+        "en": "CR23080721 Stock Wheel",
+        "zh-CN": "CR23080721 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR23080721",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 17*7. Confirm the selected specification and availability with CIRUI.",
+      "price": 1500,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/619852e858a64158b880efc7c25d356c.jpeg",
+      "image_original": "products/stock-inventory/619852e858a64158b880efc7c25d356c.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/619852e858a64158b880efc7c25d356c.jpeg",
+          "original_url": "products/stock-inventory/619852e858a64158b880efc7c25d356c.jpeg",
+          "alt": "CR23080721 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR23080721",
+      "stock": 8,
+      "sort": 654,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 384,
+          "item_no": "CR23080721",
+          "size": "17*7",
+          "pcd": "5*160",
+          "et": "47",
+          "cb": "65.1",
+          "color": "亮黑全涂/gloss black",
+          "recorded_quantity": 8,
+          "load_rating": "途锐欧"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_619852E858A64158B880EFC7C25D356C",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "途锐欧",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-fe7302c9b52c4794990dd8a926e706b7",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR0837 Stock Wheel",
+      "catalog_display_name": "CR0837 Stock Wheel",
+      "localized_names": {
+        "en": "CR0837 Stock Wheel",
+        "zh-CN": "CR0837 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR0837",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*8.5, 19*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 1900,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/fe7302c9b52c4794990dd8a926e706b7.jpeg",
+      "image_original": "products/stock-inventory/fe7302c9b52c4794990dd8a926e706b7.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/fe7302c9b52c4794990dd8a926e706b7.jpeg",
+          "original_url": "products/stock-inventory/fe7302c9b52c4794990dd8a926e706b7.jpeg",
+          "alt": "CR0837 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR0837",
+      "stock": 16,
+      "sort": 655,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 389,
+          "item_no": "CR0837",
+          "size": "19*8.5",
+          "pcd": "5*112",
+          "et": "23",
+          "cb": "66.6",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 8,
+          "load_rating": "孙彦定制"
+        },
+        {
+          "source_row": 390,
+          "item_no": "CR0837",
+          "size": "19*9.5",
+          "pcd": "5*112",
+          "et": "36",
+          "cb": "66.6",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 8,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_FE7302C9B52C4794990DD8A926E706B7",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "孙彦定制",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-fcf420b36e874017bb4b3d4547c410a3",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR260479 Stock Wheel",
+      "catalog_display_name": "CR260479 Stock Wheel",
+      "localized_names": {
+        "en": "CR260479 Stock Wheel",
+        "zh-CN": "CR260479 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR260479",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 21*8.5, 21*9.5. Confirm the selected specification and availability with CIRUI.",
+      "price": 2300,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/fcf420b36e874017bb4b3d4547c410a3.jpeg",
+      "image_original": "products/stock-inventory/fcf420b36e874017bb4b3d4547c410a3.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/fcf420b36e874017bb4b3d4547c410a3.jpeg",
+          "original_url": "products/stock-inventory/fcf420b36e874017bb4b3d4547c410a3.jpeg",
+          "alt": "CR260479 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR260479",
+      "stock": 4,
+      "sort": 656,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 394,
+          "item_no": "CR260479",
+          "size": "21*8.5",
+          "pcd": "5*114.3",
+          "et": "30",
+          "cb": "65.5",
+          "color": "拉丝银/Wire brushed silver+左右旋Left-right rotation",
+          "recorded_quantity": 2,
+          "load_rating": "小米yu7"
+        },
+        {
+          "source_row": 395,
+          "item_no": "CR260479",
+          "size": "21*9.5",
+          "pcd": "5*114.3",
+          "et": "40",
+          "cb": "65.5",
+          "color": "拉丝银/Wire brushed silver+左右旋Left-right rotation",
+          "recorded_quantity": 2,
+          "load_rating": "小米yu7"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_FCF420B36E874017BB4B3D4547C410A3",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "小米yu7",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-ebe481b6b7e94d2aa20ad08a046936b5",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "BM3008KC Stock Wheel",
+      "catalog_display_name": "BM3008KC Stock Wheel",
+      "localized_names": {
+        "en": "BM3008KC Stock Wheel",
+        "zh-CN": "BM3008KC 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: BM3008KC",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 19*10. Confirm the selected specification and availability with CIRUI.",
+      "price": 1900,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/ebe481b6b7e94d2aa20ad08a046936b5.jpeg",
+      "image_original": "products/stock-inventory/ebe481b6b7e94d2aa20ad08a046936b5.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/ebe481b6b7e94d2aa20ad08a046936b5.jpeg",
+          "original_url": "products/stock-inventory/ebe481b6b7e94d2aa20ad08a046936b5.jpeg",
+          "alt": "BM3008KC Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "BM3008KC",
+      "stock": 4,
+      "sort": 657,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 399,
+          "item_no": "BM3008KC",
+          "size": "19*10",
+          "pcd": "5*120",
+          "et": "28",
+          "cb": "72.6",
+          "color": "拉丝银/Wire brushed silver",
+          "recorded_quantity": 4,
+          "load_rating": ""
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_EBE481B6B7E94D2AA20AD08A046936B5",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "Confirm for selected specification",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    },
+    {
+      "id": "cirui-inventory-aftermarket-0ce3cda9ede940cbac5eee8ef834e5b9",
+      "category": "Wheels",
+      "brand": "CIRUI",
+      "name": "CR261452 Stock Wheel",
+      "catalog_display_name": "CR261452 Stock Wheel",
+      "localized_names": {
+        "en": "CR261452 Stock Wheel",
+        "zh-CN": "CR261452 现货轮毂"
+      },
+      "meta": "Aftermarket worksheet section · Model codes: CR261452",
+      "custom_size": false,
+      "size_note": "Recorded stock sizes: 22*10. Confirm the selected specification and availability with CIRUI.",
+      "price": 2500,
+      "price_mode": "fixed",
+      "price_source": "catalog",
+      "currency": "USD",
+      "oldPrice": null,
+      "finish": "Listed finishes",
+      "image": "products/stock-inventory/0ce3cda9ede940cbac5eee8ef834e5b9.jpeg",
+      "image_original": "products/stock-inventory/0ce3cda9ede940cbac5eee8ef834e5b9.jpeg",
+      "image_cutout": false,
+      "images": [
+        {
+          "id": "image-1",
+          "url": "products/stock-inventory/0ce3cda9ede940cbac5eee8ef834e5b9.jpeg",
+          "original_url": "products/stock-inventory/0ce3cda9ede940cbac5eee8ef834e5b9.jpeg",
+          "alt": "CR261452 Stock Wheel",
+          "cutout": false
+        }
+      ],
+      "badge": "Stock inventory",
+      "deal": "Inventory workbook last modified 2026-09-22; confirm current availability before ordering",
+      "color": "Listed finishes",
+      "part": "CR261452",
+      "stock": 4,
+      "sort": 658,
+      "status": "published",
+      "public_scope": true,
+      "minimum_quantity": 4,
+      "translation_profile": "catalog-item",
+      "visualizer_enabled": false,
+      "stock_collection": true,
+      "stock_group": "aftermarket",
+      "stock_inventory": true,
+      "stock_snapshot_date": "2026-09-22",
+      "stock_variants": [
+        {
+          "source_row": 404,
+          "item_no": "CR261452",
+          "size": "22*10",
+          "pcd": "5*130",
+          "et": "30",
+          "cb": "84.1",
+          "color": "精抛/clear polished",
+          "recorded_quantity": 4,
+          "load_rating": "盖子+175/只"
+        }
+      ],
+      "source_sheet": "BBS+改装",
+      "source_image_id": "ID_0CE3CDA9EDE940CBAC5EEE8EF834E5B9",
+      "construction": "unknown",
+      "design_family": "stock-inventory",
+      "spoke_style": "varied",
+      "applications": [
+        "street",
+        "stock"
+      ],
+      "classification_status": "needs-confirmation",
+      "classification_note": "Construction and exact vehicle fitment are confirmed for the selected stock specification.",
+      "load_rating_note": "盖子+175/只",
+      "ddp_regions": [
+        "Europe",
+        "North America"
+      ],
+      "ddp_quote_basis": "Destination country and postcode",
+      "lead_time_note": "Confirm for selected inventory and delivery destination"
+    }
+  ]
+}

@@ -162,29 +162,31 @@ function driveOptions(make, model) {
 }
 
 let products = [
-  { id: 'fbox-axis-19', category: 'Wheels', brand: 'CIRUI', name: 'Axis 19', meta: '19x9.5 +35 · 5x114.3', price: 270, oldPrice: 300, rating: 0, reviews: 0, finish: 'Satin Black', diameter: 19, image: '9025362311e9a376.jpg', badge: 'Hot', deal: 'Availability managed by CIRUI', material: 'Rotary Forged', color: 'Satin Black', part: 'FBX-AXI-1995-35', weight: '22.4 lb' },
-  { id: 'fbox-velocity-18', category: 'Wheels', brand: 'CIRUI', name: 'Velocity 18', meta: '18x8.5 +35 · 5x114.3', price: 230, oldPrice: 250, rating: 0, reviews: 0, finish: 'Bronze Machined', diameter: 18, image: '71118c6795a2a3a8.jpg', badge: 'Sale', deal: 'Availability managed by CIRUI', material: 'Cast Aluminum', color: 'Bronze Machined', part: 'FBX-VEL-1885-35', weight: '20.8 lb' },
-  { id: 'fbox-forge-20', category: 'Wheels', brand: 'CIRUI', name: 'Forge 20', meta: '20x9 +35 · 5x114.3', price: 300, oldPrice: 340, rating: 0, reviews: 0, finish: 'Gloss Black', diameter: 20, image: 'a8d2e56e51bb2d69.jpg', badge: 'New', deal: 'Availability managed by CIRUI', material: 'Rotary Forged', color: 'Gloss Black', part: 'FBX-FOR-2090-35', weight: '24.3 lb' },
-  { id: 'fbox-drift-18', category: 'Wheels', brand: 'CIRUI', name: 'Drift 18', meta: '18x9.5 +35 · 5x114.3', price: 216, oldPrice: 240, rating: 0, reviews: 0, finish: 'Matte Bronze', diameter: 18, image: 'a5816dd04dfd6ee0.jpg', badge: 'Sale', deal: 'Availability managed by CIRUI', material: 'Cast Aluminum', color: 'Matte Bronze', part: 'FBX-DRI-1895-35', weight: '21.2 lb' },
-  { id: 'fbox-lumen-19', category: 'Wheels', brand: 'CIRUI', name: 'Lumen 19', meta: '19x8.5 +35 · 5x112', price: 260, oldPrice: null, rating: 0, reviews: 0, finish: 'Machined Silver', diameter: 19, image: 'fb1db723061ad6df.jpg', badge: '', deal: 'Availability managed by CIRUI', material: 'Cast Aluminum', color: 'Machined Silver', part: 'FBX-LUM-1985-35', weight: '23.1 lb' },
-  { id: 'fbox-track-17', category: 'Wheels', brand: 'CIRUI', name: 'Track 17', meta: '17x8 +35 · 5x114.3', price: 198, oldPrice: null, rating: 0, reviews: 0, finish: 'Hyper Silver', diameter: 17, image: '0dccdbef8e429925.jpg', badge: '', deal: 'Availability managed by CIRUI', material: 'Cast Aluminum', color: 'Hyper Silver', part: 'FBX-TRA-1780-35', weight: '18.6 lb' },
+  { id: 'fbox-axis-19', category: 'Wheels', legacy_wheel: true, public_scope: true, price_mode: 'fixed', price_source: 'catalog', brand: 'CIRUI', name: 'Axis 19', meta: '19x9.5 +35 · 5x114.3', price: 2700, oldPrice: 3000, rating: 0, reviews: 0, finish: 'Satin Black', diameter: 19, image: '9025362311e9a376.jpg', badge: 'Hot', deal: 'Availability managed by CIRUI', material: 'Rotary Forged', color: 'Satin Black', part: 'FBX-AXI-1995-35', weight: '22.4 lb' },
+  { id: 'fbox-velocity-18', category: 'Wheels', legacy_wheel: true, public_scope: true, price_mode: 'fixed', price_source: 'catalog', brand: 'CIRUI', name: 'Velocity 18', meta: '18x8.5 +35 · 5x114.3', price: 2300, oldPrice: 2500, rating: 0, reviews: 0, finish: 'Bronze Machined', diameter: 18, image: '71118c6795a2a3a8.jpg', badge: 'Sale', deal: 'Availability managed by CIRUI', material: 'Cast Aluminum', color: 'Bronze Machined', part: 'FBX-VEL-1885-35', weight: '20.8 lb' },
+  { id: 'fbox-forge-20', category: 'Wheels', legacy_wheel: true, public_scope: true, price_mode: 'fixed', price_source: 'catalog', brand: 'CIRUI', name: 'Forge 20', meta: '20x9 +35 · 5x114.3', price: 3000, oldPrice: 3400, rating: 0, reviews: 0, finish: 'Gloss Black', diameter: 20, image: 'a8d2e56e51bb2d69.jpg', badge: 'New', deal: 'Availability managed by CIRUI', material: 'Rotary Forged', color: 'Gloss Black', part: 'FBX-FOR-2090-35', weight: '24.3 lb' },
+  { id: 'fbox-drift-18', category: 'Wheels', legacy_wheel: true, public_scope: true, price_mode: 'fixed', price_source: 'catalog', brand: 'CIRUI', name: 'Drift 18', meta: '18x9.5 +35 · 5x114.3', price: 2160, oldPrice: 2400, rating: 0, reviews: 0, finish: 'Matte Bronze', diameter: 18, image: 'a5816dd04dfd6ee0.jpg', badge: 'Sale', deal: 'Availability managed by CIRUI', material: 'Cast Aluminum', color: 'Matte Bronze', part: 'FBX-DRI-1895-35', weight: '21.2 lb' },
+  { id: 'fbox-lumen-19', category: 'Wheels', legacy_wheel: true, public_scope: true, price_mode: 'fixed', price_source: 'catalog', brand: 'CIRUI', name: 'Lumen 19', meta: '19x8.5 +35 · 5x112', price: 2600, oldPrice: null, rating: 0, reviews: 0, finish: 'Machined Silver', diameter: 19, image: 'fb1db723061ad6df.jpg', badge: '', deal: 'Availability managed by CIRUI', material: 'Cast Aluminum', color: 'Machined Silver', part: 'FBX-LUM-1985-35', weight: '23.1 lb' },
+  { id: 'fbox-track-17', category: 'Wheels', legacy_wheel: true, public_scope: true, price_mode: 'fixed', price_source: 'catalog', brand: 'CIRUI', name: 'Track 17', meta: '17x8 +35 · 5x114.3', price: 1980, oldPrice: null, rating: 0, reviews: 0, finish: 'Hyper Silver', diameter: 17, image: '0dccdbef8e429925.jpg', badge: '', deal: 'Availability managed by CIRUI', material: 'Cast Aluminum', color: 'Hyper Silver', part: 'FBX-TRA-1780-35', weight: '18.6 lb' },
   { id: 'fbox-ceramic-pro', category: 'Calipers', brand: 'CIRUI Braking', name: 'Ceramic Pro 6P', meta: '6 piston · front axle · 380 mm', price: 1240, oldPrice: 1390, rating: 0, reviews: 0, finish: 'Ceramic White', diameter: 380, image: 'fbox-ceramic-white-reference-pending.svg', badge: 'Sale', deal: 'Availability managed by CIRUI', material: 'Forged Aluminum', color: 'Ceramic White', part: 'FBX-CP6-380-WH', weight: '11.8 lb' },
   { id: 'fbox-street-4p', category: 'Calipers', brand: 'CIRUI Braking', name: 'Street 4P', meta: '4 piston · front axle · 330 mm', price: 880, oldPrice: null, rating: 0, reviews: 0, finish: 'Electric Blue', diameter: 330, image: 'f5effff1812a14eb.jpg', badge: 'New', deal: 'Availability managed by CIRUI', material: 'Forged Aluminum', color: 'Electric Blue', part: 'FBX-ST4-330-BL', weight: '9.4 lb' },
   { id: 'fbox-slotted-380', category: 'Rotors', brand: 'CIRUI Braking', name: 'Track Slotted 380', meta: '2-piece · slotted · 380 mm', price: 420, oldPrice: 480, rating: 0, reviews: 0, finish: 'Black Hat', diameter: 380, image: 'e78ac1cfdeae4727.jpg', badge: 'Sale', deal: 'Availability managed by CIRUI', material: 'Iron + Aluminum', color: 'Black Hat', part: 'FBX-TS380-2P', weight: '21.3 lb' },
   { id: 'fbox-drilled-330', category: 'Rotors', brand: 'CIRUI Braking', name: 'Street Drilled 330', meta: '1-piece · drilled & slotted · 330 mm', price: 278, oldPrice: null, rating: 0, reviews: 0, finish: 'Geomet Coat', diameter: 330, image: '07576b43c0712d61.jpg', badge: '', deal: 'Availability managed by CIRUI', material: 'High Carbon Iron', color: 'Geomet Coat', part: 'FBX-SD330-1P', weight: '17.9 lb' },
   { id: 'fbox-race-pad', category: 'Brake Pads', brand: 'CIRUI Braking', name: 'R-Compound Pads', meta: 'Low dust · high bite · front axle', price: 168, oldPrice: 190, rating: 0, reviews: 0, finish: 'Carbon Ceramic', diameter: 0, image: '746b0039a724a70a.jpg', badge: 'Sale', deal: 'Availability managed by CIRUI', material: 'Carbon Ceramic', color: 'Carbon Ceramic', part: 'FBX-RCP-FR', weight: '4.1 lb' },
   { id: 'fbox-quiet-pad', category: 'Brake Pads', brand: 'CIRUI Braking', name: 'Quiet Street Pads', meta: 'Low noise · low dust · front axle', price: 118, oldPrice: null, rating: 0, reviews: 0, finish: 'Ceramic', diameter: 0, image: '333cd3b0b1906049.jpg', badge: '', deal: 'Availability managed by CIRUI', material: 'Ceramic', color: 'Ceramic', part: 'FBX-QSP-FR', weight: '3.7 lb' },
-  { id: 'fbox-halo-20-spoke', category: 'Wheels', brand: 'CIRUI', name: 'CIRUI Halo 20-Spoke - Custom Hydraulic Forged Aluminum Alloy Step-Lip Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Satin Silver', diameter: null, image: 'halo-20-spoke-01.png', images: ['halo-20-spoke-01.png', 'halo-20-spoke-02.png', 'halo-20-spoke-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by CIRUI', material: 'Hydraulic Forged Aluminum Alloy', color: 'Satin Silver', part: 'FBX-HALO-20S', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
-  { id: 'fbox-meridian-multi-spoke', category: 'Wheels', brand: 'CIRUI', name: 'CIRUI Meridian - Custom Hydraulic Forged Aluminum Alloy Precision Multi-Spoke Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Brushed Silver', diameter: null, image: 'meridian-multi-spoke-01.png', images: ['meridian-multi-spoke-01.png', 'meridian-multi-spoke-02.png', 'meridian-multi-spoke-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by CIRUI', material: 'Hydraulic Forged Aluminum Alloy', color: 'Brushed Silver', part: 'FBX-MERIDIAN-MS', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
-  { id: 'fbox-vanta-10', category: 'Wheels', brand: 'CIRUI', name: 'CIRUI Vanta 10 - Custom Hydraulic Forged Aluminum Alloy 10-Spoke Deep-Lip Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Polished Silver', diameter: null, image: 'vanta-10-01.png', images: ['vanta-10-01.png', 'vanta-10-02.png', 'vanta-10-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by CIRUI', material: 'Hydraulic Forged Aluminum Alloy', color: 'Polished Silver', part: 'FBX-VANTA-10', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel', minimum_quantity: 4 },
-  { id: 'fbox-apex-split-spoke', category: 'Wheels', brand: 'CIRUI', name: 'CIRUI Apex - Custom Hydraulic Forged Aluminum Alloy Split-Spoke Performance Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 298, oldPrice: null, rating: 0, reviews: 0, finish: 'Satin Silver', diameter: null, image: 'apex-split-spoke-01.png', images: ['apex-split-spoke-01.png', 'apex-split-spoke-02.png', 'apex-split-spoke-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by CIRUI', material: 'Hydraulic Forged Aluminum Alloy', color: 'Satin Silver', part: 'FBX-APEX-SPLIT', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
-  { id: 'fbox-sv100', category: 'Wheels', brand: 'CIRUI', name: 'CIRUI SV100 - Custom Forged Multi-Piece Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 290, oldPrice: null, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'sv100-01.png', images: ['sv100-01.png', 'sv100-02.png', 'sv100-03.png', 'sv100-04.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by CIRUI', material: 'Forged Aluminum - Multi-Piece', color: 'Custom finish', part: 'FBX-SV100', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
-  { id: 'fbox-rse', category: 'Wheels', brand: 'CIRUI', name: 'CIRUI RSE - CustomSpec Forged Performance Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 310, oldPrice: null, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'rse-01.png', images: ['rse-01.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by CIRUI', material: 'CustomSpec Forged Aluminum', color: 'Custom finish', part: 'FBX-RSE', weight: '', price_mode: 'from', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' }
+  { id: 'fbox-halo-20-spoke', category: 'Wheels', brand: 'CIRUI', name: 'CIRUI Halo 20-Spoke - Custom Hydraulic Forged Aluminum Alloy Step-Lip Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 3778, oldPrice: null, rating: 0, reviews: 0, finish: 'Satin Silver', diameter: null, image: 'halo-20-spoke-01.png', images: ['halo-20-spoke-01.png', 'halo-20-spoke-02.png', 'halo-20-spoke-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by CIRUI', material: 'Hydraulic Forged Aluminum Alloy', color: 'Satin Silver', part: 'FBX-HALO-20S', weight: '', price_mode: 'fixed', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
+  { id: 'fbox-meridian-multi-spoke', category: 'Wheels', brand: 'CIRUI', name: 'CIRUI Meridian - Custom Hydraulic Forged Aluminum Alloy Precision Multi-Spoke Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 4649, oldPrice: null, rating: 0, reviews: 0, finish: 'Brushed Silver', diameter: null, image: 'meridian-multi-spoke-01.png', images: ['meridian-multi-spoke-01.png', 'meridian-multi-spoke-02.png', 'meridian-multi-spoke-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by CIRUI', material: 'Hydraulic Forged Aluminum Alloy', color: 'Brushed Silver', part: 'FBX-MERIDIAN-MS', weight: '', price_mode: 'fixed', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
+  { id: 'fbox-vanta-10', category: 'Wheels', brand: 'CIRUI', name: 'CIRUI Vanta 10 - Custom Hydraulic Forged Aluminum Alloy 10-Spoke Deep-Lip Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 4299, oldPrice: null, rating: 0, reviews: 0, finish: 'Polished Silver', diameter: null, image: 'vanta-10-01.png', images: ['vanta-10-01.png', 'vanta-10-02.png', 'vanta-10-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by CIRUI', material: 'Hydraulic Forged Aluminum Alloy', color: 'Polished Silver', part: 'FBX-VANTA-10', weight: '', price_mode: 'fixed', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel', minimum_quantity: 4 },
+  { id: 'fbox-apex-split-spoke', category: 'Wheels', brand: 'CIRUI', name: 'CIRUI Apex - Custom Hydraulic Forged Aluminum Alloy Split-Spoke Performance Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 3649, oldPrice: null, rating: 0, reviews: 0, finish: 'Satin Silver', diameter: null, image: 'apex-split-spoke-01.png', images: ['apex-split-spoke-01.png', 'apex-split-spoke-02.png', 'apex-split-spoke-03.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by CIRUI', material: 'Hydraulic Forged Aluminum Alloy', color: 'Satin Silver', part: 'FBX-APEX-SPLIT', weight: '', price_mode: 'fixed', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
+  { id: 'fbox-sv100', category: 'Wheels', brand: 'CIRUI', name: 'CIRUI SV100 - Custom Forged Multi-Piece Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 3999, oldPrice: null, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'sv100-01.png', images: ['sv100-01.png', 'sv100-02.png', 'sv100-03.png', 'sv100-04.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by CIRUI', material: 'Forged Aluminum - Multi-Piece', color: 'Custom finish', part: 'FBX-SV100', weight: '', price_mode: 'fixed', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' },
+  { id: 'fbox-rse', category: 'Wheels', brand: 'CIRUI', name: 'CIRUI RSE - CustomSpec Forged Performance Wheel', meta: 'Custom size - All diameters and widths available - PCD / ET / CB built to order', price: 3778, oldPrice: null, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'rse-01.png', images: ['rse-01.png'], badge: 'New', deal: 'Made to order - All sizes, fitment and finish customized by CIRUI', material: 'CustomSpec Forged Aluminum', color: 'Custom finish', part: 'FBX-RSE', weight: '', price_mode: 'fixed', currency: 'USD', image_cutout: true, visualizer_enabled: true, dynamic_wheel_effect: true, visualizer_mode: 'dynamic-wheel' }
 ];
 products = products.map(item => ({
   ...item,
-  custom_size: true,
-  size_note: item.size_note || (item.category === 'Wheels' ? 'All sizes supported - custom diameter, width and fitment' : 'All sizes supported - custom fitment built to order')
+  custom_size: item.legacy_wheel ? false : true,
+  size_note: item.legacy_wheel
+    ? 'Listed size is a reference. Confirm exact fitment and availability in the inquiry.'
+    : item.size_note || (item.category === 'Wheels' ? 'All sizes supported - custom diameter, width and fitment' : 'All sizes supported - custom fitment built to order')
 }));
 const localCustomProductFallback = products.filter(item => item.price_mode === 'from' || item.visualizer_enabled);
 
@@ -200,20 +202,20 @@ const categories = [
 const guideCards = [];
 
 const ceruiVehicleProducts = [
-  { id: 'cerui-bmw-forged-fitment', vehicle_label: 'BMW', vehicle_group: 'European performance', category: 'Wheels', brand: 'CIRUI Forged', name: 'BMW Custom Forged Fitment', meta: 'Built around the exact chassis, brake package and stance', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-bmw-v1.webp', images: ['cerui/catalog-bmw-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
-  { id: 'cerui-mercedes-suv-forged-fitment', vehicle_label: 'Mercedes-Benz', vehicle_group: 'Luxury & SUV', category: 'Wheels', brand: 'CIRUI Forged', name: 'Mercedes-Benz SUV Custom Forged Fitment', meta: 'Load, brake clearance and profile configured for the vehicle', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-mercedes-suv-v1.webp', images: ['cerui/catalog-mercedes-suv-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
-  { id: 'cerui-audi-forged-fitment', vehicle_label: 'Audi', vehicle_group: 'European performance', category: 'Wheels', brand: 'CIRUI Forged', name: 'Audi Custom Forged Fitment', meta: 'Vehicle-specific spoke, offset and brake-clearance direction', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-audi-v1.webp', images: ['cerui/catalog-audi-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
-  { id: 'cerui-porsche-forged-fitment', vehicle_label: 'Porsche', vehicle_group: 'European performance', category: 'Wheels', brand: 'CIRUI Forged', name: 'Porsche Custom Forged Fitment', meta: 'Performance-led fitment with profile and caliper room reviewed', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-porsche-v1.webp', images: ['cerui/catalog-porsche-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
-  { id: 'cerui-volkswagen-forged-fitment', vehicle_label: 'Volkswagen', vehicle_group: 'European performance', category: 'Wheels', brand: 'CIRUI Forged', name: 'Volkswagen Custom Forged Fitment', meta: 'Road-focused wheel direction configured to the exact platform', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-volkswagen-v1.webp', images: ['cerui/catalog-volkswagen-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
-  { id: 'cerui-land-rover-forged-fitment', vehicle_label: 'Land Rover', vehicle_group: 'Luxury & SUV', category: 'Wheels', brand: 'CIRUI Forged', name: 'Land Rover Custom Forged Fitment', meta: 'SUV load, stance and brake clearance considered together', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-land-rover-v1.webp', images: ['cerui/catalog-land-rover-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
-  { id: 'cerui-toyota-4x4-forged-fitment', vehicle_label: 'Toyota 4x4', vehicle_group: 'SUV & off-road', category: 'Wheels', brand: 'CIRUI Forged', name: 'Toyota 4x4 Custom Forged Fitment', meta: 'Off-road profile, hardware and load direction built to the brief', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-toyota-v1.webp', images: ['cerui/catalog-toyota-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
-  { id: 'cerui-tesla-forged-fitment', vehicle_label: 'Tesla', vehicle_group: 'EV & modern', category: 'Wheels', brand: 'CIRUI Forged', name: 'Tesla Custom Forged Fitment', meta: 'EV load, stance and brake clearance reviewed before production', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-tesla-v1.webp', images: ['cerui/catalog-tesla-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
-  { id: 'cerui-bentley-forged-fitment', vehicle_label: 'Bentley', vehicle_group: 'Luxury & SUV', category: 'Wheels', brand: 'CIRUI Forged', name: 'Bentley Custom Forged Fitment', meta: 'Luxury finish direction with exact vehicle measurements checked', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-bentley-v1.webp', images: ['cerui/catalog-bentley-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
-  { id: 'cerui-rolls-royce-forged-fitment', vehicle_label: 'Rolls-Royce', vehicle_group: 'Luxury & SUV', category: 'Wheels', brand: 'CIRUI Forged', name: 'Rolls-Royce Custom Forged Fitment', meta: 'Large-diameter luxury direction configured to the exact vehicle', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-rolls-royce-v1.webp', images: ['cerui/catalog-rolls-royce-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
-  { id: 'cerui-cadillac-forged-fitment', vehicle_label: 'Cadillac', vehicle_group: 'US luxury', category: 'Wheels', brand: 'CIRUI Forged', name: 'Cadillac Custom Forged Fitment', meta: 'Luxury road fitment configured around the precise platform', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-cadillac-v1.webp', images: ['cerui/catalog-cadillac-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
-  { id: 'cerui-lexus-forged-fitment', vehicle_label: 'Lexus', vehicle_group: 'Luxury & SUV', category: 'Wheels', brand: 'CIRUI Forged', name: 'Lexus Custom Forged Fitment', meta: 'Custom finish and wheel profile matched to the vehicle brief', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-lexus-v1.webp', images: ['cerui/catalog-lexus-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
-  { id: 'cerui-off-road-forged-fitment', vehicle_label: 'SUV / 4x4', vehicle_group: 'SUV & off-road', category: 'Wheels', brand: 'CIRUI Forged', name: 'SUV & 4x4 Custom Forged Fitment', meta: 'Hardware, load and terrain use translated into a wheel brief', price: 310, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-off-road-v1.webp', images: ['cerui/catalog-off-road-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' }
-];
+  { id: 'cerui-bmw-forged-fitment', vehicle_label: 'BMW', vehicle_group: 'European performance', category: 'Wheels', brand: 'CIRUI Forged', name: 'BMW Custom Forged Fitment', meta: 'Built around the exact chassis, brake package and stance', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-bmw-v1.webp', images: ['cerui/catalog-bmw-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
+  { id: 'cerui-mercedes-suv-forged-fitment', vehicle_label: 'Mercedes-Benz', vehicle_group: 'Luxury & SUV', category: 'Wheels', brand: 'CIRUI Forged', name: 'Mercedes-Benz SUV Custom Forged Fitment', meta: 'Load, brake clearance and profile configured for the vehicle', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-mercedes-suv-v1.webp', images: ['cerui/catalog-mercedes-suv-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
+  { id: 'cerui-audi-forged-fitment', vehicle_label: 'Audi', vehicle_group: 'European performance', category: 'Wheels', brand: 'CIRUI Forged', name: 'Audi Custom Forged Fitment', meta: 'Vehicle-specific spoke, offset and brake-clearance direction', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-audi-v1.webp', images: ['cerui/catalog-audi-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
+  { id: 'cerui-porsche-forged-fitment', vehicle_label: 'Porsche', vehicle_group: 'European performance', category: 'Wheels', brand: 'CIRUI Forged', name: 'Porsche Custom Forged Fitment', meta: 'Performance-led fitment with profile and caliper room reviewed', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-porsche-v1.webp', images: ['cerui/catalog-porsche-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
+  { id: 'cerui-volkswagen-forged-fitment', vehicle_label: 'Volkswagen', vehicle_group: 'European performance', category: 'Wheels', brand: 'CIRUI Forged', name: 'Volkswagen Custom Forged Fitment', meta: 'Road-focused wheel direction configured to the exact platform', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-volkswagen-v1.webp', images: ['cerui/catalog-volkswagen-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
+  { id: 'cerui-land-rover-forged-fitment', vehicle_label: 'Land Rover', vehicle_group: 'Luxury & SUV', category: 'Wheels', brand: 'CIRUI Forged', name: 'Land Rover Custom Forged Fitment', meta: 'SUV load, stance and brake clearance considered together', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-land-rover-v1.webp', images: ['cerui/catalog-land-rover-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
+  { id: 'cerui-toyota-4x4-forged-fitment', vehicle_label: 'Toyota 4x4', vehicle_group: 'SUV & off-road', category: 'Wheels', brand: 'CIRUI Forged', name: 'Toyota 4x4 Custom Forged Fitment', meta: 'Off-road profile, hardware and load direction built to the brief', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-toyota-v1.webp', images: ['cerui/catalog-toyota-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
+  { id: 'cerui-tesla-forged-fitment', vehicle_label: 'Tesla', vehicle_group: 'EV & modern', category: 'Wheels', brand: 'CIRUI Forged', name: 'Tesla Custom Forged Fitment', meta: 'EV load, stance and brake clearance reviewed before production', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-tesla-v1.webp', images: ['cerui/catalog-tesla-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
+  { id: 'cerui-bentley-forged-fitment', vehicle_label: 'Bentley', vehicle_group: 'Luxury & SUV', category: 'Wheels', brand: 'CIRUI Forged', name: 'Bentley Custom Forged Fitment', meta: 'Luxury finish direction with exact vehicle measurements checked', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-bentley-v1.webp', images: ['cerui/catalog-bentley-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
+  { id: 'cerui-rolls-royce-forged-fitment', vehicle_label: 'Rolls-Royce', vehicle_group: 'Luxury & SUV', category: 'Wheels', brand: 'CIRUI Forged', name: 'Rolls-Royce Custom Forged Fitment', meta: 'Large-diameter luxury direction configured to the exact vehicle', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-rolls-royce-v1.webp', images: ['cerui/catalog-rolls-royce-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
+  { id: 'cerui-cadillac-forged-fitment', vehicle_label: 'Cadillac', vehicle_group: 'US luxury', category: 'Wheels', brand: 'CIRUI Forged', name: 'Cadillac Custom Forged Fitment', meta: 'Luxury road fitment configured around the precise platform', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-cadillac-v1.webp', images: ['cerui/catalog-cadillac-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
+  { id: 'cerui-lexus-forged-fitment', vehicle_label: 'Lexus', vehicle_group: 'Luxury & SUV', category: 'Wheels', brand: 'CIRUI Forged', name: 'Lexus Custom Forged Fitment', meta: 'Custom finish and wheel profile matched to the vehicle brief', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-lexus-v1.webp', images: ['cerui/catalog-lexus-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' },
+  { id: 'cerui-off-road-forged-fitment', vehicle_label: 'SUV / 4x4', vehicle_group: 'SUV & off-road', category: 'Wheels', brand: 'CIRUI Forged', name: 'SUV & 4x4 Custom Forged Fitment', meta: 'Hardware, load and terrain use translated into a wheel brief', price: 649, price_mode: 'from', minimum_quantity: 4, rating: 0, reviews: 0, finish: 'Custom finish', diameter: null, image: 'cerui/catalog-off-road-v1.webp', images: ['cerui/catalog-off-road-v1.webp'], badge: 'Factory', deal: 'Made to order · DDP delivery available', material: 'Forged aluminum', color: 'Made to order', size_note: 'Custom diameter, width, PCD, ET and center bore' }
+].map(item => ({ ...item, price: null, price_mode: 'quote' }));
 
 products.push(...ceruiVehicleProducts);
 
@@ -567,6 +569,139 @@ Object.entries(premiumHeroTranslations).forEach(([locale, values]) => {
   Object.assign(localeDictionaries[locale], Object.fromEntries(premiumHeroTranslationKeys.map((key, index) => [key, values[index] || key])));
 });
 
+Object.assign(localeDictionaries['zh-CN'], {
+  'Track-led wheels.': '赛道导向的轮毂。',
+  'Made for your car.': '为你的车辆量身锻造。',
+  'Bespoke wheel projects for track days and hard driving, with the same vehicle-specific engineering available for street and show builds. We review brakes, tires, fitment, intended use and load before the production specification is approved.': '主打赛道日与高强度驾驶的专属轮毂项目，也为日常和展示用车提供同样的车型专属工程评估。生产规格确认前，我们会核对刹车、轮胎、适配、用途与载重。',
+  'Plan a track build': '规划赛道轮毂',
+  'Explore every build type': '了解所有定制用途',
+  'Track builds': '赛道定制',
+  'Track-Led Custom Forged Wheels | CIRUI Forged': '赛道导向定制锻造轮毂 | 策锐锻造',
+  'About CIRUI Forged | 15,000T Shandong Factory': '关于策锐锻造 | 山东 15,000 吨热锻工厂',
+  '15,000T forging': '15,000 吨热锻',
+  '7,000 m² facility': '7,000 平方米厂房',
+  'Hangzhou headquarters': '杭州总部',
+  'CIRUI Forged headquarters in China': '策锐锻造中国总部',
+  'One press at the 7,000 m² Shandong factory': '山东 7,000 平方米工厂配备一台热锻液压机',
+  'Hangzhou HQ · Shandong manufacturing': '杭州总部 · 山东制造',
+  'Above 2,100 lb': '超过 2,100 磅',
+  'Per-wheel load targets for qualifying custom builds': '符合条件的定制项目可设定单只轮毂载重目标',
+  'Documentation for applicable tested specifications': '提供适用已测试规格的认证资料',
+  'International rights holder and operator for CIRUI Forged. CIRUI headquarters: Hangzhou; wheel manufacturing: Shandong, China.': '策锐锻造海外权益持有方及官网运营方；总部位于杭州，生产基地位于中国山东。',
+});
+Object.assign(localeDictionaries['zh-TW'], {
+  'Track-led wheels.': '賽道導向的輪圈。',
+  'Made for your car.': '為你的車輛量身鍛造。',
+  'Bespoke wheel projects for track days and hard driving, with the same vehicle-specific engineering available for street and show builds. We review brakes, tires, fitment, intended use and load before the production specification is approved.': '主打賽道日與高強度駕駛的專屬輪圈專案，也為日常及展示用車提供同樣的車型專屬工程評估。生產規格確認前，我們會核對煞車、輪胎、適配、用途與載重。',
+  'Plan a track build': '規劃賽道輪圈',
+  'Explore every build type': '了解所有客製用途',
+  'Track builds': '賽道客製',
+  'Track-Led Custom Forged Wheels | CIRUI Forged': '賽道導向客製鍛造輪圈 | 策銳鍛造',
+  'About CIRUI Forged | 15,000T Shandong Factory': '關於策銳鍛造 | 山東 15,000 噸熱鍛工廠',
+  '15,000T forging': '15,000 噸熱鍛',
+  '7,000 m² facility': '7,000 平方公尺廠房',
+  'Hangzhou headquarters': '杭州總部',
+  'CIRUI Forged headquarters in China': '策銳鍛造中國總部',
+  'One press at the 7,000 m² Shandong factory': '山東 7,000 平方公尺工廠配備一台熱鍛液壓機',
+  'Hangzhou HQ · Shandong manufacturing': '杭州總部 · 山東製造',
+  'Above 2,100 lb': '超過 2,100 磅',
+  'Per-wheel load targets for qualifying custom builds': '符合條件的客製專案可設定單只輪圈載重目標',
+  'Documentation for applicable tested specifications': '提供適用已測試規格的認證資料',
+  'International rights holder and operator for CIRUI Forged. CIRUI headquarters: Hangzhou; wheel manufacturing: Shandong, China.': '策銳鍛造海外權益持有方及官網營運方；總部位於杭州，生產基地位於中國山東。',
+});
+Object.assign(localeDictionaries['zh-CN'], {
+  'Start a private track project': '发起专属赛道轮毂项目',
+  'Your private wheel project': '你的专属轮毂项目',
+  'Share the driving goal and the details you want to make yours. A CIRUI specialist will confirm the engineering drawing and approval steps before production.': '告诉我们驾驶目标及想定制的细节。策锐专员会在生产前与你确认工程图及审核步骤。',
+  'Intended use': '使用场景',
+  'Track day / competition': '赛道日 / 赛事',
+  'Spirited road': '激烈公路驾驶',
+  'Daily street': '日常街道',
+  'Show / stance': '展示 / 姿态',
+  'Design direction': '设计方向',
+  'Spoke style, original concept or wheel model': '轮辐造型、原创概念或轮毂型号',
+  'Concavity / lip preference': '内凹 / 轮唇偏好',
+  'Deep concave, step lip, brake-first': '深内凹、阶梯唇或优先考虑刹车空间',
+  'Brake package': '刹车配置',
+  'Caliper and rotor model, if known': '如已知，请填写卡钳及刹车盘型号',
+  'Target load per wheel (lb)': '单只轮毂目标载重（磅）',
+  'Leave blank if unknown': '不确定可留空',
+  'Center cap / logo': '中心盖 / 标识',
+  'CIRUI cap or custom artwork': '策锐中心盖或自定义图案',
+  'Hardware preference': '连接件偏好',
+  'Visible, concealed, color or no preference': '外露、隐藏、颜色或暂无偏好',
+  'Design reference link': '设计参考链接',
+  'Explore finishes': '了解表面处理',
+  'Explore center caps': '了解中心盖',
+  'Explore lip profiles': '了解轮唇样式',
+  'Explore hardware': '了解连接件',
+  'Personalize this wheel': '定制这款轮毂',
+  'Finish preference': '表面处理偏好',
+  'Center cap preference': '中心盖偏好',
+  'Lip preference': '轮唇偏好',
+  'Discuss with CIRUI': '与策锐讨论',
+  'These are design preferences. CIRUI confirms availability, fitment, load scope and final price against the engineering drawing.': '此处记录设计偏好。策锐会依据工程图确认可行性、适配、载重范围及最终价格。',
+  'Finish examples': '表面处理示例',
+  'Cap examples': '中心盖示例',
+  'Lip examples': '轮唇示例',
+  'Hardware examples': '连接件示例',
+  'Exposed hardware': '外露连接件',
+  'Hidden hardware': '隐藏连接件',
+  'Custom color hardware': '自定义颜色连接件',
+  'Tell us what you want to build.': '告诉我们你想定制什么。',
+  'new project': '新项目',
+  'No wheel selected yet. Start with your vehicle and we will develop a direction together.': '暂未选择轮毂。从车辆信息开始，我们会一起确定设计方向。',
+  'Your custom wheel brief is with CIRUI.': '策锐已收到你的定制需求。',
+  'A CIRUI specialist will review your vehicle, driving use, design direction and destination before confirming the next engineering step.': '策锐专员将核对车辆、驾驶用途、设计方向及收货地，再与你确认下一步工程方案。',
+  'Save draft in this browser': '将草稿保存在此浏览器'
+});
+Object.assign(localeDictionaries['zh-TW'], {
+  'Start a private track project': '發起專屬賽道輪圈專案',
+  'Your private wheel project': '你的專屬輪圈專案',
+  'Share the driving goal and the details you want to make yours. A CIRUI specialist will confirm the engineering drawing and approval steps before production.': '告訴我們駕駛目標及想客製的細節。策銳專員會在生產前與你確認工程圖及審核步驟。',
+  'Intended use': '使用場景',
+  'Track day / competition': '賽道日 / 賽事',
+  'Spirited road': '激烈公路駕駛',
+  'Daily street': '日常街道',
+  'Show / stance': '展示 / 姿態',
+  'Design direction': '設計方向',
+  'Spoke style, original concept or wheel model': '輪輻造型、原創概念或輪圈型號',
+  'Concavity / lip preference': '內凹 / 輪唇偏好',
+  'Deep concave, step lip, brake-first': '深內凹、階梯唇或優先考慮煞車空間',
+  'Brake package': '煞車配置',
+  'Caliper and rotor model, if known': '如已知，請填寫卡鉗及煞車盤型號',
+  'Target load per wheel (lb)': '單只輪圈目標載重（磅）',
+  'Leave blank if unknown': '不確定可留空',
+  'Center cap / logo': '中心蓋 / 標誌',
+  'CIRUI cap or custom artwork': '策銳中心蓋或自訂圖案',
+  'Hardware preference': '連接件偏好',
+  'Visible, concealed, color or no preference': '外露、隱藏、顏色或暫無偏好',
+  'Design reference link': '設計參考連結',
+  'Explore finishes': '了解表面處理',
+  'Explore center caps': '了解中心蓋',
+  'Explore lip profiles': '了解輪唇樣式',
+  'Explore hardware': '了解連接件',
+  'Personalize this wheel': '客製這款輪圈',
+  'Finish preference': '表面處理偏好',
+  'Center cap preference': '中心蓋偏好',
+  'Lip preference': '輪唇偏好',
+  'Discuss with CIRUI': '與策銳討論',
+  'These are design preferences. CIRUI confirms availability, fitment, load scope and final price against the engineering drawing.': '此處記錄設計偏好。策銳會依據工程圖確認可行性、適配、載重範圍及最終價格。',
+  'Finish examples': '表面處理示例',
+  'Cap examples': '中心蓋示例',
+  'Lip examples': '輪唇示例',
+  'Hardware examples': '連接件示例',
+  'Exposed hardware': '外露連接件',
+  'Hidden hardware': '隱藏連接件',
+  'Custom color hardware': '自訂顏色連接件',
+  'Tell us what you want to build.': '告訴我們你想客製什麼。',
+  'new project': '新專案',
+  'No wheel selected yet. Start with your vehicle and we will develop a direction together.': '尚未選擇輪圈。從車輛資訊開始，我們會一起確定設計方向。',
+  'Your custom wheel brief is with CIRUI.': '策銳已收到你的客製需求。',
+  'A CIRUI specialist will review your vehicle, driving use, design direction and destination before confirming the next engineering step.': '策銳專員將核對車輛、駕駛用途、設計方向及收貨地，再與你確認下一步工程方案。',
+  'Save draft in this browser': '將草稿儲存在此瀏覽器'
+});
+
 const visualStudioTranslationKeys = [
   'CIRUI VISUAL STUDIO',
   'Live fitment preview',
@@ -898,6 +1033,9 @@ const workshopChineseTranslations = {
   'Vehicle and parts lookup is open. Sign in only when your shop needs to save, share or price a customer build.': '车辆与改装件查询免费开放；需要保存、分享或给客户定价时再登录。',
   'Sign in': '登录',
   'Sign out': '退出登录',
+  'Email or username': '邮箱或用户名',
+  'Use your email address or username with your password.': '使用邮箱或用户名加密码登录。',
+  'Password (6+ characters)': '密码（至少 6 个字符）',
   'Close': '关闭',
   'Create shop account': '创建店家账号',
   'Shop workspace': '店家工作台',
@@ -2259,6 +2397,61 @@ Object.entries(productCatalogTranslations).forEach(([locale, values]) => {
 });
 
 const exportWorkflowZhCN = {
+  'Wheel styles': '轮毂款式',
+  'ADDITIONAL WHEEL STYLES': '更多轮毂款式',
+  'Explore additional wheel styles.': '探索更多轮毂款式。',
+  'These catalog references show their listed material and size. Confirm final fitment and availability in your inquiry.': '这些目录款式会标明材质和尺寸；请在询盘中确认最终适配与供货情况。',
+  'Listed materials': '标注材质',
+  'Each wheel card states its listed material. Confirm the final specification in your inquiry.': '每款轮毂都标注材质；最终规格请通过询盘确认。',
+  'Explore wheel styles': '浏览轮毂款式',
+  'Listed material and size are references. Confirm exact fitment in your inquiry.': '页面材质和尺寸为参考，请通过询盘确认准确适配。',
+  'Search wheel styles': '搜索轮毂款式',
+  'Fitment to confirm': '适配待确认',
+  'Listed material': '标注材质',
+  'Listed size and fitment': '标注尺寸与适配参数',
+  'Material to confirm': '材质待确认',
+  'Cast Aluminum': '铸造铝合金',
+  'Rotary Forged': '旋压成形铝合金',
+  'Confirm the final construction, fitment and availability in your inquiry.': '请在询盘中确认最终结构、适配及供货情况。',
+  'Catalog price. Delivery and the final order are confirmed after review.': '目录标价；交付和最终订单将在审核后确认。',
+  'MORE WHEEL STYLES': '更多轮毂款式',
+  'Browse related wheel styles': '查看同类款式',
+  'WHEEL STYLE INQUIRY': '轮毂款式询盘',
+  'Your selected wheel style is attached. Add your vehicle and contact details to confirm the final specification.': '已关联所选款式；填写车辆和联系信息以确认最终规格。',
+  'Vehicle style collection': '车型款式合集',
+  'STOCK WHEEL INQUIRY': '现货轮毂询盘',
+  'Your selected stock style is attached. Add your contact, vehicle and delivery details to submit the inquiry.': '已关联所选现货款式。填写联系信息、车辆和收货地即可提交询盘。',
+  'Stock specification to confirm': '现货规格待确认',
+  'Recorded inventory from the workbook last modified': '库存记录来自最近修改于',
+  'Confirm current availability before ordering.': '下单前请确认当前库存。',
+  'This vehicle collection shows reference styles. Confirm the exact specification and current availability in your inquiry.': '该车型合集展示参考款式。请在询盘中确认准确规格及当前库存。',
+  'Catalog price. Exact fitment, stock and delivery are confirmed in your inquiry.': '目录标价。准确适配、库存与交付方式将在询盘中确认。',
+  'Select a recorded specification': '选择表格中的库存规格',
+  'Ask CIRUI to confirm the right specification': '请策锐协助确认合适规格',
+  'RECORDED STOCK': '表格库存记录',
+  'Available specifications in the source workbook': '来源表格中的库存规格',
+  'Size': '尺寸',
+  'Recorded quantity': '表格记录数量',
+  'Load rating': '载荷标记',
+  'MORE STOCK WHEELS': '更多现货轮毂',
+  'Browse related stock styles': '查看同类现货款式',
+  'Stock wheels': '现货轮毂',
+  'STOCK WHEEL COLLECTION': '现货轮毂',
+  'Stock wheel styles and recorded specifications.': '现货轮毂款式与库存规格。',
+  'Browse vehicle style collections and recorded stock specifications. Confirm current availability, exact fitment and delivery in your inquiry.': '浏览车型款式合集及表格记录的现货规格；当前库存、准确适配与交付方式请通过询盘确认。',
+  'Stock groups': '现货分组',
+  'All stock': '全部现货',
+  'Vehicle collections': '车型合集',
+  'BBS section': 'BBS 分组',
+  'Aftermarket section': '改装款分组',
+  'Find a stock wheel': '查找现货轮毂',
+  'Recorded inventory is a snapshot. Confirm current availability and fitment in your inquiry.': '库存数据为表格快照；请在询盘中确认当前库存与适配。',
+  'Search stock': '搜索现货',
+  'recorded specification': '条库存规格',
+  'recorded specifications': '条库存规格',
+  'Specification and availability to confirm': '规格与库存待确认',
+  'Availability to confirm': '库存待确认',
+  'View stock details': '查看现货详情',
   'RFQ list': '询价清单',
   'Open RFQ list': '打开询价清单',
   'Forged wheel catalog': '锻造轮毂目录',
@@ -2303,8 +2496,8 @@ const exportWorkflowZhCN = {
   'Reset': '重置',
   'Reset catalog': '重置商品目录',
   'Catalog order': '目录顺序',
-  'Reference price: low to high': '参考价：从低到高',
-  'Reference price: high to low': '参考价：从高到低',
+  'Price: low to high': '价格：从低到高',
+  'Price: high to low': '价格：从高到低',
   'Monoblock': '单片式',
   '2-piece': '双片式',
   'Confirm with drawing': '以图纸确认为准',
@@ -2313,7 +2506,12 @@ const exportWorkflowZhCN = {
   'Engineering confirmation required': '需要工程确认',
   'MOQ': '起订量',
   'DDP quote available · Europe & North America': '支持 DDP 报价 · 欧洲与北美',
-  'reference / wheel': '参考价 / 只',
+  'Request quote': '询价',
+  'Shopify price': 'Shopify 商品价格',
+  'Catalog price': '官网价格',
+  'Listed price matches Shopify. Fitment and delivery are confirmed with your inquiry.': '所示价格与 Shopify 商品一致。适配参数和运费将在询盘中确认。',
+  'Fitment and delivery are confirmed with your inquiry.': '适配参数和运费将在询盘中确认。',
+  'Choose a wheel to review the design and send a custom inquiry.': '选择轮毂款式，查看设计并发起定制询盘。',
   'Made to order': '按单生产',
   'View details': '查看详情',
   'Add to RFQ': '加入询价清单',
@@ -2556,6 +2754,9 @@ const aiWheelStudioZhCN = {
   'Visual diameter': '视觉轮径',
   'Not fixed': '暂不限定',
   'Vehicle context inherited': '已继承车型信息',
+  'Vehicle context (editable)': '车型信息（可手动修改）',
+  'Enter year, make, model, trim and drive': '输入年份、品牌、车型、配置和驱动形式',
+  'You can replace the inherited vehicle with a manual description. The edited value will be used for this design request.': '可以手动修改已继承的车型；修改后的内容会用于本次设计需求。',
   'No vehicle selected': '尚未选择车型',
   'The vehicle is used only as design context. Fitment, brake clearance and load are still checked separately in the Fitment Lab.': '车型这里只用于辅助设计方向；实际适配、刹车间隙和载荷仍需在适配实验室单独核验。',
   'Generate 4 original concepts': '生成 4 个原创方案',
@@ -2584,11 +2785,163 @@ const aiWheelStudioZhCN = {
   'Remove reference': '移除参考图',
   'View larger': '放大查看',
   'Generation failed': '生成失败',
+  'The official image generation service is not configured or is temporarily unavailable. Please try again later or contact CIRUI support.': '官方图片生成服务尚未配置或暂时不可用，请稍后重试或联系 CIRUI 客服。',
   'Try again': '重试',
   'Return to brief': '返回修改需求'
 };
 Object.assign(localeDictionaries['zh-CN'], aiWheelStudioZhCN);
 Object.assign(localeDictionaries['zh-TW'], Object.fromEntries(Object.entries(aiWheelStudioZhCN).map(([key, value]) => [key, value.replace(/[\u3400-\u9fff]/g, character => exportTraditionalCharacters[character] || character)])));
+
+const productConfiguratorZhCN = {
+  'BUILD YOUR WHEEL': '配置你的轮毂',
+  'Choose the details that matter to you.': '选择对你重要的细节。',
+  'Your selections are saved in this browser and included with your quote request. CIRUI confirms engineering feasibility and final price for the exact vehicle.': '你的选择会保存在此浏览器，并随询价一起提交。策锐会根据具体车型确认工程可行性和最终价格。',
+  'Use, size and fitment': '用途、尺寸与适配',
+  'For track use, include the brake package and load goal. CIRUI reviews the final wheel specification before confirming suitability.': '赛道用途请填写刹车配置及载重目标。策锐会审核最终轮毂规格后确认适用性。',
+  'Choose intended use': '选择驾驶用途',
+  'Front wheel size (qty: 2)': '前轮尺寸（数量：2）',
+  'Rear wheel size (qty: 2)': '后轮尺寸（数量：2）',
+  'Wheel position': '轮毂位置',
+  'Front': '前轮',
+  'Rear': '后轮',
+  'Diameter (inch)': '直径（英寸）',
+  'Width (inch)': '宽度（英寸）',
+  'Please select': '请选择',
+  'Other / custom size': '其他 / 定制尺寸',
+  'Custom diameter (inch)': '定制直径（英寸）',
+  'Custom width (inch)': '定制宽度（英寸）',
+  'Enter diameter': '输入直径',
+  'Enter width': '输入宽度',
+  'Mounting system (Multi-Lug or Center-Lock)': '安装方式（多孔位或中央锁止）',
+  'Mounting system': '安装方式',
+  'Factory bolt pattern': '原厂螺栓孔位',
+  'Multi-lug bolt pattern (review required)': '多孔位螺栓孔距（需工程审核）',
+  'Bolt pattern conversion / adapters (review required)': '孔位转换 / 转接件（需工程审核）',
+  'Center-lock request (review required)': '中央锁止需求（需工程审核）',
+  'Wheel PCD, CB, Offset — engineering review': '轮毂 PCD、中心孔、ET — 工程审核',
+  'CIRUI engineers research and confirm': '由策锐工程师查询并确认',
+  'I will provide mounting and fitment measurements': '我提供安装和适配尺寸',
+  'Center-lock interface / hub details': '中央锁止接口 / 轮毂连接细节',
+  'Center-lock interface': '中央锁止接口',
+  'Hub, spline and nut details': '轮毂、花键和锁止螺母细节',
+  '(2 wheels)': '（2 只）',
+  'Wheel size': '轮毂尺寸',
+  'Construction preference': '结构偏好',
+  'Forged 2-piece': '双片式锻造',
+  'Let CIRUI recommend sizes': '由策锐推荐尺寸',
+  'I have target sizes': '我有目标尺寸',
+  'Front / rear layout': '前后轮配置',
+  'Square setup': '前后同规格',
+  'Staggered setup': '前后配规格',
+  'Front diameter (in)': '前轮直径（英寸）',
+  'Front width (in)': '前轮宽度（英寸）',
+  'Rear diameter (in)': '后轮直径（英寸）',
+  'Rear width (in)': '后轮宽度（英寸）',
+  'PCD / center bore / offset': 'PCD / 中心孔 / 偏距',
+  'CIRUI measures and confirms': '由策锐测量并确认',
+  'I have target measurements': '我有目标数据',
+  'PCD / bolt pattern': 'PCD / 螺栓孔距',
+  'Center bore (mm)': '中心孔（毫米）',
+  'Front ET (mm)': '前轮 ET（毫米）',
+  'Rear ET (mm)': '后轮 ET（毫米）',
+  'Fitment goal': '适配目标',
+  'Factory clearance': '原厂安全间隙',
+  'Flush fitment': '齐平翼子板',
+  'Tucked': '内收姿态',
+  'Track clearance': '赛道间隙优先',
+  'Brake setup': '刹车配置',
+  'Factory brakes': '原厂刹车',
+  'Carbon ceramic': '碳陶刹车',
+  'Aftermarket big brake kit': '改装大刹车套件',
+  'Brake / caliper model': '刹车 / 卡钳型号',
+  'Current ride height': '当前车身高度',
+  'Stock height': '原厂高度',
+  'Lowered': '降低车身',
+  'Air suspension': '空气悬挂',
+  'Raised': '升高车身',
+  'Fender / body setup': '翼子板 / 车身状态',
+  'Stock body': '原厂车身',
+  'Rolled fenders': '卷边翼子板',
+  'Pulled fenders': '外扩翼子板',
+  'Widebody': '宽体套件',
+  'Finish and profile': '表面处理与轮廓',
+  'Finish layout': '表面处理方案',
+  'Single finish': '单色处理',
+  'Two-tone finish': '双色处理',
+  'Custom design': '自定义设计',
+  'Primary finish': '主表面处理',
+  'Polished': '抛光',
+  'Custom color': '自定义颜色',
+  'Color / finish details': '颜色 / 表面处理细节',
+  'Concavity preference': '内凹偏好',
+  'Brake clearance first': '优先保证刹车间隙',
+  'Balanced profile': '均衡轮廓',
+  'Deep concave': '深内凹',
+  'Caps and finishing details': '中心盖与细节',
+  'Center cap style': '中心盖样式',
+  'Floating cap': '悬浮中心盖',
+  'Color matched': '同色中心盖',
+  'CIRUI logo': '策锐标识',
+  'Vehicle emblem request': '希望使用车辆标识',
+  'Custom emblem details': '自定义标识细节',
+  'Engraving request': '刻字需求',
+  'Additional notes': '其他说明',
+  'Tell us what matters most for this build': '告诉我们这套轮毂最重要的要求',
+  'YOUR BUILD BRIEF': '你的定制摘要',
+  'Start product inquiry': '发起商品询盘',
+  'Engineering review': '工程审核',
+  'Confirmed quotation': '确认报价',
+  'Secure Shopify payment': 'Shopify 安全付款',
+  'Shopify checkout opens after CIRUI confirms the final specification and price.': '策锐确认最终规格和价格后，才会开放 Shopify 结账。',
+  'Open your inquiry': '查看你的询盘',
+  'Keep this reference. Your quote and Shopify payment link will appear in your inquiry conversation after review.': '请保存此编号。审核完成后，报价和 Shopify 付款链接会显示在你的询盘会话中。',
+  'The server did not confirm an inquiry number. Please try again.': '服务器未确认询盘编号，请重试。',
+  'INQUIRY RECEIVED': '询盘已收到',
+  'PRODUCT INQUIRY': '商品询盘',
+  'Send an inquiry for this wheel.': '发起这款轮毂的询盘。',
+  'Your wheel configuration is attached. Add your contact and vehicle details to submit the inquiry.': '已附上你选择的轮毂配置。填写联系方式和车辆信息后即可提交询盘。',
+  'Submitting inquiry…': '正在提交询盘…',
+  'Submit product inquiry': '提交商品询盘',
+  'Your product inquiry is registered with CIRUI.': '你的商品询盘已登记至策锐。',
+  'Your selected wheel specifications and contact details were saved for the CIRUI sales team. Please keep the inquiry reference for follow-up.': '你选择的轮毂规格和联系方式已保存至策锐销售后台。请保留询盘编号，以便后续跟进。',
+  'Preferences are reviewed against brake clearance, load target and the final engineering drawing before a production specification is approved.': '生产规格获批前，策锐会结合刹车间隙、目标载重和最终工程图审核这些偏好。',
+  'Ask CIRUI to recommend': '由策锐推荐',
+  'Choose any details you know. CIRUI can recommend the rest.': '先填写你确定的细节，其他部分可由策锐推荐。',
+  'Wheel sizes': '轮毂尺寸',
+  'CIRUI to recommend': '由策锐推荐',
+  'Wheel layout': '前后轮配置',
+  'Square': '前后同规格',
+  'Staggered': '前后配规格',
+  'Front size': '前轮尺寸',
+  'Rear size': '后轮尺寸',
+  'CIRUI to verify': '由策锐核实',
+  'Center bore': '中心孔',
+  'Front ET': '前轮 ET',
+  'Rear ET': '后轮 ET',
+  'Load target per wheel': '单只轮毂目标载重',
+  'Brake model': '刹车型号',
+  'Ride height': '车身高度',
+  'Fender setup': '翼子板状态',
+  'Finish details': '表面处理细节',
+  'Concavity': '内凹轮廓',
+  'Lip': '轮唇',
+  'Cap emblem': '中心盖标识',
+  'Engraving': '刻字',
+  'Design reference': '设计参考',
+  'more details': '项其他细节',
+  'Complete the wheel sizes you chose to provide, or ask CIRUI to recommend them.': '请补齐你选择提供的轮毂尺寸，或改为由策锐推荐。',
+  'Select a diameter and width for both front and rear wheels.': '请分别选择前后轮的直径和宽度。',
+  'Enter the custom size you selected.': '请输入所选的定制尺寸。',
+  'Choose the driving use for this wheel.': '请选择这款轮毂的驾驶用途。',
+  'Complete the fitment measurements you chose to provide, or ask CIRUI to confirm them.': '请补齐你选择提供的适配数据，或改为由策锐确认。',
+  'Name the aftermarket brake kit so CIRUI can review clearance.': '请填写改装刹车套件型号，以便策锐核对间隙。',
+  'Describe the custom color or choose another finish.': '请描述自定义颜色，或选择其他表面处理。',
+  'Describe the two-tone or custom finish you selected.': '请描述你选择的双色或自定义表面处理。',
+  'Describe your custom center cap emblem.': '请描述自定义中心盖标识。',
+  'Check the selected value before continuing.': '请检查填写的数值后继续。'
+};
+Object.assign(localeDictionaries['zh-CN'], productConfiguratorZhCN);
+Object.assign(localeDictionaries['zh-TW'], Object.fromEntries(Object.entries(productConfiguratorZhCN).map(([key, value]) => [key, value.replace(/[\u3400-\u9fff]/g, character => exportTraditionalCharacters[character] || character)])));
 
 function uiLabel(key, fallback = key) {
   return localeDictionaries[state.locale]?.[key] || fallback;
@@ -2713,11 +3066,12 @@ const state = {
   toast: '',
   search: '',
   vehicle: JSON.parse(localStorage.getItem('fbox-vehicle') || 'null'),
-  filters: { category: 'Wheels', collection: 'all', application: 'all', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' },
+  filters: { category: 'Wheels', collection: 'all', stockGroup: 'all', application: 'all', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' },
   sort: 'latest',
   wishlist: JSON.parse(localStorage.getItem('fbox-wishlist') || '[]'),
   cart: JSON.parse(localStorage.getItem('fbox-cart') || '[]'),
   productImage: {},
+  productBriefs: readLocalJson('cirui-product-briefs', {}),
   reviewLimit: 3,
   homeBuildsExpanded: false,
   checkoutStep: 1,
@@ -2726,9 +3080,10 @@ const state = {
   localeCountry: '',
   mallToken: localStorage.getItem('fbox-mall-token') || '',
   account: null,
+  accountLoginDraft: { identity: '', password: '', identityUnlocked: false, passwordUnlocked: false },
   catalogLoaded: false,
   checkoutForm: JSON.parse(localStorage.getItem('fbox-checkout-form') || '{}'),
-  rfq: { status: 'idle', id: '', error: '', draft: readLocalJson('cirui-rfq-draft', {}) },
+  rfq: { status: 'idle', id: '', error: '', focusProductId: '', draft: readLocalJson('cirui-rfq-draft', {}) },
   customSection: 'overview',
   catalogNotice: '',
   lastOrder: null,
@@ -2831,6 +3186,7 @@ function assetUrl(value = '') {
   if (/^(?:\/|\.\.?\/)/.test(source) && !/^(?:\.\/|\/)?assets\//i.test(source)) return source;
   const relative = source.replace(/^\.\//, '').replace(/^\/+/g, '').replace(/^assets\//i, '');
   const localOriginal = `${ASSET}${relative}`;
+  if (/^products\/stock-inventory\//i.test(relative)) return localOriginal;
   if (!/\.(?:png|jpe?g)$/i.test(relative)) return localOriginal;
 
   const optimizedRelative = relative.replace(/\.(?:png|jpe?g)$/i, '.webp');
@@ -2861,6 +3217,7 @@ function productTranslationProfile(item) {
 }
 function productNameText(item) {
   const name = String(item?.catalog_display_name || item?.name || '').trim();
+  if (item?.stock_collection && String(state.locale || '').startsWith('zh')) return item.localized_names?.['zh-CN'] || name;
   if (!name || productTranslationProfile(item) !== 'custom-wheel') return name;
   const suffixes = ['Floating Custom Forged Wheel', 'Full Custom Forged Wheel', 'Full Custom Wheel'];
   const matched = suffixes.find(suffix => name.toLowerCase().endsWith(` - ${suffix.toLowerCase()}`));
@@ -2888,12 +3245,11 @@ function productGallery(item) {
   const fallback = item?.image ? [item.image, 'a7dd472643daf9b4.jpg', 'ff2a26733252a2c8.jpg'] : [];
   return [...new Set((stored.length ? stored : fallback).filter(Boolean))];
 }
-function hasStartingPrice(item) { return item?.price_mode === 'from'; }
 function productPriceText(item) {
-  if (!hasStartingPrice(item)) return money(item.price);
-  const amount = `US${money(item.price)}`;
-  const from = uiLabel('From');
-  return ['zh-CN', 'zh-TW', 'ja', 'ko', 'hi'].includes(state.locale) ? `${amount} ${from}` : `${from} ${amount}`;
+  const amount = Number(item?.price);
+  return item?.price_mode === 'quote' || !Number.isFinite(amount) || amount <= 0
+    ? uiLabel('Request quote')
+    : money(amount);
 }
 function productMinimumQuantity(item) {
   const configured = Number(item?.minimum_quantity || 0);
@@ -2904,20 +3260,12 @@ function productMinimumOrderText(item) {
   const minimum = productMinimumQuantity(item);
   return minimum > 1 ? uiLabel(`Minimum order: ${minimum} wheels.`, `Minimum order: ${minimum} wheels.`) : '';
 }
-function productMinimumOrderSummary(item) {
-  const minimum = productMinimumQuantity(item);
-  if (minimum <= 1) return '';
-  const subtotal = money(Number(item?.price || 0) * minimum);
-  if (state.locale === 'zh-TW') return `最低起訂金額：${subtotal}，${minimum} 只輪圈。`;
-  if (String(state.locale || '').startsWith('zh')) return `最低起订金额：${subtotal}，${minimum} 只轮毂。`;
-  return `Minimum starting subtotal: ${subtotal} for ${minimum} wheels.`;
-}
 function product(id) { return products.find(item => item.id === id) || products[0]; }
 function homeWheelProducts() {
   const fallbackRank = ['fbox-rse', 'fbox-sv100', 'fbox-apex-split-spoke', 'fbox-vanta-10', 'fbox-meridian-multi-spoke', 'fbox-halo-20-spoke'];
   return publicForgedProducts()
     .map((item, index) => ({ item, index }))
-    .filter(({ item }) => item.image)
+    .filter(({ item }) => item.image && !item.stock_collection && !item.legacy_wheel)
     .sort((left, right) => {
       const a = left.item;
       const b = right.item;
@@ -3054,8 +3402,7 @@ function fitmentWhatsAppContext() {
   return { kind: 'fitment', title: whatsappCopy('CIRUI fitment consultation', 'CIRUI 适配咨询'), message: imageResult.lines.join('\n'), imageUrls: imageResult.imageUrls };
 }
 function whatsappProductPrice(item) {
-  if (!hasStartingPrice(item)) return money(item?.price || 0);
-  return whatsappIsChinese() ? `USD ${Number(item.price || 0).toFixed(0)} 起` : `From USD ${item.price}`;
+  return productPriceText(item);
 }
 function whatsappProductFinish(item) {
   const finish = String(item?.finish || item?.color || '').trim();
@@ -3690,12 +4037,18 @@ function blogArticlePage(post) {
   return `<main class="blog-article"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><a href="#blog">Journal</a><span>/</span><span>${esc(post.category || 'Journal')}</span></div><div class="blog-article-head"><p class="eyebrow">${esc(post.category || 'Journal')} · ${esc(post.read_time || '5 min read')}</p><h1>${esc(post.title)}</h1><p>${esc(post.excerpt)}</p><div class="blog-article-byline"><span>By ${esc(post.author || 'CIRUI Editorial')}</span><span>${esc(blogDateLabel(post.published_at))}</span></div></div><figure class="blog-article-cover"><img src="${blogCover(post)}" alt="${esc(post.title)}"></figure><div class="blog-article-layout"><article class="blog-article-body">${blogBodyMarkup(post)}<div class="blog-article-cta"><strong>Have a build in mind?</strong><span>Bring the vehicle, the stance and the finish. CIRUI will help turn the brief into a build-ready spec.</span><a class="btn btn-primary" href="#store" data-category-link="Wheels">Browse wheels</a></div></article><aside class="blog-article-aside"><span class="eyebrow">In this post</span>${(post.tags || []).map(tag => `<span class="blog-tag">${esc(tag)}</span>`).join('')}<a class="btn btn-outline btn-small" href="#blog">Back to Journal</a></aside></div>${related.length ? `<section class="blog-related"><div class="section-heading"><div><p class="eyebrow">Keep reading</p><h2>More from the journal.</h2></div></div><div class="blog-grid">${related.map((item, index) => blogCard(item, index)).join('')}</div></section>` : ''}</div></main>`;
 }
 
-async function mallLogin(username, password) {
+async function mallLogin(identity, password) {
   return mallRequest(mallConfig.portalBase, '/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
+    body: JSON.stringify({ identity, password })
   });
+}
+
+function openAccountLogin(afterLogin = '') {
+  state.accountLoginDraft = { identity: '', password: '', identityUnlocked: false, passwordUnlocked: false };
+  state.modal = { type: 'account', mode: 'login', afterLogin };
+  render();
 }
 
 async function mallRegister(values) {
@@ -3861,6 +4214,8 @@ async function loadMallCatalog() {
     const mapped = rawProducts.map(raw => {
       const base = products.find(item => String(item.id) === String(raw.id));
       if (!base && !raw.id) return null;
+      const stockCollection = raw.stock_collection === true && raw.category === 'Wheels';
+      const legacyWheel = raw.legacy_wheel === true && raw.category === 'Wheels';
       const rawImages = Array.isArray(raw.images) ? raw.images.map(imageEntry => typeof imageEntry === 'string' ? imageEntry : imageEntry?.url).filter(Boolean) : [];
       const images = rawImages.length ? rawImages : (Array.isArray(base?.images) ? base.images.map(imageEntry => typeof imageEntry === 'string' ? imageEntry : imageEntry?.url).filter(Boolean) : []);
       const image = images[0] || raw.image || raw.pic || base?.image || '';
@@ -3872,15 +4227,16 @@ async function loadMallCatalog() {
         brand: ciruiPublicBrandText(raw.brand || raw.brandName || base?.brand || 'CIRUI'),
         category: ciruiPublicBrandText(raw.category || raw.productCategoryName || base?.category || 'Wheels'),
          meta: ciruiPublicBrandText(raw.meta || base?.meta || ''),
-         custom_size: true,
+         custom_size: stockCollection || legacyWheel ? Boolean(raw.custom_size) : true,
          size_note: ciruiPublicBrandText(raw.size_note || base?.size_note || (raw.category === 'Wheels' ? 'All sizes supported - custom diameter, width and fitment' : 'All sizes supported - custom fitment built to order')),
         deal: ciruiPublicBrandText(raw.deal || base?.deal || (Number(raw.stock || 0) > 0 ? 'In stock · live inventory' : 'Contact CIRUI for availability')),
-        price: Number(raw.price || base?.price || 0),
-        oldPrice: raw.oldPrice ?? (raw.originalPrice || base?.oldPrice || null),
+        price: stockCollection ? Number(raw.price ?? base?.price ?? 0) : raw.price_mode === 'quote' ? null : Number(raw.price ?? base?.price ?? 0),
+        oldPrice: stockCollection ? null : raw.oldPrice ?? (raw.originalPrice || base?.oldPrice || null),
         image,
         images: images.length ? images : undefined,
         image_cutout: raw.image_cutout ?? base?.image_cutout ?? false,
-        price_mode: raw.price_mode || base?.price_mode || 'fixed',
+        price_mode: stockCollection ? 'fixed' : raw.price_mode || base?.price_mode || 'fixed',
+        price_source: stockCollection ? raw.price_source || 'catalog' : raw.price_source || base?.price_source,
         finish: raw.finish || base?.finish || '',
         color: raw.color || raw.finish || base?.color || '',
         rating: Number(raw.rating || base?.rating || 0),
@@ -4476,7 +4832,7 @@ function workshopWheelPickerMarkup(project = {}) {
   const selectedId = state.workshop.selectedProductId || project.selected_product_id || '';
   const wheels = homeWheelProducts().slice(0, 8);
   const partnerProtected = state.route.name === 'fitment-share' && project.channel?.price_visibility !== 'retail';
-  return `<div class="workshop-path-panel"><div class="workshop-panel-head"><div><p class="eyebrow">${uiLabel('CIRUI wheel catalog')}</p><h3>${uiLabel('Choose an existing direction.')}</h3></div><p>${partnerProtected ? uiLabel('Choose a direction for the shop to include in its final customer quote. Platform supply prices stay private.') : uiLabel('Select a listed wheel to attach it to this project. Ready-price products can continue to the product page; custom starting-price products move into the quote flow.')}</p></div><div class="workshop-wheel-grid">${wheels.map(item => `<article class="workshop-wheel-option ${item.id === selectedId ? 'is-selected' : ''}"><button type="button" class="workshop-wheel-select" data-action="workshop-select-product" data-id="${esc(item.id)}" aria-pressed="${item.id === selectedId}"><span class="workshop-wheel-media"><img src="${assetUrl(item.image)}" alt="${esc(item.name)}" loading="lazy"></span><span class="workshop-wheel-copy"><small>${esc(item.finish || item.color || uiLabel('Custom finish'))}</small><strong>${esc(homePreviewShortName(item))}</strong><b>${esc(partnerProtected ? uiLabel('Quoted by your shop') : productPriceText(item))}</b></span></button>${partnerProtected ? `<span class="workshop-wheel-protected">${uiLabel('Select for shop quote')}</span>` : `<a href="#product/${encodeURIComponent(item.id)}">${hasStartingPrice(item) ? uiLabel('View and request custom quote') : uiLabel('View and order')} ${icons.arrowRight}</a>`}</article>`).join('')}</div></div>`;
+  return `<div class="workshop-path-panel"><div class="workshop-panel-head"><div><p class="eyebrow">${uiLabel('CIRUI wheel catalog')}</p><h3>${uiLabel('Choose an existing direction.')}</h3></div><p>${partnerProtected ? uiLabel('Choose a direction for the shop to include in its final customer quote. Platform supply prices stay private.') : uiLabel('Select a listed wheel to attach it to this project. Choose a wheel to review the design and send a custom inquiry.')}</p></div><div class="workshop-wheel-grid">${wheels.map(item => `<article class="workshop-wheel-option ${item.id === selectedId ? 'is-selected' : ''}"><button type="button" class="workshop-wheel-select" data-action="workshop-select-product" data-id="${esc(item.id)}" aria-pressed="${item.id === selectedId}"><span class="workshop-wheel-media"><img src="${assetUrl(item.image)}" alt="${esc(item.name)}" loading="lazy"></span><span class="workshop-wheel-copy"><small>${esc(item.finish || item.color || uiLabel('Custom finish'))}</small><strong>${esc(homePreviewShortName(item))}</strong><b>${esc(partnerProtected ? uiLabel('Quoted by your shop') : productPriceText(item))}</b></span></button>${partnerProtected ? `<span class="workshop-wheel-protected">${uiLabel('Select for shop quote')}</span>` : `<a href="#product/${encodeURIComponent(item.id)}">${uiLabel('View details')} ${icons.arrowRight}</a>`}</article>`).join('')}</div></div>`;
 }
 
 function workshopConceptMarkup(project = {}) {
@@ -5239,7 +5595,7 @@ function localeControlMarkup(className = 'locale-control') {
 function header() {
   const active = state.route.name === 'store' ? 'SHOP' : state.route.name === 'about' ? 'ABOUT' : state.route.name === 'custom' ? 'CUSTOM' : state.route.name === 'ai-wheel-design' ? 'AI-DESIGN' : state.route.name === 'trade' ? 'TRADE' : ['blog', 'blog-post'].includes(state.route.name) ? 'JOURNAL' : ['fitment', 'fitment-result', 'fitment-share'].includes(state.route.name) ? 'FITMENT' : state.route.name === 'account' ? 'ACCOUNT' : '';
   const attribution = partnerAttributionBar();
-  return `<div class="global-header-stack${attribution ? ' has-partner-attribution' : ''}"><div class="announcement">${uiLabel('CIRUI source factory')} · <span>${uiLabel('DDP delivery available')}</span> · ${uiLabel('Target production + transport in about 30 business days')}</div>${attribution}
+  return `<div class="global-header-stack${attribution ? ' has-partner-attribution' : ''}"><div class="announcement">${uiLabel('Track-led custom forged wheels')} · <span>${uiLabel('Hangzhou HQ · Shandong manufacturing')}</span> · ${uiLabel('Street and track projects')}</div>${attribution}
   <header class="site-header">
     <div class="container header-main">
       <a class="brand cerui-brand" href="#home" aria-label="CIRUI Forged"><img src="${assetUrl('cerui/cerui-logo-black-v1.webp')}" alt="CIRUI Forged 策锐锻造"><span><strong>CIRUI FORGED</strong><small>FORCARBOX · GLOBAL</small></span></a>
@@ -5258,6 +5614,7 @@ function header() {
             <button class="nav-link nav-shop-toggle ${active === 'SHOP' ? 'is-active' : ''}" data-action="mega" aria-expanded="${state.menuOpen}" aria-controls="shop-catalog-menu"><span>${uiLabel('Forged wheels')}</span><span class="nav-shop-toggle-visual" aria-hidden="true"><span class="nav-shop-mobile-symbol">${state.menuOpen ? '−' : '+'}</span><span class="nav-shop-desktop-chevron">${icons.chevron}</span></span></button>
             ${state.menuOpen ? megaMenu() : ''}
           </div>
+          <a class="nav-link" href="#home#track-builds">${uiLabel('Track builds')}</a>
           <a class="nav-link ${active === 'FITMENT' ? 'is-active' : ''}" href="/fitment-lab" data-app-path>${uiLabel('Fitment Lab')}</a>
           <a class="nav-link nav-link-ai ${active === 'AI-DESIGN' ? 'is-active' : ''}" href="/ai-wheel-studio" data-app-path>${uiLabel('AI Original Design')}<small>NEW</small></a>
           <a class="nav-link ${active === 'CUSTOM' ? 'is-active' : ''}" href="#custom">${uiLabel('Customization')}</a>
@@ -5279,7 +5636,7 @@ function header() {
 }
 function megaMenu() {
   return `<div class="mega-menu" id="shop-catalog-menu" aria-label="${esc(uiLabel('Forged wheel catalog'))}"><div class="container mega-grid">
-    <div class="mega-col"><h3>${uiLabel('Wheel construction')}</h3><a href="#store" data-action="catalog-collection" data-collection="all">${uiLabel('All forged wheels')}</a><a href="#store" data-action="catalog-collection" data-collection="monoblock">${uiLabel('Monoblock forged')}</a><a href="#store" data-action="catalog-collection" data-collection="two-piece">${uiLabel('2-piece forged')}</a><a href="#store" data-action="catalog-collection" data-collection="aero-floating">${uiLabel('Aero & floating')}</a><a href="#store" data-action="catalog-collection" data-collection="suv-off-road">${uiLabel('SUV & off-road')}</a></div>
+    <div class="mega-col"><h3>${uiLabel('Wheel construction')}</h3><a href="#store" data-action="catalog-collection" data-collection="all">${uiLabel('All forged wheels')}</a><a href="#store" data-action="catalog-collection" data-collection="stock">${uiLabel('Stock wheels')}</a><a href="#store" data-action="catalog-collection" data-collection="wheel-styles">${uiLabel('Wheel styles')}</a><a href="#store" data-action="catalog-collection" data-collection="monoblock">${uiLabel('Monoblock forged')}</a><a href="#store" data-action="catalog-collection" data-collection="two-piece">${uiLabel('2-piece forged')}</a><a href="#store" data-action="catalog-collection" data-collection="aero-floating">${uiLabel('Aero & floating')}</a><a href="#store" data-action="catalog-collection" data-collection="suv-off-road">${uiLabel('SUV & off-road')}</a></div>
     <div class="mega-col"><h3>${uiLabel('Fitment tools')}</h3><a href="/fitment-lab" data-action="open-fitment-lab" data-fitment-focus="vehicle">${uiLabel('Vehicle fitment')}</a><a href="/fitment-lab" data-action="open-fitment-lab" data-fitment-focus="brakes">${uiLabel('Brake clearance')}</a><a href="#store" data-action="catalog-visualizer">${uiLabel('Vehicle photo visualizer')}</a><a href="/fitment-lab" data-action="open-fitment-lab" data-fitment-focus="offset">${uiLabel('Offset & stance calculator')}</a></div>
     <div class="mega-col"><h3>${uiLabel('Customization')}</h3><a href="/ai-wheel-studio" data-app-path>${uiLabel('AI Original Design')}</a><a href="#custom" data-action="custom-section" data-section="finishes">${uiLabel('Finishes & colors')}</a><a href="#custom" data-action="custom-section" data-section="lips">${uiLabel('Lip profiles')}</a><a href="#custom" data-action="custom-section" data-section="caps">${uiLabel('Center caps')}</a><a href="#custom" data-action="custom-section" data-section="hardware">${uiLabel('Hardware options')}</a></div>
     <div class="mega-col"><h3>${uiLabel('Factory & trade')}</h3><a href="#about">${uiLabel('Meet the factory')}</a><a href="#trade">${uiLabel('DDP Europe & North America')}</a><a href="#trade" data-action="trade-rfq" data-buyer-type="dealer">${uiLabel('Dealer & wholesale')}</a><a href="#home" data-action="orders">${uiLabel('Track my order')}</a><a href="#cart" data-action="cart">${uiLabel('Open RFQ list')}</a></div>
@@ -5357,10 +5714,10 @@ function ceruiHomePage() {
 
 function premiumGlobalHomePage() {
   const process = [
-    ['01', 'Exact vehicle fitment', 'Compatibility is the high-risk part of buying wheels online. Start with the exact platform so the wheel drawing can account for the hub, brakes, suspension, tire envelope and intended use.'],
-    ['02', 'Custom forged design', 'Diameter, width, PCD, ET, CB and brake clearance.'],
-    ['03', 'Factory production', 'Design · forge · machine · finish'],
-    ['04', 'DDP delivery support', 'Clearer landed delivery for global buyers']
+    ['01', 'Define the driving brief', 'Tell us the vehicle, brakes, tires, modifications and whether the set is for track days, hard road driving or everyday use.'],
+    ['02', 'Approve the exact specification', 'Review the fitment drawing, finish, intended-use requirements and applicable load and test documentation.'],
+    ['03', 'Forge, machine and inspect', 'The approved specification moves through production at the CIRUI facility in Shandong, China.'],
+    ['04', 'Confirm global delivery', 'Production timing and available DDP delivery are quoted for the final specification and destination.']
   ];
   const factoryProof = [
     ['cerui-factory-line-v1.webp', 'Factory production', 'Source wheel factory'],
@@ -5380,11 +5737,11 @@ function premiumGlobalHomePage() {
       <div class="container premium-hero-inner">
         <div class="premium-hero-copy">
           <p class="premium-kicker"><span></span>${uiLabel('CIRUI FORGED · OFFICIAL GLOBAL SITE')}</p>
-          <h1 id="premium-hero-title">${uiLabel('Forged for your')}<br><em>${uiLabel('exact vehicle.')}</em></h1>
-          <p>${uiLabel('Forcarbox is the official overseas website of CIRUI Forged — a source wheel factory turning your exact vehicle, stance and finish into a production-ready forged wheel.')}</p>
+          <h1 id="premium-hero-title">${uiLabel('Track-led wheels.')}<br><em>${uiLabel('Made for your car.')}</em></h1>
+          <p>${uiLabel('Bespoke wheel projects for track days and hard driving, with the same vehicle-specific engineering available for street and show builds. We review brakes, tires, fitment, intended use and load before the production specification is approved.')}</p>
           <div class="premium-hero-actions">
-            <a class="btn btn-primary" href="/fitment-lab" data-app-path>${uiLabel('Build my exact fitment')}</a>
-            <a class="btn btn-light" href="#store" data-category-link="Wheels">${uiLabel('All wheel directions')}</a>
+            <a class="btn btn-primary" href="/fitment-lab" data-action="open-fitment-lab" data-fitment-intent="track">${uiLabel('Plan a track build')}</a>
+            <a class="btn btn-light" href="#home#track-builds">${uiLabel('Explore every build type')}</a>
           </div>
         </div>
         <div class="premium-hero-index" aria-hidden="true"><span>01</span><b>CIRUI / GLOBAL</b><small>${uiLabel('Design · forge · machine · finish')}</small></div>
@@ -5394,10 +5751,10 @@ function premiumGlobalHomePage() {
 
     <section class="premium-proof" aria-label="${esc(uiLabel('CIRUI source factory'))}">
       <div class="container premium-proof-grid">
-        <article><span>01</span><div><strong>${uiLabel('Source wheel factory')}</strong><small>${uiLabel('Design · forge · machine · finish')}</small></div></article>
-        <article><span>02</span><div><strong>${uiLabel('Exact vehicle fitment')}</strong><small>${uiLabel('Diameter, width, PCD, ET, CB and brake clearance.')}</small></div></article>
-        <article><span>03</span><div><strong>${uiLabel('3-angle preview')}</strong><small>${uiLabel('See it on your car before production')}</small></div></article>
-        <article><span>04</span><div><strong>${uiLabel('DDP available')}</strong><small>${uiLabel('Clearer landed delivery for global buyers')}</small></div></article>
+        <article><span>01</span><div><strong>${uiLabel('Hangzhou headquarters')}</strong><small>${uiLabel('CIRUI Forged headquarters in China')}</small></div></article>
+        <article><span>02</span><div><strong>${uiLabel('15,000T forging')}</strong><small>${uiLabel('One press at the 7,000 m² Shandong factory')}</small></div></article>
+        <article><span>03</span><div><strong>${uiLabel('Above 2,100 lb')}</strong><small>${uiLabel('Per-wheel load targets for qualifying custom builds')}</small></div></article>
+        <article><span>04</span><div><strong>${uiLabel('JWL / VIA')}</strong><small>${uiLabel('Documentation for applicable tested specifications')}</small></div></article>
       </div>
     </section>
 
@@ -5405,14 +5762,27 @@ function premiumGlobalHomePage() {
       <div class="container premium-fitment-grid">
         <div class="premium-section-copy">
           <p class="premium-kicker"><span></span>${uiLabel('FITMENT FIRST')}</p>
-          <h2>${uiLabel('Start with the car.')}<br><em>${uiLabel('Not a generic wheel.')}</em></h2>
-          <p>${uiLabel('Compatibility is the high-risk part of buying wheels online. Start with the exact platform so the wheel drawing can account for the hub, brakes, suspension, tire envelope and intended use.')}</p>
-          <div class="premium-spec-list"><span>${uiLabel('PCD + center bore')}</span><span>${uiLabel('Front + rear ET')}</span><span>${uiLabel('Caliper clearance')}</span><span>${uiLabel('Street + show + track')}</span></div>
+          <h2>${uiLabel('Your driving goal.')}<br><em>${uiLabel('Your exact wheel.')}</em></h2>
+          <p>${uiLabel('A track build starts with the chassis, brakes, tires, vehicle load and intended use. Street and show builds use the same vehicle-specific fitment review, with the final performance claims tied to the approved wheel specification.')}</p>
+          <div class="premium-spec-list"><span>${uiLabel('Vehicle + tire package')}</span><span>${uiLabel('Brake clearance')}</span><span>${uiLabel('Load target')}</span><span>${uiLabel('Track, street or show')}</span></div>
         </div>
         <div class="premium-fitment-panel">
           <div class="premium-panel-head"><span>${uiLabel('01 / Vehicle brief')}</span><strong>${uiLabel('Tell CIRUI what you drive.')}</strong><small>${uiLabel('The existing fitment calculator remains the engineering core of the site.')}</small></div>
           <div class="fitment-card custom-fitment-card">${vehicleSelector('hero')}<button class="btn btn-primary" data-action="open-fitment-lab">${uiLabel('Open fitment lab')}</button></div>
           ${fitmentPreview()}
+        </div>
+      </div>
+    </section>
+
+    <section class="premium-track-program section" id="track-builds" aria-labelledby="premium-track-title">
+      <div class="container">
+        <div class="premium-section-head">
+          <div><p class="premium-kicker"><span></span>${uiLabel('BUILT AROUND THE WAY YOU DRIVE')}</p><h2 id="premium-track-title">${uiLabel('Track first.')}<br><em>${uiLabel('Personal by design.')}</em></h2></div>
+          <p>${uiLabel('Choose the use case first. CIRUI then develops the fitment, structure and finish for your vehicle and the specification you approve.')}</p>
+        </div>
+        <div class="premium-track-grid">
+          <article class="premium-track-card is-track"><span>01 / ${uiLabel('TRACK + HARD DRIVING')}</span><h3>${uiLabel('Built around the demands of your setup.')}</h3><p>${uiLabel('For track days and demanding driving, the brief covers vehicle load, wheel and tire size, brake clearance, offset and the required per-wheel load target. Final suitability depends on the approved and tested configuration.')}</p><a href="#cart" data-action="request-rfq" data-usage="track">${uiLabel('Start a private track project')} ${icons.arrowRight}</a></article>
+          <article class="premium-track-card is-road"><span>02 / ${uiLabel('STREET + PERSONAL STYLE')}</span><h3>${uiLabel('Your style, with engineering discipline.')}</h3><p>${uiLabel('Daily, spirited and show builds can receive the same load, brake and fitment review as a track brief. If the final configuration is validated for track use, its rating and intended-use scope can be stated for your exact wheel.')}</p><a href="#custom">${uiLabel('Explore customization')} ${icons.arrowRight}</a></article>
         </div>
       </div>
     </section>
@@ -5430,10 +5800,10 @@ function premiumGlobalHomePage() {
     <section class="premium-engineering section" id="engineering">
       <div class="container premium-engineering-grid">
         <div class="premium-engineering-copy">
-          <p class="premium-kicker"><span></span>${uiLabel('Source wheel factory')}</p>
-          <h2>${uiLabel('Factory production')}<br><em>${uiLabel('Made to your numbers')}</em></h2>
-          <p>${uiLabel('Real production, machining and finished inventory.')}</p>
-          <ul><li><strong>${uiLabel('Custom forged design')}</strong><span>${uiLabel('Made to your numbers')}</span></li><li><strong>${uiLabel('Design · forge · machine · finish')}</strong><span>${uiLabel('Diameter, width, PCD, ET, CB and brake clearance.')}</span></li><li><strong>${uiLabel('Preview before production')}</strong><span>${uiLabel('See it on your car before production')}</span></li></ul>
+          <p class="premium-kicker"><span></span>${uiLabel('SHANDONG, CHINA · CIRUI MANUFACTURING')}</p>
+          <h2>${uiLabel('15,000T forging.')}<br><em>${uiLabel('One clear source.')}</em></h2>
+          <p>${uiLabel('Our 7,000 m² manufacturing facility in Shandong, China has one 15,000T hot-forging hydraulic press. Your approved wheel brief moves from forging through CNC machining, finishing and inspection.')}</p>
+          <ul><li><strong>${uiLabel('The press')}</strong><span>${uiLabel('One 15,000T hot-forging hydraulic press')}</span></li><li><strong>${uiLabel('The facility')}</strong><span>${uiLabel('7,000 m² in Shandong, China')}</span></li><li><strong>${uiLabel('The proof')}</strong><span>${uiLabel('Request the rating and test record for the final wheel specification')}</span></li></ul>
           <a class="btn btn-primary" href="#about">${uiLabel('Meet the factory')}</a>
         </div>
         <div class="premium-engineering-media">${factoryFilmCardMarkup('premium')}${factoryProof.slice(1).map(([image, title, meta], index) => `<figure><img src="${assetUrl(`cerui/${image}`)}" alt="${esc(`CIRUI ${uiLabel(title)}`)}" loading="lazy" decoding="async"><figcaption><span>0${index + 2}</span><div><strong>${uiLabel(title)}</strong><small>${uiLabel(meta)}</small></div></figcaption></figure>`).join('')}</div>
@@ -5465,10 +5835,10 @@ function ceruiAboutPage() {
     ['Finish + detail', 'Color, gloss level, machined details and center-cap direction complete the visual brief.'],
     ['Inspection + export', 'The finished set is checked, packed and routed through the confirmed export plan.']
   ];
-  return `<main class="cerui-about"><section class="cerui-about-hero"><div class="cerui-about-hero-media" aria-hidden="true"><img src="${assetUrl('cerui/cerui-factory-overview-sign-v1.webp')}" alt="" width="1254" height="1254" loading="eager" decoding="async" fetchpriority="high"><img src="${assetUrl('cerui/cerui-factory-exterior-sign-v1.webp')}" alt="" width="1448" height="1086" loading="eager" decoding="async" fetchpriority="high"></div><div class="cerui-about-hero-shade"></div><div class="container"><p class="cerui-overline"><span></span>ABOUT CIRUI FORGED</p><h1>A source wheel factory<br><em>built for global custom projects.</em></h1><p>Forcarbox is the official overseas website of CIRUI Forged, connecting European and North American drivers, tuning shops and partners directly with the people engineering and producing the wheels.</p></div></section>
-  <section class="cerui-about-intro section"><div class="container cerui-about-intro-grid"><div><img src="${assetUrl('cerui/cerui-logo-black-v1.webp')}" alt="CIRUI Forged 策锐锻造 logo" width="1500" height="477" loading="lazy" decoding="async"></div><div><p class="cerui-overline"><span></span>策锐锻造 · CIRUI FORGED</p><h2>Factory capability.<br><em>Fitment intelligence.</em></h2><p>CIRUI is positioned around one simple advantage: the product and the technical conversation live close to the source. The same site that helps a buyer calculate fitment and preview the wheel also explains how the wheel moves into production.</p><blockquote>“Forcarbox is CIRUI Forged for the global market.”</blockquote></div></div></section>
-  <section class="cerui-about-factory section" id="factory"><div class="container"><div class="cerui-section-head"><div><p class="cerui-overline"><span></span>HOW WE WORK</p><h2>Real production,<br><em>shown clearly.</em></h2></div><p>No invented scale figures and no borrowed factory imagery — only the manufacturing material supplied by CIRUI.</p></div><div class="cerui-about-gallery">${factoryFilmCardMarkup('about')}<figure><img src="${assetUrl('cerui/cerui-factory-cnc-v1.webp')}" alt="CIRUI wheel CNC machining" loading="lazy"><figcaption>CNC machining</figcaption></figure><figure><img src="${assetUrl('cerui/cerui-factory-finished-v1.webp')}" alt="CIRUI finished wheel inventory" loading="lazy"><figcaption>Finished wheels</figcaption></figure><figure class="is-wide"><img src="${assetUrl('cerui/cerui-factory-packaging-v1.webp')}" alt="CIRUI wheel export packaging" loading="lazy"><figcaption>Packaging for delivery</figcaption></figure></div><div class="cerui-manufacturing-grid">${manufacturing.map((item, index) => `<article><span>0${index + 1}</span><h3>${item[0]}</h3><p>${item[1]}</p></article>`).join('')}</div></div></section>
-  <section class="cerui-about-racing section"><div class="container cerui-about-racing-grid"><div><img src="${assetUrl('cerui/cerui-motorsport-53-v1.webp')}" alt="CIRUI motorsport number 53 race car" loading="lazy"></div><div><p class="cerui-overline"><span></span>MOTORSPORT + EVENTS</p><h2>Part of the culture<br><em>we build for.</em></h2><p>CIRUI participates in events and motorsport activity, placing the brand in direct contact with modified cars, enthusiast expectations and performance use.</p><ul><li>Track and race participation</li><li>Wheel and tuning exhibitions</li><li>Real-world finish and fitment feedback</li></ul></div></div></section>
+  return `<main class="cerui-about"><section class="cerui-about-hero"><div class="cerui-about-hero-media" aria-hidden="true"><img src="${assetUrl('cerui/cerui-factory-floor-wide-v1.webp')}" alt="" width="1254" height="1254" loading="eager" decoding="async" fetchpriority="high"><img src="${assetUrl('cerui/cerui-factory-cnc-v1.webp')}" alt="" width="1448" height="1086" loading="eager" decoding="async" fetchpriority="high"></div><div class="cerui-about-hero-shade"></div><div class="container"><p class="cerui-overline"><span></span>ABOUT CIRUI FORGED</p><h1>Track-led engineering.<br><em>Forged in Shandong.</em></h1><p>CIRUI develops vehicle-specific forged wheel projects for track use, hard driving and personal street builds. Our 7,000 m² manufacturing facility in Shandong, China houses one 15,000T hot-forging hydraulic press.</p></div></section>
+  <section class="cerui-about-intro section"><div class="container cerui-about-intro-grid"><div><img src="${assetUrl('cerui/cerui-logo-black-v1.webp')}" alt="CIRUI Forged 策锐锻造 logo" width="1500" height="477" loading="lazy" decoding="async"></div><div><p class="cerui-overline"><span></span>策锐锻造 · CIRUI FORGED</p><h2>Custom at the source.<br><em>Specific to the car.</em></h2><p>We begin with the intended use and exact vehicle. The fitment brief records brakes, tires, load target, wheel dimensions and design before a production specification is approved. CIRUI Forged is headquartered in Hangzhou, China, with wheel manufacturing in Shandong. Fanghe Overseas Intelligent Technology Co., Ltd. operates Forcarbox and holds CIRUI Forged's overseas rights.</p><blockquote>“Track-led engineering. Bespoke for every drive.”</blockquote></div></div></section>
+  <section class="cerui-about-factory section" id="factory"><div class="container"><div class="cerui-section-head"><div><p class="cerui-overline"><span></span>OUR SHANDONG FACILITY</p><h2>15,000T press.<br><em>7,000 m² facility.</em></h2></div><p>CIRUI's wheel manufacturing facility is in Shandong, China. It has one 15,000T hot-forging hydraulic press; the factory film and production photographs show the forging, machining, finishing and packing workflow.</p></div><div class="cerui-about-gallery">${factoryFilmCardMarkup('about')}<figure><img src="${assetUrl('cerui/cerui-factory-cnc-v1.webp')}" alt="CIRUI wheel CNC machining" loading="lazy"><figcaption>CNC machining</figcaption></figure><figure><img src="${assetUrl('cerui/cerui-factory-finished-v1.webp')}" alt="CIRUI finished wheel inventory" loading="lazy"><figcaption>Finished wheels</figcaption></figure><figure class="is-wide"><img src="${assetUrl('cerui/cerui-factory-packaging-v1.webp')}" alt="CIRUI wheel export packaging" loading="lazy"><figcaption>Packaging for delivery</figcaption></figure></div><div class="cerui-manufacturing-grid">${manufacturing.map((item, index) => `<article><span>0${index + 1}</span><h3>${item[0]}</h3><p>${item[1]}</p></article>`).join('')}</div></div></section>
+  <section class="cerui-about-racing section"><div class="container cerui-about-racing-grid"><div><img src="${assetUrl('cerui/cerui-motorsport-53-v1.webp')}" alt="CIRUI motorsport number 53 race car" loading="lazy"></div><div><p class="cerui-overline"><span></span>TRACK-LED CUSTOM ENGINEERING</p><h2>Built for your<br><em>intended use.</em></h2><p>For qualifying projects, CIRUI can engineer per-wheel load targets above 2,100 lb. The final rating and suitability depend on the exact wheel specification and its test record. JWL/VIA documentation should be checked against the applicable tested and registered configuration.</p><ul><li>Track-day and demanding-driving briefs</li><li>Street and show builds with vehicle-specific review</li><li>Load and test evidence tied to the final specification</li></ul><a class="btn btn-dark" href="/fitment-lab" data-app-path>Start your wheel brief</a></div></div></section>
   <section class="cerui-global section"><div class="container cerui-global-grid"><div><p class="cerui-overline"><span></span>GLOBAL DELIVERY</p><h2>One technical brief.<br><em>One export route.</em></h2><p>For eligible destinations, CIRUI can quote DDP delivery so the production and landed-delivery conversation is handled together. The confirmed quote defines duties, destination, timing and final scope.</p><div class="cerui-global-facts"><span><strong>Europe + North America</strong><small>Primary overseas market focus</small></span><span><strong>About 30 business days</strong><small>Target production + transport, confirmed per order</small></span></div><a class="btn btn-primary" href="/fitment-lab" data-app-path>Start a global build</a></div><img src="${assetUrl('cerui/cerui-event-porsche-v1.webp')}" alt="CIRUI Forged exhibition with custom vehicles" loading="lazy"></div></section>
   <section class="cerui-about-cta"><div class="container"><img src="${assetUrl('cerui/cerui-mark-black-v1.webp')}" alt="CIRUI Forged mark" loading="lazy"><div><p class="cerui-overline"><span></span>BUILD WITH CIRUI</p><h2>Bring the car.<br><em>We will build the numbers.</em></h2></div><div><a class="btn btn-primary" href="/fitment-lab" data-app-path>Open fitment lab</a><a class="btn btn-light" href="#store" data-category-link="Wheels">Browse wheels</a></div></div></section></main>`;
 }
@@ -5571,6 +5941,18 @@ const catalogCollections = {
     title: 'Choose the design. We build the exact specification.',
     copy: 'Every public wheel below is a made-to-order forged direction. Vehicle, brake package, finish and destination are confirmed before the production drawing is released.'
   },
+  stock: {
+    label: 'Stock wheels',
+    eyebrow: 'STOCK WHEEL COLLECTION',
+    title: 'Stock wheel styles and recorded specifications.',
+    copy: 'Browse vehicle style collections and recorded stock specifications. Confirm current availability, exact fitment and delivery in your inquiry.'
+  },
+  'wheel-styles': {
+    label: 'Wheel styles',
+    eyebrow: 'ADDITIONAL WHEEL STYLES',
+    title: 'Explore additional wheel styles.',
+    copy: 'These catalog references show their listed material and size. Confirm final fitment and availability in your inquiry.'
+  },
   monoblock: {
     label: 'Monoblock forged',
     eyebrow: 'ONE-PIECE CONSTRUCTION',
@@ -5617,6 +5999,10 @@ function publicForgedProducts() {
     && !String(item.id || '').startsWith('cerui-'));
 }
 function productMatchesCollection(item, collection = state.filters.collection) {
+  if (collection === 'stock') return item.stock_collection === true;
+  if (collection === 'wheel-styles') return item.legacy_wheel === true;
+  if (item.stock_collection) return false;
+  if (item.legacy_wheel) return false;
   if (!collection || collection === 'all') return true;
   if (collection === 'monoblock' || collection === 'two-piece') return item.construction === collection;
   if (collection === 'aero-floating') return item.design_family === 'aero-disc' || (item.applications || []).includes('aero-floating');
@@ -5626,6 +6012,7 @@ function productMatchesCollection(item, collection = state.filters.collection) {
 function setCatalogCollection(collection = 'all') {
   state.filters.category = 'Wheels';
   state.filters.collection = catalogCollections[collection] ? collection : 'all';
+  state.filters.stockGroup = 'all';
   state.filters.application = 'all';
   state.search = '';
 }
@@ -5636,9 +6023,10 @@ function filterProducts() {
     const query = state.search.trim().toLowerCase();
     const applicationMatch = !f.application || f.application === 'all' || (item.applications || []).includes(f.application) || item.design_family === f.application;
     return productMatchesCollection(item, f.collection)
+      && (f.collection !== 'stock' || f.stockGroup === 'all' || (item.stock_group || 'vehicle-collection') === f.stockGroup)
       && applicationMatch
       && (f.finish === 'All' || item.finish === f.finish)
-      && (!query || [item.catalog_display_name, item.name, item.brand, item.part, item.meta, item.construction, item.design_family, item.spoke_style, ...(item.applications || []), productSizeNote(item)].join(' ').toLowerCase().includes(query));
+      && (!query || [item.catalog_display_name, item.name, item.brand, item.part, item.meta, item.material, item.construction, item.design_family, item.spoke_style, ...(item.applications || []), productSizeNote(item)].join(' ').toLowerCase().includes(query));
   });
   if (state.sort === 'latest') {
     list.sort((left, right) => {
@@ -5652,15 +6040,34 @@ function filterProducts() {
       return String(right.created_at || right.updated_at || '').localeCompare(String(left.created_at || left.updated_at || ''));
     });
   }
-  if (state.sort === 'price-low') list.sort((a, b) => a.price - b.price);
-  if (state.sort === 'price-high') list.sort((a, b) => b.price - a.price);
+  if (state.sort === 'price-low') list.sort((a, b) => (Number(a.price) > 0 ? Number(a.price) : Infinity) - (Number(b.price) > 0 ? Number(b.price) : Infinity));
+  if (state.sort === 'price-high') list.sort((a, b) => (Number(b.price) > 0 ? Number(b.price) : -Infinity) - (Number(a.price) > 0 ? Number(a.price) : -Infinity));
   if (state.sort === 'rating') list.sort((a, b) => b.rating - a.rating);
   return list;
 }
 function renderProductCard(item) {
+  if (item.stock_collection) return renderStockProductCard(item);
+  if (item.legacy_wheel) return renderLegacyWheelCard(item);
   const saved = state.wishlist.includes(item.id);
   const structureClass = item.construction === 'two-piece' ? 'is-two-piece' : item.construction === 'monoblock' ? 'is-monoblock' : 'is-pending';
-  return `<article class="product-card forged-product-card spotlight-card reveal"><div class="product-media"><span class="product-badge ${structureClass}">${uiLabel(productConstructionLabel(item))}</span><div class="product-actions"><button class="icon-btn ${saved ? 'is-saved' : ''}" data-action="wishlist" data-id="${item.id}" aria-label="${esc(uiLabel('Save product'))}">${icons.heart}</button><button class="icon-btn" data-action="quick-view" data-id="${item.id}" aria-label="${esc(uiLabel('Quick view'))}">${icons.eye}</button></div><img class="product-image ${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(productNameText(item))} ${esc(productFinishText(item))}" loading="lazy"></div><div class="product-body"><div class="product-brand">${esc(item.part || 'CIRUI FORGED')} · ${esc(productDesignLabel(item))}</div><h3 class="product-title">${esc(productNameText(item))}</h3><div class="product-meta">${uiLabel(productConstructionLabel(item))} · ${uiLabel(productDesignLabel(item))}</div><div class="catalog-proof-row"><span>${icons.shield}${uiLabel(productClassificationLabel(item))}</span><span>${uiLabel('MOQ')} ${productMinimumQuantity(item)}</span></div><div class="product-deal">${uiLabel('DDP quote available · Europe & North America')}</div><div class="price-row"><div><span class="price">${productPriceText(item)} <small>${uiLabel('reference / wheel')}</small></span></div><span class="muted" style="font-size:10px">${uiLabel('Made to order')}</span></div><div class="product-cta"><a class="btn btn-outline btn-small" href="#product/${item.id}">${uiLabel('View details')}</a><button class="btn btn-primary btn-small" data-action="add" data-id="${item.id}">${uiLabel('Add to RFQ')}</button></div></div></article>`;
+  return `<article class="product-card forged-product-card spotlight-card reveal"><div class="product-media"><span class="product-badge ${structureClass}">${uiLabel(productConstructionLabel(item))}</span><div class="product-actions"><button class="icon-btn ${saved ? 'is-saved' : ''}" data-action="wishlist" data-id="${item.id}" aria-label="${esc(uiLabel('Save product'))}">${icons.heart}</button><button class="icon-btn" data-action="quick-view" data-id="${item.id}" aria-label="${esc(uiLabel('Quick view'))}">${icons.eye}</button></div><img class="product-image ${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(productNameText(item))} ${esc(productFinishText(item))}" loading="lazy"></div><div class="product-body"><div class="product-brand">${esc(item.part || 'CIRUI FORGED')} · ${esc(productDesignLabel(item))}</div><h3 class="product-title">${esc(productNameText(item))}</h3><div class="product-meta">${uiLabel(productConstructionLabel(item))} · ${uiLabel(productDesignLabel(item))}</div><div class="catalog-proof-row"><span>${icons.shield}${uiLabel(productClassificationLabel(item))}</span><span>${uiLabel('MOQ')} ${productMinimumQuantity(item)}</span></div><div class="product-deal">${uiLabel('DDP quote available · Europe & North America')}</div><div class="price-row"><div><span class="price">${productPriceText(item)} </span></div><span class="muted" style="font-size:10px">${uiLabel('Made to order')}</span></div><div class="product-cta"><a class="btn btn-outline btn-small" href="#product/${item.id}">${uiLabel('View details')}</a><button class="btn btn-primary btn-small" data-action="add" data-id="${item.id}">${uiLabel('Add to RFQ')}</button></div></div></article>`;
+}
+
+function stockGroupLabel(item) {
+  return ({ bbs: 'BBS section', aftermarket: 'Aftermarket section' })[item.stock_group] || 'Vehicle style collection';
+}
+
+function renderStockProductCard(item) {
+  const variants = Array.isArray(item.stock_variants) ? item.stock_variants : [];
+  const stockNote = variants.length
+    ? `${variants.length} ${uiLabel(variants.length === 1 ? 'recorded specification' : 'recorded specifications')}`
+    : uiLabel('Specification and availability to confirm');
+  return `<article class="product-card forged-product-card stock-product-card ${item.stock_inventory ? 'is-workbook-stock' : ''} spotlight-card reveal"><a class="product-media" href="#product/${esc(item.id)}"><span class="product-badge is-stock">${uiLabel('Stock wheels')}</span><img class="product-image" src="${assetUrl(item.image)}" alt="${esc(productNameText(item))}" loading="lazy"></a><div class="product-body"><div class="product-brand">${esc(item.part || 'CIRUI')} · ${uiLabel(stockGroupLabel(item))}</div><h3 class="product-title">${esc(productNameText(item))}</h3><div class="product-meta">${stockNote}</div><div class="price-row"><strong class="price">${productPriceText(item)}</strong><small>${uiLabel('Availability to confirm')}</small></div><div class="product-cta"><a class="btn btn-primary btn-small" href="#product/${esc(item.id)}">${uiLabel('View stock details')}</a></div></div></article>`;
+}
+
+function renderLegacyWheelCard(item) {
+  const material = String(item.material || 'Material to confirm');
+  return `<article class="product-card forged-product-card stock-product-card legacy-wheel-card spotlight-card reveal"><a class="product-media" href="#product/${esc(item.id)}"><span class="product-badge is-legacy-wheel">${uiLabel('Wheel styles')}</span><img class="product-image" src="${assetUrl(item.image)}" alt="${esc(productNameText(item))}" loading="lazy"></a><div class="product-body"><div class="product-brand">${esc(item.part || item.id)} · ${uiLabel(material)}</div><h3 class="product-title">${esc(productNameText(item))}</h3><div class="product-meta">${esc(item.meta || '')}</div><div class="price-row"><strong class="price">${productPriceText(item)}</strong><small>${uiLabel('Fitment to confirm')}</small></div><div class="product-cta"><a class="btn btn-primary btn-small" href="#product/${esc(item.id)}">${uiLabel('View details')}</a></div></div></article>`;
 }
 
 function legacyStorePage() {
@@ -5673,6 +6080,10 @@ function legacyStorePage() {
 function storePage() {
   const list = filterProducts();
   const context = catalogCollections[state.filters.collection] || catalogCollections.all;
+  const stockMode = state.filters.collection === 'stock';
+  const legacyMode = state.filters.collection === 'wheel-styles';
+  const stockGroups = [['all', 'All stock'], ['vehicle-collection', 'Vehicle collections'], ['bbs', 'BBS section'], ['aftermarket', 'Aftermarket section']];
+  const stockGroupButtons = stockGroups.map(([key, label]) => `<button class="${(state.filters.stockGroup || 'all') === key ? 'is-active' : ''}" data-action="catalog-stock-group" data-stock-group="${key}">${uiLabel(label)}</button>`).join('');
   const applications = [
     ['all', 'All uses'],
     ['performance', 'Performance'],
@@ -5680,20 +6091,31 @@ function storePage() {
     ['heritage', 'Heritage'],
     ['street', 'Street']
   ];
+  const catalogFacetMarkup = stockMode
+    ? `<div class="filter-section"><h3>${uiLabel('Stock groups')}</h3><div class="catalog-filter-buttons">${stockGroupButtons}</div></div>`
+    : legacyMode
+      ? `<div class="filter-section catalog-material-note"><h3>${uiLabel('Listed materials')}</h3><p>${uiLabel('Each wheel card states its listed material. Confirm the final specification in your inquiry.')}</p></div>`
+    : `<div class="filter-section"><h3>${uiLabel('Construction')}</h3><div class="catalog-filter-buttons">${['all', 'monoblock', 'two-piece'].map(key => `<button class="${state.filters.collection === key ? 'is-active' : ''}" data-action="catalog-collection" data-collection="${key}">${uiLabel(catalogCollections[key].label)}</button>`).join('')}</div></div><div class="filter-section"><h3>${uiLabel('Application')}</h3><select class="filter-select" data-filter="application">${applications.map(([value, label]) => `<option value="${value}" ${state.filters.application === value ? 'selected' : ''}>${uiLabel(label)}</option>`).join('')}</select></div>`;
   const fitmentBanner = state.vehicle?.trim
     ? `<div class="fitment-match-banner"><div><p class="eyebrow">${uiLabel('Vehicle context')}</p><strong>${esc(currentVehicleLabel())}</strong><span>${uiLabel('This vehicle will be attached to the RFQ and final fitment review.')}</span></div><button class="btn btn-outline btn-small" data-action="change-vehicle">${uiLabel('Change vehicle')}</button></div>`
     : `<div class="catalog-fitment-prompt"><div>${icons.shield}<span><strong>${uiLabel('Do not guess the fitment.')}</strong><small>${uiLabel('Use the Fitment Lab for vehicle, offset and brake-clearance review.')}</small></span></div><button class="btn btn-dark btn-small" data-action="open-fitment-lab" data-fitment-focus="vehicle">${uiLabel('Open Fitment Lab')}</button></div>`;
   const visualizerNotice = state.catalogNotice === 'visualizer'
     ? `<div class="catalog-visualizer-notice">${icons.image}<div><strong>${uiLabel('Choose a wheel to preview on your car.')}</strong><span>${uiLabel('Open any design, then use the vehicle-photo visualizer on the product page.')}</span></div></div>`
     : '';
-  return `<section class="store-hero forged-catalog-hero"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><span>${uiLabel('Forged wheel catalog')}</span></div><p class="eyebrow">${uiLabel(context.eyebrow)}</p><h1>${uiLabel(context.title)}</h1><p>${uiLabel(context.copy)}</p><div class="catalog-collection-tabs">${Object.entries(catalogCollections).map(([key, item]) => `<a href="#store" class="${state.filters.collection === key ? 'is-active' : ''}" data-action="catalog-collection" data-collection="${key}">${uiLabel(item.label)}</a>`).join('')}</div></div></section>
-  <main class="container store-layout forged-store-layout"><aside class="filter-rail forged-filter-rail"><div class="filter-head"><strong>${uiLabel('Find the right starting design')}</strong><span>${uiLabel('Filters change the visible catalog immediately. Final fitment is engineered after the RFQ.')}</span></div><div class="filter-section"><h3>${uiLabel('Search designs')}</h3><input class="filter-input" data-filter="ai" placeholder="${esc(uiLabel('Model code, spoke style or finish'))}" value="${esc(state.search)}"></div><div class="filter-section"><h3>${uiLabel('Construction')}</h3><div class="catalog-filter-buttons">${Object.entries(catalogCollections).slice(0, 3).map(([key, item]) => `<button class="${state.filters.collection === key ? 'is-active' : ''}" data-action="catalog-collection" data-collection="${key}">${uiLabel(item.label)}</button>`).join('')}</div></div><div class="filter-section"><h3>${uiLabel('Application')}</h3><select class="filter-select" data-filter="application">${applications.map(([value, label]) => `<option value="${value}" ${state.filters.application === value ? 'selected' : ''}>${uiLabel(label)}</option>`).join('')}</select></div><div class="filter-section"><h3>${uiLabel('Vehicle fitment')}</h3>${vehicleSelector('store')}<button class="btn btn-dark btn-small filter-apply" data-action="shop-vehicle">${uiLabel('Attach vehicle')}</button></div><div class="filter-section catalog-ddp-filter">${icons.truck}<div><strong>${uiLabel('DDP available')}</strong><span>${uiLabel('Europe and North America · final quote by country and postcode')}</span></div></div></aside><section class="store-main">${visualizerNotice}${fitmentBanner}<div class="store-toolbar"><div class="result-count">${formatUiLabel('{count} results', { count: list.length })}<span> · ${uiLabel(context.label)}</span></div><div class="toolbar-actions"><button class="btn btn-outline btn-small" data-action="clear-filters">${uiLabel('Reset')}</button><select class="toolbar-select" data-filter="sort"><option value="latest" ${state.sort === 'latest' ? 'selected' : ''}>${uiLabel('Catalog order')}</option><option value="price-low" ${state.sort === 'price-low' ? 'selected' : ''}>${uiLabel('Reference price: low to high')}</option><option value="price-high" ${state.sort === 'price-high' ? 'selected' : ''}>${uiLabel('Reference price: high to low')}</option></select></div></div>${list.length ? `<div class="product-grid">${list.map(renderProductCard).join('')}</div>` : `<div class="empty-state"><h2>${uiLabel('No wheel matches every filter.')}</h2><p>${uiLabel('Reset the catalog or send the design reference to CIRUI for a custom direction.')}</p><button class="btn btn-primary" data-action="clear-filters">${uiLabel('Reset catalog')}</button></div>`}</section></main>`;
+  return `<section class="store-hero forged-catalog-hero"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><span>${uiLabel(stockMode ? 'Stock wheels' : legacyMode ? 'Wheel styles' : 'Forged wheel catalog')}</span></div><p class="eyebrow">${uiLabel(context.eyebrow)}</p><h1>${uiLabel(context.title)}</h1><p>${uiLabel(context.copy)}</p><div class="catalog-collection-tabs">${Object.entries(catalogCollections).map(([key, item]) => `<a href="#store" class="${state.filters.collection === key ? 'is-active' : ''}" data-action="catalog-collection" data-collection="${key}">${uiLabel(item.label)}</a>`).join('')}</div></div></section>
+  <main class="container store-layout forged-store-layout"><aside class="filter-rail forged-filter-rail"><div class="filter-head"><strong>${uiLabel(stockMode ? 'Find a stock wheel' : legacyMode ? 'Explore wheel styles' : 'Find the right starting design')}</strong><span>${uiLabel(stockMode ? 'Recorded inventory is a snapshot. Confirm current availability and fitment in your inquiry.' : legacyMode ? 'Listed material and size are references. Confirm exact fitment in your inquiry.' : 'Filters change the visible catalog immediately. Final fitment is engineered after the RFQ.')}</span></div><div class="filter-section"><h3>${uiLabel(stockMode ? 'Search stock' : legacyMode ? 'Search wheel styles' : 'Search designs')}</h3><input class="filter-input" data-filter="ai" placeholder="${esc(uiLabel('Model code, spoke style or finish'))}" value="${esc(state.search)}"></div>${catalogFacetMarkup}<div class="filter-section"><h3>${uiLabel('Vehicle fitment')}</h3>${vehicleSelector('store')}<button class="btn btn-dark btn-small filter-apply" data-action="shop-vehicle">${uiLabel('Attach vehicle')}</button></div><div class="filter-section catalog-ddp-filter">${icons.truck}<div><strong>${uiLabel('DDP available')}</strong><span>${uiLabel('Europe and North America · final quote by country and postcode')}</span></div></div></aside><section class="store-main">${visualizerNotice}${fitmentBanner}<div class="store-toolbar"><div class="result-count">${formatUiLabel('{count} results', { count: list.length })}<span> · ${uiLabel(context.label)}</span></div><div class="toolbar-actions"><button class="btn btn-outline btn-small" data-action="clear-filters">${uiLabel('Reset')}</button><select class="toolbar-select" data-filter="sort"><option value="latest" ${state.sort === 'latest' ? 'selected' : ''}>${uiLabel('Catalog order')}</option><option value="price-low" ${state.sort === 'price-low' ? 'selected' : ''}>${uiLabel('Price: low to high')}</option><option value="price-high" ${state.sort === 'price-high' ? 'selected' : ''}>${uiLabel('Price: high to low')}</option></select></div></div>${list.length ? `<div class="product-grid">${list.map(renderProductCard).join('')}</div>` : `<div class="empty-state"><h2>${uiLabel('No wheel matches every filter.')}</h2><p>${uiLabel('Reset the catalog or send the design reference to CIRUI for a custom direction.')}</p><button class="btn btn-primary" data-action="clear-filters">${uiLabel('Reset catalog')}</button></div>`}</section></main>`;
 }
 
-function aiWheelVehicleContext() {
+function aiWheelInheritedVehicleContext() {
   const vehicle = state.fitment?.vehicle || state.vehicle;
   if (!vehicle) return '';
   return [vehicle.year, vehicle.make, vehicle.model, vehicle.trim, vehicle.drive].filter(Boolean).join(' ');
+}
+
+function aiWheelVehicleContext() {
+  const draft = state.aiWheelDesign?.draft || {};
+  if (Object.prototype.hasOwnProperty.call(draft, 'vehicle_context')) return String(draft.vehicle_context || '').trim();
+  return aiWheelInheritedVehicleContext();
 }
 
 function aiWheelSelectedConcept() {
@@ -5728,7 +6150,7 @@ function aiWheelBriefMarkup() {
     ['text', 'Text only'],
     ['reference', 'Reference + changes'],
     ['text-reference', 'Text + reference']
-  ].map(([value, label]) => `<button type="button" class="${mode === value ? 'is-active' : ''}" data-action="ai-design-mode" data-mode="${value}" aria-pressed="${mode === value}">${uiLabel(label)}</button>`).join('')}</div><div class="ai-wheel-brief-grid"><div class="ai-wheel-copy-fields"><label class="ai-wheel-main-prompt"><span>${uiLabel('Describe the wheel direction')} <b>*</b></span><textarea name="prompt" rows="8" minlength="8" maxlength="1600" required placeholder="${esc(uiLabel('Example: an original lightweight 10-spoke forged wheel, deep concavity, thin paired spokes, brushed face and polished step lip; technical motorsport character rather than luxury.'))}">${esc(draft.prompt || '')}</textarea><small>${uiLabel('Be specific about spoke count, spoke shape, concavity, lip, center area and finish. Brand names are treated only as broad inspiration and are never copied.')}</small></label>${showReference ? `<div class="ai-wheel-reference-fields"><div><span>${uiLabel('Optional reference image')}</span>${referenceMarkup}</div><label><span>${uiLabel('What should stay?')}</span><input name="reference_keep" value="${esc(draft.reference_keep || '')}" placeholder="${esc(uiLabel('Example: keep the thin paired-spoke rhythm and deep center.'))}"></label><label><span>${uiLabel('What should change?')}</span><input name="reference_change" value="${esc(draft.reference_change || '')}" placeholder="${esc(uiLabel('Example: change to 10 spokes, cleaner center and bronze brushed finish.'))}"></label></div>` : ''}</div><aside class="ai-wheel-spec-panel"><div class="ai-wheel-spec-grid"><label><span>${uiLabel('Construction')}</span><select name="construction">${['Forged monoblock', 'Forged 2-piece', 'Forged 3-piece'].map(value => aiWheelOption(value, draft.construction)).join('')}</select></label><label><span>${uiLabel('Design character')}</span><select name="character">${['Performance / motorsport', 'Luxury / executive', 'Heritage / classic', 'Aero / technical', 'SUV / off-road'].map(value => aiWheelOption(value, draft.character)).join('')}</select></label><label><span>${uiLabel('Spoke direction')}</span><select name="spoke_count">${aiWheelOption('', draft.spoke_count, 'Let AI propose')}${['5-spoke', '6-spoke', '7-spoke', '8-spoke', '10-spoke', 'Multi-spoke'].map(value => aiWheelOption(value, draft.spoke_count)).join('')}</select></label><label><span>${uiLabel('Finish direction')}</span><select name="finish">${['Brushed clear', 'Satin black', 'Polished silver', 'Bronze', 'Two-tone custom'].map(value => aiWheelOption(value, draft.finish)).join('')}</select></label><label><span>${uiLabel('Visual diameter')}</span><select name="diameter">${aiWheelOption('', draft.diameter, 'Not fixed')}${['17', '18', '19', '20', '21', '22', '23', '24'].map(value => aiWheelOption(value, draft.diameter, `${value} in`)).join('')}</select></label></div><div class="ai-wheel-vehicle-context ${vehicleContext ? 'has-vehicle' : ''}">${icons.shield}<div><small>${vehicleContext ? uiLabel('Vehicle context inherited') : uiLabel('No vehicle selected')}</small><strong>${esc(vehicleContext || uiLabel('Independent wheel concept'))}</strong><p>${uiLabel('The vehicle is used only as design context. Fitment, brake clearance and load are still checked separately in the Fitment Lab.')}</p>${!vehicleContext ? `<a href="/fitment-lab" data-app-path>${uiLabel('Open Fitment Lab')} ${icons.arrowRight}</a>` : ''}</div></div><button class="btn btn-primary ai-wheel-generate" type="submit"><span class="ai-wheel-generate-label">${icons.spark}<span>${uiLabel(state.mallToken && state.account ? 'Generate 4 original concepts' : 'Sign in to generate concepts')}</span></span><span class="ai-wheel-generate-arrow" aria-hidden="true">${icons.arrowRight}</span></button></aside></div></form>`;
+  ].map(([value, label]) => `<button type="button" class="${mode === value ? 'is-active' : ''}" data-action="ai-design-mode" data-mode="${value}" aria-pressed="${mode === value}">${uiLabel(label)}</button>`).join('')}</div><div class="ai-wheel-brief-grid"><div class="ai-wheel-copy-fields"><label class="ai-wheel-main-prompt"><span>${uiLabel('Describe the wheel direction')} <b>*</b></span><textarea name="prompt" rows="8" minlength="8" maxlength="1600" required placeholder="${esc(uiLabel('Example: an original lightweight 10-spoke forged wheel, deep concavity, thin paired spokes, brushed face and polished step lip; technical motorsport character rather than luxury.'))}">${esc(draft.prompt || '')}</textarea><small>${uiLabel('Be specific about spoke count, spoke shape, concavity, lip, center area and finish. Brand names are treated only as broad inspiration and are never copied.')}</small></label>${showReference ? `<div class="ai-wheel-reference-fields"><div><span>${uiLabel('Optional reference image')}</span>${referenceMarkup}</div><label><span>${uiLabel('What should stay?')}</span><input name="reference_keep" value="${esc(draft.reference_keep || '')}" placeholder="${esc(uiLabel('Example: keep the thin paired-spoke rhythm and deep center.'))}"></label><label><span>${uiLabel('What should change?')}</span><input name="reference_change" value="${esc(draft.reference_change || '')}" placeholder="${esc(uiLabel('Example: change to 10 spokes, cleaner center and bronze brushed finish.'))}"></label></div>` : ''}</div><aside class="ai-wheel-spec-panel"><div class="ai-wheel-spec-grid"><label><span>${uiLabel('Construction')}</span><select name="construction">${['Forged monoblock', 'Forged 2-piece', 'Forged 3-piece'].map(value => aiWheelOption(value, draft.construction)).join('')}</select></label><label><span>${uiLabel('Design character')}</span><select name="character">${['Performance / motorsport', 'Luxury / executive', 'Heritage / classic', 'Aero / technical', 'SUV / off-road'].map(value => aiWheelOption(value, draft.character)).join('')}</select></label><label><span>${uiLabel('Spoke direction')}</span><select name="spoke_count">${aiWheelOption('', draft.spoke_count, 'Let AI propose')}${['5-spoke', '6-spoke', '7-spoke', '8-spoke', '10-spoke', 'Multi-spoke'].map(value => aiWheelOption(value, draft.spoke_count)).join('')}</select></label><label><span>${uiLabel('Finish direction')}</span><select name="finish">${['Brushed clear', 'Satin black', 'Polished silver', 'Bronze', 'Two-tone custom'].map(value => aiWheelOption(value, draft.finish)).join('')}</select></label><label><span>${uiLabel('Visual diameter')}</span><select name="diameter">${aiWheelOption('', draft.diameter, 'Not fixed')}${['17', '18', '19', '20', '21', '22', '23', '24'].map(value => aiWheelOption(value, draft.diameter, `${value} in`)).join('')}</select></label></div><div class="ai-wheel-vehicle-context ${vehicleContext ? 'has-vehicle' : ''}">${icons.shield}<div><label class="ai-wheel-vehicle-input"><small>${uiLabel('Vehicle context (editable)')}</small><input name="vehicle_context" value="${esc(vehicleContext)}" maxlength="160" autocomplete="off" placeholder="${esc(uiLabel('Enter year, make, model, trim and drive'))}"></label><p>${uiLabel('You can replace the inherited vehicle with a manual description. The edited value will be used for this design request.')}</p><p>${uiLabel('The vehicle is used only as design context. Fitment, brake clearance and load are still checked separately in the Fitment Lab.')}</p>${!vehicleContext ? `<a href="/fitment-lab" data-app-path>${uiLabel('Open Fitment Lab')} ${icons.arrowRight}</a>` : ''}</div></div><button class="btn btn-primary ai-wheel-generate" type="submit"><span class="ai-wheel-generate-label">${icons.spark}<span>${uiLabel(state.mallToken && state.account ? 'Generate 4 original concepts' : 'Sign in to generate concepts')}</span></span><span class="ai-wheel-generate-arrow" aria-hidden="true">${icons.arrowRight}</span></button></aside></div></form>`;
 }
 
 function aiWheelLoadingMarkup(multiview = false) {
@@ -5830,8 +6252,7 @@ async function pollAiWheelDesignJob(jobId, phase) {
 async function submitAiWheelDesign(form) {
   const draft = captureAiWheelDraft(form);
   if (!state.mallToken || !state.account) {
-    state.modal = { type: 'account', mode: 'login', afterLogin: 'ai-wheel-design' };
-    render();
+    openAccountLogin('ai-wheel-design');
     return;
   }
   if (String(draft.prompt || '').trim().length < 8) {
@@ -5900,7 +6321,7 @@ async function generateAiWheelMultiview() {
 }
 
 function customizationPage() {
-  const sampleProducts = publicForgedProducts().slice(0, 3);
+  const sampleProducts = publicForgedProducts().filter(item => !item.stock_collection && !item.legacy_wheel).slice(0, 3);
   const options = [
     ['finishes', 'Finishes & colors', 'Brushed, polished, satin, gloss, tinted clear and custom color directions are quoted against the selected wheel and use case.', ['Brushed clear', 'Satin black', 'Polished', 'Custom color'], '/assets/halo-20-spoke-03.webp'],
     ['lips', 'Lip profiles', 'Flat, stepped and deep-lip directions depend on construction, brake package, offset and the approved wheel drawing.', ['Step lip', 'Reverse lip', 'Polished lip', 'Color-matched lip'], '/assets/sv100-03.webp'],
@@ -6213,24 +6634,285 @@ function wirePayPalCartButton() {
   };
   window.setTimeout(mount, state.catalogLoaded && state.backend.checked ? 250 : 1000);
 }
-function legacyProductPage(item) {
+function productConfigVisible(brief, rule) {
+  return !rule || rule.split(',').every(condition => {
+    const [key, value] = condition.split('=');
+    const actual = brief[key] || (key === 'mounting_system' ? 'factory' : '');
+    return value.startsWith('!') ? actual !== value.slice(1) : actual === value;
+  });
+}
+
+function productConfigSelect(item, brief, key, label, choices, placeholder = 'Ask CIRUI to recommend') {
+  const selected = String(brief[key] || (key === 'mounting_system' ? 'factory' : ''));
+  const required = ['usage', 'front_diameter', 'front_width', 'rear_diameter', 'rear_width', 'mounting_system'].includes(key);
+  const emptyOption = key === 'mounting_system' ? '' : `<option value="">${uiLabel(placeholder)}</option>`;
+  return `<label class="detail-config-field${key === 'mounting_system' ? ' detail-config-wide' : ''}"><span>${uiLabel(label)}${required ? ' *' : ''}</span><select class="filter-select" data-product-option="${key}" data-product-id="${esc(item.id)}" ${required ? 'required' : ''}>${emptyOption}${choices.map(([value, text]) => `<option value="${esc(value)}" ${selected === value ? 'selected' : ''}>${uiLabel(text)}</option>`).join('')}</select></label>`;
+}
+
+function productConfigSizeChoices(kind) {
+  const values = kind === 'diameter'
+    ? Array.from({ length: 12 }, (_, index) => String(index + 15))
+    : Array.from({ length: 17 }, (_, index) => String(7 + index * .5));
+  return [...values.map(value => [value, value]), ['recommend', 'CIRUI to recommend'], ['other', 'Other / custom size']];
+}
+
+function productConfigResolvedSize(brief, key) {
+  if (brief[key] === 'other') return String(brief[`${key}_custom`] || '');
+  if (brief[key] === 'recommend') return '';
+  return String(brief[key] || '');
+}
+
+function productConfigSizeText(brief, key) {
+  if (brief[key] === 'recommend') return 'CIRUI to recommend';
+  const value = productConfigResolvedSize(brief, key);
+  return value ? `${value} in` : '';
+}
+
+function productConfigInput(item, brief, key, label, options = {}) {
+  const attributes = [options.type && `type="${options.type}"`, options.min !== undefined && `min="${options.min}"`, options.max !== undefined && `max="${options.max}"`, options.step && `step="${options.step}"`, options.required && 'required', options.type !== 'number' && `maxlength="${options.type === 'url' ? 500 : 200}"`].filter(Boolean).join(' ');
+  return `<label class="detail-config-field"><span>${uiLabel(label)}${options.required ? ' *' : ''}</span><input class="text-input" ${attributes} data-product-option="${key}" data-product-id="${esc(item.id)}" value="${esc(brief[key] || '')}" placeholder="${esc(uiLabel(options.placeholder || 'Optional'))}"></label>`;
+}
+
+function productCustomizationEntries(id) {
+  const brief = state.productBriefs?.[id] || {};
+  const entries = [];
+  const add = (label, value) => { if (String(value || '').trim()) entries.push([label, String(value).trim().slice(0, 200)]); };
+  add('Intended use', ({ track: 'Track day / competition', spirited: 'Spirited road', street: 'Daily street', show: 'Show / stance' })[brief.usage]);
+  add('Construction preference', ({ monoblock: 'Forged monoblock', two_piece: 'Forged 2-piece' })[brief.construction_preference]);
+  const axleSize = position => {
+    const diameter = productConfigSizeText(brief, `${position}_diameter`);
+    const width = productConfigSizeText(brief, `${position}_width`);
+    if (diameter === 'CIRUI to recommend' && width === diameter) return 'CIRUI to recommend (2 wheels)';
+    return [diameter, width].filter(Boolean).join(' × ') + (diameter || width ? ' (2 wheels)' : '');
+  };
+  add('Front size', axleSize('front'));
+  add('Rear size', axleSize('rear'));
+  add('Mounting system', ({ factory: 'Factory bolt pattern', multi_lug: 'Multi-lug bolt pattern (review required)', conversion: 'Bolt pattern conversion / adapters (review required)', center_lock: 'Center-lock request (review required)' })[brief.mounting_system || 'factory']);
+  if ((brief.fitment_source || 'engineer') === 'engineer') add('PCD / CB / ET', 'CIRUI to verify');
+  if (brief.fitment_source === 'known') {
+    if (brief.mounting_system === 'center_lock') add('Center-lock interface', brief.center_lock_interface);
+    else add('PCD', brief.pcd);
+    add('Center bore', brief.center_bore ? `${brief.center_bore} mm` : '');
+    add('Front ET', brief.front_offset);
+    add('Rear ET', brief.rear_offset);
+  }
+  add('Fitment goal', ({ factory: 'Factory clearance', flush: 'Flush fitment', tucked: 'Tucked', track: 'Track clearance' })[brief.fitment_goal]);
+  add('Load target per wheel', brief.load_target_lb ? `${brief.load_target_lb} lb` : '');
+  add('Brake setup', ({ oem: 'Factory brakes', ceramic: 'Carbon ceramic', aftermarket: 'Aftermarket big brake kit' })[brief.brake_type]);
+  if (brief.brake_type === 'aftermarket') add('Brake model', brief.brake_model);
+  add('Ride height', ({ stock: 'Stock height', lowered: 'Lowered', air: 'Air suspension', raised: 'Raised' })[brief.ride_height]);
+  add('Fender setup', ({ stock: 'Stock body', rolled: 'Rolled fenders', pulled: 'Pulled fenders', widebody: 'Widebody' })[brief.fender_setup]);
+  add('Finish layout', ({ single: 'Single finish', two_tone: 'Two-tone finish', custom: 'Custom design' })[brief.finish_scheme]);
+  add('Finish', brief.finish);
+  add('Finish details', brief.finish_detail);
+  add('Concavity', ({ brake_first: 'Brake clearance first', balanced: 'Balanced profile', deep: 'Deep concave' })[brief.concavity]);
+  add('Lip', brief.lip);
+  add('Center cap', brief.cap);
+  add('Cap emblem', ({ cirui: 'CIRUI logo', vehicle: 'Vehicle emblem request', custom: 'Custom artwork' })[brief.cap_logo]);
+  if (brief.cap_logo === 'custom') add('Custom emblem details', brief.cap_logo_detail);
+  add('Hardware', brief.hardware);
+  add('Engraving', brief.engraving);
+  add('Design reference', brief.reference_url);
+  add('Additional notes', brief.notes);
+  return entries;
+}
+
+function productCustomizationDisplayValue(label, value) {
+  if (['Front size', 'Rear size'].includes(label) && String(state.locale || '').startsWith('zh')) {
+    return value.replaceAll('CIRUI to recommend', uiLabel('CIRUI to recommend')).replaceAll(' in', ' 英寸').replace('(2 wheels)', uiLabel('(2 wheels)'));
+  }
+  return uiLabel(value);
+}
+
+function productCustomizationSummary(id, localized = false) {
+  const entries = productCustomizationEntries(id);
+  const shown = localized ? entries.slice(0, 8) : entries;
+  const summary = shown.map(([label, value]) => `${localized ? uiLabel(label) : label}: ${localized ? productCustomizationDisplayValue(label, value) : value}`).join(localized ? ' · ' : '; ');
+  return localized && entries.length > shown.length ? `${summary} · +${entries.length - shown.length} ${uiLabel('more details')}` : summary;
+}
+
+function productCustomizationSummaryMarkup(id) {
+  const entries = productCustomizationEntries(id);
+  if (!entries.length) return `<p>${uiLabel('Choose any details you know. CIRUI can recommend the rest.')}</p>`;
+  return `<dl>${entries.map(([label, value]) => `<div><dt>${esc(uiLabel(label))}</dt><dd>${esc(productCustomizationDisplayValue(label, value))}</dd></div>`).join('')}</dl>`;
+}
+
+function productCustomizationMarkup(item) {
+  const brief = state.productBriefs?.[item.id] || {};
+  const conditional = (rule, content) => `<div class="detail-config-conditional" data-config-when="${rule}" ${productConfigVisible(brief, rule) ? '' : 'hidden'}>${content}</div>`;
+  const axleMarkup = position => {
+    const axle = position.toLowerCase();
+    const diameterKey = `${axle}_diameter`;
+    const widthKey = `${axle}_width`;
+    return `<section class="detail-config-axle"><h4>${uiLabel(`${position} wheel size (qty: 2)`)}</h4><div class="detail-config-axle-fields">
+      <div class="detail-config-position"><span>${uiLabel('Wheel position')} *</span><strong>${uiLabel(position)}</strong></div>
+      ${productConfigSelect(item, brief, diameterKey, 'Diameter (inch)', productConfigSizeChoices('diameter'), 'Please select')}
+      ${productConfigSelect(item, brief, widthKey, 'Width (inch)', productConfigSizeChoices('width'), 'Please select')}
+      ${conditional(`${diameterKey}=other`, productConfigInput(item, brief, `${diameterKey}_custom`, 'Custom diameter (inch)', { type: 'number', min: 12, max: 30, step: 0.5, required: true, placeholder: 'Enter diameter' }))}
+      ${conditional(`${widthKey}=other`, productConfigInput(item, brief, `${widthKey}_custom`, 'Custom width (inch)', { type: 'number', min: 4, max: 16, step: 0.5, required: true, placeholder: 'Enter width' }))}
+    </div></section>`;
+  };
+  return `<div class="detail-configurator" data-product-configurator="${esc(item.id)}">
+    <div class="detail-config-title"><span>${uiLabel('BUILD YOUR WHEEL')}</span><strong>${uiLabel('Choose the details that matter to you.')}</strong><p>${uiLabel('Your selections are saved in this browser and included with your quote request. CIRUI confirms engineering feasibility and final price for the exact vehicle.')}</p></div>
+    <details class="detail-config-step" open><summary><b>01</b><span>${uiLabel('Use, size and fitment')}</span><i aria-hidden="true">+</i></summary><div class="detail-config-fields">
+      ${productConfigSelect(item, brief, 'usage', 'Intended use', [['track', 'Track day / competition'], ['spirited', 'Spirited road'], ['street', 'Daily street'], ['show', 'Show / stance']], 'Choose intended use')}
+      ${conditional('usage=track', `<p class="detail-config-track-note">${uiLabel('For track use, include the brake package and load goal. CIRUI reviews the final wheel specification before confirming suitability.')}</p>`)}
+      ${item.construction === 'unknown' ? productConfigSelect(item, brief, 'construction_preference', 'Construction preference', [['monoblock', 'Forged monoblock'], ['two_piece', 'Forged 2-piece']]) : ''}
+      ${axleMarkup('Front')}
+      ${axleMarkup('Rear')}
+      ${productConfigSelect(item, brief, 'mounting_system', 'Mounting system (Multi-Lug or Center-Lock)', [['factory', 'Factory bolt pattern'], ['multi_lug', 'Multi-lug bolt pattern (review required)'], ['conversion', 'Bolt pattern conversion / adapters (review required)'], ['center_lock', 'Center-lock request (review required)']], 'Please select')}
+      <fieldset class="detail-config-fitment-choice"><legend>${uiLabel('Wheel PCD, CB, Offset — engineering review')}</legend><label><input type="radio" name="product-fitment-source-${esc(item.id)}" data-product-option="fitment_source" data-product-id="${esc(item.id)}" value="engineer" ${(brief.fitment_source || 'engineer') === 'engineer' ? 'checked' : ''}><span>${uiLabel('CIRUI engineers research and confirm')}</span></label><label><input type="radio" name="product-fitment-source-${esc(item.id)}" data-product-option="fitment_source" data-product-id="${esc(item.id)}" value="known" ${brief.fitment_source === 'known' ? 'checked' : ''}><span>${uiLabel('I will provide mounting and fitment measurements')}</span></label></fieldset>
+      ${conditional('fitment_source=known,mounting_system=!center_lock', productConfigInput(item, brief, 'pcd', 'PCD / bolt pattern', { required: true, placeholder: '5x112' }))}
+      ${conditional('fitment_source=known,mounting_system=center_lock', productConfigInput(item, brief, 'center_lock_interface', 'Center-lock interface / hub details', { required: true, placeholder: 'Hub, spline and nut details' }))}
+      ${conditional('fitment_source=known', `<div class="detail-config-nested">${productConfigInput(item, brief, 'center_bore', 'Center bore (mm)', { type: 'number', min: 40, max: 150, step: 0.1, required: true, placeholder: '66.6' })}${productConfigInput(item, brief, 'front_offset', 'Front ET (mm)', { type: 'number', step: 0.5, required: true, placeholder: '+35' })}${productConfigInput(item, brief, 'rear_offset', 'Rear ET (mm)', { type: 'number', step: 0.5, required: true, placeholder: '+40' })}</div>`)}
+      ${productConfigSelect(item, brief, 'fitment_goal', 'Fitment goal', [['factory', 'Factory clearance'], ['flush', 'Flush fitment'], ['tucked', 'Tucked'], ['track', 'Track clearance']])}
+      ${productConfigInput(item, brief, 'load_target_lb', 'Target load per wheel (lb)', { type: 'number', min: 0, step: 1, placeholder: 'Optional target' })}
+      ${productConfigSelect(item, brief, 'brake_type', 'Brake setup', [['oem', 'Factory brakes'], ['ceramic', 'Carbon ceramic'], ['aftermarket', 'Aftermarket big brake kit']])}
+      ${conditional('brake_type=aftermarket', productConfigInput(item, brief, 'brake_model', 'Brake / caliper model', { placeholder: 'Brand, caliper and rotor size' }))}
+      ${productConfigSelect(item, brief, 'ride_height', 'Current ride height', [['stock', 'Stock height'], ['lowered', 'Lowered'], ['air', 'Air suspension'], ['raised', 'Raised']])}
+      ${productConfigSelect(item, brief, 'fender_setup', 'Fender / body setup', [['stock', 'Stock body'], ['rolled', 'Rolled fenders'], ['pulled', 'Pulled fenders'], ['widebody', 'Widebody']])}
+    </div></details>
+    <details class="detail-config-step"><summary><b>02</b><span>${uiLabel('Finish and profile')}</span><i aria-hidden="true">+</i></summary><div class="detail-config-fields">
+      ${productConfigSelect(item, brief, 'finish_scheme', 'Finish layout', [['single', 'Single finish'], ['two_tone', 'Two-tone finish'], ['custom', 'Custom design']])}
+      ${productConfigSelect(item, brief, 'finish', 'Primary finish', [['Brushed clear', 'Brushed clear'], ['Satin black', 'Satin black'], ['Polished', 'Polished'], ['Custom color', 'Custom color']])}
+      ${productConfigInput(item, brief, 'finish_detail', 'Color / finish details', { placeholder: 'Color code, two-tone areas or reference' })}
+      ${productConfigSelect(item, brief, 'concavity', 'Concavity preference', [['brake_first', 'Brake clearance first'], ['balanced', 'Balanced profile'], ['deep', 'Deep concave']])}
+      ${productConfigSelect(item, brief, 'lip', 'Lip preference', [['Step lip', 'Step lip'], ['Reverse lip', 'Reverse lip'], ['Polished lip', 'Polished lip'], ['Color-matched lip', 'Color-matched lip']])}
+      <div class="detail-config-examples"><a href="#custom" data-action="custom-section" data-section="finishes">${uiLabel('Finish examples')} →</a><a href="#custom" data-action="custom-section" data-section="lips">${uiLabel('Lip examples')} →</a></div>
+    </div></details>
+    <details class="detail-config-step"><summary><b>03</b><span>${uiLabel('Caps and finishing details')}</span><i aria-hidden="true">+</i></summary><div class="detail-config-fields">
+      ${productConfigSelect(item, brief, 'cap', 'Center cap style', [['CIRUI cap', 'CIRUI cap'], ['Floating cap', 'Floating cap'], ['Color matched', 'Color matched'], ['Custom artwork', 'Custom artwork']])}
+      ${productConfigSelect(item, brief, 'cap_logo', 'Cap emblem', [['cirui', 'CIRUI logo'], ['vehicle', 'Vehicle emblem request'], ['custom', 'Custom artwork']])}
+      ${conditional('cap_logo=custom', productConfigInput(item, brief, 'cap_logo_detail', 'Custom emblem details', { placeholder: 'Describe your logo or add a reference link' }))}
+      ${productConfigSelect(item, brief, 'hardware', 'Hardware preference', [['Exposed hardware', 'Exposed hardware'], ['Hidden hardware', 'Hidden hardware'], ['Custom color hardware', 'Custom color hardware']])}
+      ${productConfigInput(item, brief, 'engraving', 'Engraving request', { placeholder: 'Optional text or placement' })}
+      ${productConfigInput(item, brief, 'reference_url', 'Design reference link', { type: 'url', placeholder: 'https://' })}
+      <label class="detail-config-field detail-config-wide"><span>${uiLabel('Additional notes')}</span><textarea class="text-input" data-product-option="notes" data-product-id="${esc(item.id)}" rows="3" maxlength="500" placeholder="${esc(uiLabel('Tell us what matters most for this build'))}">${esc(brief.notes || '')}</textarea></label>
+      <div class="detail-config-examples"><a href="#custom" data-action="custom-section" data-section="caps">${uiLabel('Cap examples')} →</a><a href="#custom" data-action="custom-section" data-section="hardware">${uiLabel('Hardware examples')} →</a></div>
+    </div></details>
+    <div class="detail-config-review"><span>${uiLabel('YOUR BUILD BRIEF')}</span><div data-product-config-summary aria-live="polite">${productCustomizationSummaryMarkup(item.id)}</div><p>${uiLabel('Preferences are reviewed against brake clearance, load target and the final engineering drawing before a production specification is approved.')}</p></div>
+    <p class="detail-config-error" data-product-config-error role="alert" hidden></p>
+  </div>`;
+}
+
+function updateProductConfiguratorUi(id) {
+  const root = document.querySelector('[data-product-configurator]');
+  if (!root || root.dataset.productConfigurator !== id) return;
+  const brief = state.productBriefs?.[id] || {};
+  root.querySelectorAll('[data-config-when]').forEach(element => {
+    element.hidden = !productConfigVisible(brief, element.dataset.configWhen);
+  });
+  const summary = root.querySelector('[data-product-config-summary]');
+  if (summary) summary.innerHTML = productCustomizationSummaryMarkup(id);
+  root.querySelectorAll('[data-product-config-inline-error]').forEach(element => element.remove());
+  root.querySelectorAll('[aria-invalid="true"]').forEach(element => element.removeAttribute('aria-invalid'));
+  const error = root.querySelector('[data-product-config-error]');
+  if (error) error.hidden = true;
+}
+
+function saveProductConfiguratorField(element) {
+  const id = element.dataset.productId;
+  const key = element.dataset.productOption;
+  if (!id || !['usage', 'construction_preference', 'front_diameter', 'front_width', 'rear_diameter', 'rear_width', 'front_diameter_custom', 'front_width_custom', 'rear_diameter_custom', 'rear_width_custom', 'mounting_system', 'fitment_source', 'pcd', 'center_lock_interface', 'center_bore', 'front_offset', 'rear_offset', 'fitment_goal', 'load_target_lb', 'brake_type', 'brake_model', 'ride_height', 'fender_setup', 'finish_scheme', 'finish', 'finish_detail', 'concavity', 'lip', 'cap', 'cap_logo', 'cap_logo_detail', 'hardware', 'engraving', 'reference_url', 'notes'].includes(key)) return;
+  const brief = { ...(state.productBriefs?.[id] || {}) };
+  if (element.value) brief[key] = element.value;
+  else delete brief[key];
+  state.productBriefs = { ...(state.productBriefs || {}), [id]: brief };
+  localStorage.setItem('cirui-product-briefs', JSON.stringify(state.productBriefs));
+  updateProductConfiguratorUi(id);
+}
+
+function productConfiguratorIssue(id) {
+  if (product(id)?.stock_collection || product(id)?.legacy_wheel) return null;
+  const brief = state.productBriefs?.[id] || {};
+  const requireField = (field, message) => !String(brief[field] || '').trim() ? { field, message } : null;
+  if (!brief.usage) return { field: 'usage', message: 'Choose the driving use for this wheel.' };
+  for (const field of ['front_diameter', 'front_width', 'rear_diameter', 'rear_width']) {
+    const issue = requireField(field, 'Select a diameter and width for both front and rear wheels.');
+    if (issue) return issue;
+    if (brief[field] === 'other') {
+      const customIssue = requireField(`${field}_custom`, 'Enter the custom size you selected.');
+      if (customIssue) return customIssue;
+    }
+  }
+  if (brief.fitment_source === 'known') {
+    const fitmentFields = [brief.mounting_system === 'center_lock' ? 'center_lock_interface' : 'pcd', 'center_bore', 'front_offset', 'rear_offset'];
+    for (const field of fitmentFields) {
+      const issue = requireField(field, 'Complete the fitment measurements you chose to provide, or ask CIRUI to confirm them.');
+      if (issue) return issue;
+    }
+  }
+  if (brief.brake_type === 'aftermarket' && !brief.brake_model) return { field: 'brake_model', message: 'Name the aftermarket brake kit so CIRUI can review clearance.' };
+  if (brief.finish === 'Custom color' && !brief.finish_detail) return { field: 'finish_detail', message: 'Describe the custom color or choose another finish.' };
+  if (['two_tone', 'custom'].includes(brief.finish_scheme) && !brief.finish_detail) return { field: 'finish_detail', message: 'Describe the two-tone or custom finish you selected.' };
+  if (brief.cap_logo === 'custom' && !brief.cap_logo_detail) return { field: 'cap_logo_detail', message: 'Describe your custom center cap emblem.' };
+  const root = document.querySelector('[data-product-configurator]');
+  if (root?.dataset.productConfigurator === id) {
+    const invalid = [...root.querySelectorAll('[data-product-option]')].find(element => !element.closest('[hidden]') && !element.checkValidity());
+    if (invalid) return { field: invalid.dataset.productOption, message: 'Check the selected value before continuing.' };
+  }
+  return null;
+}
+
+function showProductConfiguratorIssue(id, issue) {
+  const root = document.querySelector('[data-product-configurator]');
+  if (!root || root.dataset.productConfigurator !== id) return;
+  root.querySelectorAll('[data-product-config-inline-error]').forEach(element => element.remove());
+  root.querySelectorAll('[aria-invalid="true"]').forEach(element => element.removeAttribute('aria-invalid'));
+  const field = [...root.querySelectorAll('[data-product-option]')].find(element => element.dataset.productOption === issue.field);
+  if (field) {
+    const section = field.closest('details');
+    if (section) section.open = true;
+    const host = field.closest('.detail-config-field, .detail-config-fitment-choice');
+    if (host) {
+      const inlineError = document.createElement('small');
+      inlineError.className = 'detail-config-inline-error';
+      inlineError.dataset.productConfigInlineError = '';
+      inlineError.textContent = uiLabel(issue.message);
+      inlineError.setAttribute('role', 'alert');
+      host.append(inlineError);
+      field.setAttribute('aria-invalid', 'true');
+    }
+  }
+  const error = root.querySelector('[data-product-config-error]');
+  if (error) { error.textContent = uiLabel(issue.message); error.hidden = Boolean(field); }
+  field?.focus({ preventScroll: true });
+  (field || root).scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function stockProductPage(item) {
   const gallery = productGallery(item);
   const image = state.productImage[item.id] || gallery[0] || item.image;
-  const related = products.filter(p => p.category === item.category && p.id !== item.id).slice(0, 4);
+  const variants = Array.isArray(item.stock_variants) ? item.stock_variants : [];
+  const snapshot = item.stock_snapshot_date || '';
+  const related = publicForgedProducts().filter(candidate => candidate.stock_collection && candidate.id !== item.id && (candidate.stock_group || 'vehicle-collection') === (item.stock_group || 'vehicle-collection')).slice(0, 4);
+  const variantLabel = (variant, index) => [variant.item_no || `#${index + 1}`, variant.size, variant.pcd, variant.et ? `ET ${variant.et}` : '', variant.cb ? `CB ${variant.cb}` : '', variant.color].filter(Boolean).join(' · ');
+  const variantOptions = variants.map((variant, index) => `<option value="${index}">${esc(variantLabel(variant, index))}</option>`).join('');
+  const variantRows = variants.map(variant => `<tr><td>${esc(variant.item_no || '—')}</td><td>${esc(variant.size || '—')}</td><td>${esc(variant.pcd || '—')}</td><td>${esc(variant.et || '—')}</td><td>${esc(variant.cb || '—')}</td><td>${esc(variant.color || '—')}</td><td>${esc(String(variant.recorded_quantity || 0))}</td><td>${esc(variant.load_rating || '—')}</td></tr>`).join('');
+  const availabilityNote = snapshot
+    ? `${uiLabel('Recorded inventory from the workbook last modified')} ${esc(snapshot)}. ${uiLabel('Confirm current availability before ordering.')}`
+    : uiLabel('This vehicle collection shows reference styles. Confirm the exact specification and current availability in your inquiry.');
+  return `<main class="detail-wrap forged-detail stock-detail ${item.stock_inventory ? 'is-workbook-stock' : ''}"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><a href="#store" data-action="catalog-collection" data-collection="stock">${uiLabel('Stock wheels')}</a><span>/</span><span>${esc(productNameText(item))}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, index) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${esc(item.id)}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(productNameText(item))} ${index + 1}"></button>`).join('')}</div><div class="main-image"><img src="${assetUrl(image)}" alt="${esc(productNameText(item))}"></div></div><div class="detail-purchase"><div class="detail-kicker">${uiLabel('Stock wheels')} · ${uiLabel(stockGroupLabel(item))}</div><h1 class="detail-title">${esc(productNameText(item))}</h1><p class="stock-availability-note">${availabilityNote}</p><div class="detail-price">${productPriceText(item)}</div><p class="detail-set">${uiLabel('Catalog price. Exact fitment, stock and delivery are confirmed in your inquiry.')}</p>${variants.length ? `<div class="stock-variant-picker"><label class="field-label" for="stock-variant-${esc(item.id)}">${uiLabel('Select a recorded specification')}</label><select class="filter-select" id="stock-variant-${esc(item.id)}" data-stock-variant="${esc(item.id)}"><option value="">${uiLabel('Ask CIRUI to confirm the right specification')}</option>${variantOptions}</select></div>` : ''}<div class="detail-actions"><button class="btn btn-primary" data-action="request-rfq" data-id="${esc(item.id)}">${uiLabel('Start product inquiry')}</button></div></div></div>${variants.length ? `<section class="stock-specifications"><div class="section-heading"><div><p class="eyebrow">${uiLabel('RECORDED STOCK')}</p><h2>${uiLabel('Available specifications in the source workbook')}</h2></div></div><p>${availabilityNote}</p><div class="stock-variants-scroll"><table class="stock-variants-table"><thead><tr>${['Model code', 'Size', 'PCD', 'ET', 'CB', 'Finish', 'Recorded quantity', 'Load rating'].map(label => `<th>${uiLabel(label)}</th>`).join('')}</tr></thead><tbody>${variantRows}</tbody></table></div></section>` : ''}${related.length ? `<section class="detail-section stock-related"><div class="section-heading"><div><p class="eyebrow">${uiLabel('MORE STOCK WHEELS')}</p><h2>${uiLabel('Browse related stock styles')}</h2></div></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section>` : ''}</div></main>`;
+}
+
+function legacyWheelPage(item) {
   const displayName = productNameText(item);
-  const specs = [['Brand', item.brand], ['Model', displayName], ['Part number', item.part], ['Finish', productFinishText(item)], ['Available sizes', uiLabel(productSizeNote(item))], ['Material', productMaterialText(item)], ['Weight', item.weight], ['Fitment', productMetaText(item)]];
-  const minimumNote = productMinimumOrderText(item);
-  const startingPriceNote = hasStartingPrice(item) ? [uiLabel('The starting price is per wheel.', 'The starting price is per wheel.'), minimumNote, productMinimumOrderSummary(item)].filter(Boolean).join(' ') : '';
-  return `<div class="detail-wrap"><div class="container"><div class="breadcrumbs"><a href="#home">Home</a><span>/</span><a href="#store">${productCategoryText(item)}</a><span>/</span><span>${esc(displayName)}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, i) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${item.id}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(displayName)} view ${i + 1}"></button>`).join('')}</div><div class="main-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(image)}" alt="${esc(displayName)} ${esc(productFinishText(item))}"></div></div><div class="detail-purchase"><div class="detail-kicker">${productCategoryText(item)} · ${item.brand}</div><h1 class="detail-title">${esc(displayName)}</h1><p class="detail-fitment-meta">${productMetaText(item)}</p><div class="detail-rating">${stars(item.rating)} <a href="#reviews">${item.rating} · ${formatUiLabel('{count} ratings', { count: item.reviews })}</a></div><div class="detail-price">${productPriceText(item)} <small>${uiLabel(hasStartingPrice(item) ? 'starting price / wheel' : 'each')}</small></div><div class="detail-set">${hasStartingPrice(item) ? `${uiLabel('Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.')}${startingPriceNote ? `<br><strong class="minimum-order-note">${startingPriceNote}</strong>` : ''}` : `${money(item.price * 4)} set of four · ${item.oldPrice ? `was ${money(item.oldPrice)} each` : 'build pricing available'}`}</div><div class="financing-note">Pay over time with CIRUI financing. Starting at ${money(Math.max(18, Math.round(item.price / 12)))}/month with approved credit.</div><div class="detail-form"><div><label class="field-label">Check vehicle fitment</label>${vehicleSelector('detail')}</div><div><label class="field-label">Finish</label><div class="finish-options"><button class="finish-option is-active">${productFinishText(item)}</button><button class="finish-option">Satin Black</button><button class="finish-option">Bronze Machined</button></div></div><div><label class="field-label">Delivery estimate</label><div class="ship-note">${icons.truck}<span>Free delivery to the lower 48 · Aug 19–Aug 21<br>Enter a postcode for an exact estimate.</span></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="add" data-id="${item.id}">Add to cart</button><button class="btn btn-dark" data-action="buy-now" data-id="${item.id}">Buy it now</button></div></div>${paypalHostedButtonMarkup(item)}${paypalCartButtonMarkup(item)}</div></div><div class="specs">${specs.map(([label, value]) => `<div class="spec"><span>${uiLabel(label)}</span><strong>${esc(value)}</strong></div>`).join('')}</div><section class="detail-section" id="reviews"><div class="section-heading"><div><p class="eyebrow">Customer proof</p><h2>Product reviews</h2></div><button class="btn btn-outline" data-action="write-review">Write a review</button></div><div class="reviews-layout"><div class="review-score"><strong>${item.rating}</strong>${stars(item.rating)}<p>${formatUiLabel(item.reviews === 1 ? '{count} review for this product' : '{count} reviews for this product', { count: item.reviews })}</p><div class="review-bars"><div class="review-bar"><span>5★</span><i class="bar-track"><i style="width:94%"></i></i><span>94%</span></div><div class="review-bar"><span>4★</span><i class="bar-track"><i style="width:5%"></i></i><span>5%</span></div><div class="review-bar"><span>3★</span><i class="bar-track"><i style="width:1%"></i></i><span>1%</span></div></div></div><div class="review-list">${reviews.slice(0, state.reviewLimit).map(renderReview).join('')}${state.reviewLimit < reviews.length ? `<button class="btn btn-outline" data-action="load-reviews">Load more reviews</button>` : ''}</div></div></section><section class="detail-section"><div class="section-heading"><div><p class="eyebrow">Keep building</p><h2>${uiLabel(`Related ${item.category}`)}</h2></div><a class="btn btn-dark" href="#store">Shop all</a></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section></div></div>`;
+  const gallery = productGallery(item);
+  const image = state.productImage[item.id] || gallery[0] || item.image;
+  const material = String(item.material || 'Material to confirm');
+  const related = publicForgedProducts().filter(candidate => candidate.legacy_wheel && candidate.id !== item.id).slice(0, 4);
+  return `<main class="detail-wrap forged-detail legacy-wheel-detail"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><a href="#store" data-action="catalog-collection" data-collection="wheel-styles">${uiLabel('Wheel styles')}</a><span>/</span><span>${esc(displayName)}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, index) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${esc(item.id)}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(displayName)} ${index + 1}"></button>`).join('')}</div><div class="main-image"><img src="${assetUrl(image)}" alt="${esc(displayName)}"></div></div><div class="detail-purchase"><div class="detail-kicker">${uiLabel('Wheel styles')} · ${esc(item.part || item.id)}</div><h1 class="detail-title">${esc(displayName)}</h1><p class="stock-availability-note">${uiLabel('Listed material')}: <strong>${uiLabel(material)}</strong>. ${uiLabel('Confirm the final construction, fitment and availability in your inquiry.')}</p><div class="detail-price">${productPriceText(item)}</div><p class="detail-set">${uiLabel('Catalog price. Delivery and the final order are confirmed after review.')}</p><div class="specs forged-specs"><div class="spec"><span>${uiLabel('Listed size and fitment')}</span><strong>${esc(item.meta || uiLabel('To confirm'))}</strong></div><div class="spec"><span>${uiLabel('Listed material')}</span><strong>${uiLabel(material)}</strong></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="request-rfq" data-id="${esc(item.id)}">${uiLabel('Start product inquiry')}</button></div></div></div>${related.length ? `<section class="detail-section stock-related"><div class="section-heading"><div><p class="eyebrow">${uiLabel('MORE WHEEL STYLES')}</p><h2>${uiLabel('Browse related wheel styles')}</h2></div></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section>` : ''}</div></main>`;
 }
 
 function productPage(item) {
   if (!item || item.public_scope === false || item.vehicle_label || item.category !== 'Wheels') {
     return `<main class="detail-wrap"><div class="container"><div class="empty-state"><h1>${uiLabel('This item is not part of the public forged wheel catalog.')}</h1><p>${uiLabel('Browse current CIRUI forged directions or send a custom reference through the RFQ.')}</p><a class="btn btn-primary" href="#store">${uiLabel('Open forged wheel catalog')}</a></div></div></main>`;
   }
+  if (item.stock_collection) return stockProductPage(item);
+  if (item.legacy_wheel) return legacyWheelPage(item);
   const gallery = productGallery(item);
   const image = state.productImage[item.id] || gallery[0] || item.image;
-  const related = publicForgedProducts().filter(candidate => candidate.id !== item.id && (candidate.design_family === item.design_family || candidate.construction === item.construction)).slice(0, 4);
+  const related = publicForgedProducts().filter(candidate => !candidate.stock_collection && !candidate.legacy_wheel && candidate.id !== item.id && (candidate.design_family === item.design_family || candidate.construction === item.construction)).slice(0, 4);
   const displayName = productNameText(item);
   const specs = [
     ['Model code', item.part || item.id],
@@ -6244,7 +6926,7 @@ function productPage(item) {
     ['DDP regions', (item.ddp_regions || ['Europe', 'North America']).join(' + ')]
   ];
   const classificationNote = item.classification_note || 'Construction is confirmed on the approved engineering drawing before production.';
-  return `<main class="detail-wrap forged-detail"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><a href="#store">${uiLabel('Forged wheels')}</a><span>/</span><span>${esc(displayName)}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, index) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${item.id}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(displayName)} view ${index + 1}"></button>`).join('')}</div><div class="main-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(image)}" alt="${esc(displayName)} ${esc(productFinishText(item))}"><div class="detail-construction-stamp"><small>${uiLabel('Construction')}</small><strong>${uiLabel(productConstructionLabel(item))}</strong><span>${uiLabel(productClassificationLabel(item))}</span></div></div></div><div class="detail-purchase"><div class="detail-kicker">${esc(item.part || 'CIRUI FORGED')} · ${uiLabel(productDesignLabel(item))}</div><h1 class="detail-title">${esc(displayName)}</h1><p class="detail-fitment-meta">${uiLabel(productConstructionLabel(item))} · ${uiLabel('Made to order for the exact vehicle')}</p><div class="detail-classification-note">${icons.shield}<div><strong>${uiLabel(productClassificationLabel(item))}</strong><span>${uiLabel(classificationNote)}</span></div></div><div class="detail-price">${productPriceText(item)} <small>${uiLabel('reference / wheel')}</small></div><div class="detail-set">${uiLabel('Final price follows the confirmed vehicle, drawing, finish, quantity and delivery destination.')}<br><strong class="minimum-order-note">${uiLabel(productMinimumOrderText(item))}</strong></div><div class="detail-form"><div><label class="field-label">${uiLabel('Attach vehicle context')}</label>${vehicleSelector('detail')}<button class="btn btn-outline btn-small detail-fitment-button" data-action="open-fitment-lab" data-fitment-focus="vehicle">${uiLabel('Run full fitment check')}</button></div><div><label class="field-label">${uiLabel('Customization')}</label><div class="finish-options"><button class="finish-option is-active">${uiLabel('Custom finish')}</button><button class="finish-option">${uiLabel('Center cap')}</button><button class="finish-option">${uiLabel('Hardware / lip')}</button></div><a class="detail-option-link" href="#custom">${uiLabel('Review all finish and detail options')} →</a></div><div><label class="field-label">${uiLabel('DDP delivery')}</label><div class="ship-note">${icons.truck}<span><strong>${uiLabel('Europe and North America')}</strong><br>${uiLabel('Quoted by destination country and postcode. Final landed price is confirmed in the RFQ.')}</span></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="add" data-id="${item.id}">${uiLabel('Add to RFQ')}</button><button class="btn btn-dark" data-action="request-rfq" data-id="${item.id}">${uiLabel('Request quote now')}</button></div></div></div></div><div class="specs forged-specs">${specs.map(([label, value]) => `<div class="spec"><span>${uiLabel(label)}</span><strong>${esc(uiLabel(String(value || 'To confirm')))}</strong></div>`).join('')}</div>${renderProductReviewSection(item)}${related.length ? `<section class="detail-section"><div class="section-heading"><div><p class="eyebrow">${uiLabel('RELATED DIRECTIONS')}</p><h2>${uiLabel('More forged wheel starting points.')}</h2></div><a class="btn btn-dark" href="#store">${uiLabel('View full catalog')}</a></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section>` : ''}</div></main>`;
+  return `<main class="detail-wrap forged-detail"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><a href="#store">${uiLabel('Forged wheels')}</a><span>/</span><span>${esc(displayName)}</span></div><div class="detail-grid"><div class="gallery"><div class="thumbs">${gallery.map((img, index) => `<button class="thumb ${image === img ? 'is-active' : ''}" data-action="product-image" data-id="${item.id}" data-image="${esc(img)}"><img src="${assetUrl(img)}" alt="${esc(displayName)} view ${index + 1}"></button>`).join('')}</div><div class="main-image"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(image)}" alt="${esc(displayName)} ${esc(productFinishText(item))}"><div class="detail-construction-stamp"><small>${uiLabel('Construction')}</small><strong>${uiLabel(productConstructionLabel(item))}</strong><span>${uiLabel(productClassificationLabel(item))}</span></div></div></div><div class="detail-purchase"><div class="detail-kicker">${esc(item.part || 'CIRUI FORGED')} · ${uiLabel(productDesignLabel(item))}</div><h1 class="detail-title">${esc(displayName)}</h1><p class="detail-fitment-meta">${uiLabel(productConstructionLabel(item))} · ${uiLabel('Made to order for the exact vehicle')}</p><div class="detail-classification-note">${icons.shield}<div><strong>${uiLabel(productClassificationLabel(item))}</strong><span>${uiLabel(classificationNote)}</span></div></div><div class="detail-price">${productPriceText(item)} </div><div class="detail-set">${uiLabel(item.price_source === 'shopify' ? 'Listed price matches Shopify. Fitment and delivery are confirmed with your inquiry.' : 'Fitment and delivery are confirmed with your inquiry.')}<br><strong class="minimum-order-note">${uiLabel(productMinimumOrderText(item))}</strong></div><div class="detail-form"><div><label class="field-label">${uiLabel('Attach vehicle context')}</label>${vehicleSelector('detail')}<button class="btn btn-outline btn-small detail-fitment-button" data-action="open-fitment-lab" data-fitment-focus="vehicle">${uiLabel('Run full fitment check')}</button></div>${productCustomizationMarkup(item)}<div><label class="field-label">${uiLabel('DDP delivery')}</label><div class="ship-note">${icons.truck}<span><strong>${uiLabel('Europe and North America')}</strong><br>${uiLabel('Quoted by destination country and postcode. Final landed price is confirmed in the RFQ.')}</span></div></div><div class="detail-actions"><button class="btn btn-primary" data-action="request-rfq" data-id="${item.id}">${uiLabel('Start product inquiry')}</button></div><div class="detail-shopify-path" aria-label="${esc(uiLabel('Secure Shopify payment'))}"><div><span>01</span>${uiLabel('Engineering review')}</div><div><span>02</span>${uiLabel('Confirmed quotation')}</div><div><span>03</span>${uiLabel('Secure Shopify payment')}</div><p>${uiLabel('Shopify checkout opens after CIRUI confirms the final specification and price.')}</p></div></div></div></div><div class="specs forged-specs">${specs.map(([label, value]) => `<div class="spec"><span>${uiLabel(label)}</span><strong>${esc(uiLabel(String(value || 'To confirm')))}</strong></div>`).join('')}</div>${renderProductReviewSection(item)}${related.length ? `<section class="detail-section"><div class="section-heading"><div><p class="eyebrow">${uiLabel('RELATED DIRECTIONS')}</p><h2>${uiLabel('More forged wheel starting points.')}</h2></div><a class="btn btn-dark" href="#store">${uiLabel('View full catalog')}</a></div><div class="product-grid">${related.map(renderProductCard).join('')}</div></section>` : ''}</div></main>`;
 }
 
 function legacyCartPage() {
@@ -6257,7 +6939,7 @@ function legacyCartPage() {
 
 function cartPage() {
   const items = state.cart.map(row => ({ row, item: product(row.id) })).filter(entry => entry.item && entry.item.public_scope !== false && entry.item.category === 'Wheels');
-  return `<main class="cart-page rfq-page"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><span>${uiLabel('RFQ list')}</span></div><div class="section-heading rfq-page-heading"><div><p class="eyebrow">${uiLabel('YOUR CUSTOM WHEEL BRIEF')}</p><h1 class="detail-title">${uiLabel('Request for quotation')}</h1><p>${uiLabel('Collect multiple wheel directions, set quantities, then send one vehicle and destination brief to CIRUI.')}</p></div><a class="btn btn-outline" href="#store">${uiLabel('Add more wheels')}</a></div>${items.length ? `<div class="cart-layout rfq-layout"><div><div class="cart-list rfq-list">${items.map(({ row, item }) => `<article class="cart-item rfq-item"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(productNameText(item))}"><div><span class="rfq-item-code">${esc(item.part || item.id)} · ${uiLabel(productConstructionLabel(item))}</span><h3>${esc(productNameText(item))}</h3><p>${uiLabel(productDesignLabel(item))} · ${uiLabel('Custom fitment and finish')}</p><small class="cart-minimum-note">${uiLabel(productMinimumOrderText(item))}</small><button class="rfq-remove" data-action="remove-cart" data-id="${item.id}">${uiLabel('Remove')}</button></div><div class="rfq-quantity"><small>${uiLabel('Quantity')}</small><div class="qty-control"><button data-action="qty" data-id="${item.id}" data-delta="-1">−</button><span>${row.qty}</span><button data-action="qty" data-id="${item.id}" data-delta="1">+</button></div></div><div class="rfq-reference-price"><small>${uiLabel('Reference')}</small><strong>${productPriceText(item)}</strong><span>${uiLabel('Final quote after review')}</span></div></article>`).join('')}</div><div class="rfq-scope-note">${icons.shield}<div><strong>${uiLabel('The RFQ is not a checkout.')}</strong><span>${uiLabel('CIRUI confirms construction, fitment, finish, production time and DDP delivery before any final order or payment.')}</span></div></div></div><aside class="summary-card rfq-summary"><p class="eyebrow">${uiLabel('QUOTE INPUTS')}</p><h2>${uiLabel('Ready to send?')}</h2><div class="rfq-summary-list"><span><b>${items.length}</b>${uiLabel(items.length === 1 ? 'wheel direction' : 'wheel directions')}</span><span><b>${items.reduce((sum, entry) => sum + entry.row.qty, 0)}</b>${uiLabel('total wheels')}</span><span><b>DDP</b>${uiLabel('Europe + North America')}</span><span><b>${state.vehicle?.trim ? '✓' : '—'}</b>${uiLabel(state.vehicle?.trim ? currentVehicleLabel() : 'Vehicle pending')}</span></div><button class="btn btn-primary" data-action="request-rfq" style="width:100%">${uiLabel('Complete RFQ brief')}</button><a class="btn btn-outline" href="/fitment-lab" data-app-path style="width:100%;margin-top:8px">${uiLabel('Check fitment first')}</a><p class="filter-help">${uiLabel('Country and postcode are required for a DDP quotation. No fixed duty-paid price is promised before review.')}</p></aside></div>` : `<div class="empty-cart rfq-empty"><h2>${uiLabel('Your RFQ list is empty.')}</h2><p class="muted">${uiLabel('Add one or more forged wheel directions. CIRUI will combine them with your vehicle, finish, quantity and destination in one quotation request.')}</p><a class="btn btn-primary" href="#store">${uiLabel('Browse forged wheels')}</a></div>`}</div></main>`;
+  return `<main class="cart-page rfq-page"><div class="container"><div class="breadcrumbs"><a href="#home">${uiLabel('Home')}</a><span>/</span><span>${uiLabel('RFQ list')}</span></div><div class="section-heading rfq-page-heading"><div><p class="eyebrow">${uiLabel('YOUR CUSTOM WHEEL BRIEF')}</p><h1 class="detail-title">${uiLabel('Request for quotation')}</h1><p>${uiLabel('Collect multiple wheel directions, set quantities, then send one vehicle and destination brief to CIRUI.')}</p></div><a class="btn btn-outline" href="#store">${uiLabel('Add more wheels')}</a></div>${items.length ? `<div class="cart-layout rfq-layout"><div><div class="cart-list rfq-list">${items.map(({ row, item }) => `<article class="cart-item rfq-item"><img class="${item.image_cutout ? 'is-cutout' : ''}" src="${assetUrl(item.image)}" alt="${esc(productNameText(item))}"><div><span class="rfq-item-code">${esc(item.part || item.id)} · ${uiLabel(productConstructionLabel(item))}</span><h3>${esc(productNameText(item))}</h3><p>${uiLabel(productDesignLabel(item))} · ${uiLabel('Custom fitment and finish')}</p>${productCustomizationSummary(item.id, true) ? `<small class="rfq-item-options">${esc(productCustomizationSummary(item.id, true))}</small>` : ''}<small class="cart-minimum-note">${uiLabel(productMinimumOrderText(item))}</small><button class="rfq-remove" data-action="remove-cart" data-id="${item.id}">${uiLabel('Remove')}</button></div><div class="rfq-quantity"><small>${uiLabel('Quantity')}</small><div class="qty-control"><button data-action="qty" data-id="${item.id}" data-delta="-1">−</button><span>${row.qty}</span><button data-action="qty" data-id="${item.id}" data-delta="1">+</button></div></div><div class="rfq-reference-price"><small>${uiLabel(item.price_source === 'shopify' ? 'Shopify price' : item.price_mode === 'quote' ? 'Request quote' : 'Catalog price')}</small><strong>${productPriceText(item)}</strong><span>${uiLabel('Final quote after review')}</span></div></article>`).join('')}</div><div class="rfq-scope-note">${icons.shield}<div><strong>${uiLabel('The RFQ is not a checkout.')}</strong><span>${uiLabel('CIRUI confirms construction, fitment, finish, production time and DDP delivery before any final order or payment.')}</span></div></div></div><aside class="summary-card rfq-summary"><p class="eyebrow">${uiLabel('QUOTE INPUTS')}</p><h2>${uiLabel('Ready to send?')}</h2><div class="rfq-summary-list"><span><b>${items.length}</b>${uiLabel(items.length === 1 ? 'wheel direction' : 'wheel directions')}</span><span><b>${items.reduce((sum, entry) => sum + entry.row.qty, 0)}</b>${uiLabel('total wheels')}</span><span><b>DDP</b>${uiLabel('Europe + North America')}</span><span><b>${state.vehicle?.trim ? '✓' : '—'}</b>${uiLabel(state.vehicle?.trim ? currentVehicleLabel() : 'Vehicle pending')}</span></div><button class="btn btn-primary" data-action="request-rfq" style="width:100%">${uiLabel('Complete RFQ brief')}</button><a class="btn btn-outline" href="/fitment-lab" data-app-path style="width:100%;margin-top:8px">${uiLabel('Check fitment first')}</a><p class="filter-help">${uiLabel('Country and postcode are required for a DDP quotation. No fixed duty-paid price is promised before review.')}</p></aside></div>` : `<div class="empty-cart rfq-empty"><h2>${uiLabel('Your RFQ list is empty.')}</h2><p class="muted">${uiLabel('Add one or more forged wheel directions. CIRUI will combine them with your vehicle, finish, quantity and destination in one quotation request.')}</p><a class="btn btn-primary" href="#store">${uiLabel('Browse forged wheels')}</a></div>`}</div></main>`;
 }
 
 function legacyWheelVisualizerResultCard(result, index, item, mode) {
@@ -6709,16 +7391,54 @@ function workspaceClearModalMarkup(kind = 'fitment') {
   return `<div class="overlay" data-action="close-modal"><div class="modal workspace-clear-modal" data-modal-content role="dialog" aria-modal="true" aria-labelledby="workspace-clear-title"><button class="icon-btn modal-close" data-action="close-modal" aria-label="${esc(uiLabel('Close'))}">${icons.close}</button><span class="workspace-clear-icon">${icons.shield}</span><p class="eyebrow">${fitment ? uiLabel('Current engineering file') : uiLabel('Partner-protected build')}</p><h2 id="workspace-clear-title">${title}</h2><p>${description}</p><div class="workspace-clear-safeguard">${icons.shield}<span>${safeguard}</span></div><div class="workspace-clear-actions"><button type="button" class="btn btn-outline" data-action="close-modal">${cancelLabel}</button><button type="button" class="btn workspace-clear-confirm" data-action="${confirmAction}">${confirmLabel}</button></div></div></div>`;
 }
 
+function rfqProjectFieldsMarkup(draft = {}) {
+  const usage = draft.usage || state.fitment.draft?.usage || 'street';
+  const usageOptions = [
+    ['track', 'Track day / competition'],
+    ['spirited', 'Spirited road'],
+    ['street', 'Daily street'],
+    ['show', 'Show / stance']
+  ];
+  return `<section class="rfq-project-brief"><h3>${uiLabel('Your private wheel project')}</h3><p>${uiLabel('Share the driving goal and the details you want to make yours. A CIRUI specialist will confirm the engineering drawing and approval steps before production.')}</p><div class="rfq-form-grid"><label><span>${uiLabel('Intended use')} *</span><select class="filter-select" name="usage" required>${usageOptions.map(([value, label]) => `<option value="${value}" ${usage === value ? 'selected' : ''}>${uiLabel(label)}</option>`).join('')}</select></label><label><span>${uiLabel('Design direction')}</span><input class="text-input" name="design_direction" value="${esc(draft.design_direction || '')}" placeholder="${esc(uiLabel('Spoke style, original concept or wheel model'))}"></label><label><span>${uiLabel('Concavity / lip preference')}</span><input class="text-input" name="profile_preference" value="${esc(draft.profile_preference || '')}" placeholder="${esc(uiLabel('Deep concave, step lip, brake-first'))}"></label><label><span>${uiLabel('Brake package')}</span><input class="text-input" name="brake_package" value="${esc(draft.brake_package || '')}" placeholder="${esc(uiLabel('Caliper and rotor model, if known'))}"></label><label><span>${uiLabel('Target load per wheel (lb)')}</span><input class="text-input" name="load_target_lb" type="number" min="0" step="1" value="${esc(draft.load_target_lb || '')}" placeholder="${esc(uiLabel('Leave blank if unknown'))}"></label><label><span>${uiLabel('Center cap / logo')}</span><input class="text-input" name="cap_logo" value="${esc(draft.cap_logo || '')}" placeholder="${esc(uiLabel('CIRUI cap or custom artwork'))}"></label><label><span>${uiLabel('Hardware preference')}</span><input class="text-input" name="hardware_preference" value="${esc(draft.hardware_preference || '')}" placeholder="${esc(uiLabel('Visible, concealed, color or no preference'))}"></label><label class="rfq-wide"><span>${uiLabel('Design reference link')}</span><input class="text-input" name="reference_url" type="url" value="${esc(draft.reference_url || '')}" placeholder="https://"></label></div></section>`;
+}
+
+function rfqItems() {
+  if (state.rfq.focusProductId) {
+    const item = product(state.rfq.focusProductId);
+    return item?.category === 'Wheels' && item.public_scope !== false
+      ? [{ row: { id: item.id, qty: item.stock_collection ? 1 : productMinimumQuantity(item) }, item }]
+      : [];
+  }
+  return state.cart.map(row => ({ row, item: product(row.id) })).filter(entry => entry.item?.category === 'Wheels' && entry.item.public_scope !== false);
+}
+
 function rfqModalMarkup() {
-  const draft = state.rfq.draft || {};
-  const items = state.cart.map(row => ({ row, item: product(row.id) })).filter(entry => entry.item?.category === 'Wheels' && entry.item.public_scope !== false);
+  const items = rfqItems();
+  const directProductInquiry = Boolean(state.rfq.focusProductId);
+  const stockInquiry = directProductInquiry && items[0]?.item?.stock_collection === true;
+  const wheelStyleInquiry = directProductInquiry && items[0]?.item?.legacy_wheel === true;
+  const storedDraft = state.rfq.draft || {};
+  const itemBrief = items.length === 1 ? (state.productBriefs?.[items[0].item.id] || {}) : {};
+  const draft = {
+    ...storedDraft,
+    usage: storedDraft.usage || itemBrief.usage || '',
+    finish: storedDraft.finish || itemBrief.finish || '',
+    cap_logo: storedDraft.cap_logo || itemBrief.cap || '',
+    profile_preference: storedDraft.profile_preference || itemBrief.lip || '',
+    hardware_preference: storedDraft.hardware_preference || itemBrief.hardware || '',
+    brake_package: storedDraft.brake_package || itemBrief.brake_model || ({ oem: 'Factory brakes', ceramic: 'Carbon ceramic', aftermarket: 'Aftermarket big brake kit' })[itemBrief.brake_type] || '',
+    load_target_lb: storedDraft.load_target_lb || itemBrief.load_target_lb || '',
+    reference_url: storedDraft.reference_url || itemBrief.reference_url || ''
+  };
   if (state.rfq.status === 'success') {
-    return `<div class="overlay" data-action="close-modal"><div class="modal rfq-modal rfq-success" data-modal-content role="dialog" aria-modal="true"><button class="icon-btn modal-close" data-action="close-modal" aria-label="${esc(uiLabel('Close'))}">${icons.close}</button><span class="rfq-success-mark">✓</span><p class="eyebrow">${uiLabel('RFQ RECEIVED')}</p><h2>${uiLabel('Your custom wheel brief is with CIRUI.')}</h2><p>${uiLabel('A fitment and export specialist will review the wheel directions, vehicle, finish and destination before confirming the final quotation.')}</p><div><span>${uiLabel('Inquiry reference')}</span><strong>${esc(state.rfq.id || 'Submitted')}</strong></div><button class="btn btn-primary" data-action="close-modal">${uiLabel('Continue')}</button></div></div>`;
+    const headline = directProductInquiry ? 'Your product inquiry is registered with CIRUI.' : 'Your custom wheel brief is with CIRUI.';
+    const detail = directProductInquiry ? 'Your selected wheel specifications and contact details were saved for the CIRUI sales team. Please keep the inquiry reference for follow-up.' : 'A CIRUI specialist will review your vehicle, driving use, design direction and destination before confirming the next engineering step.';
+    return `<div class="overlay" data-action="close-modal"><div class="modal rfq-modal rfq-success" data-modal-content role="dialog" aria-modal="true"><button class="icon-btn modal-close" data-action="close-modal" aria-label="${esc(uiLabel('Close'))}">${icons.close}</button><span class="rfq-success-mark">✓</span><p class="eyebrow">${uiLabel(directProductInquiry ? 'INQUIRY RECEIVED' : 'RFQ RECEIVED')}</p><h2>${uiLabel(headline)}</h2><p>${uiLabel(detail)}</p><p class="rfq-success-payment">${uiLabel('Keep this reference. Your quote and Shopify payment link will appear in your inquiry conversation after review.')}</p><div><span>${uiLabel('Inquiry reference')}</span><strong>${esc(state.rfq.id)}</strong></div><button class="btn btn-primary" data-action="rfq-open-chat">${uiLabel('Open your inquiry')}</button></div></div>`;
   }
   const account = state.account || {};
   const submitting = state.rfq.status === 'submitting';
   const vehicleValue = draft.vehicle || (state.vehicle?.trim ? currentVehicleLabel() : '');
-  return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide rfq-modal" data-modal-content role="dialog" aria-modal="true" aria-labelledby="rfq-modal-title"><button class="icon-btn modal-close" data-action="close-modal" aria-label="${esc(uiLabel('Close'))}">${icons.close}</button><div class="rfq-modal-head"><div><p class="eyebrow">${uiLabel('CUSTOM FORGED WHEEL RFQ')}</p><h2 id="rfq-modal-title">${uiLabel('Complete the quotation brief.')}</h2><p>${uiLabel('CIRUI will confirm the engineering specification and DDP route before issuing the final price.')}</p></div><span><b>${items.length}</b>${uiLabel(items.length === 1 ? 'design' : 'designs')}</span></div>${state.rfq.error ? `<div class="rfq-form-error">${esc(state.rfq.error)}</div>` : ''}<div class="rfq-modal-items">${items.map(({ row, item }) => `<article><img src="${assetUrl(item.image)}" alt="${esc(productNameText(item))}"><span><strong>${esc(productNameText(item))}</strong><small>${esc(item.part || item.id)} · ${uiLabel(productConstructionLabel(item))}</small></span><b>× ${row.qty}</b></article>`).join('')}</div><form class="rfq-form" data-form="rfq"><section><h3>${uiLabel('Buyer and contact')}</h3><div class="rfq-form-grid"><label><span>${uiLabel('Name')} *</span><input class="text-input" name="customer_name" value="${esc(draft.customer_name || account.name || account.username || '')}" autocomplete="name" required></label><label><span>${uiLabel('Email')} *</span><input class="text-input" type="email" name="customer_email" value="${esc(draft.customer_email || account.email || '')}" autocomplete="email" required></label><label><span>${uiLabel('Phone / WhatsApp')}</span><input class="text-input" name="customer_phone" value="${esc(draft.customer_phone || account.telephone || '')}" autocomplete="tel"></label><label><span>${uiLabel('Company')}</span><input class="text-input" name="company" value="${esc(draft.company || account.company || '')}" autocomplete="organization"></label><label><span>${uiLabel('Buyer type')}</span><select class="filter-select" name="buyer_type"><option value="retail" ${draft.buyer_type === 'retail' || !draft.buyer_type ? 'selected' : ''}>${uiLabel('Private buyer')}</option><option value="dealer" ${draft.buyer_type === 'dealer' ? 'selected' : ''}>${uiLabel('Dealer / tuning shop')}</option><option value="distributor" ${draft.buyer_type === 'distributor' ? 'selected' : ''}>${uiLabel('Distributor')}</option></select></label></div></section><section><h3>${uiLabel('Vehicle and wheel brief')}</h3><div class="rfq-form-grid"><label class="rfq-wide"><span>${uiLabel('Vehicle')} *</span><input class="text-input" name="vehicle" value="${esc(vehicleValue)}" placeholder="2024 BMW G80 M3 / exact trim" required></label><label><span>${uiLabel('Preferred finish')}</span><input class="text-input" name="finish" value="${esc(draft.finish || '')}" placeholder="Brushed clear / satin black"></label><label><span>${uiLabel('Quantity note')}</span><input class="text-input" name="quantity_note" value="${esc(draft.quantity_note || '')}" placeholder="Staggered set / repeat volume"></label></div></section><section><h3>${uiLabel('Destination and DDP')}</h3><div class="rfq-form-grid"><label><span>${uiLabel('Country')} *</span><input class="text-input" name="country" value="${esc(draft.country || '')}" autocomplete="country-name" required></label><label><span>${uiLabel('ZIP / postcode')} *</span><input class="text-input" name="postcode" value="${esc(draft.postcode || '')}" autocomplete="postal-code" required></label><label class="rfq-ddp-choice"><input type="checkbox" name="ddp_requested" ${draft.ddp_requested === false ? '' : 'checked'}><span><strong>${uiLabel('Request DDP quotation')}</strong><small>${uiLabel('Available across Europe and North America; final route and landed price require destination review.')}</small></span></label><label class="rfq-wide"><span>${uiLabel('Notes')}</span><textarea class="text-input" name="customer_note" rows="4" placeholder="${esc(uiLabel('Brake package, suspension, target stance, logo cap, finish reference or trade volume.'))}">${esc(draft.customer_note || '')}</textarea></label></div></section><div class="rfq-form-actions"><button type="button" class="btn btn-outline" data-action="close-modal" ${submitting ? 'disabled' : ''}>${uiLabel('Keep editing later')}</button><button type="submit" class="btn btn-primary" ${submitting || !items.length ? 'disabled' : ''}>${submitting ? uiLabel('Sending RFQ…') : uiLabel('Send RFQ to CIRUI')}</button></div></form></div></div>`;
+  return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide rfq-modal" data-modal-content role="dialog" aria-modal="true" aria-labelledby="rfq-modal-title"><button class="icon-btn modal-close" data-action="close-modal" aria-label="${esc(uiLabel('Close'))}">${icons.close}</button><div class="rfq-modal-head"><div><p class="eyebrow">${uiLabel(stockInquiry ? 'STOCK WHEEL INQUIRY' : wheelStyleInquiry ? 'WHEEL STYLE INQUIRY' : directProductInquiry ? 'PRODUCT INQUIRY' : 'CUSTOM FORGED WHEEL RFQ')}</p><h2 id="rfq-modal-title">${uiLabel(directProductInquiry ? 'Send an inquiry for this wheel.' : 'Tell us what you want to build.')}</h2><p>${uiLabel(stockInquiry ? 'Your selected stock style is attached. Add your contact, vehicle and delivery details to submit the inquiry.' : wheelStyleInquiry ? 'Your selected wheel style is attached. Add your vehicle and contact details to confirm the final specification.' : directProductInquiry ? 'Your wheel configuration is attached. Add your contact and vehicle details to submit the inquiry.' : 'CIRUI will confirm the engineering specification and DDP route before issuing the final price.')}</p></div><span><b>${items.length || '01'}</b>${uiLabel(items.length ? (items.length === 1 ? 'design' : 'designs') : 'new project')}</span></div>${state.rfq.error ? `<div class="rfq-form-error">${esc(state.rfq.error)}</div>` : ''}<div class="rfq-modal-items">${items.length ? items.map(({ row, item }) => `<article><img src="${assetUrl(item.image)}" alt="${esc(productNameText(item))}"><span><strong>${esc(productNameText(item))}</strong><small>${esc(item.part || item.id)} · ${uiLabel(item.legacy_wheel ? item.material || 'Material to confirm' : productConstructionLabel(item))}</small>${productCustomizationSummary(item.id, true) ? `<small class="rfq-item-preferences">${esc(productCustomizationSummary(item.id, true))}</small>` : ''}${stockInquiry ? `<small class="rfq-item-preferences">${esc(state.rfq.draft?.stock_variant || uiLabel('Stock specification to confirm'))}</small>` : ''}</span><b>× ${row.qty}</b></article>`).join('') : `<p class="rfq-empty-design">${uiLabel('No wheel selected yet. Start with your vehicle and we will develop a direction together.')}</p>`}</div><form class="rfq-form" data-form="rfq"><section><h3>${uiLabel('Buyer and contact')}</h3><div class="rfq-form-grid"><label><span>${uiLabel('Name')} *</span><input class="text-input" name="customer_name" value="${esc(draft.customer_name || account.name || account.username || '')}" autocomplete="name" required></label><label><span>${uiLabel('Email')} *</span><input class="text-input" type="email" name="customer_email" value="${esc(draft.customer_email || account.email || '')}" autocomplete="email" required></label><label><span>${uiLabel('Phone / WhatsApp')}</span><input class="text-input" name="customer_phone" value="${esc(draft.customer_phone || account.telephone || '')}" autocomplete="tel"></label><label><span>${uiLabel('Company')}</span><input class="text-input" name="company" value="${esc(draft.company || account.company || '')}" autocomplete="organization"></label><label><span>${uiLabel('Buyer type')}</span><select class="filter-select" name="buyer_type"><option value="retail" ${draft.buyer_type === 'retail' || !draft.buyer_type ? 'selected' : ''}>${uiLabel('Private buyer')}</option><option value="dealer" ${draft.buyer_type === 'dealer' ? 'selected' : ''}>${uiLabel('Dealer / tuning shop')}</option><option value="distributor" ${draft.buyer_type === 'distributor' ? 'selected' : ''}>${uiLabel('Distributor')}</option></select></label></div></section><section><h3>${uiLabel('Vehicle and wheel brief')}</h3><div class="rfq-form-grid"><label class="rfq-wide"><span>${uiLabel('Vehicle')} *</span><input class="text-input" name="vehicle" value="${esc(vehicleValue)}" placeholder="2024 BMW G80 M3 / exact trim" required></label><label><span>${uiLabel('Preferred finish')}</span><input class="text-input" name="finish" value="${esc(draft.finish || '')}" placeholder="Brushed clear / satin black"></label><label><span>${uiLabel('Quantity note')}</span><input class="text-input" name="quantity_note" value="${esc(draft.quantity_note || '')}" placeholder="Staggered set / repeat volume"></label></div></section>${directProductInquiry ? '' : rfqProjectFieldsMarkup(draft)}<section><h3>${uiLabel('Destination and DDP')}</h3><div class="rfq-form-grid"><label><span>${uiLabel('Country')} *</span><input class="text-input" name="country" value="${esc(draft.country || '')}" autocomplete="country-name" required></label><label><span>${uiLabel('ZIP / postcode')} *</span><input class="text-input" name="postcode" value="${esc(draft.postcode || '')}" autocomplete="postal-code" required></label><label class="rfq-ddp-choice"><input type="checkbox" name="ddp_requested" ${draft.ddp_requested === false ? '' : 'checked'}><span><strong>${uiLabel('Request DDP quotation')}</strong><small>${uiLabel('Available across Europe and North America; final route and landed price require destination review.')}</small></span></label><label class="rfq-wide"><span>${uiLabel('Notes')}</span><textarea class="text-input" name="customer_note" rows="4" placeholder="${esc(uiLabel('Brake package, suspension, target stance, logo cap, finish reference or trade volume.'))}">${esc(draft.customer_note || '')}</textarea></label></div></section><div class="rfq-form-actions"><button type="button" class="btn btn-outline" data-action="close-modal" ${submitting ? 'disabled' : ''}>${uiLabel('Save draft in this browser')}</button><button type="submit" class="btn btn-primary" ${submitting ? 'disabled' : ''}>${submitting ? uiLabel(directProductInquiry ? 'Submitting inquiry…' : 'Sending RFQ…') : uiLabel(directProductInquiry ? 'Submit product inquiry' : 'Send RFQ to CIRUI')}</button></div></form></div></div>`;
 }
 
 function modal() {
@@ -6752,8 +7472,18 @@ function modal() {
     return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide workshop-history-modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal" aria-label="${esc(uiLabel('Close'))}">${icons.close}</button><p class="eyebrow">${uiLabel('Customer modification record')}</p><h2>${uiLabel('Modification history')}</h2><p>${uiLabel('Opening an older version loads it as a draft. Saving it creates a new revision and never deletes the later history.')}</p><div class="workshop-history-current"><span>${uiLabel('Current revision')}</span><strong>${String(project.revision || 1).padStart(2, '0')} · ${esc(workshopVehicleLabel(project))}</strong><small>${esc(revisionSpec(project))}</small></div><div class="workshop-history-list">${revisions.length ? revisions.map(revision => `<article><div><span>${uiLabel('Revision')} ${String(revision.revision || 1).padStart(2, '0')}</span><strong>${esc(revision.title || project.title || uiLabel('Untitled project'))}</strong><small>${esc(revisionSpec(revision))}</small><time>${esc(revision.saved_at ? new Date(revision.saved_at).toLocaleString() : '')}</time></div><button type="button" class="btn btn-outline btn-small" data-action="workshop-restore-revision" data-revision="${esc(revision.revision)}">${uiLabel('Open as new draft')}</button></article>`).join('') : `<div class="workshop-project-empty"><strong>${uiLabel('No earlier revisions yet.')}</strong><span>${uiLabel('Save after the next calibration and the previous customer setup will appear here.')}</span></div>`}</div></div></div>`;
   }
   if (!state.modal) return '';
-  if (state.modal.type === 'quick') { const item = product(state.modal.id); const displayName = productNameText(item); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">${uiLabel('Quick view')}</p><h2>${esc(displayName)}</h2><div class="quick-product"><img src="${assetUrl(item.image)}" alt="${esc(displayName)}"><div><div class="product-brand">${esc(item.part || item.brand)} · ${uiLabel(productConstructionLabel(item))}</div><p>${uiLabel(productDesignLabel(item))}<br>${uiLabel(productClassificationLabel(item))}</p><strong style="font-size:22px">${productPriceText(item)} <small class="muted">${uiLabel('reference / wheel')}</small></strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">${uiLabel('Add to RFQ')}</button><a class="btn btn-outline" href="#product/${item.id}" style="width:100%;margin-top:8px">${uiLabel('View full details')}</a></div></div></div></div>`; }
-  if (state.modal.type === 'account') { const register = state.modal.mode === 'register'; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">CIRUI account</p><h2>${register ? 'Create your build account.' : 'Save your build.'}</h2><p>${register ? 'Save fitment builds, wishlist, addresses and orders. Dealers: add your company so we can quote wholesale.' : 'Sign in to sync your cart, wishlist and orders with the CIRUI service.'}</p><form class="modal-form" data-form="account" data-mode="${register ? 'register' : 'login'}"><input class="text-input" name="username" placeholder="Username" autocomplete="username" required><input class="text-input" name="password" type="password" placeholder="Password (6+ characters)" autocomplete="${register ? 'new-password' : 'current-password'}" minlength="6" required>${register ? '<input class="text-input" name="email" type="email" autocomplete="email" placeholder="Email (for quotes & order updates)" required><input class="text-input" name="telephone" autocomplete="tel" placeholder="Phone / WhatsApp (optional)"><input class="text-input" name="company" autocomplete="organization" placeholder="Company (dealers & distributors)">' : ''}<button class="btn btn-primary">${register ? 'Create account & sign in' : 'Sign in'}</button><button class="btn btn-outline" type="button" data-action="${register ? 'account-login' : 'account-register'}">${register ? 'I already have an account' : 'Create a new account'}</button></form></div></div>`; }
+  if (state.modal.type === 'quick') { const item = product(state.modal.id); const displayName = productNameText(item); return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">${uiLabel('Quick view')}</p><h2>${esc(displayName)}</h2><div class="quick-product"><img src="${assetUrl(item.image)}" alt="${esc(displayName)}"><div><div class="product-brand">${esc(item.part || item.brand)} · ${uiLabel(productConstructionLabel(item))}</div><p>${uiLabel(productDesignLabel(item))}<br>${uiLabel(productClassificationLabel(item))}</p><strong style="font-size:22px">${productPriceText(item)} </strong><button class="btn btn-primary" data-action="add" data-id="${item.id}" style="width:100%;margin-top:15px">${uiLabel('Add to RFQ')}</button><a class="btn btn-outline" href="#product/${item.id}" style="width:100%;margin-top:8px">${uiLabel('View full details')}</a></div></div></div></div>`; }
+  if (state.modal.type === 'account') {
+    const register = state.modal.mode === 'register';
+    const loginDraft = state.accountLoginDraft || {};
+    const accountField = register
+      ? '<input class="text-input" name="username" placeholder="Username" autocomplete="username" required>'
+      : `<input class="text-input" name="identity" value="" placeholder="${esc(uiLabel('Email or username'))}" autocomplete="off" autocapitalize="none" spellcheck="false"${loginDraft.identityUnlocked ? '' : ' readonly data-account-login-field'} required>`;
+    const passwordField = register
+      ? '<input class="text-input" name="password" type="password" placeholder="Password (6+ characters)" autocomplete="new-password" minlength="6" required>'
+      : `<input class="text-input" name="password" type="password" value="" placeholder="${esc(uiLabel('Password (6+ characters)'))}" autocomplete="off"${loginDraft.passwordUnlocked ? '' : ' readonly data-account-login-field'} minlength="6" required>`;
+    return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">CIRUI account</p><h2>${register ? 'Create your build account.' : 'Save your build.'}</h2><p>${register ? 'Save fitment builds, wishlist, addresses and orders. Dealers: add your company so we can quote wholesale.' : uiLabel('Use your email address or username with your password.')}</p><form class="modal-form" data-form="account" data-mode="${register ? 'register' : 'login'}" autocomplete="${register ? 'on' : 'off'}">${accountField}${passwordField}${register ? '<input class="text-input" name="email" type="email" autocomplete="email" placeholder="Email (for quotes & order updates)" required><input class="text-input" name="telephone" autocomplete="tel" placeholder="Phone / WhatsApp (optional)"><input class="text-input" name="company" autocomplete="organization" placeholder="Company (dealers & distributors)">' : ''}<button class="btn btn-primary">${register ? 'Create account & sign in' : 'Sign in'}</button><button class="btn btn-outline" type="button" data-action="${register ? 'account-login' : 'account-register'}">${register ? 'I already have an account' : 'Create a new account'}</button></form></div></div>`;
+  }
   if (state.modal.type === 'orders') return `<div class="overlay" data-action="close-modal"><div class="modal modal-wide" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">CIRUI account</p><h2>Track my orders.</h2><p>订单状态来自 CIRUI 自有订单服务；发货后可在这里继续查看物流信息。</p>${state.accountOrdersLoading ? '<div class="loading-copy">正在读取订单…</div>' : state.accountOrders.length ? `<div class="account-order-list">${state.accountOrders.map(order => `<article class="account-order"><div><strong>${esc(order.orderSn || order.id || 'Order')}</strong><small>${esc(order.createTime || '')}</small></div><div><span>${esc(order.productName || order.receiverName || 'CIRUI order')}</span><small>${esc(order.status === 0 ? '待付款' : order.status === 1 ? '待发货' : order.status === 2 ? '已发货' : order.status === 3 ? '已完成' : order.status === 4 ? '已关闭' : '处理中')}</small></div><strong>${money(order.payAmount || order.totalAmount || 0)}</strong></article>`).join('')}</div>` : '<div class="empty-state"><h3>暂无订单</h3><p>登录后创建的 CIRUI 订单会出现在这里。</p></div>'}</div></div>`;
   if (state.modal.type === 'review') return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Your experience</p><h2>Write a review.</h2><form class="modal-form" data-form="review"><div class="review-rating-input" role="radiogroup" aria-label="Rating"><input type="hidden" name="rating" value="5">${[5,4,3,2,1].map(n => `<button type="button" class="rating-star ${n === 5 ? 'is-active' : ''}" data-rating="${n}" aria-label="${n} stars">★</button>`).join('')}</div><input class="text-input" name="title" placeholder="Review title" required><textarea class="text-input" name="body" rows="5" placeholder="What did you install? How does it fit?" required></textarea><input class="text-input" name="vehicle" placeholder="Your vehicle (e.g. 2023 BMW M340i)"><button class="btn btn-primary">Submit review</button></form></div></div>`;
   if (state.modal.type === 'checkout') { const f = state.checkoutForm || {}; return `<div class="overlay" data-action="close-modal"><div class="modal" data-modal-content><button class="icon-btn modal-close" data-action="close-modal">${icons.close}</button><p class="eyebrow">Secure checkout</p><h2>创建 CIRUI 订单</h2><div class="checkout-steps">${['客户信息', '收货信息', '创建订单'].map((label, i) => `<div class="checkout-step ${state.checkoutStep === i + 1 || state.checkoutStep === 3 ? 'is-active' : ''}">${i + 1}. ${label}</div>`).join('')}</div>${state.checkoutStep === 4 ? `<div class="success-box"><h3>订单已创建。</h3><p>订单号：${esc(state.lastOrder?.orderSn || state.lastOrder?.id || '已提交')}。你可以在后台“订单 > 订单列表”继续处理。</p><button class="btn btn-dark" data-action="close-modal">返回商城</button></div>` : `<form class="modal-form" data-form="checkout"><input class="text-input" name="name" value="${esc(f.name || '')}" required placeholder="Full name"><input class="text-input" name="phone" value="${esc(f.phone || '')}" required placeholder="Phone number"><input class="text-input" name="email" value="${esc(f.email || '')}" type="email" required placeholder="Email address"><input class="text-input" name="address" value="${esc(f.address || '')}" required placeholder="Street address"><div class="filter-row"><input class="text-input" name="city" value="${esc(f.city || '')}" required placeholder="City"><input class="text-input" name="province" value="${esc(f.province || '')}" placeholder="State / Province"></div><div class="filter-row"><input class="text-input" name="region" value="${esc(f.region || '')}" placeholder="Region"><input class="text-input" name="postCode" value="${esc(f.postCode || '')}" required placeholder="Postcode"></div><p class="filter-help">订单会先创建为“待付款”，支付由后台配置的支付渠道处理。</p><button class="btn btn-primary" data-submit-order>${state.checkoutStep === 3 ? '提交并创建订单' : '继续填写并创建订单'}</button></form>`}</div></div>`; }
@@ -6769,7 +7499,13 @@ function chat() {
 function quoteCardMarkup(quote) {
   const spec = [quote.customer_wheel_specs?.diameter && `${quote.customer_wheel_specs.diameter} × ${quote.customer_wheel_specs.width || '—'}`, quote.customer_wheel_specs?.pcd, quote.customer_wheel_specs?.center_bore && `CB ${quote.customer_wheel_specs.center_bore}`, quote.customer_wheel_specs?.offset && `ET ${quote.customer_wheel_specs.offset}`].filter(Boolean).join(' · ');
   const paid = quote.payment_status === 'paid';
-  return `<div class="chat-quote-card"><div class="chat-quote-head"><span>CIRUI QUOTATION</span><strong>${paid ? 'Paid' : 'Ready to review'}</strong></div><div class="chat-quote-product">${quote.product_image ? `<img src="${esc(quote.product_image)}" alt="${esc(quote.product_name || 'CIRUI product')}">` : ''}<div><strong>${esc(quote.product_name || 'CIRUI custom quote')}</strong><small>${esc(spec || 'Custom fitment specification')}</small></div></div><div class="chat-quote-grid"><span>Product × Qty<strong>${money(quote.unit_price)} × ${quote.quantity || 1}</strong></span><span>Shipping<strong>${money(quote.shipping_fee || 0)}</strong></span><span>Production<strong>${quote.production_time_days ? `${quote.production_time_days} days` : 'To confirm'}</strong></span><span>Transit estimate<strong>${quote.shipping_estimate_days ? `${quote.shipping_estimate_days} days` : 'To confirm'}</strong></span></div><div class="chat-quote-total"><span>Total</span><strong>${money(quote.total)}</strong></div>${quote.logistics_method ? `<p class="chat-quote-note">${esc(quote.logistics_method)}</p>` : ''}${quote.note ? `<p class="chat-quote-note">${esc(quote.note)}</p>` : ''}${paid ? '<div class="chat-quote-paid">Payment received — CIRUI will continue with production and shipping.</div>' : quote.payment_ready && quote.checkout_token ? `<button class="btn btn-primary chat-quote-pay" data-action="pay-quote" data-quote-id="${esc(quote.id)}" data-payment-token="${esc(quote.checkout_token)}">Pay with PayPal ↗</button>` : '<div class="chat-quote-pending">Payment setup is being prepared. Please message us for assistance.</div>'}</div>`;
+  const shopify = quote.payment_provider === 'shopify';
+  const paymentAction = paid
+    ? '<div class="chat-quote-paid">Payment received — CIRUI will continue with production and shipping.</div>'
+    : quote.payment_ready && quote.checkout_token
+      ? `<button class="btn btn-primary chat-quote-pay" data-action="pay-quote" data-provider="${shopify ? 'shopify' : 'paypal'}" data-quote-id="${esc(quote.id)}" data-payment-token="${esc(quote.checkout_token)}">${shopify ? 'Continue to secure Shopify checkout' : 'Pay with PayPal'} ↗</button>${shopify ? '<small class="chat-quote-checkout-note">Review the final amount and delivery details on Shopify before paying.</small>' : ''}`
+      : '<div class="chat-quote-pending">Payment setup is being prepared. Please message us for assistance.</div>';
+  return `<div class="chat-quote-card"><div class="chat-quote-head"><span>CIRUI QUOTATION</span><strong>${paid ? 'Paid' : 'Ready to review'}</strong></div><div class="chat-quote-product">${quote.product_image ? `<img src="${esc(quote.product_image)}" alt="${esc(quote.product_name || 'CIRUI product')}">` : ''}<div><strong>${esc(quote.product_name || 'CIRUI custom quote')}</strong><small>${esc(spec || 'Custom fitment specification')}</small></div></div><div class="chat-quote-grid"><span>Product × Qty<strong>${money(quote.unit_price)} × ${quote.quantity || 1}</strong></span><span>Shipping<strong>${money(quote.shipping_fee || 0)}</strong></span><span>Production<strong>${quote.production_time_days ? `${quote.production_time_days} days` : 'To confirm'}</strong></span><span>Transit estimate<strong>${quote.shipping_estimate_days ? `${quote.shipping_estimate_days} days` : 'To confirm'}</strong></span></div><div class="chat-quote-total"><span>Total</span><strong>${money(quote.total)}</strong></div>${quote.logistics_method ? `<p class="chat-quote-note">${esc(quote.logistics_method)}</p>` : ''}${quote.note ? `<p class="chat-quote-note">${esc(quote.note)}</p>` : ''}${paymentAction}</div>`;
 }
 
 async function submitWebsiteChat(message) {
@@ -6820,14 +7556,16 @@ async function loadWebsiteChat() {
     render();
   } catch { /* Chat remains usable when the customer is offline. */ }
 }
-async function payQuote(quoteId, paymentToken) {
+async function payQuote(quoteId, paymentToken, provider = 'paypal') {
   try {
-    const response = await fetch(`/api/fbox-content/quotes/${encodeURIComponent(quoteId)}/paypal`, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ payment_token: paymentToken }) });
+    const shopify = provider === 'shopify';
+    const response = await fetch(`/api/fbox-content/quotes/${encodeURIComponent(quoteId)}/${shopify ? 'shopify' : 'paypal'}`, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ payment_token: paymentToken }) });
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(payload.detail || 'PayPal checkout could not be started.');
-    if (!payload.data?.approval_url) throw new Error('PayPal did not return an approval link.');
-    window.location.href = payload.data.approval_url;
-  } catch (error) { setToast(error?.message || 'PayPal checkout could not be started.'); }
+    if (!response.ok) throw new Error(payload.detail || 'Secure checkout could not be started.');
+    const checkoutUrl = shopify ? payload.data?.checkout_url : payload.data?.approval_url;
+    if (!checkoutUrl) throw new Error('The payment provider did not return a checkout link.');
+    window.location.href = checkoutUrl;
+  } catch (error) { setToast(error?.message || 'Secure checkout could not be started.'); }
 }
 async function captureReturnedPayPalPayment() {
   const query = new URLSearchParams(location.search);
@@ -6846,12 +7584,12 @@ async function captureReturnedPayPalPayment() {
 }
 function legacyFooter() {
   const whatsapp = generalWhatsAppContext();
-  return `<footer class="footer cerui-footer"><div class="container"><div class="footer-top"><div class="cerui-footer-brand"><a class="brand" href="#home"><img src="${assetUrl('cerui/cerui-logo-black-v1.webp')}" alt="CIRUI Forged 策锐锻造"><span><strong>CIRUI FORGED</strong><small>${uiLabel('FORCARBOX · OFFICIAL GLOBAL SITE')}</small></span></a><p class="footer-slogan">${uiLabel('Factory-direct custom forged wheels built around the exact vehicle, fitment and finish.')}</p><div class="company-meta"><strong>${company.legalName}</strong><a href="tel:${company.tel}">${company.phone}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">WhatsApp · ${company.whatsapp}</a></div></div><div class="footer-grid"><div class="footer-col"><h3>${uiLabel('Forged wheels')}</h3><a href="#home#vehicles">${uiLabel('Shop by vehicle')}</a><a href="#store" data-category-link="Wheels">${uiLabel('All wheel directions')}</a><a href="/fitment-lab" data-app-path>${uiLabel('Custom fitment')}</a><a href="#home#engineering">${uiLabel('Engineering')}</a></div><div class="footer-col"><h3>${uiLabel('Tools')}</h3><a href="/fitment-lab" data-app-path>${uiLabel('Fitment Lab')}</a><a href="#product/cerui-bmw-forged-fitment">${uiLabel('Vehicle photo preview')}</a><a href="#blog">${uiLabel('Fitment journal')}</a><a href="#home#resources">${uiLabel('Customer feedback')}</a></div><div class="footer-col"><h3>${uiLabel('Factory + delivery')}</h3><a href="#about">${uiLabel('About CIRUI')}</a><a href="#about">${uiLabel('Manufacturing')}</a><a href="#about">${uiLabel('DDP delivery')}</a><a href="tel:${company.tel}">${uiLabel('Contact')} · ${company.phone}</a></div><div class="footer-col"><h3>${uiLabel('Orders + partners')}</h3><a href="#home" data-action="orders">${uiLabel('Track order')}</a><a href="#account">${uiLabel('My account')}</a><a href="#about">${uiLabel('Wholesale program')}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">${uiLabel('WhatsApp fitment help')}</a></div></div></div><div class="cerui-footer-disclaimer">${uiLabel('Vehicle manufacturer names are used only to identify compatibility. CIRUI Forged is not affiliated with or endorsed by those vehicle manufacturers.')}</div><div class="footer-bottom"><span>© 2026 ${company.legalName} · CIRUI Forged / Forcarbox</span><span>${uiLabel('Terms · Privacy · CCPA')}</span></div></div></footer>`;
+  return `<footer class="footer cerui-footer"><div class="container"><div class="footer-top"><div class="cerui-footer-brand"><a class="brand" href="#home"><img src="${assetUrl('cerui/cerui-logo-black-v1.webp')}" alt="CIRUI Forged 策锐锻造"><span><strong>CIRUI FORGED</strong><small>${uiLabel('FORCARBOX · OFFICIAL GLOBAL SITE')}</small></span></a><p class="footer-slogan">${uiLabel('Factory-direct custom forged wheels built around the exact vehicle, fitment and finish.')}</p><div class="company-meta"><strong>${company.legalName}</strong><a href="tel:${company.tel}">${company.phone}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">WhatsApp · ${company.whatsapp}</a></div><p class="cerui-operator-note">${uiLabel('International rights holder and operator for CIRUI Forged. CIRUI headquarters: Hangzhou; wheel manufacturing: Shandong, China.')}</p></div><div class="footer-grid"><div class="footer-col"><h3>${uiLabel('Forged wheels')}</h3><a href="#home#vehicles">${uiLabel('Shop by vehicle')}</a><a href="#store" data-category-link="Wheels">${uiLabel('All wheel directions')}</a><a href="/fitment-lab" data-app-path>${uiLabel('Custom fitment')}</a><a href="#home#engineering">${uiLabel('Engineering')}</a></div><div class="footer-col"><h3>${uiLabel('Tools')}</h3><a href="/fitment-lab" data-app-path>${uiLabel('Fitment Lab')}</a><a href="#product/cerui-bmw-forged-fitment">${uiLabel('Vehicle photo preview')}</a><a href="#blog">${uiLabel('Fitment journal')}</a><a href="#home#resources">${uiLabel('Customer feedback')}</a></div><div class="footer-col"><h3>${uiLabel('Factory + delivery')}</h3><a href="#about">${uiLabel('About CIRUI')}</a><a href="#about">${uiLabel('Manufacturing')}</a><a href="#about">${uiLabel('DDP delivery')}</a><a href="tel:${company.tel}">${uiLabel('Contact')} · ${company.phone}</a></div><div class="footer-col"><h3>${uiLabel('Orders + partners')}</h3><a href="#home" data-action="orders">${uiLabel('Track order')}</a><a href="#account">${uiLabel('My account')}</a><a href="#about">${uiLabel('Wholesale program')}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">${uiLabel('WhatsApp fitment help')}</a></div></div></div><div class="cerui-footer-disclaimer">${uiLabel('Vehicle manufacturer names are used only to identify compatibility. CIRUI Forged is not affiliated with or endorsed by those vehicle manufacturers.')}</div><div class="footer-bottom"><span>© 2026 ${company.legalName} · CIRUI Forged / Forcarbox</span><span>${uiLabel('Terms · Privacy · CCPA')}</span></div></div></footer>`;
 }
 
 function footer() {
   const whatsapp = generalWhatsAppContext();
-  return `<footer class="footer cerui-footer"><div class="container"><div class="footer-top"><div class="cerui-footer-brand"><a class="brand" href="#home"><img src="${assetUrl('cerui/cerui-logo-black-v1.webp')}" alt="CIRUI Forged 策锐锻造"><span><strong>CIRUI FORGED</strong><small>${uiLabel('FORCARBOX · OFFICIAL GLOBAL SITE')}</small></span></a><p class="footer-slogan">${uiLabel('Factory-direct custom forged wheels built around the exact vehicle, fitment and finish.')}</p><div class="company-meta"><strong>${company.legalName}</strong><a href="tel:${company.tel}">${company.phone}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">WhatsApp · ${company.whatsapp}</a></div></div><div class="footer-grid"><div class="footer-col"><h3>${uiLabel('Forged wheels')}</h3><a href="#store" data-action="catalog-collection" data-collection="all">${uiLabel('All forged wheels')}</a><a href="#store" data-action="catalog-collection" data-collection="monoblock">${uiLabel('Monoblock forged')}</a><a href="#store" data-action="catalog-collection" data-collection="two-piece">${uiLabel('2-piece forged')}</a><a href="#store" data-action="catalog-collection" data-collection="aero-floating">${uiLabel('Aero & floating')}</a></div><div class="footer-col"><h3>${uiLabel('Fitment + customization')}</h3><a href="/fitment-lab" data-app-path>${uiLabel('Fitment Lab')}</a><a href="#store" data-action="catalog-visualizer">${uiLabel('Vehicle photo visualizer')}</a><a href="#custom">${uiLabel('Finishes, caps & hardware')}</a><a href="#blog">${uiLabel('Fitment journal')}</a></div><div class="footer-col"><h3>${uiLabel('Factory + delivery')}</h3><a href="#about">${uiLabel('Meet the factory')}</a><a href="#trade">${uiLabel('DDP Europe & North America')}</a><a href="#trade">${uiLabel('MOQ & lead time')}</a><a href="tel:${company.tel}">${uiLabel('Contact')} · ${company.phone}</a></div><div class="footer-col"><h3>${uiLabel('RFQ + partners')}</h3><a href="#cart" data-action="cart">${uiLabel('Open RFQ list')}</a><a href="#home" data-action="orders">${uiLabel('Track order')}</a><a href="#trade" data-action="trade-rfq" data-buyer-type="dealer">${uiLabel('Dealer & wholesale')}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">${uiLabel('WhatsApp fitment help')}</a></div></div></div><div class="cerui-footer-disclaimer">${uiLabel('Vehicle manufacturer names are used only to identify compatibility. CIRUI Forged is not affiliated with or endorsed by those vehicle manufacturers.')}</div><div class="footer-bottom"><span>© 2026 ${company.legalName} · CIRUI Forged / Forcarbox</span><span>${uiLabel('Terms · Privacy · CCPA')}</span></div></div></footer>`;
+  return `<footer class="footer cerui-footer"><div class="container"><div class="footer-top"><div class="cerui-footer-brand"><a class="brand" href="#home"><img src="${assetUrl('cerui/cerui-logo-black-v1.webp')}" alt="CIRUI Forged 策锐锻造"><span><strong>CIRUI FORGED</strong><small>${uiLabel('FORCARBOX · OFFICIAL GLOBAL SITE')}</small></span></a><p class="footer-slogan">${uiLabel('Factory-direct custom forged wheels built around the exact vehicle, fitment and finish.')}</p><div class="company-meta"><strong>${company.legalName}</strong><a href="tel:${company.tel}">${company.phone}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">WhatsApp · ${company.whatsapp}</a></div><p class="cerui-operator-note">${uiLabel('International rights holder and operator for CIRUI Forged. CIRUI headquarters: Hangzhou; wheel manufacturing: Shandong, China.')}</p></div><div class="footer-grid"><div class="footer-col"><h3>${uiLabel('Forged wheels')}</h3><a href="#store" data-action="catalog-collection" data-collection="all">${uiLabel('All forged wheels')}</a><a href="#store" data-action="catalog-collection" data-collection="stock">${uiLabel('Stock wheels')}</a><a href="#store" data-action="catalog-collection" data-collection="wheel-styles">${uiLabel('Wheel styles')}</a><a href="#store" data-action="catalog-collection" data-collection="monoblock">${uiLabel('Monoblock forged')}</a><a href="#store" data-action="catalog-collection" data-collection="two-piece">${uiLabel('2-piece forged')}</a><a href="#store" data-action="catalog-collection" data-collection="aero-floating">${uiLabel('Aero & floating')}</a></div><div class="footer-col"><h3>${uiLabel('Fitment + customization')}</h3><a href="/fitment-lab" data-app-path>${uiLabel('Fitment Lab')}</a><a href="#store" data-action="catalog-visualizer">${uiLabel('Vehicle photo visualizer')}</a><a href="#custom">${uiLabel('Finishes, caps & hardware')}</a><a href="#blog">${uiLabel('Fitment journal')}</a></div><div class="footer-col"><h3>${uiLabel('Factory + delivery')}</h3><a href="#about">${uiLabel('Meet the factory')}</a><a href="#trade">${uiLabel('DDP Europe & North America')}</a><a href="#trade">${uiLabel('MOQ & lead time')}</a><a href="tel:${company.tel}">${uiLabel('Contact')} · ${company.phone}</a></div><div class="footer-col"><h3>${uiLabel('RFQ + partners')}</h3><a href="#cart" data-action="cart">${uiLabel('Open RFQ list')}</a><a href="#home" data-action="orders">${uiLabel('Track order')}</a><a href="#trade" data-action="trade-rfq" data-buyer-type="dealer">${uiLabel('Dealer & wholesale')}</a><a href="${esc(whatsappHref(whatsapp.message))}" data-action="whatsapp" target="_blank" rel="noopener">${uiLabel('WhatsApp fitment help')}</a></div></div></div><div class="cerui-footer-disclaimer">${uiLabel('Vehicle manufacturer names are used only to identify compatibility. CIRUI Forged is not affiliated with or endorsed by those vehicle manufacturers.')}</div><div class="footer-bottom"><span>© 2026 ${company.legalName} · CIRUI Forged / Forcarbox</span><span>${uiLabel('Terms · Privacy · CCPA')}</span></div></div></footer>`;
 }
 
 function localizedDynamicChineseText(value = '') {
@@ -7100,79 +7838,13 @@ function wireProductGallery() {
     mainImage.alt = item.name + ' ' + (item.finish || '');
   }
 }
-function wireStartingPrices() {
-  if (document.body.classList.contains('fbox-global-premium')) return;
-  document.querySelectorAll('.product-card').forEach(card => {
-    const item = productFromCard(card);
-    if (!item || !hasStartingPrice(item)) return;
-    const price = card.querySelector('.price');
-    if (price) price.textContent = productPriceText(item);
-    const add = card.querySelector('[data-action="add"]');
-    if (add) {
-      const link = document.createElement('a');
-      link.className = add.className;
-      link.href = '#product/' + item.id;
-      link.textContent = 'Customize & quote';
-      add.replaceWith(link);
-    }
-  });
-  if (state.route.name === 'product') {
-    const item = product(state.route.id);
-    if (!item || !hasStartingPrice(item)) return;
-    const price = document.querySelector('.detail-price');
-    if (price) {
-      const note = document.createElement('small');
-      note.textContent = 'starting price / wheel';
-      price.replaceChildren(document.createTextNode(productPriceText(item) + ' '), note);
-    }
-    const set = document.querySelector('.detail-set');
-    if (set) {
-      const minimumNote = [uiLabel('The starting price is per wheel.', 'The starting price is per wheel.'), productMinimumOrderText(item), productMinimumOrderSummary(item)].filter(Boolean).join(' ');
-      set.replaceChildren(document.createTextNode('Final price is quoted after fitment, finish, PCD, CB and ET are confirmed.'));
-      if (minimumNote) {
-        set.append(document.createElement('br'));
-        const strong = document.createElement('strong');
-        strong.className = 'minimum-order-note';
-        strong.textContent = minimumNote;
-        set.append(strong);
-      }
-    }
-    const financing = document.querySelector('.financing-note');
-    if (financing) financing.textContent = 'Made to order. Start the visual fitment preview or send an inquiry to receive your exact USD quote.';
-    const actions = document.querySelector('.detail-actions');
-    if (actions) {
-      actions.replaceChildren(
-        quoteActionButton('Upload car photo', 'btn btn-primary', item.id),
-        quoteActionButton('Ask CIRUI', 'btn btn-dark', item.id, 'chat'),
-        quoteActionButton('WhatsApp quote', 'btn btn-outline', item.id, 'whatsapp-product')
-      );
-    }
-  }
-  if (state.modal?.type === 'quick') {
-    const item = product(state.modal.id);
-    if (!item || !hasStartingPrice(item)) return;
-    const quick = document.querySelector('.quick-product');
-    const quickImage = quick?.querySelector('img');
-    if (quickImage) quickImage.src = assetUrl(productGallery(item)[0] || item.image);
-    const quickPrice = quick?.querySelector('strong');
-    if (quickPrice) quickPrice.textContent = productPriceText(item);
-    const add = quick?.querySelector('[data-action="add"]');
-    if (add) {
-      const link = document.createElement('a');
-      link.className = add.className;
-      link.href = '#product/' + item.id;
-      link.textContent = 'Customize & quote';
-      add.replaceWith(link);
-    }
-  }
-}
 function syncRouteDocumentTitle() {
   if (state.route.name === 'home') {
-    document.title = uiLabel('CIRUI Forged Custom Wheels | Official Forcarbox Global Site');
+    document.title = uiLabel('Track-Led Custom Forged Wheels | CIRUI Forged');
     return;
   }
   if (state.route.name === 'about') {
-    document.title = uiLabel('About CIRUI Forged | Source Custom Wheel Factory');
+    document.title = uiLabel('About CIRUI Forged | 15,000T Shandong Factory');
     return;
   }
   if (state.route.name === 'fitment' || state.route.name === 'fitment-result') {
@@ -7228,10 +7900,14 @@ function render() {
   const preservedHeroVideo = Boolean(existingHeroVideo && nextHeroVideo);
   if (preservedHeroVideo) nextHeroVideo.replaceWith(existingHeroVideo);
   appRoot.replaceChildren(...nextRoot.childNodes);
+  const accountLoginForm = appRoot.querySelector('form[data-form="account"][data-mode="login"]');
+  if (accountLoginForm) {
+    accountLoginForm.elements.identity.value = state.accountLoginDraft?.identity || '';
+    accountLoginForm.elements.password.value = state.accountLoginDraft?.password || '';
+  }
   if (preservedHeroVideo && existingHeroVideo.paused) void existingHeroVideo.play().catch(() => {});
   syncFitmentEntryStatus();
   wireProductGallery();
-  wireStartingPrices();
   wireProductReviews();
   wireReviewForm();
   wireWheelVisualizerEntry();
@@ -7246,6 +7922,15 @@ function render() {
   applyTranslations();
   wireSpotlights();
   animateIn();
+}
+
+function unlockAccountLoginField(target) {
+  if (!(target instanceof HTMLInputElement) || !target.matches('[data-account-login-field]')) return;
+  target.value = '';
+  target.readOnly = false;
+  target.removeAttribute('data-account-login-field');
+  if (target.name === 'identity') state.accountLoginDraft.identityUnlocked = true;
+  if (target.name === 'password') state.accountLoginDraft.passwordUnlocked = true;
 }
 
 function wireSpotlights() {
@@ -7292,7 +7977,7 @@ function updateFitmentVehicle(field, value) {
   if (state.fitment.vehicle?.year && state.fitment.vehicle?.make && state.fitment.vehicle?.model) void loadFitmentVehicleReference(state.fitment.vehicle);
   if (state.fitment.vehicle?.trim) void loadSelectedVehicleRecord(state.fitment.vehicle);
 }
-function clearFilters() { state.search = ''; state.filters = { category: 'Wheels', collection: 'all', application: 'all', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' }; state.sort = 'latest'; render(); }
+function clearFilters() { const collection = ['stock', 'wheel-styles'].includes(state.filters.collection) ? state.filters.collection : 'all'; state.search = ''; state.filters = { category: 'Wheels', collection, stockGroup: 'all', application: 'all', saleOnly: false, finish: 'All', diameter: 'All', minPrice: '', maxPrice: '', minRating: '0' }; state.sort = 'latest'; render(); }
 
 function workshopDraftFromProject(project = {}) {
   const request = project.request || {};
@@ -7410,8 +8095,7 @@ async function workshopSaveProject({ share = false } = {}) {
   if (state.workshop.saving) return null;
   captureFitmentDraft();
   if (!state.mallToken || !state.account) {
-    state.modal = { type: 'account', mode: 'login', afterLogin: share ? 'workshop-share' : 'workshop-save' };
-    render();
+    openAccountLogin(share ? 'workshop-share' : 'workshop-save');
     return null;
   }
   const profile = resolvedWorkshopProfile();
@@ -7572,7 +8256,7 @@ function workshopStartConcept(form) {
     image: referenceObjectUrl,
     images: [referenceObjectUrl],
     price: 0,
-    price_mode: 'from',
+    price_mode: 'quote',
     minimum_quantity: 4,
     visualizer_enabled: true,
     dynamic_wheel_effect: true
@@ -7723,15 +8407,50 @@ async function wheelVisualizerSubmitInquiry(values) {
     render();
   }
 }
+function seedRfqDraftFromProduct(id) {
+  const item = product(id);
+  const brief = state.productBriefs?.[id] || {};
+  const previous = state.rfq.draft || {};
+  const selectedIndex = [...document.querySelectorAll('[data-stock-variant]')].find(element => element.dataset.stockVariant === id)?.value || '';
+  const selectedVariant = item?.stock_collection && selectedIndex !== '' ? item.stock_variants?.[Number(selectedIndex)] : null;
+  const stockVariant = selectedVariant ? [selectedVariant.item_no, selectedVariant.size, selectedVariant.pcd, selectedVariant.et ? `ET ${selectedVariant.et}` : '', selectedVariant.cb ? `CB ${selectedVariant.cb}` : '', selectedVariant.color, selectedVariant.load_rating ? `load ${selectedVariant.load_rating}` : ''].filter(Boolean).join(' · ') : '';
+  const signature = JSON.stringify({ brief, stockVariant });
+  if (previous.product_id === id && previous.product_config_signature === signature) return;
+  const switchingProducts = Boolean(previous.product_id && previous.product_id !== id);
+  const retained = key => switchingProducts ? '' : previous[key] || '';
+  const draft = {
+    ...previous,
+    product_id: id,
+    product_config_signature: signature,
+    stock_variant: stockVariant,
+    usage: brief.usage || retained('usage'),
+    finish: brief.finish || retained('finish'),
+    cap_logo: brief.cap || retained('cap_logo'),
+    profile_preference: brief.lip || retained('profile_preference'),
+    hardware_preference: brief.hardware || retained('hardware_preference'),
+    brake_package: brief.brake_model || ({ oem: 'Factory brakes', ceramic: 'Carbon ceramic', aftermarket: 'Aftermarket big brake kit' })[brief.brake_type] || retained('brake_package'),
+    load_target_lb: brief.load_target_lb || retained('load_target_lb'),
+    reference_url: brief.reference_url || retained('reference_url')
+  };
+  state.rfq.draft = draft;
+  localStorage.setItem('cirui-rfq-draft', JSON.stringify(draft));
+}
+
+function saveRfqDraftFromForm(form) {
+  if (!form || form.dataset.form !== 'rfq') return;
+  const values = Object.fromEntries(new FormData(form).entries());
+  const draft = { ...(state.rfq.draft || {}), ...values, ddp_requested: values.ddp_requested === 'on' };
+  state.rfq.draft = draft;
+  localStorage.setItem('cirui-rfq-draft', JSON.stringify(draft));
+}
+
 async function submitRfq(values) {
-  if (state.rfq.status === 'submitting' || !cartCount()) return;
-  const entries = state.cart.map(row => ({ row, item: product(row.id) })).filter(entry => entry.item?.category === 'Wheels' && entry.item.public_scope !== false);
-  if (!entries.length) {
-    state.rfq.error = uiLabel('Add at least one forged wheel direction before sending the RFQ.');
-    render();
-    return;
-  }
-  const draft = { ...values, ddp_requested: values.ddp_requested === 'on' };
+  if (state.rfq.status === 'submitting') return;
+  const directProductInquiry = Boolean(state.rfq.focusProductId);
+  const entries = rfqItems();
+  const directStockInquiry = directProductInquiry && entries[0]?.item?.stock_collection === true;
+  const directWheelStyleInquiry = directProductInquiry && entries[0]?.item?.legacy_wheel === true;
+  const draft = { ...(state.rfq.draft || {}), ...values, ddp_requested: values.ddp_requested === 'on' };
   state.rfq = { ...state.rfq, status: 'submitting', error: '', draft };
   localStorage.setItem('cirui-rfq-draft', JSON.stringify(draft));
   render();
@@ -7740,15 +8459,50 @@ async function submitRfq(values) {
     name: productNameText(item),
     part: item.part || '',
     image: assetUrl(item.image),
-    construction: item.construction || 'unknown',
-    design_family: item.design_family || 'custom',
-    finish: values.finish || item.finish || 'Custom finish',
+    construction: item.legacy_wheel ? item.material || 'Material to confirm' : item.construction || 'unknown',
+    design_family: item.legacy_wheel ? 'wheel-style' : item.design_family || 'custom',
+    finish: state.productBriefs?.[item.id]?.finish || values.finish || item.finish || 'Custom finish',
     quantity: row.qty
   }));
-  const productSummary = productsPayload.map(item => `${item.part || item.id} ${item.name} (${item.construction}) × ${item.quantity}`).join('; ');
+  const productSummary = productsPayload.map(item => `${item.part || item.id} ${item.name} (${item.construction}) × ${item.quantity}`).join('; ') || 'bespoke design requested';
+  const productOptionsSummary = entries.map(({ item }) => {
+    const summary = productCustomizationSummary(item.id);
+    return summary ? `${item.part || item.id}: ${summary}` : '';
+  }).filter(Boolean).join('; ');
+  const selectedProductBrief = entries.length === 1 ? (state.productBriefs?.[entries[0].item.id] || {}) : {};
+  const frontDiameter = productConfigResolvedSize(selectedProductBrief, 'front_diameter');
+  const rearDiameter = productConfigResolvedSize(selectedProductBrief, 'rear_diameter');
+  const frontWidth = productConfigResolvedSize(selectedProductBrief, 'front_width');
+  const rearWidth = productConfigResolvedSize(selectedProductBrief, 'rear_width');
+  const wheelSpecs = {
+    diameter: frontDiameter && rearDiameter ? `${frontDiameter} / ${rearDiameter}` : '',
+    width: frontWidth && rearWidth ? `${frontWidth} / ${rearWidth}` : '',
+    pcd: selectedProductBrief.fitment_source === 'known' && selectedProductBrief.mounting_system !== 'center_lock' ? selectedProductBrief.pcd || '' : '',
+    offset: selectedProductBrief.fitment_source === 'known' ? [selectedProductBrief.front_offset, selectedProductBrief.rear_offset].filter(Boolean).join(' / ') : '',
+    center_bore: selectedProductBrief.fitment_source === 'known' ? selectedProductBrief.center_bore || '' : '',
+    quantity: String(productsPayload.reduce((sum, item) => sum + item.quantity, 0) || 4),
+    source: directStockInquiry ? 'Stock inventory selection' : directWheelStyleInquiry ? 'Wheel style catalog' : Object.keys(selectedProductBrief).length ? 'Product detail configurator' : entries.length ? 'RFQ list' : 'Bespoke project brief',
+    stock_variant: directStockInquiry ? draft.stock_variant || '' : '',
+    listed_specification: directWheelStyleInquiry ? entries[0]?.item?.meta || '' : '',
+    listed_material: directWheelStyleInquiry ? entries[0]?.item?.material || '' : ''
+  };
+  const buildBrief = directStockInquiry || directWheelStyleInquiry ? '' : [
+    `Intended use: ${draft.usage || 'to confirm'}`,
+    `Design direction: ${draft.design_direction || 'to confirm'}`,
+    `Concavity / lip: ${draft.profile_preference || 'to confirm'}`,
+    `Brake package: ${draft.brake_package || 'to confirm'}`,
+    `Load target per wheel: ${draft.load_target_lb ? `${draft.load_target_lb} lb` : 'to confirm'}`,
+    `Center cap / logo: ${draft.cap_logo || 'to confirm'}`,
+    `Hardware preference: ${draft.hardware_preference || 'to confirm'}`,
+    `Reference link: ${draft.reference_url || 'none'}`
+  ].join('; ');
   const message = [
-    `Multi-product forged wheel RFQ: ${productSummary}.`,
+    `${directStockInquiry ? 'Stock wheel inquiry' : directWheelStyleInquiry ? 'Wheel style inquiry' : 'Custom forged wheel project'}: ${productSummary}.`,
     `Vehicle: ${values.vehicle}.`,
+    directStockInquiry ? `Requested stock specification: ${draft.stock_variant || 'CIRUI to confirm'}.` : '',
+    directWheelStyleInquiry ? `Listed specification: ${entries[0]?.item?.meta || 'to confirm'}; listed material: ${entries[0]?.item?.material || 'to confirm'}.` : '',
+    productOptionsSummary ? `Product preferences: ${productOptionsSummary}.` : '',
+    buildBrief,
     `Preferred finish: ${values.finish || 'to confirm'}.`,
     `Destination: ${values.country}, ${values.postcode}.`,
     `DDP requested: ${values.ddp_requested === 'on' ? 'yes' : 'no'}.`,
@@ -7762,8 +8516,8 @@ async function submitRfq(values) {
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        topic: 'multi-product-forged-wheel-rfq',
-        channel: 'website-rfq-list',
+        topic: directWheelStyleInquiry ? 'single-product-wheel-style-inquiry' : directProductInquiry ? 'single-product-forged-wheel-inquiry' : entries.length ? 'multi-product-forged-wheel-rfq' : 'bespoke-forged-wheel-project',
+        channel: directProductInquiry ? 'website-product-inquiry' : entries.length ? 'website-rfq-list' : 'website-bespoke-brief',
         locale: state.locale,
         message,
         customer_name: values.customer_name,
@@ -7779,18 +8533,25 @@ async function submitRfq(values) {
         product_id: productsPayload[0]?.id || '',
         product_name: productsPayload[0]?.name || '',
         product_category: 'Wheels',
-        product_finish: values.finish || 'Custom finish',
+        product_finish: productsPayload[0]?.finish || values.finish || 'Custom finish',
         product_image: productsPayload[0]?.image || '',
         product_display_price: entries[0]?.item?.price || 0,
         products: productsPayload,
-        wheel_specs: { quantity: String(productsPayload.reduce((sum, item) => sum + item.quantity, 0)), source: 'RFQ list' },
-        customer_note: values.customer_note || ''
+        wheel_specs: wheelSpecs,
+        design_prompt: [directStockInquiry ? draft.stock_variant || 'Stock specification to confirm' : '', directWheelStyleInquiry ? `Listed specification: ${entries[0]?.item?.meta || 'to confirm'}; material: ${entries[0]?.item?.material || 'to confirm'}` : '', productOptionsSummary, buildBrief].filter(Boolean).join('; ').slice(0, 1200),
+        customer_note: [values.customer_note || '', directStockInquiry ? `Requested stock specification: ${draft.stock_variant || 'CIRUI to confirm'}` : '', directWheelStyleInquiry ? `Listed specification: ${entries[0]?.item?.meta || 'to confirm'}; material: ${entries[0]?.item?.material || 'to confirm'}` : '', productOptionsSummary, buildBrief].filter(Boolean).join('\n').slice(0, 1000)
       })
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.detail || uiLabel('The RFQ could not be submitted.'));
-    state.rfq = { status: 'success', id: payload.data?.id || 'submitted', error: '', draft };
-    state.cart = [];
+    const inquiryId = String(payload.data?.id || '').trim();
+    if (!inquiryId) throw new Error(uiLabel('The server did not confirm an inquiry number. Please try again.'));
+    state.rfq = { status: 'success', id: inquiryId, error: '', focusProductId: directProductInquiry ? entries[0]?.item.id || '' : '', draft };
+    state.chatSessionId = inquiryId;
+    state.chatMessages = [];
+    localStorage.setItem('fbox-chat-session', inquiryId);
+    void loadWebsiteChat();
+    if (!directProductInquiry) state.cart = [];
     persist();
     render();
   } catch (error) {
@@ -7808,7 +8569,7 @@ async function addToCart(id, options = {}) {
   else state.cart.push({ id, qty: minimum });
   persist();
   if (options.openRfq) {
-    state.rfq = { ...state.rfq, status: 'idle', error: '', id: '' };
+    state.rfq = { ...state.rfq, status: 'idle', error: '', id: '', focusProductId: '' };
     state.modal = { type: 'rfq' };
     render();
     return;
@@ -8023,6 +8784,7 @@ document.addEventListener('click', async event => {
   }
   if (target.dataset.categoryLink !== undefined) { setCatalogCollection('all'); state.catalogNotice = ''; state.menuOpen = false; if (state.route.name === 'store') render(); else go('#store'); return; }
   if (action === 'catalog-collection') { event.preventDefault(); setCatalogCollection(target.dataset.collection || 'all'); state.catalogNotice = ''; state.menuOpen = false; if (state.route.name === 'store') render(); else go('#store'); return; }
+  if (action === 'catalog-stock-group') { event.preventDefault(); state.filters.stockGroup = target.dataset.stockGroup || 'all'; render(); return; }
   if (action === 'catalog-visualizer') { event.preventDefault(); setCatalogCollection('all'); state.catalogNotice = 'visualizer'; state.menuOpen = false; if (state.route.name === 'store') render(); else go('#store'); return; }
   if (action === 'custom-section') {
     event.preventDefault();
@@ -8037,7 +8799,7 @@ document.addEventListener('click', async event => {
     event.preventDefault();
     state.rfq.draft = { ...(state.rfq.draft || {}), buyer_type: target.dataset.buyerType || 'retail', ddp_requested: true };
     if (!cartCount()) { setCatalogCollection('all'); go('#store'); window.setTimeout(() => setToast(uiLabel('Choose at least one wheel direction, then open the RFQ.')), 80); }
-    else { state.rfq = { ...state.rfq, status: 'idle', id: '', error: '' }; state.modal = { type: 'rfq' }; render(); }
+    else { state.rfq = { ...state.rfq, status: 'idle', id: '', error: '', focusProductId: '' }; state.modal = { type: 'rfq' }; render(); }
     return;
   }
   if (action === 'fitment-start') { openFitmentWizard(target.dataset.mode || 'fitment-first', 1); return; }
@@ -8148,11 +8910,11 @@ document.addEventListener('click', async event => {
     return;
   }
   if (action === 'cart') { go('#cart'); return; }
-  if (action === 'account') { if (state.mallToken && state.account) goPath('/account'); else { state.modal = { type: 'account', mode: 'login' }; render(); } return; }
+  if (action === 'account') { if (state.mallToken && state.account) goPath('/account'); else openAccountLogin(); return; }
   if (action === 'account-logout') { await mallLogout(); state.modal = null; if (state.route.name === 'account') goPath('/'); else render(); setToast('Signed out. Your local cart stays on this device.'); return; }
   if (action === 'account-register') { state.modal = { type: 'account', mode: 'register', afterLogin: state.modal?.afterLogin || target.dataset.afterLogin || '' }; render(); return; }
-  if (action === 'account-login') { state.modal = { type: 'account', mode: 'login', afterLogin: state.modal?.afterLogin || target.dataset.afterLogin || '' }; render(); return; }
-  if (action === 'orders') { if (!state.mallToken) { state.modal = { type: 'account', mode: 'login', afterLogin: 'orders' }; render(); } else { state.modal = { type: 'orders' }; loadMemberOrders(); } return; }
+  if (action === 'account-login') { openAccountLogin(state.modal?.afterLogin || target.dataset.afterLogin || ''); return; }
+  if (action === 'orders') { if (!state.mallToken) openAccountLogin('orders'); else { state.modal = { type: 'orders' }; loadMemberOrders(); } return; }
   if (action === 'dismiss-cookie') { state.cookie = false; localStorage.setItem('fbox-cookie', 'dismissed'); render(); return; }
   if (action === 'workshop-new' || action === 'fitment-clear-open') { state.modal = { type: 'fitment-clear-confirm' }; render(); return; }
   if (action === 'fitment-clear-confirm') { workshopNewProject(); return; }
@@ -8276,20 +9038,23 @@ document.addEventListener('click', async event => {
   }
   if (['whatsapp', 'whatsapp-fitment', 'whatsapp-product', 'whatsapp-visualizer'].includes(action)) { event.preventDefault(); void openWhatsAppContext(whatsappContext(action, target.dataset.id)); return; }
   if (action === 'chat') { state.chatOpen = !state.chatOpen; render(); if (state.chatOpen) void loadWebsiteChat(); return; }
-  if (action === 'pay-quote') { void payQuote(target.dataset.quoteId, target.dataset.paymentToken); return; }
+  if (action === 'pay-quote') { void payQuote(target.dataset.quoteId, target.dataset.paymentToken, target.dataset.provider); return; }
+  if (action === 'rfq-open-chat') { state.modal = null; state.chatOpen = true; render(); void loadWebsiteChat(); return; }
   if (action === 'chat-reply') {
     const message = target.dataset.message || 'I need fitment help.';
     await submitWebsiteChat(message);
     return;
   }
   if (action === 'open-fitment-lab') {
+    event.preventDefault();
     state.fitment.vehicle = state.vehicle || state.fitment.vehicle;
     const focus = target.dataset.fitmentFocus || 'vehicle';
-    state.fitment.draft = { ...(state.fitment.draft || {}), entry_focus: focus, workflow_mode: 'fitment-first' };
+    const trackIntent = target.dataset.fitmentIntent === 'track';
+    state.fitment.draft = { ...(state.fitment.draft || {}), entry_focus: focus, workflow_mode: 'fitment-first', ...(trackIntent ? { usage: 'track', fitment_goal: 'performance' } : {}) };
     localStorage.setItem('fbox-fitment-draft', JSON.stringify(state.fitment.draft));
     void loadFitmentPartsContent();
     goPath('/fitment-lab');
-    if (target.dataset.fitmentFocus) window.setTimeout(() => openFitmentWizard('fitment-first', 1), 50);
+    if (target.dataset.fitmentFocus || trackIntent) window.setTimeout(() => openFitmentWizard('fitment-first', 1), 50);
     return;
   }
   if (action === 'fitment-chat') {
@@ -8445,7 +9210,7 @@ document.addEventListener('click', async event => {
     render();
     return;
   }
-  if (action === 'close-modal') { if (event.target.closest('[data-modal-content]') && !target.classList.contains('modal-close')) return; state.modal = null; render(); return; }
+  if (action === 'close-modal') { if (state.modal?.type === 'rfq' && state.rfq.status === 'submitting') return; if (target.classList.contains('overlay') && event.target.closest('[data-modal-content]')) return; state.modal = null; render(); return; }
   if (action === 'wishlist') {
     const id = target.dataset.id;
     const item = product(id);
@@ -8468,19 +9233,26 @@ document.addEventListener('click', async event => {
     render();
     return;
   }
-  if (action === 'add') { await addToCart(target.dataset.id); return; }
+  if (action === 'add') {
+    const issue = target.closest('.forged-detail') ? productConfiguratorIssue(target.dataset.id) : null;
+    if (issue) { showProductConfiguratorIssue(target.dataset.id, issue); return; }
+    await addToCart(target.dataset.id);
+    return;
+  }
   if (action === 'buy-now') { await addToCart(target.dataset.id, { openRfq: true }); return; }
   if (action === 'request-rfq') {
-    if (target.dataset.id) { await addToCart(target.dataset.id, { openRfq: true }); return; }
-    if (!cartCount()) {
-      setCatalogCollection('all');
-      state.catalogNotice = '';
-      if (state.route.name === 'store') render();
-      else go('#store');
-      window.setTimeout(() => setToast(uiLabel('Choose at least one wheel direction, then open the RFQ.')), 80);
+    event.preventDefault();
+    const issue = target.dataset.id && target.closest('.forged-detail') ? productConfiguratorIssue(target.dataset.id) : null;
+    if (issue) { showProductConfiguratorIssue(target.dataset.id, issue); return; }
+    if (target.dataset.usage === 'track') state.rfq.draft = { ...(state.rfq.draft || {}), usage: 'track' };
+    if (target.dataset.id) {
+      seedRfqDraftFromProduct(target.dataset.id);
+      state.rfq = { ...state.rfq, status: 'idle', id: '', error: '', focusProductId: target.dataset.id };
+      state.modal = { type: 'rfq' };
+      render();
       return;
     }
-    state.rfq = { ...state.rfq, status: 'idle', id: '', error: '' };
+    state.rfq = { ...state.rfq, status: 'idle', id: '', error: '', focusProductId: '' };
     state.modal = { type: 'rfq' };
     render();
     return;
@@ -8495,7 +9267,7 @@ document.addEventListener('click', async event => {
   if (action === 'remove-cart') { state.cart = state.cart.filter(row => row.id !== target.dataset.id); persist(); render(); return; }
   if (action === 'qty') { const item = state.cart.find(x => x.id === target.dataset.id); if (item) { const productItem = product(item.id); item.qty = Math.max(productMinimumQuantity(productItem), item.qty + Number(target.dataset.delta)); } state.cart = state.cart.filter(x => x.qty > 0); persist(); render(); return; }
   if (action === 'apply-coupon') { setToast(state.mallToken ? '优惠码将在 CIRUI 结算规则中校验；当前订单按商品美元售价创建。' : '请先登录 CIRUI 账户，再选择可用优惠。'); return; }
-  if (action === 'checkout') { if (!cartCount()) { setToast(uiLabel('Your RFQ list is empty.')); return; } state.rfq = { ...state.rfq, status: 'idle', id: '', error: '' }; state.modal = { type: 'rfq' }; render(); return; }
+  if (action === 'checkout') { if (!cartCount()) { setToast(uiLabel('Your RFQ list is empty.')); return; } state.rfq = { ...state.rfq, status: 'idle', id: '', error: '', focusProductId: '' }; state.modal = { type: 'rfq' }; render(); return; }
   if (action === 'toggle-customer-builds') { state.homeBuildsExpanded = !state.homeBuildsExpanded; render(); window.setTimeout(() => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30); return; }
   if (action === 'load-reviews') { state.reviewLimit = reviews.length; render(); return; }
   if (action === 'write-review') { state.modal = { type: 'review', id: state.route.name === 'product' ? state.route.id : '' }; render(); return; }
@@ -8504,6 +9276,8 @@ document.addEventListener('click', async event => {
 document.addEventListener('change', event => {
   const el = event.target;
   trackFitmentFieldActivity(el);
+  if (el.closest('[data-form="rfq"]')) { saveRfqDraftFromForm(el.form); return; }
+  if (el.matches('[data-product-option]')) { saveProductConfiguratorField(el); return; }
   if (el.matches('[data-ai-design-upload]')) { void aiWheelReferenceFile(el.files?.[0]); return; }
   if (el.matches('[data-fitment-style-upload]')) {
     const file = el.files?.[0];
@@ -8550,6 +9324,7 @@ document.addEventListener('change', event => {
   }
 });
 let wheelCropDrag = null;
+document.addEventListener('focusin', event => unlockAccountLoginField(event.target));
 document.addEventListener('pointerdown', event => {
   const stage = event.target.closest('[data-wheel-crop-stage]');
   if (!stage || !state.wheelVisualizer?.vehicleUrl) return;
@@ -8577,6 +9352,12 @@ let fitmentStyleSearchTimer = 0;
 document.addEventListener('input', event => {
   const el = event.target;
   trackFitmentFieldActivity(el);
+  if (el.closest('[data-form="rfq"]')) { saveRfqDraftFromForm(el.form); return; }
+  if (el.matches('[data-product-option]')) { saveProductConfiguratorField(el); return; }
+  if (el.closest('form[data-form="account"][data-mode="login"]') && ['identity', 'password'].includes(el.name)) {
+    state.accountLoginDraft[el.name] = el.value;
+    return;
+  }
   if (el.closest('[data-form="ai-wheel-design"]')) {
     captureAiWheelDraft(el.form);
     state.aiWheelDesign.error = '';
@@ -8897,12 +9678,13 @@ document.addEventListener('submit', async event => {
           if (next === 'account') goPath('/account');
           setToast('Welcome to CIRUI — your account is ready.');
         } else {
-          state.modal = { type: 'account', mode: 'login' };
+          state.accountLoginDraft = { identity: '', password: '', identityUnlocked: false, passwordUnlocked: false };
+          state.modal = { type: 'account', mode: 'login', afterLogin: '' };
           setToast('账户已创建，请登录 CIRUI。');
         }
         return;
       }
-      const result = await mallLogin(values.get('username'), values.get('password'));
+      const result = await mallLogin(values.get('identity'), values.get('password'));
       state.mallToken = `${result?.tokenHead || 'Bearer '}${result?.token || ''}`.trim();
       if (state.mallToken) localStorage.setItem('fbox-mall-token', state.mallToken);
       state.account = result?.data?.member || result?.member || null;

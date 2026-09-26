@@ -1,0 +1,247 @@
+{
+  "source": "https://shop.forcarbox.cn",
+  "currency": "USD",
+  "synced_at": "2026-09-26T15:43:06.556Z",
+  "products": {
+    "CR-3D-01": {
+      "price_cents": 280000,
+      "handle": "cirui-cr-01-axis-split-5-forged-wheel",
+      "title": "CIRUI CR-01 Axis Split-5 Forged Wheel"
+    },
+    "CR-3D-02": {
+      "price_cents": 364900,
+      "handle": "cirui-cr-02-grand-touring-multi-spoke-forged-wheel",
+      "title": "CIRUI CR-02 Grand Touring Multi-Spoke Forged Wheel"
+    },
+    "CR-3D-03": {
+      "price_cents": 494900,
+      "handle": "cirui-cr-03-heritage-mesh-2-piece-forged-wheel",
+      "title": "CIRUI CR-03 Heritage Mesh 2-Piece Forged Wheel"
+    },
+    "CR-3D-04": {
+      "price_cents": 396600,
+      "handle": "cirui-cr-04-aero-split-5-forged-wheel",
+      "title": "CIRUI CR-04 Aero Split-5 Forged Wheel"
+    },
+    "CR-3D-05": {
+      "price_cents": 396600,
+      "handle": "cirui-cr-05-arc-split-5-forged-wheel",
+      "title": "CIRUI CR-05 Arc Split-5 Forged Wheel"
+    },
+    "CR-3D-06": {
+      "price_cents": 476600,
+      "handle": "cirui-cr-06-motorsport-mesh-forged-wheel",
+      "title": "CIRUI CR-06 Motorsport Mesh Forged Wheel"
+    },
+    "CR-3D-07": {
+      "price_cents": 389800,
+      "handle": "cirui-cr-07-classic-5-forged-wheel",
+      "title": "CIRUI CR-07 Classic 5 Forged Wheel"
+    },
+    "CR-3D-08": {
+      "price_cents": 364900,
+      "handle": "cirui-cr-08-track-10-forged-wheel",
+      "title": "CIRUI CR-08 Track 10 Forged Wheel"
+    },
+    "CR-3D-09": {
+      "price_cents": 330800,
+      "handle": "cirui-cr-09-hexa-split-5-forged-wheel",
+      "title": "CIRUI CR-09 Hexa Split-5 Forged Wheel"
+    },
+    "CR-3D-10": {
+      "price_cents": 364900,
+      "handle": "cirui-cr-10-blade-5-forged-wheel",
+      "title": "CIRUI CR-10 Blade 5 Forged Wheel"
+    },
+    "CR-3D-11": {
+      "price_cents": 464900,
+      "handle": "cirui-cr-11-vector-multi-spoke-forged-wheel",
+      "title": "CIRUI CR-11 Vector Multi-Spoke Forged Wheel"
+    },
+    "CR-3D-12": {
+      "price_cents": 364900,
+      "handle": "cirui-cr-12-heritage-6-forged-wheel",
+      "title": "CIRUI CR-12 Heritage 6 Forged Wheel"
+    },
+    "CR-3D-13": {
+      "price_cents": 364900,
+      "handle": "cirui-cr-13-competition-5-forged-wheel",
+      "title": "CIRUI CR-13 Competition 5 Forged Wheel"
+    },
+    "CR-3D-14": {
+      "price_cents": 410000,
+      "handle": "cirui-cr-14-terrain-beadlock-forged-wheel",
+      "title": "CIRUI CR-14 Terrain Beadlock Forged Wheel"
+    },
+    "CR-3D-15": {
+      "price_cents": 464900,
+      "handle": "cirui-cr-15-diamond-mesh-forged-wheel",
+      "title": "CIRUI CR-15 Diamond Mesh Forged Wheel"
+    },
+    "CR-3D-16": {
+      "price_cents": 399900,
+      "handle": "cirui-cr-16-turbine-2-piece-forged-wheel",
+      "title": "CIRUI CR-16 Turbine 2-Piece Forged Wheel"
+    },
+    "CR-3D-17": {
+      "price_cents": 310000,
+      "handle": "cirui-cr-17-feather-multi-spoke-forged-wheel",
+      "title": "CIRUI CR-17 Feather Multi-Spoke Forged Wheel"
+    },
+    "CR-3D-18": {
+      "price_cents": 325800,
+      "handle": "cirui-cr-18-turbine-aero-forged-wheel",
+      "title": "CIRUI CR-18 Turbine Aero Forged Wheel"
+    },
+    "CR-3D-19": {
+      "price_cents": 264900,
+      "handle": "cirui-cr-19-classic-8-forged-wheel",
+      "title": "CIRUI CR-19 Classic 8 Forged Wheel"
+    },
+    "CR-3D-20": {
+      "price_cents": 299900,
+      "handle": "cirui-cr-20-racing-6-forged-wheel",
+      "title": "CIRUI CR-20 Racing 6 Forged Wheel"
+    },
+    "CR-3D-21": {
+      "price_cents": 759900,
+      "handle": "cirui-cr-21-aero-tri-spoke-forged-wheel",
+      "title": "CIRUI CR-21 Aero Tri-Spoke Forged Wheel"
+    },
+    "CR-3D-22": {
+      "price_cents": 64900,
+      "handle": "cirui-cr-22-flow-multi-spoke-forged-wheel",
+      "title": "CIRUI CR-22 Flow Multi-Spoke Forged Wheel"
+    },
+    "CR-3D-23": {
+      "price_cents": 348900,
+      "handle": "cirui-cr-23-v-5-forged-wheel",
+      "title": "CIRUI CR-23 V-5 Forged Wheel"
+    },
+    "CR-3D-24": {
+      "price_cents": 450000,
+      "handle": "cirui-cr-24-heritage-mesh-2-piece-forged-wheel",
+      "title": "CIRUI CR-24 Heritage Mesh 2-Piece Forged Wheel"
+    },
+    "CR-3D-25": {
+      "price_cents": 350000,
+      "handle": "cirui-cr-25-track-split-5-forged-wheel",
+      "title": "CIRUI CR-25 Track Split-5 Forged Wheel"
+    },
+    "CR-3D-26": {
+      "price_cents": 480000,
+      "handle": "cirui-cr-26-crystal-mesh-forged-wheel",
+      "title": "CIRUI CR-26 Crystal Mesh Forged Wheel"
+    },
+    "CR-3D-27": {
+      "price_cents": 269900,
+      "handle": "cirui-cr-27-classic-5-forged-wheel",
+      "title": "CIRUI CR-27 Classic 5 Forged Wheel"
+    },
+    "CR-3D-28": {
+      "price_cents": 379000,
+      "handle": "cirui-cr-28-disc-classic-forged-wheel",
+      "title": "CIRUI CR-28 Disc Classic Forged Wheel"
+    },
+    "CR-3D-29": {
+      "price_cents": 264900,
+      "handle": "cirui-cr-29-luxury-turbine-forged-wheel",
+      "title": "CIRUI CR-29 Luxury Turbine Forged Wheel"
+    },
+    "CR-3D-30": {
+      "price_cents": 219900,
+      "handle": "cirui-cr-30-double-y-mesh-forged-wheel",
+      "title": "CIRUI CR-30 Double-Y Mesh Forged Wheel"
+    },
+    "CR-3D-31": {
+      "price_cents": 245000,
+      "handle": "cirui-cr-31-lattice-mesh-forged-wheel",
+      "title": "CIRUI CR-31 Lattice Mesh Forged Wheel"
+    },
+    "CR-3D-32": {
+      "price_cents": 368800,
+      "handle": "cirui-cr-32-deep-lip-split-5-2-piece-forged-wheel",
+      "title": "CIRUI CR-32 Deep-Lip Split-5 2-Piece Forged Wheel"
+    },
+    "CR-3D-33": {
+      "price_cents": 310000,
+      "handle": "cirui-cr-33-twin-10-forged-wheel",
+      "title": "CIRUI CR-33 Twin-10 Forged Wheel"
+    },
+    "CR-3D-34": {
+      "price_cents": 310000,
+      "handle": "cirui-cr-34-executive-multi-spoke-forged-wheel",
+      "title": "CIRUI CR-34 Executive Multi-Spoke Forged Wheel"
+    },
+    "CR-3D-35": {
+      "price_cents": 310000,
+      "handle": "cirui-cr-35-dynamic-split-5-forged-wheel",
+      "title": "CIRUI CR-35 Dynamic Split-5 Forged Wheel"
+    },
+    "CR-3D-36": {
+      "price_cents": 350000,
+      "handle": "cirui-cr-36-heritage-disc-2-piece-forged-wheel",
+      "title": "CIRUI CR-36 Heritage Disc 2-Piece Forged Wheel"
+    },
+    "CR-AD-01": {
+      "price_cents": 384900,
+      "handle": "cirui-cr-ad01-floating-aero-forged-wheel",
+      "title": "CIRUI CR-AD01 Floating Aero Forged Wheel"
+    },
+    "CR-AD-02": {
+      "price_cents": 384900,
+      "handle": "cirui-cr-ad02-floating-disc-forged-wheel",
+      "title": "CIRUI CR-AD02 Floating Disc Forged Wheel"
+    },
+    "CR-AD-03": {
+      "price_cents": 384900,
+      "handle": "cirui-cr-ad03-floating-aero-forged-wheel",
+      "title": "CIRUI CR-AD03 Floating Aero Forged Wheel"
+    },
+    "CR-AD-04": {
+      "price_cents": 384900,
+      "handle": "cirui-cr-ad04-floating-disc-forged-wheel",
+      "title": "CIRUI CR-AD04 Floating Disc Forged Wheel"
+    },
+    "CR-HM-01": {
+      "price_cents": 480000,
+      "handle": "cirui-cr-h01-motorsport-split-5-forged-wheel",
+      "title": "CIRUI CR-H01 Motorsport Split-5 Forged Wheel"
+    },
+    "CR-HM-02": {
+      "price_cents": 480000,
+      "handle": "cirui-cr-h02-motorsport-split-5-forged-wheel",
+      "title": "CIRUI CR-H02 Motorsport Split-5 Forged Wheel"
+    },
+    "FBX-APEX-SPLIT": {
+      "price_cents": 364900,
+      "handle": "cirui-apex-split-spoke-forged-wheel",
+      "title": "CIRUI Apex Split-Spoke Forged Wheel"
+    },
+    "FBX-HALO-20S": {
+      "price_cents": 377800,
+      "handle": "cirui-halo-20-spoke-deep-lip-forged-wheel",
+      "title": "CIRUI Halo 20-Spoke Deep-Lip Forged Wheel"
+    },
+    "FBX-MERIDIAN-MS": {
+      "price_cents": 464900,
+      "handle": "cirui-meridian-multi-spoke-forged-wheel",
+      "title": "CIRUI Meridian Multi-Spoke Forged Wheel"
+    },
+    "FBX-RSE": {
+      "price_cents": 377800,
+      "handle": "cirui-rse-performance-forged-wheel",
+      "title": "CIRUI RSE Performance Forged Wheel"
+    },
+    "FBX-SV100": {
+      "price_cents": 399900,
+      "handle": "cirui-sv100-2-piece-forged-wheel",
+      "title": "CIRUI SV100 2-Piece Forged Wheel"
+    },
+    "FBX-VANTA-10": {
+      "price_cents": 429900,
+      "handle": "cirui-vanta-10-spoke-forged-wheel",
+      "title": "CIRUI Vanta 10-Spoke Forged Wheel"
+    }
+  }
+}

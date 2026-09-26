@@ -59,7 +59,7 @@ for (const locale of locales) {
   }));
   checks.push({ field: 'detailTitle', expected: 'CIRUI CR-01 Axis Split-5 Forged Wheel', actual: detailTitle, pass: detailTitle === 'CIRUI CR-01 Axis Split-5 Forged Wheel' });
   checks.push({ field: 'visualizerTitle', expected: detailTitle, actual: visualizerTitle, pass: visualizerTitle.includes(detailTitle) });
-  checks.push({ field: 'starting price', expected: '300', actual: snapshot.price, pass: snapshot.price.includes('300') });
+  checks.push({ field: 'starting price', expected: '649', actual: snapshot.price, pass: snapshot.price.includes('649') });
   if (locale !== 'en') {
     checks.push({ field: 'localized category', expected: 'not Forged wheels', actual: snapshot.category, pass: snapshot.category !== 'Forged wheels' });
   }
