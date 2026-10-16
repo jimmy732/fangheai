@@ -1763,7 +1763,7 @@ body.fbox-global-premium .whatsapp-fab {
   }
 
   body.fbox-global-premium .premium-evidence-grid .cerui-customer-build-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   body.fbox-global-premium .premium-process-grid {

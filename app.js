@@ -328,6 +328,27 @@ Object.entries(customerBuildTranslations).forEach(([locale, values]) => {
   Object.assign(localeDictionaries[locale], Object.fromEntries(customerBuildTranslationKeys.map((key, index) => [key, values[index] || key])));
 });
 
+Object.assign(localeDictionaries['zh-CN'], {
+  'View all {count} reviews': '查看全部 {count} 条评价',
+  'Show fewer reviews': '收起评价',
+  'Customer photos': '客户实拍',
+  '{count} photos': '{count} 张图片',
+  'Customer photo {number}': '客户实拍 {number}',
+  '{count} photo reviews': '{count} 组图文评价',
+  'View all {count} photo reviews': '查看全部 {count} 组图文评价',
+  'Show fewer photo reviews': '收起图文评价'
+});
+Object.assign(localeDictionaries['zh-TW'], {
+  'View all {count} reviews': '查看全部 {count} 則評價',
+  'Show fewer reviews': '收起評價',
+  'Customer photos': '客戶實拍',
+  '{count} photos': '{count} 張圖片',
+  'Customer photo {number}': '客戶實拍 {number}',
+  '{count} photo reviews': '{count} 組圖文評價',
+  'View all {count} photo reviews': '查看全部 {count} 組圖文評價',
+  'Show fewer photo reviews': '收起圖文評價'
+});
+
 const siteChromeTranslationKeys = [
   'CIRUI source factory',
   'DDP delivery available',
@@ -3073,6 +3094,7 @@ const state = {
   productImage: {},
   productBriefs: readLocalJson('cirui-product-briefs', {}),
   reviewLimit: 3,
+  homeReviewsExpanded: false,
   homeBuildsExpanded: false,
   checkoutStep: 1,
   locale: initialLocale(),
@@ -3860,7 +3882,7 @@ async function loadCasesContent() {
 
 async function loadPhotoReviewsContent() {
   try {
-    const photoReviewResponse = await fetch('/api/fbox-content/photo-reviews?limit=20', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10000) });
+    const photoReviewResponse = await fetch('/api/fbox-content/photo-reviews?limit=200', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10000) });
     const photoReviewPayload = await photoReviewResponse.json().catch(() => ({}));
     if (!photoReviewResponse.ok) throw new Error('Photo reviews unavailable');
     fboxPhotoReviews = Array.isArray(photoReviewPayload.data) ? photoReviewPayload.data : [];
@@ -5892,9 +5914,11 @@ function customWheelHomePage() {
 
 function homeReviewSection() {
   const stats = reviewStats(reviews);
-  const records = reviews.slice(0, 2);
+  const expanded = Boolean(state.homeReviewsExpanded);
+  const records = expanded ? reviews : reviews.slice(0, 3);
+  const toggle = reviews.length > 3 ? `<button type="button" class="btn btn-outline" data-action="toggle-home-reviews" aria-expanded="${expanded}">${expanded ? uiLabel('Show fewer reviews') : formatUiLabel('View all {count} reviews', { count: reviews.length })}</button>` : '';
   if (!records.length) return `<section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">Customer feedback</p><h2>Reviews are coming soon.</h2></div><p>See what drivers say after their wheels are on the car.</p></div><div class="case-empty"><strong>No customer reviews yet.</strong><span>Share your fitment experience with other drivers.</span></div></div></section>`;
-  return `<section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">Verified customer feedback</p><h2>Built by people who drive them.</h2></div><p>Real feedback from drivers building daily cars, weekend projects and track setups.</p></div><div class="reviews-layout"><div class="review-score"><strong>${stats.rating.toFixed(1)}</strong>${stars(stats.rating)}<p>${formatUiLabel('{count} customer reviews', { count: stats.total })}</p><div class="review-bars">${reviewBars(stats)}</div></div><div class="review-list">${records.map((review, index) => renderReview(review, index)).join('')}</div></div></div></section>`;
+  return `<section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">Customer feedback</p><h2>Built by people who drive them.</h2></div><p>Real feedback from drivers building daily cars, weekend projects and track setups.</p></div><div class="reviews-layout"><div class="review-score"><strong>${stats.rating.toFixed(1)}</strong>${stars(stats.rating)}<p>${formatUiLabel('{count} customer reviews', { count: stats.total })}</p><div class="review-bars">${reviewBars(stats)}</div></div><div class="review-list">${records.map((review, index) => renderReview(review, index)).join('')}${toggle}</div></div></div></section>`;
 }
 
 function sourcePhotoReviewCard(review, index = 0) {
@@ -5910,19 +5934,21 @@ function sourcePhotoReviewCard(review, index = 0) {
 
 function homeCustomerBuildCard(review, index = 0) {
   const photo = assetUrl(review.image_url || '');
-  const countryCode = String(review.country_code || review.country || 'INT').slice(0, 3).toUpperCase();
+  const images = Array.isArray(review.image_urls) && review.image_urls.length ? review.image_urls : [review.image_url].filter(Boolean);
+  const countryCode = String(review.country_code || '').slice(0, 3).toUpperCase();
   const dateLabel = reviewDateLabel(review.created_at) || review.date_label || uiLabel('Customer build');
   const productName = ciruiPublicBrandText(review.product_name || 'Custom forged wheel');
-  const country = localizedCountryName(review.country_code, review.country || uiLabel('International customer'));
-  return `<a class="cerui-customer-build-card reveal delay-${index % 4}" href="${esc(photo)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(uiLabel('Open customer build photo'))}: ${esc(productName)}"><figure><img src="${esc(photo)}" alt="${esc(productName)} · ${esc(uiLabel('fitted to a customer vehicle'))}" loading="lazy" decoding="async"><span>${esc(countryCode)}</span><b>${icons.eye}</b></figure><div><small>${uiLabel('Verified customer build')}</small><strong>${esc(productName)}</strong><span>${esc(country)} · ${esc(dateLabel)}</span></div></a>`;
+  const country = localizedCountryName(review.country_code, review.country || '');
+  const thumbnails = images.map((url, i) => `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(productName)} · ${esc(formatUiLabel('Customer photo {number}', { number: i + 1 }))}"><img src="${esc(assetUrl(url))}" alt="${esc(formatUiLabel('Customer photo {number}', { number: i + 1 }))}" loading="lazy" decoding="async" data-gallery-image></a>`).join('');
+  return `<article class="cerui-customer-build-card reveal delay-${index % 4}" data-photo-review-id="${esc(review.id)}"><a class="cerui-customer-build-cover" href="${esc(review.image_url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(uiLabel('Open customer build photo'))}: ${esc(productName)}"><figure><img src="${esc(photo)}" alt="${esc(productName)}" loading="lazy" decoding="async">${countryCode ? `<span>${esc(countryCode)}</span>` : ''}<b>${icons.eye}</b></figure></a><div><small>${uiLabel('Customer photos')} · ${formatUiLabel('{count} photos', { count: images.length })}</small><strong>${esc(productName)}</strong><span>${esc([country, dateLabel].filter(Boolean).join(' · '))}</span><p class="cerui-photo-review-copy">${esc(review.body || '')}</p><div class="cerui-build-thumbnails">${thumbnails}</div></div></article>`;
 }
 
 function homePhotoReviewGallery() {
-  const records = fboxPhotoReviews.slice(0, 20);
+  const records = fboxPhotoReviews;
   if (!records.length) return `<section class="section cerui-customer-builds" id="gallery"><div class="container"><div class="cerui-section-head"><div><p class="cerui-overline"><span></span>${uiLabel('CUSTOMER CARS')}</p><h2>${uiLabel('Customer builds')}<br><em>${uiLabel('are coming soon.')}</em></h2></div><p>${uiLabel('Customer-submitted fitment photos will appear here after approval.')}</p></div></div></section>`;
   const expanded = Boolean(state.homeBuildsExpanded);
-  const buttonLabel = expanded ? uiLabel('Show fewer customer cars') : formatUiLabel('View all {count} customer cars', { count: records.length });
-  return `<section class="section cerui-customer-builds ${expanded ? 'is-expanded' : ''}" id="gallery" data-customer-build-gallery><div class="container"><div class="cerui-section-head"><div><p class="cerui-overline"><span></span>${uiLabel('CUSTOMER CARS')}</p><h2>${uiLabel('See CIRUI wheels')}<br><em>${uiLabel('after fitment.')}</em></h2></div><p>${uiLabel('Explore approved owner photos to compare stance, finish, spoke depth and real-world presence. Start with a quick preview, then open the full gallery.')}</p></div><div class="cerui-customer-build-grid">${records.map(homeCustomerBuildCard).join('')}</div><div class="cerui-customer-build-toggle"><span><strong>${formatUiLabel('{count} approved builds', { count: records.length })}</strong><small>${uiLabel('Open any image for a closer look.')}</small></span><button type="button" class="btn btn-light" data-action="toggle-customer-builds" aria-expanded="${expanded}"><span>${buttonLabel}</span>${icons.chevron}</button></div></div></section>`;
+  const buttonLabel = expanded ? uiLabel('Show fewer photo reviews') : formatUiLabel('View all {count} photo reviews', { count: records.length });
+  return `<section class="section cerui-customer-builds ${expanded ? 'is-expanded' : ''}" id="gallery" data-customer-build-gallery><div class="container"><div class="cerui-section-head"><div><p class="cerui-overline"><span></span>${uiLabel('CUSTOMER CARS')}</p><h2>${uiLabel('See CIRUI wheels')}<br><em>${uiLabel('after fitment.')}</em></h2></div><p>${uiLabel('Explore approved owner photos to compare stance, finish, spoke depth and real-world presence. Start with a quick preview, then open the full gallery.')}</p></div><div class="cerui-customer-build-grid">${records.map(homeCustomerBuildCard).join('')}</div><div class="cerui-customer-build-toggle"><span><strong>${formatUiLabel('{count} photo reviews', { count: records.length })}</strong><small>${uiLabel('Open any image for a closer look.')}</small></span><button type="button" class="btn btn-light" data-action="toggle-customer-builds" aria-expanded="${expanded}"><span>${buttonLabel}</span>${icons.chevron}</button></div></div></section>`;
 }
 
 function iconForCategory(type) {
@@ -6383,9 +6409,11 @@ function renderReview(review, index = 0) {
     review.vehicle ? '<span>' + esc(review.vehicle) + '</span>' : ''
   ].filter(Boolean).join('');
   const photoCount = Number(review.review_images_count || 0);
+  const images = Array.isArray(review.image_urls) ? review.image_urls : [];
+  const photos = images.length ? '<div class="review-images">' + images.map((url, i) => '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" aria-label="' + esc(formatUiLabel('Customer photo {number}', { number: i + 1 })) + '"><img src="' + esc(assetUrl(url)) + '" alt="' + esc(formatUiLabel('Customer photo {number}', { number: i + 1 })) + '" loading="lazy" decoding="async"></a>').join('') + '</div>' : '';
   const photoBadge = photoCount > 0 ? '<span class="review-photo-badge">' + esc(formatUiLabel(photoCount === 1 ? '{count} photo shared' : '{count} photos shared', { count: photoCount })) + '</span>' : '';
   const reply = review.admin_reply ? '<div class="review-reply"><strong>' + esc(uiLabel('Seller response')) + '</strong><p>' + esc(review.admin_reply) + '</p></div>' : '';
-  return '<article class="review-item" style="animation-delay:' + String(index * 80) + 'ms"><div class="review-head"><div><strong>' + esc(review.title) + '</strong><div>' + stars(Number(review.rating || 0)) + photoBadge + '</div></div><small>' + esc(reviewDateLabel(review.created_at)) + '</small></div><p>' + esc(review.body) + '</p>' + reply + '<div class="review-meta">' + meta + '</div></article>';
+  return '<article class="review-item" data-review-id="' + esc(review.id) + '" style="animation-delay:' + String(Math.min(index, 5) * 80) + 'ms"><div class="review-head"><div><strong>' + esc(review.title) + '</strong><div>' + stars(Number(review.rating || 0)) + photoBadge + '</div></div><small>' + esc(reviewDateLabel(review.created_at)) + '</small></div><p>' + esc(review.body) + '</p>' + photos + reply + '<div class="review-meta">' + meta + '</div></article>';
 }
 function renderProductReviewSection(item) {
   const productReviews = reviewsForProduct(item);
@@ -9268,6 +9296,7 @@ document.addEventListener('click', async event => {
   if (action === 'qty') { const item = state.cart.find(x => x.id === target.dataset.id); if (item) { const productItem = product(item.id); item.qty = Math.max(productMinimumQuantity(productItem), item.qty + Number(target.dataset.delta)); } state.cart = state.cart.filter(x => x.qty > 0); persist(); render(); return; }
   if (action === 'apply-coupon') { setToast(state.mallToken ? '优惠码将在 CIRUI 结算规则中校验；当前订单按商品美元售价创建。' : '请先登录 CIRUI 账户，再选择可用优惠。'); return; }
   if (action === 'checkout') { if (!cartCount()) { setToast(uiLabel('Your RFQ list is empty.')); return; } state.rfq = { ...state.rfq, status: 'idle', id: '', error: '', focusProductId: '' }; state.modal = { type: 'rfq' }; render(); return; }
+  if (action === 'toggle-home-reviews') { state.homeReviewsExpanded = !state.homeReviewsExpanded; render(); window.setTimeout(() => document.getElementById('resources')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30); return; }
   if (action === 'toggle-customer-builds') { state.homeBuildsExpanded = !state.homeBuildsExpanded; render(); window.setTimeout(() => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30); return; }
   if (action === 'load-reviews') { state.reviewLimit = reviews.length; render(); return; }
   if (action === 'write-review') { state.modal = { type: 'review', id: state.route.name === 'product' ? state.route.id : '' }; render(); return; }

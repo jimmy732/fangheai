@@ -314,6 +314,11 @@ paypal-cart-button { display: block; min-height: 46px; width: 100%; }
 .review-meta .review-country { color: var(--lavender); }
 .review-source, .review-photo-badge { display: inline-block; margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); font-size: 9px; color: var(--muted); vertical-align: middle; }
 .review-photo-badge { color: var(--lavender); }
+.review-images { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.review-images a { display: block; width: 104px; height: 88px; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; }
+.review-images img { width: 100%; height: 100%; object-fit: cover; transition: transform .2s ease; }
+.review-images a:hover img { transform: scale(1.05); }
+.review-images a:focus-visible { outline: 2px solid var(--lavender); outline-offset: 3px; }
 .review-rating-input { display: flex; gap: 4px; margin-bottom: 10px; }
 .review-rating-input .rating-star { background: none; border: 0; font-size: 22px; color: var(--muted); cursor: pointer; padding: 0 2px; transition: color 120ms ease, transform 120ms ease; }
 .review-rating-input .rating-star.is-active { color: #f5b942; }
@@ -2803,6 +2808,12 @@ html[lang^="zh"] .cerui-factory-copy-overview h2 em { word-break: keep-all; text
 .cerui-customer-build-card small { color: #ff6386; font-size: 8px; font-weight: 850; letter-spacing: .11em; text-transform: uppercase; }
 .cerui-customer-build-card strong { overflow: hidden; font-family: 'Barlow Condensed',sans-serif; font-size: 23px; line-height: 1.02; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
 .cerui-customer-build-card > div > span { color: rgba(255,255,255,.5); font-size: 9px; line-height: 1.4; }
+.cerui-customer-build-cover { display: block; }
+.cerui-customer-build-card .cerui-photo-review-copy { display: -webkit-box; overflow: hidden; margin: 4px 0; color: rgba(255,255,255,.72); font-size: 12px; line-height: 1.6; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.cerui-build-thumbnails { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 5px; margin-top: 8px; }
+.cerui-build-thumbnails a { display: block; aspect-ratio: 1; overflow: hidden; border: 1px solid rgba(255,255,255,.18); }
+.cerui-build-thumbnails img { width: 100%; height: 100%; object-fit: cover; }
+.cerui-build-thumbnails a:focus-visible { outline: 2px solid #ff6386; outline-offset: 2px; }
 .cerui-customer-builds:not(.is-expanded) .cerui-customer-build-card:nth-child(n+5) { display: none; }
 .cerui-customer-build-toggle { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 22px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.12); }
 .cerui-customer-build-toggle > span { display: grid; gap: 4px; }

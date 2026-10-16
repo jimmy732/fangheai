@@ -3491,6 +3491,9 @@ function normalizeReview(payload = {}, id = operationId('review'), existing = {}
     source_platform: textValue(hasOwn(payload, 'source_platform') ? payload.source_platform : existing.source_platform, 80),
     source_url: textValue(hasOwn(payload, 'source_url') ? payload.source_url : existing.source_url, 400),
     review_images_count: Math.max(0, Math.min(12, Number(hasOwn(payload, 'review_images_count') ? payload.review_images_count : existing.review_images_count) || 0)),
+    image_urls: [...new Set((Array.isArray(payload.image_urls) ? payload.image_urls : (existing.image_urls || []))
+      .map(value => textValue(value, 1000))
+      .filter(value => /^(?:https:\/\/|\/assets\/|\/api\/fbox-assets\/)/i.test(value)))].slice(0, 12),
     customer_name: textValue(payload.customer_name || payload.name || existing.customer_name, 80),
     customer_email: textValue(
       hasOwn(payload, 'customer_email')
@@ -5923,7 +5926,7 @@ export async function handleFBoxOperationsApi(req, res, url) {
     }
     if (req.method === 'GET' && pathName === '/api/fbox-content/photo-reviews') {
       const data = await loadOperations();
-      const limit = Math.min(20, Math.max(1, Number(url.searchParams.get('limit') || 20)));
+      const limit = Math.min(200, Math.max(1, Number(url.searchParams.get('limit') || 20)));
       const records = data.photo_reviews
         .filter(item => item.status === 'published')
         .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')))
