@@ -4,6 +4,7 @@ import path from 'node:path';
 import { createBrotliCompress, createGzip, constants as zlibConstants } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { getPublicWorkshopProjectForSeo, handleFBoxAdminApi, handleFBoxAssetApi, handleFBoxAuthApi, handleFBoxOperationsApi, handleFBoxStoreApi, handleWheelDesignApi, handleWheelVisualizerApi } from './fbox-visualizer-backend.mjs';
+import { handleShopifyCatalogApi } from './shopify-catalog-backend.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.FBOX_PORT || process.env.PORT || 4174);
@@ -247,6 +248,7 @@ const server = http.createServer(async (req, res) => {
     res.end();
     return;
   }
+  if (url.pathname.startsWith('/api/shopify/')) return handleShopifyCatalogApi(req, res, url);
   if (url.pathname === '/api/admin' || url.pathname.startsWith('/api/admin/') || url.pathname === '/api/fbox-auth' || url.pathname.startsWith('/api/fbox-auth/')) return handleFBoxAuthApi(req, res, url);
   if (url.pathname === '/api/fbox-store' || url.pathname.startsWith('/api/fbox-store/')) return handleFBoxStoreApi(req, res, url);
   if (url.pathname === '/api/fbox-assets' || url.pathname.startsWith('/api/fbox-assets/')) return handleFBoxAssetApi(req, res, url);

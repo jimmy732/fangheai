@@ -1,3 +1,5 @@
+import { createShopifyCatalogUI } from './shopify-catalog-ui.js?v=20261027-shopify-catalog-v2';
+
 const ASSET = '/assets/';
 const runtimeConfig = globalThis.__FBOX_RUNTIME__ || {};
 const staticAssetFallbacks = new Map();
@@ -3161,6 +3163,8 @@ if (state.workshop.referral?.expires_at && Number(state.workshop.referral.expire
   localStorage.removeItem('fbox-workshop-referral');
 }
 
+const shopifyCatalogUI = createShopifyCatalogUI({ onChange: () => render(), getSearch: () => state.search });
+
 function getRoute() {
   // Dedicated application paths take precedence over stale hashes. Without
   // this, /fitment-lab#home rendered the homepage while the URL still claimed
@@ -3178,6 +3182,13 @@ function getRoute() {
   const rawHash = location.hash.replace(/^#/, '');
   const raw = rawHash || 'home';
   const [path] = raw.split('?');
+  if (path === 'collections') return { name: 'collections' };
+  if (path === 'rfq-catalog') return { name: 'rfq-catalog' };
+  if (path.startsWith('collection/') || path.startsWith('shopify-product/')) {
+    const name = path.startsWith('collection/') ? 'collection' : 'shopify-product';
+    try { return { name, handle: decodeURIComponent(path.slice(name.length + 1)) }; }
+    catch { return { name, handle: '' }; }
+  }
   if (path.startsWith('product/')) return { name: 'product', id: path.split('/')[1] };
   if (path.startsWith('blog/')) return { name: 'blog-post', slug: decodeURIComponent(path.slice('blog/'.length)) };
   if (path.startsWith('fitment-share/')) return { name: 'fitment-share', token: decodeURIComponent(path.slice('fitment-share/'.length)) };
@@ -5615,7 +5626,7 @@ function localeControlMarkup(className = 'locale-control') {
 }
 
 function header() {
-  const active = state.route.name === 'store' ? 'SHOP' : state.route.name === 'about' ? 'ABOUT' : state.route.name === 'custom' ? 'CUSTOM' : state.route.name === 'ai-wheel-design' ? 'AI-DESIGN' : state.route.name === 'trade' ? 'TRADE' : ['blog', 'blog-post'].includes(state.route.name) ? 'JOURNAL' : ['fitment', 'fitment-result', 'fitment-share'].includes(state.route.name) ? 'FITMENT' : state.route.name === 'account' ? 'ACCOUNT' : '';
+  const active = ['store', 'collections', 'collection', 'shopify-product', 'rfq-catalog'].includes(state.route.name) ? 'SHOP' : state.route.name === 'about' ? 'ABOUT' : state.route.name === 'custom' ? 'CUSTOM' : state.route.name === 'ai-wheel-design' ? 'AI-DESIGN' : state.route.name === 'trade' ? 'TRADE' : ['blog', 'blog-post'].includes(state.route.name) ? 'JOURNAL' : ['fitment', 'fitment-result', 'fitment-share'].includes(state.route.name) ? 'FITMENT' : state.route.name === 'account' ? 'ACCOUNT' : '';
   const attribution = partnerAttributionBar();
   return `<div class="global-header-stack${attribution ? ' has-partner-attribution' : ''}"><div class="announcement">${uiLabel('Track-led custom forged wheels')} · <span>${uiLabel('Hangzhou HQ · Shandong manufacturing')}</span> · ${uiLabel('Street and track projects')}</div>${attribution}
   <header class="site-header">
@@ -5632,8 +5643,10 @@ function header() {
     <div class="nav-row ${state.mobileNav ? 'is-open' : ''}" id="primary-navigation">
       <div class="container nav-inner">
         <nav class="nav-links" aria-label="${esc(uiLabel('Navigation'))}">
+          <a class="nav-link ${state.route.name === 'store' ? 'is-active' : ''}" href="#store">${uiLabel('All wheels')}</a>
+          <a class="nav-link ${['collections', 'collection'].includes(state.route.name) ? 'is-active' : ''}" href="#collections">${uiLabel('Collections')}</a>
           <div class="nav-shop">
-            <button class="nav-link nav-shop-toggle ${active === 'SHOP' ? 'is-active' : ''}" data-action="mega" aria-expanded="${state.menuOpen}" aria-controls="shop-catalog-menu"><span>${uiLabel('Forged wheels')}</span><span class="nav-shop-toggle-visual" aria-hidden="true"><span class="nav-shop-mobile-symbol">${state.menuOpen ? '−' : '+'}</span><span class="nav-shop-desktop-chevron">${icons.chevron}</span></span></button>
+            <button class="nav-link nav-shop-toggle ${state.route.name === 'rfq-catalog' ? 'is-active' : ''}" data-action="mega" aria-expanded="${state.menuOpen}" aria-controls="shop-catalog-menu"><span>${uiLabel('Custom / RFQ')}</span><span class="nav-shop-toggle-visual" aria-hidden="true"><span class="nav-shop-mobile-symbol">${state.menuOpen ? '−' : '+'}</span><span class="nav-shop-desktop-chevron">${icons.chevron}</span></span></button>
             ${state.menuOpen ? megaMenu() : ''}
           </div>
           <a class="nav-link" href="#home#track-builds">${uiLabel('Track builds')}</a>
@@ -5746,9 +5759,6 @@ function premiumGlobalHomePage() {
     ['cerui-factory-machining-v1.webp', 'Made to your numbers', 'Design · forge · machine · finish'],
     ['cerui-factory-finished-v1.webp', 'Preview before production', 'Real production, machining and finished inventory.']
   ];
-  const featuredWheels = products
-    .filter(item => item.category === 'Wheels' && !String(item.id).startsWith('cerui-'))
-    .slice(0, 4);
   return `<main class="cerui-home premium-global-home">
     <section class="premium-hero" id="home" aria-labelledby="premium-hero-title">
       <video class="premium-hero-video" autoplay muted loop playsinline preload="auto" poster="${assetUrl('domestic/videos/cerui-global-hero-hd-montage-poster.webp')}" aria-hidden="true">
@@ -5809,15 +5819,7 @@ function premiumGlobalHomePage() {
       </div>
     </section>
 
-    <section class="premium-products section" id="vehicles">
-      <div class="container">
-        <div class="premium-section-head">
-          <div><p class="premium-kicker"><span></span>${uiLabel('Custom forged design')}</p><h2>${uiLabel('Made to your numbers')}<br><em>${uiLabel('Preview before production')}</em></h2></div>
-          <div><p>${uiLabel('Diameter, width, PCD, ET, CB and brake clearance.')}</p><a class="btn btn-dark" href="#store" data-category-link="Wheels">${uiLabel('All wheel directions')}</a></div>
-        </div>
-        <div class="product-grid premium-product-grid">${featuredWheels.map(renderProductCard).join('')}</div>
-      </div>
-    </section>
+    ${shopifyCatalogUI.homeMarkup()}
 
     <section class="premium-engineering section" id="engineering">
       <div class="container premium-engineering-grid">
@@ -5832,10 +5834,8 @@ function premiumGlobalHomePage() {
       </div>
     </section>
 
-    <div class="premium-evidence-grid">
-      <section class="section" id="resources"><div class="container"><div class="section-heading"><div><p class="eyebrow">${uiLabel('Customer feedback')}</p><h2>${uiLabel('Product reviews')}</h2></div><p>${uiLabel('See it on your car before production')}</p></div></div></section>
-      <section class="section" id="gallery"><div class="container"><div class="section-heading"><div><p class="eyebrow">${uiLabel('Customer feedback')}</p><h2>${uiLabel('Preview before production')}</h2></div></div></div></section>
-    </div>
+    ${shopifyCatalogUI.homeReviewsMarkup()}
+    ${shopifyCatalogUI.homePhotoMarkup()}
 
     <section class="premium-delivery section" id="delivery">
       <div class="container">
@@ -6584,11 +6584,9 @@ function ensureExternalScript(id, src, attributes = {}) {
   Object.entries(attributes).forEach(([name, value]) => script.setAttribute(name, value));
   document.head.append(script);
 }
-function paypalHostedButtonMarkup(item) {
-  if (item?.id !== paypalHostedButtonConfig.productId) return '';
-  const containerId = `paypal-container-${paypalHostedButtonConfig.buttonId}`;
-  const label = key => uiLabel(key, key);
-  return `<section class="paypal-hosted-panel" aria-labelledby="paypal-hosted-title"><div class="paypal-hosted-copy"><p class="eyebrow">${label('PayPal checkout')}</p><h2 id="paypal-hosted-title">${label('Pay securely with PayPal.')}</h2><p>${label('The PayPal button below uses the product and amount configured in your PayPal account.')}</p></div><div class="paypal-hosted-container" id="${containerId}" data-paypal-hosted-container></div><p class="paypal-hosted-note">${label('Custom diameter, width, PCD, ET, center bore and brake clearance are confirmed separately before production.')}</p></section>`;
+function paypalHostedButtonMarkup() {
+  // Public purchases use the selected Shopify variant and Shopify checkout.
+  return '';
 }
 function wirePayPalHostedButton() {
   const container = document.querySelector('[data-paypal-hosted-container]');
@@ -6618,10 +6616,9 @@ function wirePayPalHostedButton() {
   };
   mount();
 }
-function paypalCartButtonMarkup(item) {
-  if (item?.id !== paypalCartButtonConfig.productId) return '';
-  const label = key => uiLabel(key, key);
-  return `<section class="paypal-cart-panel" aria-labelledby="paypal-cart-title"><div class="paypal-hosted-copy"><p class="eyebrow">PayPal cart</p><h2 id="paypal-cart-title">${label('View your PayPal cart')}</h2><p>${label('Review this build in your PayPal cart.')}</p></div><div class="paypal-cart-button-wrap"><paypal-cart-button data-id="${paypalCartButtonConfig.buttonId}" data-paypal-cart-button></paypal-cart-button><p class="paypal-cart-fallback" data-paypal-cart-fallback hidden>${label('PayPal cart is temporarily unavailable. Please use the CIRUI quote or WhatsApp for this build.')}</p></div><p class="paypal-hosted-note">${label('The PayPal cart keeps the four-wheel minimum order. Final custom fitment is confirmed before production.')}</p></section>`;
+function paypalCartButtonMarkup() {
+  // Public purchases use the selected Shopify variant and Shopify checkout.
+  return '';
 }
 function wirePayPalCartButton() {
   const button = document.querySelector('[data-paypal-cart-button]');
@@ -7895,6 +7892,7 @@ function syncRouteDocumentTitle() {
     return;
   }
   if (state.route.name === 'store') { document.title = uiLabel('CIRUI Performance Parts'); return; }
+  if (state.route.name === 'rfq-catalog') { document.title = 'Custom Quotation Catalog | CIRUI Forged'; return; }
   if (state.route.name === 'cart') { document.title = uiLabel('CIRUI Request for Quotation'); return; }
   if (state.route.name === 'custom') { document.title = uiLabel('CIRUI Wheel Customization | Finishes, Caps and Hardware'); return; }
   if (state.route.name === 'trade') { document.title = uiLabel('CIRUI Trade & DDP | Europe and North America'); return; }
@@ -7913,10 +7911,8 @@ function render() {
     history.replaceState({}, '', `${location.pathname}${location.search}`);
   }
   syncRouteDocumentTitle();
-  const page = state.route.name === 'home' ? premiumGlobalHomePage() : state.route.name === 'about' ? ceruiAboutPage() : state.route.name === 'custom' ? customizationPage() : state.route.name === 'ai-wheel-design' ? aiWheelDesignPage() : state.route.name === 'trade' ? tradePage() : state.route.name === 'fitment' ? fitmentPage() : state.route.name === 'fitment-result' ? fitmentResultPage() : state.route.name === 'fitment-share' ? fitmentSharePage() : state.route.name === 'account' ? accountPage() : state.route.name === 'store' ? storePage() : state.route.name === 'cart' ? cartPage() : state.route.name === 'blog' ? blogPage() : state.route.name === 'blog-post' ? blogArticlePage(state.blogPosts.find(post => post.slug === state.route.slug)) : productPage(product(state.route.id));
-  const pageWithReviews = state.route.name === 'home' ? page.replace(/<section class="section" id="resources">[\s\S]*?<\/section>/, homeReviewSection()) : page;
-  const pageWithPhotoReviews = state.route.name === 'home' ? pageWithReviews.replace(/<section class="section" id="gallery">[\s\S]*?<\/section>/, homePhotoReviewGallery()) : pageWithReviews;
-  const pageWithJournal = pageWithPhotoReviews;
+  const page = shopifyCatalogUI.handles(state.route) ? shopifyCatalogUI.render(state.route) : state.route.name === 'home' ? premiumGlobalHomePage() : state.route.name === 'about' ? ceruiAboutPage() : state.route.name === 'custom' ? customizationPage() : state.route.name === 'ai-wheel-design' ? aiWheelDesignPage() : state.route.name === 'trade' ? tradePage() : state.route.name === 'fitment' ? fitmentPage() : state.route.name === 'fitment-result' ? fitmentResultPage() : state.route.name === 'fitment-share' ? fitmentSharePage() : state.route.name === 'account' ? accountPage() : state.route.name === 'rfq-catalog' ? storePage() : state.route.name === 'cart' ? cartPage() : state.route.name === 'blog' ? blogPage() : state.route.name === 'blog-post' ? blogArticlePage(state.blogPosts.find(post => post.slug === state.route.slug)) : productPage(product(state.route.id));
+  const pageWithJournal = page;
   const appRoot = document.querySelector('#app');
   const existingHostedContainer = appRoot.querySelector('[data-paypal-hosted-container]');
   const existingHeroVideo = appRoot.querySelector('.premium-hero-video');
@@ -7941,8 +7937,7 @@ function render() {
   wireWheelVisualizerEntry();
   wireWheelInquiryDetails();
   wireHomeVisualizerBanner();
-  wirePayPalHostedButton();
-  wirePayPalCartButton();
+  if (shopifyCatalogUI.handles(state.route) || state.route.name === 'home') appRoot.querySelectorAll('[data-shopify-root]').forEach(root => shopifyCatalogUI.mount(root, state.route));
   wireHomeWheelCarousel();
   // Capture the original English DOM for fallback translation first, then
   // synchronously apply the reviewed glossary while network work continues.
@@ -8789,8 +8784,8 @@ document.addEventListener('click', async event => {
   const routeAnchor = event.target.closest('a[href^="#"]:not([data-action]):not([data-category-link])');
   if (routeAnchor) {
     const href = routeAnchor.getAttribute('href') || '';
-    const isApplicationRoute = /^#(?:home|about|account|blog|cart|custom|fitment|store|trade)$/.test(href)
-      || /^#(?:product|blog)\//.test(href);
+    const isApplicationRoute = /^#(?:home|about|account|blog|cart|custom|fitment|store|trade|collections|rfq-catalog)(?:\?[^#]*)?$/.test(href)
+      || /^#(?:product|blog|collection|shopify-product)\//.test(href);
     if (isApplicationRoute) {
       event.preventDefault();
       go(href);
@@ -8811,9 +8806,19 @@ document.addEventListener('click', async event => {
     trackEvent('click', { path: location.pathname + location.hash, title: action, meta: { action, product_id: target.dataset.id || '' } });
   }
   if (target.dataset.categoryLink !== undefined) { setCatalogCollection('all'); state.catalogNotice = ''; state.menuOpen = false; if (state.route.name === 'store') render(); else go('#store'); return; }
-  if (action === 'catalog-collection') { event.preventDefault(); setCatalogCollection(target.dataset.collection || 'all'); state.catalogNotice = ''; state.menuOpen = false; if (state.route.name === 'store') render(); else go('#store'); return; }
+  if (action === 'catalog-collection') {
+    event.preventDefault();
+    const collection = target.dataset.collection || 'all';
+    state.catalogNotice = ''; state.menuOpen = false;
+    if (state.route.name === 'rfq-catalog') { setCatalogCollection(collection); render(); }
+    else {
+      const routes = { all: '#store', stock: '#collection/ready-stock-wheels', monoblock: '#collection/forged-wheels', 'two-piece': '#collection/2-piece-forged-wheels', 'aero-floating': '#collection/floating-disc-aero-wheels', 'wheel-styles': '#collections' };
+      go(routes[collection] || '#collections');
+    }
+    return;
+  }
   if (action === 'catalog-stock-group') { event.preventDefault(); state.filters.stockGroup = target.dataset.stockGroup || 'all'; render(); return; }
-  if (action === 'catalog-visualizer') { event.preventDefault(); setCatalogCollection('all'); state.catalogNotice = 'visualizer'; state.menuOpen = false; if (state.route.name === 'store') render(); else go('#store'); return; }
+  if (action === 'catalog-visualizer') { event.preventDefault(); setCatalogCollection('all'); state.catalogNotice = 'visualizer'; state.menuOpen = false; if (state.route.name === 'rfq-catalog') render(); else go('#rfq-catalog'); return; }
   if (action === 'custom-section') {
     event.preventDefault();
     state.customSection = target.dataset.section || 'overview';
@@ -9410,12 +9415,12 @@ document.addEventListener('input', event => {
     }, 140);
     return;
   }
-  if (el.matches('[data-filter="ai"]') && state.route.name === 'store') {
+  if (el.matches('[data-filter="ai"]') && state.route.name === 'rfq-catalog') {
     state.search = el.value;
     window.clearTimeout(catalogSearchTimer);
     const caret = el.selectionStart;
     catalogSearchTimer = window.setTimeout(() => {
-      if (state.route.name !== 'store') return;
+      if (state.route.name !== 'rfq-catalog') return;
       render();
       const replacement = document.querySelector('[data-filter="ai"]');
       replacement?.focus({ preventScroll: true });
@@ -9683,7 +9688,7 @@ document.addEventListener('submit', async event => {
     await workshopSaveDealerQuote(form);
     return;
   }
-  if (form.dataset.form === 'search') { state.search = new FormData(form).get('query') || ''; go('#store'); }
+  if (form.dataset.form === 'search') { state.search = new FormData(form).get('query') || ''; shopifyCatalogUI.syncSearch(state.search); go('#store'); }
   if (form.dataset.form === 'site-chat') { await submitWebsiteChat(new FormData(form).get('message')); return; }
   if (form.dataset.form === 'wheel-inquiry') { await wheelVisualizerSubmitInquiry(Object.fromEntries(new FormData(form).entries())); return; }
   if (form.dataset.form === 'rfq') { await submitRfq(Object.fromEntries(new FormData(form).entries())); return; }
