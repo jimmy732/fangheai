@@ -23,11 +23,11 @@ const defaultChatModel = 'gpt-5.5';
 const defaultPayPalMode = 'sandbox';
 const publicImageServiceUnavailableMessage = 'The official image generation service is not configured or is temporarily unavailable. Please try again later or contact CIRUI support.';
 const defaultStorefrontSettings = {
-  company_name: 'Fanghe Overseas Intelligent Technology Co., Ltd.',
-  phone: '+86 14726178447',
+  company_name: '四川方盒出海智能科技有限公司',
+  phone: '+86 18581511993',
   whatsapp_number: '8614726178447',
   domain: 'forcarbox.cn',
-  support_email: '',
+  support_email: 'sales@forcarbox.cn',
   default_locale: 'en',
   language_auto_detect: true,
   preview_sponsored: true
@@ -4287,7 +4287,7 @@ function normalizeStorefrontSettings(payload = {}) {
     phone: String(payload.phone || defaultStorefrontSettings.phone).trim().slice(0, 40),
     whatsapp_number: String(payload.whatsapp_number || defaultStorefrontSettings.whatsapp_number).replace(/\D/g, '').slice(0, 15),
     domain: String(payload.domain || defaultStorefrontSettings.domain).trim().slice(0, 120),
-    support_email: String(payload.support_email || '').trim().slice(0, 160),
+    support_email: String(payload.support_email ?? defaultStorefrontSettings.support_email).trim().slice(0, 160),
     default_locale: String(payload.default_locale || defaultStorefrontSettings.default_locale).trim().slice(0, 16),
     language_auto_detect: payload.language_auto_detect === undefined ? defaultStorefrontSettings.language_auto_detect : Boolean(payload.language_auto_detect),
     preview_sponsored: payload.preview_sponsored === undefined ? defaultStorefrontSettings.preview_sponsored : Boolean(payload.preview_sponsored)
@@ -5448,6 +5448,7 @@ export async function handleFBoxOperationsApi(req, res, url) {
       return json(res, 200, { data: {
         company_name: storefront.company_name,
         phone: storefront.phone,
+        support_email: storefront.support_email || defaultStorefrontSettings.support_email,
         whatsapp_number: storefront.whatsapp_number || defaultStorefrontSettings.whatsapp_number,
         domain: storefront.domain,
         default_locale: storefront.default_locale,

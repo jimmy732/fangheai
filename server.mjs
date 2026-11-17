@@ -76,7 +76,7 @@ function serveStatic(req, res, pathname) {
     ? 'admin.html'
     : resolvedAdminDist
     ? (pathname === '/admin' || pathname === '/admin/' ? 'index.html' : pathname.slice('/admin/'.length))
-    : (pathname === '/' ? 'index.html' : pathname === '/admin' || pathname === '/admin/' ? 'admin.html' : pathname.replace(/^\/+/, ''));
+    : (pathname === '/' ? 'index.html' : ['/company', '/company/'].includes(pathname) ? 'company.html' : pathname === '/admin' || pathname === '/admin/' ? 'admin.html' : pathname.replace(/^\/+/, ''));
   let filePath = path.resolve(staticRoot, relative);
   if (resolvedAdminDist && (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory())) filePath = path.join(resolvedAdminDist, 'index.html');
   if (!filePath.startsWith(`${staticRoot}${path.sep}`) && filePath !== path.join(staticRoot, 'index.html')) return json(res, 403, { message: 'Forbidden' });
